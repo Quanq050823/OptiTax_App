@@ -1,0 +1,20 @@
+type RootStackParamList = {
+  HomeScreen: undefined;
+  AboutScreen: undefined;
+  Login: undefined;
+  Register: undefined;
+  NavigationBusiness: undefined;
+  NavigationAccountant: undefined;
+  BusinessRegistrationStepTwo: undefined;
+  ProfileBusiness: undefined;
+  LanguagesScreen: undefined;
+  InvoiceInputScreen: undefined;
+  InvoiceOutputScreen: undefined;
+  ReceiptVoucherScreen: undefined;
+  PaymentVoucherScreen: undefined;
+  SettingScreen: undefined;
+  ProductManager: undefined;
+  Layout: undefined;
+};
+type Props = NativeStackScreenProps<RootStackParamList>;
+type TabType = "home" | "invoice" | "about";
