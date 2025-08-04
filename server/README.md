@@ -8,7 +8,9 @@
 ---
 
 ## 📌 Giới thiệu
+
 Nền tảng hoạt động theo mô hình **hai chiều**:
+
 - **Hộ kinh doanh** tìm kiếm và thuê kế toán để hỗ trợ quản lý hóa đơn, kê khai thuế, ghi sổ kế toán.
 - **Kế toán viên** cung cấp dịch vụ và nhận thanh toán trực tiếp qua nền tảng.
 
@@ -17,6 +19,7 @@ Hệ thống đảm bảo **an toàn, tiện lợi** và **thu phí dịch vụ 
 ---
 
 ## 🎯 Mục tiêu
+
 - Xây dựng ứng dụng **Mobile (iOS/Android)** và **Web App**.
 - Đơn giản hóa quy trình quản lý hóa đơn, chứng từ cho hộ kinh doanh nhỏ lẻ.
 - Tạo kênh thu nhập cho kế toán viên thông qua dịch vụ kế toán theo đơn.
@@ -26,22 +29,23 @@ Hệ thống đảm bảo **an toàn, tiện lợi** và **thu phí dịch vụ 
 
 ## 👥 Vai trò người dùng
 
-| Vai trò        | Mô tả |
-|----------------|-------|
-| **Hộ kinh doanh (Client)** | Chủ hộ kinh doanh cá thể, cần quản lý hóa đơn, nộp thuế, ghi sổ kế toán. |
-| **Kế toán viên (Accountant)** | Cung cấp dịch vụ kế toán tự do, nhận đơn hàng và tạo thu nhập. |
+| Vai trò                       | Mô tả                                                                    |
+| ----------------------------- | ------------------------------------------------------------------------ |
+| **Hộ kinh doanh (Client)**    | Chủ hộ kinh doanh cá thể, cần quản lý hóa đơn, nộp thuế, ghi sổ kế toán. |
+| **Kế toán viên (Accountant)** | Cung cấp dịch vụ kế toán tự do, nhận đơn hàng và tạo thu nhập.           |
 
 ---
 
 ## ⚙️ Tính năng
 
 ### Dành cho **Hộ kinh doanh**
+
 - **Xác thực & quản lý tài khoản**
   - Đăng ký, đăng nhập, phân quyền
   - Quản lý hồ sơ cá nhân
 - **Quản lý sản phẩm, hàng hóa**
   - Quản lý danh mục sản phẩm
-- **Quản lý thu – chi** 
+- **Quản lý thu – chi**
   - Ghi nhận thu nhập
   - Ghi nhận chi phí
   - Xuất hóa đơn
@@ -55,7 +59,8 @@ Hệ thống đảm bảo **an toàn, tiện lợi** và **thu phí dịch vụ 
   - Nhắc lịch nộp thuế (sau MVP)
 
 ### Dành cho **Kế toán viên**
-- **Quản lý thu – chi** (*S1*)
+
+- **Quản lý thu – chi** (_S1_)
   - Ghi nhận thu nhập
   - Ghi nhận chi phí
   - Xuất hóa đơn
@@ -68,11 +73,12 @@ Hệ thống đảm bảo **an toàn, tiện lợi** và **thu phí dịch vụ 
 ---
 
 ## 🛠 Công nghệ sử dụng
-*(Dự kiến, sẽ cập nhật theo thực tế phát triển)*
+
+_(Dự kiến, sẽ cập nhật theo thực tế phát triển)_
 
 - **Frontend (Web)**: Next.js
-- **Mobile**: React Native 
-- **Backend**: Node.js (Express) 
+- **Mobile**: React Native
+- **Backend**: Node.js (Express)
 - **Cơ sở dữ liệu**: MongoDB, Firestorage
 - **Triển khai**: CI/CD với GitHub Actions, Render
 - **Thanh toán**: Tích hợp cổng thanh toán (VNPay, Momo,...)
@@ -81,6 +87,7 @@ Hệ thống đảm bảo **an toàn, tiện lợi** và **thu phí dịch vụ 
 ---
 
 ## 💻 Yêu cầu hệ thống
+
 - Node.js >= 18
 - PostgreSQL >= 14 hoặc MongoDB >= 5
 - Mobile: iOS 14+, Android 10+
@@ -88,6 +95,7 @@ Hệ thống đảm bảo **an toàn, tiện lợi** và **thu phí dịch vụ 
 ---
 
 ## 🚀 Cài đặt
+
 ```bash
 # Clone repository
 git clone https://github.com/Quanq050823/OptiTax_App.git
@@ -102,3 +110,4 @@ npm run dev
 cd client
 npm i --legacy-peer-deps
 npm run dev
+```
