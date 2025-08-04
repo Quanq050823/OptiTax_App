@@ -41,7 +41,7 @@ Hệ thống đảm bảo **an toàn, tiện lợi** và **thu phí dịch vụ 
   - Quản lý hồ sơ cá nhân
 - **Quản lý sản phẩm, hàng hóa**
   - Quản lý danh mục sản phẩm
-- **Quản lý thu – chi** (*S1*)
+- **Quản lý thu – chi** 
   - Ghi nhận thu nhập
   - Ghi nhận chi phí
   - Xuất hóa đơn
@@ -70,11 +70,11 @@ Hệ thống đảm bảo **an toàn, tiện lợi** và **thu phí dịch vụ 
 ## 🛠 Công nghệ sử dụng
 *(Dự kiến, sẽ cập nhật theo thực tế phát triển)*
 
-- **Frontend (Web)**: React.js / Next.js
-- **Mobile**: React Native / Flutter
-- **Backend**: Node.js (Express) hoặc NestJS
-- **Cơ sở dữ liệu**: PostgreSQL / MongoDB
-- **Triển khai**: Docker, Kubernetes, CI/CD với GitHub Actions
+- **Frontend (Web)**: Next.js
+- **Mobile**: React Native 
+- **Backend**: Node.js (Express) 
+- **Cơ sở dữ liệu**: MongoDB, Firestorage
+- **Triển khai**: CI/CD với GitHub Actions, Render
 - **Thanh toán**: Tích hợp cổng thanh toán (VNPay, Momo,...)
 - **Bảo mật**: JWT Authentication, HTTPS, Role-based Access Control (RBAC)
 
@@ -83,7 +83,6 @@ Hệ thống đảm bảo **an toàn, tiện lợi** và **thu phí dịch vụ 
 ## 💻 Yêu cầu hệ thống
 - Node.js >= 18
 - PostgreSQL >= 14 hoặc MongoDB >= 5
-- Docker (khuyến nghị)
 - Mobile: iOS 14+, Android 10+
 
 ---
@@ -91,16 +90,15 @@ Hệ thống đảm bảo **an toàn, tiện lợi** và **thu phí dịch vụ 
 ## 🚀 Cài đặt
 ```bash
 # Clone repository
-git clone https://github.com/your-org/your-repo.git
-cd your-repo
+git clone https://github.com/Quanq050823/OptiTax_App.git
+cd OptiTax_App
 
 # Backend setup
-cd backend
-npm install
-cp .env.example .env
+cd server
+npm i --legacy-peer-deps
 npm run dev
 
 # Frontend setup
-cd ../frontend
-npm install
+cd client
+npm i --legacy-peer-deps
 npm run dev
