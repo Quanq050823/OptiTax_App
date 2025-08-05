@@ -1,17 +1,14 @@
 import { ColorMain } from "@/src/presentation/components/colors";
-import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
+import FeatureItem from "@/src/presentation/components/FeatureItem/FeatureItem";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
-import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
+import {
+  FontAwesome,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import { Label } from "@react-navigation/elements";
 import * as React from "react";
-import {
-  Dimensions,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 function HomeScreen(): React.JSX.Element {
@@ -19,12 +16,6 @@ function HomeScreen(): React.JSX.Element {
 
   // const navigate = useAppNavigation(); // Removed duplicate declaration
   const features = [
-    {
-      key: "invoice",
-      label: "Hóa đơn",
-      icon: <MaterialIcons name="receipt" size={32} color="#4CAF50" />,
-      notify: 1,
-    },
     {
       key: "connect",
       label: "Kết nối KT",
@@ -66,6 +57,9 @@ function HomeScreen(): React.JSX.Element {
       key: "settings",
       label: "Cài đặt",
       icon: <FontAwesome name="cogs" size={32} color="#9E9E9E" />,
+      navigate: () => {
+        navigate.navigate("SettingScreen");
+      },
     },
     {
       key: "stock",
@@ -96,6 +90,7 @@ function HomeScreen(): React.JSX.Element {
       key: "timekeeping",
       label: "Chấm công",
       icon: <MaterialIcons name="schedule" size={32} color="#FF9800" />,
+      notify: 3,
     },
     {
       key: "promotion",
@@ -104,6 +99,31 @@ function HomeScreen(): React.JSX.Element {
     },
   ];
 
+  const featuresInvoice = [
+    {
+      key: "invoice",
+      label: "Hóa đơn",
+      icon: <MaterialIcons name="receipt" size={32} color={ColorMain} />,
+      notify: 1,
+    },
+
+    {
+      key: "ReceiptVoucher",
+      label: "Phiếu thu",
+      icon: (
+        <MaterialCommunityIcons name="cash-plus" size={32} color={ColorMain} />
+      ),
+      notify: 1,
+    },
+    {
+      key: "ReceiptVoucher",
+      label: "Phiếu chi",
+      icon: (
+        <MaterialCommunityIcons name="cash-minus" size={32} color={ColorMain} />
+      ),
+      notify: 1,
+    },
+  ];
   const accfeatures = [
     {
       key: "notification",
@@ -133,130 +153,83 @@ function HomeScreen(): React.JSX.Element {
   ];
   return (
     <View style={{ flex: 1, width: "100%" }}>
-      <ScreenContainer>
-        <ScrollView>
-          <View style={styles.container}>
-            <Label
-              style={{
-                fontSize: 20,
-                fontWeight: "bold",
-                marginLeft: 10,
-                textAlign: "left",
-                padding: 10,
-              }}
-            >
-              Tính năng
-            </Label>
-            <View style={styles.gridContainer}>
-              {features.map((item, index) => (
-                <TouchableOpacity
-                  key={item.key}
-                  style={styles.item}
-                  onPress={item.navigate || (() => {})}
-                >
-                  {item.notify ? (
-                    <View style={styles.notifycation}>
-                      <Text
-                        style={{
-                          textAlign: "center",
-                          justifyContent: "center",
-                          color: "#fff",
-                          fontSize: 10,
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {item.notify}
-                      </Text>
-                    </View>
-                  ) : null}
-                  {item.icon}
-                  <Text style={styles.label}>{item.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={{ backgroundColor: "#f7f7f7ff", paddingHorizontal: 10 }}
+      >
+        <View style={styles.container}>
+          <Label
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              marginLeft: 10,
+              textAlign: "left",
+              padding: 10,
+            }}
+          >
+            Tính năng
+          </Label>
+          <View style={styles.gridContainer}>
+            {features.map((item, index) => (
+              <FeatureItem key={index} item={item} />
+            ))}
           </View>
-          <View style={styles.container}>
-            <Label
-              style={{
-                fontSize: 20,
-                fontWeight: "bold",
-                marginLeft: 10,
-                textAlign: "left",
-                padding: 10,
-              }}
-            >
-              Tính năng khác
-            </Label>
-            <View style={styles.gridContainer}>
-              {features2.map((item, index) => (
-                <TouchableOpacity
-                  key={item.key}
-                  style={styles.item}
-                  onPress={item.navigate || (() => {})}
-                >
-                  {item.notify ? (
-                    <View style={styles.notifycation}>
-                      <Text
-                        style={{
-                          textAlign: "center",
-                          justifyContent: "center",
-                          color: "#fff",
-                          fontSize: 10,
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {item.notify}
-                      </Text>
-                    </View>
-                  ) : null}
-                  {item.icon}
-                  <Text style={styles.label}>{item.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+        </View>
+        <View style={styles.container}>
+          <Label
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              marginLeft: 10,
+              textAlign: "left",
+              padding: 10,
+            }}
+          >
+            Hoá đơn - Phiếu
+          </Label>
+          <View style={styles.gridContainer}>
+            {featuresInvoice.map((item, index) => (
+              <FeatureItem key={index} item={item} />
+            ))}
           </View>
-          <View style={styles.container}>
-            <Label
-              style={{
-                fontSize: 20,
-                fontWeight: "bold",
-                marginLeft: 10,
-                textAlign: "left",
-                padding: 10,
-              }}
-            >
-              Nhân viên
-            </Label>
-            <View style={styles.gridContainer}>
-              {accfeatures.map((item, index) => (
-                <TouchableOpacity
-                  key={item.key}
-                  style={styles.item}
-                  onPress={item.navigate || (() => {})}
-                >
-                  {item.notify ? (
-                    <View style={styles.notifycation}>
-                      <Text
-                        style={{
-                          textAlign: "center",
-                          justifyContent: "center",
-                          color: "#fff",
-                          fontSize: 10,
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {item.notify}
-                      </Text>
-                    </View>
-                  ) : null}
-                  {item.icon}
-                  <Text style={styles.label}>{item.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+        </View>
+        <View style={styles.container}>
+          <Label
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              marginLeft: 10,
+              textAlign: "left",
+              padding: 10,
+            }}
+          >
+            Tính năng khác
+          </Label>
+          <View style={styles.gridContainer}>
+            {features2.map((item, index) => (
+              <FeatureItem key={index} item={item} />
+            ))}
           </View>
-        </ScrollView>
-      </ScreenContainer>
+        </View>
+        <View style={styles.container}>
+          <Label
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              marginLeft: 10,
+              textAlign: "left",
+              padding: 10,
+            }}
+          >
+            Nhân viên
+          </Label>
+          <View style={styles.gridContainer}>
+            {accfeatures.map((item, index) => (
+              <FeatureItem key={index} item={item} />
+            ))}
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -271,6 +244,7 @@ const styles = StyleSheet.create({
       height: 1,
     },
     marginBottom: 20,
+    marginTop: 10,
   },
   page: {
     width: SCREEN_WIDTH,
@@ -280,42 +254,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
   },
-  item: {
-    alignItems: "center",
-    width: SCREEN_WIDTH / 4,
-    height: 80,
-    marginHorizontal: 10,
-  },
-  notifycation: {
-    height: 13,
-    width: 13,
-    borderRadius: "50%",
-    backgroundColor: "red",
-    position: "absolute",
-    zIndex: 1,
-    top: -5,
-    right: 5,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  label: {
-    marginTop: 8,
-    fontSize: 12,
-    color: "#333",
-    textAlign: "center",
-  },
-  paginationContainer: {
-    width: 30,
-    height: 4,
-    backgroundColor: "#ccc", // màu xám nền
-    borderRadius: 3,
-    overflow: "hidden",
-  },
-  paginationHighlight: {
-    width: 30 / 2, // chiếm 50% chiều rộng
-    height: 4,
-    backgroundColor: ColorMain,
-  },
+
   gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",

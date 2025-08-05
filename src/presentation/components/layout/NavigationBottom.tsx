@@ -72,8 +72,9 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
                   { color: colorFocus(item.name) },
                   focused && {
                     textShadowColor: iconNavigationColor,
-                    textShadowOffset: { width: 0, height: 0 },
-                    textShadowRadius: 2,
+                    // textShadowOffset: { width: 0, height: 0 },
+                    // textShadowRadius: 2,
+                    fontWeight: 800,
                   },
                 ]}
               >

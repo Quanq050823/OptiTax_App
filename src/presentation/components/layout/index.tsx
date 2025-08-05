@@ -4,11 +4,12 @@ import AboutScreen from "@/src/presentation/screens/About";
 import HomeScreen from "@/src/presentation/screens/BusinessOwnerScreen/HomeScreen/HomeScreen";
 import Invoice from "@/src/presentation/screens/BusinessOwnerScreen/HomeScreen/invoice";
 import React, { useState } from "react";
-import { ImageBackground, StyleSheet, View } from "react-native";
+import { ImageBackground, StatusBar, StyleSheet, View } from "react-native";
 function Layout() {
   const [activeTab, setActiveTab] = useState<TabType>("home");
   return (
     <View style={{ flex: 1 }}>
+      <StatusBar barStyle={"light-content"} />
       <HeaderScreen />
       <ImageBackground
         style={[styles.container]}

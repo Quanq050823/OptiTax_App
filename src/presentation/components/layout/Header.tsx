@@ -16,7 +16,7 @@ function HeaderScreen() {
   return (
     <View style={styleHeader.container}>
       <TouchableOpacity onPress={() => navigation.openDrawer()} style={{}}>
-        <Ionicons name="menu" size={24} color={ColorMain} />
+        <Ionicons name="menu" size={24} color="#fff" />
       </TouchableOpacity>
       <View style={{ alignItems: "center" }}>
         <Image
@@ -27,7 +27,7 @@ function HeaderScreen() {
         />
       </View>
       <TouchableOpacity>
-        <Ionicons name="notifications-outline" size={26} color={ColorMain} />
+        <Ionicons name="notifications-outline" size={26} color="#fff" />
       </TouchableOpacity>
     </View>
   );
@@ -37,7 +37,7 @@ const styleHeader = StyleSheet.create({
     height: 110,
     paddingTop: Platform.OS === "ios" ? 50 : 50,
     width: "100%",
-    backgroundColor: "#fff",
+    backgroundColor: ColorMain,
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
