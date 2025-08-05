@@ -6,6 +6,8 @@ const {
 	updateProfile,
 	changePassword,
 	logout,
+	refreshToken,
+	logoutAll,
 } = require("../controllers/authController");
 const { auth } = require("../middlewares/auth");
 const {
@@ -30,5 +32,7 @@ router.put(
 	changePassword
 );
 router.post("/logout", auth, logout);
+router.post("/logout-all", auth, logoutAll);
+router.post("/refresh", refreshToken);
 
 module.exports = router;

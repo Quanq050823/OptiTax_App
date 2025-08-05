@@ -57,6 +57,18 @@ const userSchema = new mongoose.Schema(
 		lastLogin: {
 			type: Date,
 		},
+		refreshTokens: [
+			{
+				token: String,
+				createdAt: {
+					type: Date,
+					default: Date.now,
+					expires: 604800, // 7 days in seconds
+				},
+				deviceInfo: String,
+				ipAddress: String,
+			},
+		],
 		resetPasswordToken: String,
 		resetPasswordExpire: Date,
 	},

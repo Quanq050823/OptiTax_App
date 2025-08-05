@@ -5,17 +5,23 @@ const auth = async (req, res, next) => {
 	try {
 		let token;
 
+		// Check for token in Authorization header
 		if (
 			req.headers.authorization &&
 			req.headers.authorization.startsWith("Bearer")
 		) {
 			token = req.headers.authorization.split(" ")[1];
 		}
+		// Check for token in cookies
+		else if (req.cookies.accessToken) {
+			token = req.cookies.accessToken;
+		}
 
 		if (!token) {
 			return res.status(401).json({
 				success: false,
-				message: "Not authorized to access this route",
+				message: "Access token required",
+				code: "NO_TOKEN",
 			});
 		}
 
@@ -28,6 +34,7 @@ const auth = async (req, res, next) => {
 				return res.status(401).json({
 					success: false,
 					message: "User not found",
+					code: "USER_NOT_FOUND",
 				});
 			}
 
@@ -35,15 +42,25 @@ const auth = async (req, res, next) => {
 				return res.status(401).json({
 					success: false,
 					message: "User account is deactivated",
+					code: "ACCOUNT_DEACTIVATED",
 				});
 			}
 
 			req.user = user;
 			next();
 		} catch (error) {
+			if (error.name === "TokenExpiredError") {
+				return res.status(401).json({
+					success: false,
+					message: "Access token expired",
+					code: "TOKEN_EXPIRED",
+				});
+			}
+
 			return res.status(401).json({
 				success: false,
-				message: "Token is not valid",
+				message: "Invalid access token",
+				code: "INVALID_TOKEN",
 			});
 		}
 	} catch (error) {
