@@ -101,20 +101,38 @@ const changePassword = asyncHandler(async (req, res, next) => {
 });
 
 const logout = asyncHandler(async (req, res, next) => {
-	const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
+	// Safely get refresh token from cookies or body
+	const refreshToken =
+		(req.cookies && req.cookies.refreshToken) || req.body.refreshToken;
 
+	// Always clear cookies regardless
+	res.clearCookie("accessToken", {
+		httpOnly: true,
+		secure: process.env.NODE_ENV === "production",
+		sameSite: "strict",
+	});
+	res.clearCookie("refreshToken", {
+		httpOnly: true,
+		secure: process.env.NODE_ENV === "production",
+		sameSite: "strict",
+	});
+
+	// If refresh token exists and user is authenticated, remove it from database
 	if (refreshToken && req.user) {
-		const user = await User.findById(req.user.id);
-		if (user) {
-			user.refreshTokens = user.refreshTokens.filter(
-				(tokenObj) => tokenObj.token !== refreshToken
-			);
-			await user.save({ validateBeforeSave: false });
+		try {
+			const user = await User.findById(req.user.id);
+			if (user && user.refreshTokens) {
+				// Remove the specific refresh token
+				user.refreshTokens = user.refreshTokens.filter(
+					(tokenObj) => tokenObj.token !== refreshToken
+				);
+				await user.save({ validateBeforeSave: false });
+			}
+		} catch (error) {
+			// Log error but don't fail the logout
+			console.log("Error removing refresh token:", error.message);
 		}
 	}
-
-	res.clearCookie("accessToken");
-	res.clearCookie("refreshToken");
 
 	res.status(200).json({
 		success: true,
@@ -123,7 +141,8 @@ const logout = asyncHandler(async (req, res, next) => {
 });
 
 const refreshToken = asyncHandler(async (req, res, next) => {
-	const { refreshToken } = req.cookies || req.body;
+	const refreshToken =
+		(req.cookies && req.cookies.refreshToken) || req.body.refreshToken;
 
 	if (!refreshToken) {
 		return res.status(401).json({
@@ -181,15 +200,30 @@ const refreshToken = asyncHandler(async (req, res, next) => {
 });
 
 const logoutAll = asyncHandler(async (req, res, next) => {
-	const user = await User.findById(req.user.id);
+	// Clear cookies first
+	res.clearCookie("accessToken", {
+		httpOnly: true,
+		secure: process.env.NODE_ENV === "production",
+		sameSite: "strict",
+	});
+	res.clearCookie("refreshToken", {
+		httpOnly: true,
+		secure: process.env.NODE_ENV === "production",
+		sameSite: "strict",
+	});
 
-	if (user) {
-		user.refreshTokens = [];
-		await user.save({ validateBeforeSave: false });
+	// Remove all refresh tokens from database
+	if (req.user) {
+		try {
+			const user = await User.findById(req.user.id);
+			if (user) {
+				user.refreshTokens = [];
+				await user.save({ validateBeforeSave: false });
+			}
+		} catch (error) {
+			console.log("Error clearing refresh tokens:", error.message);
+		}
 	}
-
-	res.clearCookie("accessToken");
-	res.clearCookie("refreshToken");
 
 	res.status(200).json({
 		success: true,
