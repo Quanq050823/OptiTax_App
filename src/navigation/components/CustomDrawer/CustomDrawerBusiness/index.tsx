@@ -4,6 +4,7 @@ import InvoiceManageShow from "@/src/navigation/components/InvoiceManageShow";
 import Setting from "@/src/navigation/components/Setting";
 import VoteManager from "@/src/navigation/components/VoteManager/inden";
 import { AntDesign } from "@expo/vector-icons";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { DrawerContentScrollView } from "@react-navigation/drawer";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "expo-router";
@@ -41,7 +42,7 @@ const CustomDrawerBusiness = (props: any) => {
           style={styles.avatar}
         />
         <View style={{ marginLeft: 10 }}>
-          <Text style={styles.name}>Thế Khang</Text>
+          <Text style={styles.name}>Tạp hoá TÚ 230</Text>
           <Text style={styles.position}>Hộ kinh doanh</Text>
         </View>
       </TouchableOpacity>
@@ -87,11 +88,7 @@ const CustomDrawerBusiness = (props: any) => {
         label="Tài khoản"
         screenName="ProfileBusiness"
         icon={(focused, color, size) => (
-          <AntDesign
-            name={focused ? "user" : "infocirlceo"}
-            size={size}
-            color={color}
-          />
+          <FontAwesome6 name="circle-user" size={24} color={color} />
         )}
         onPress={() =>
           props.navigation.navigate("HomeLayout", {

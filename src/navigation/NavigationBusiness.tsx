@@ -6,17 +6,20 @@ import React from "react";
 
 import CustomDrawerBusiness from "@/src/navigation/components/CustomDrawer/CustomDrawerBusiness";
 import HeaderNavigation from "@/src/navigation/components/HeaderNavigation/HeaderNavigation";
+import Layout from "@/src/presentation/components/layout";
 import AboutScreen from "@/src/presentation/screens/About";
+import ChangePasswordScreen from "@/src/presentation/screens/BusinessOwnerScreen/ChangePasswordScreen/ChangePasswordScreen";
 import InvoiceInput from "@/src/presentation/screens/BusinessOwnerScreen/InvoiceInput";
 import InvoiceOutput from "@/src/presentation/screens/BusinessOwnerScreen/InvoiceOutput";
 import ProductManagerScreen from "@/src/presentation/screens/BusinessOwnerScreen/ProductManager/ProductManager";
 import ProfileBusiness from "@/src/presentation/screens/BusinessOwnerScreen/ProfileBusiness/ProfileBusiness";
+import SearchAccountantScreen from "@/src/presentation/screens/BusinessOwnerScreen/SearchAccountant/SearchAccountantScreen";
 import SettingScreen from "@/src/presentation/screens/BusinessOwnerScreen/Setting/index";
 import Language from "@/src/presentation/screens/BusinessOwnerScreen/Setting/Languages";
+import StoreInformation from "@/src/presentation/screens/BusinessOwnerScreen/Setting/StoreInfomation";
 import PaymentVoucherScreen from "@/src/presentation/screens/BusinessOwnerScreen/Vote/PaymentVoucherScreen";
 import ReceiptVoucherScreen from "@/src/presentation/screens/BusinessOwnerScreen/Vote/ReceiptVoucherScreen";
 import { View } from "react-native";
-import Layout from "@/src/presentation/components/layout";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
@@ -97,6 +100,27 @@ const HomeLayout = () => {
           title: "Quản lý sản phẩm",
         }}
         component={ProductManagerScreen}
+      />
+      <Stack.Screen
+        name="SearchAccountantScreen"
+        options={{
+          title: "Tìm kiếm kế toán viên",
+        }}
+        component={SearchAccountantScreen}
+      />
+      <Stack.Screen
+        name="ChangePasswordScreen"
+        options={{
+          title: "Thay đổi mật khẩu",
+        }}
+        component={ChangePasswordScreen}
+      />
+      <Stack.Screen
+        name="StoreInformationScreen"
+        options={{
+          title: "Thông tin cửa hàng",
+        }}
+        component={StoreInformation}
       />
     </Stack.Navigator>
   );

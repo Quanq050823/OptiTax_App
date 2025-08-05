@@ -1,18 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import provinces from "vietnam-provinces";
 
-function Province() {
-  const [provinceList, setProvinceList] = useState<
-    { label: string; value: string }[]
-  >([]);
+type ProvinceProps = {
+  selectedProvince: string | null;
+  setSelectedProvince: (value: string | null) => void;
+  selectedDistrict: string | null;
+  setSelectedDistrict: (value: string | null) => void;
+  setProvinceList: (list: { label: string; value: string }[]) => void;
+  provinceList: { label: string; value: string }[];
+};
+function Province({
+  selectedProvince,
+  setSelectedProvince,
+  selectedDistrict,
+  setSelectedDistrict,
+  setProvinceList,
+  provinceList,
+}: ProvinceProps) {
   const [districtList, setDistrictList] = useState<
     { label: string; value: string }[]
   >([]);
-
-  const [selectedProvince, setSelectedProvince] = useState(null);
-  const [selectedDistrict, setSelectedDistrict] = useState(null);
 
   useEffect(() => {
     const provs = provinces.getProvinces(); // lấy tất cả tỉnh/thành
@@ -37,15 +46,20 @@ function Province() {
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Chọn Tỉnh / Thành phố</Text>
-      <Dropdown
-        style={styles.dropdown}
-        data={provinceList}
-        labelField="label"
-        valueField="value"
-        placeholder="Chọn tỉnh"
-        value={selectedProvince}
-        onChange={(item) => setSelectedProvince(item.value)}
-      />
+      {useMemo(
+        () => (
+          <Dropdown
+            style={styles.dropdown}
+            data={provinceList}
+            labelField="label"
+            valueField="value"
+            placeholder="Chọn tỉnh"
+            value={selectedProvince}
+            onChange={(item) => setSelectedProvince(item.value)}
+          />
+        ),
+        [provinceList, selectedProvince, setSelectedProvince]
+      )}
 
       <Text style={[styles.label, { marginTop: 20 }]}>Chọn Quận / Huyện</Text>
       <Dropdown

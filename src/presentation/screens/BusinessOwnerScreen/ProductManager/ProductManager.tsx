@@ -1,4 +1,4 @@
-import ModalAddProduct from "@/src/presentation/components/ModalAddProduct/ModalAddProduct";
+import ModalAddProduct from "@/src/presentation/components/Modal/ModalAddProduct/ModalAddProduct";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {

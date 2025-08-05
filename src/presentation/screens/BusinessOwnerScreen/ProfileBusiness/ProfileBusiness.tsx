@@ -1,9 +1,16 @@
+import { ColorMain } from "@/src/presentation/components/colors";
 import PinInputWithFaceID from "@/src/presentation/components/PinInputWithFaceID/PinInputWithFaceID ";
 import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Label } from "@react-navigation/elements";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Avatar } from "react-native-paper";
 function ProfileBusiness() {
   const navigate = useNavigation<NavigationProp<RootStackParamList>>();
@@ -75,13 +82,19 @@ function ProfileBusiness() {
             />
           </View>
         </View>
+        <TouchableOpacity
+          style={styles.changePassWrapper}
+          onPress={() => navigate.navigate("ChangePasswordScreen")}
+        >
+          <Text style={{ color: "#fff" }}>Thay đổi mật khẩu</Text>
+        </TouchableOpacity>
       </View>
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 10 },
+  container: { flex: 1, paddingHorizontal: 10, position: "relative" },
   label: {
     textAlign: "left",
     fontWeight: 500,
@@ -111,6 +124,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginTop: 20,
     color: "#494949",
+  },
+  changePassWrapper: {
+    width: "100%",
+    height: 50,
+    position: "absolute",
+    bottom: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    left: 10,
+    borderRadius: 10,
+    backgroundColor: ColorMain,
   },
 });
 export default ProfileBusiness;
