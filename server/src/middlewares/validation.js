@@ -3,7 +3,15 @@ const Joi = require("joi");
 const registerSchema = Joi.object({
 	username: Joi.string().alphanum().min(3).max(30).required(),
 	email: Joi.string().email().required(),
-	password: Joi.string().min(6).required(),
+	password: Joi.string()
+		.min(6)
+		.pattern(/^(?=.*[0-9])(?=.*[A-Z]).*$/)
+		.required()
+		.messages({
+			"string.min": "Mật khẩu phải có ít nhất 6 ký tự",
+			"string.pattern.base":
+				"Mật khẩu phải chứa ít nhất 1 số và 1 chữ cái viết hoa",
+		}),
 	firstName: Joi.string().max(50).required(),
 	lastName: Joi.string().max(50).required(),
 	phone: Joi.string()
@@ -13,7 +21,15 @@ const registerSchema = Joi.object({
 
 const loginSchema = Joi.object({
 	email: Joi.string().email().required(),
-	password: Joi.string().required(),
+	password: Joi.string()
+		.min(6)
+		.pattern(/^(?=.*[0-9])(?=.*[A-Z]).*$/)
+		.required()
+		.messages({
+			"string.min": "Mật khẩu phải có ít nhất 6 ký tự",
+			"string.pattern.base":
+				"Mật khẩu phải chứa ít nhất 1 số và 1 chữ cái viết hoa",
+		}),
 });
 
 const updateProfileSchema = Joi.object({
@@ -25,8 +41,26 @@ const updateProfileSchema = Joi.object({
 });
 
 const changePasswordSchema = Joi.object({
-	currentPassword: Joi.string().required(),
-	newPassword: Joi.string().min(6).required(),
+	currentPassword: Joi.string()
+		.min(6)
+		.pattern(/^(?=.*[0-9])(?=.*[A-Z]).*$/)
+		.required()
+		.messages({
+			"string.min": "Mật khẩu hiện tại phải có ít nhất 6 ký tự",
+			"string.pattern.base":
+				"Mật khẩu hiện tại phải chứa ít nhất 1 số và 1 chữ cái viết hoa",
+		}),
+	newPassword: Joi.string()
+		.min(6)
+		.pattern(/^(?=.*[0-9])(?=.*[A-Z]).*$/)
+		.invalid(Joi.ref("currentPassword"))
+		.required()
+		.messages({
+			"string.min": "Mật khẩu mới phải có ít nhất 6 ký tự",
+			"string.pattern.base":
+				"Mật khẩu mới phải chứa ít nhất 1 số và 1 chữ cái viết hoa",
+			"any.invalid": "Mật khẩu mới không được giống mật khẩu hiện tại",
+		}),
 });
 
 const validate = (schema) => {
