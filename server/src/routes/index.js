@@ -1,0 +1,17 @@
+// "use strict";
+
+import userRoute from "./userRoute.js";
+import authRoute from "./authRoute.js";
+import { errorHandlingMiddleware } from "./../middlewares/errorHandlingMiddleware.js";
+import authenticate from "../middlewares/jwtMiddlewares.js";
+export default (app) => {
+	// Basic GET route for API status check
+	app.get("/", (req, res) => {
+		res.status(200).json({ status: "ok", message: "API is running" });
+	});
+
+	app.use("/api/auth", authRoute);
+	app.use("/api/user", authenticate, userRoute);
+
+	app.use(errorHandlingMiddleware);
+};
