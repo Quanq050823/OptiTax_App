@@ -51,10 +51,20 @@ const changePassword = async (req, res, next) => {
 	}
 };
 
+const selectUserRole = async (req, res, next) => {
+	try {
+		let result = await userService.updateUserRole(req?.user, req.body);
+		res.status(StatusCodes.OK).send(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
 export {
 	getAllUsers,
 	getCurrentUser,
 	updateCurrentUser,
 	changePassword,
 	changeUserStatus,
+	selectUserRole,
 };

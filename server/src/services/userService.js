@@ -126,6 +126,33 @@ const findByEmail = async (email) => {
 	}
 };
 
+const updateUserRole = async (user, data) => {
+	try {
+		let userIdString = getObjectId(user?.userId);
+
+		let result = await User.findOneAndUpdate(
+			{ _id: userIdString },
+			{ userType: data?.userType },
+			{
+				new: true,
+				select:
+					"-password -federatedCredentials -refreshToken -otp -isVerified",
+			}
+		);
+
+		if (!result) {
+			throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
+		}
+
+		return {
+			message: "User role updated successfully",
+			userType: result.userType,
+		};
+	} catch (err) {
+		throw err;
+	}
+};
+
 export {
 	getAllUser,
 	findByEmail,
@@ -133,4 +160,5 @@ export {
 	updateOne,
 	updateStatus,
 	updatePasswordService,
+	updateUserRole,
 };

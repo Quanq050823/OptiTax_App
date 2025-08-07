@@ -16,6 +16,7 @@ router.put(
 	validate(userSchema.userStatus),
 	userController.changeUserStatus
 );
+
 router.put(
 	"/update-info",
 	validate(userSchema.userUpdate),
@@ -26,5 +27,10 @@ router.put(
 	"/change-password",
 	validate(userSchema.userUpdatePassword),
 	userController.changePassword
+);
+router.put(
+	"/select-role",
+	validate(userSchema.userRoleSelection),
+	userController.selectUserRole
 );
 export default router;
