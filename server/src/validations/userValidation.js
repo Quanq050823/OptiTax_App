@@ -72,6 +72,13 @@ const updateOtpPassword = Joi.object({
 	confirmPassword: Joi.string().valid(Joi.ref("password")).required(),
 });
 
+const userRoleSelection = Joi.object({
+	userType: Joi.number().valid(0, 1, 2).required().messages({
+		"any.only": "User type must be 0, 1, or 2",
+		"any.required": "User type is required",
+	}),
+});
+
 export {
 	userCreate,
 	userLogin,
@@ -80,4 +87,5 @@ export {
 	userStatus,
 	userUpdatePassword,
 	updateOtpPassword,
+	userRoleSelection,
 };

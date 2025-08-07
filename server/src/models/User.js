@@ -50,6 +50,12 @@ const UserSchema = mongoose.Schema(
 			code: String,
 			expires: Date,
 		},
+		userType: {
+			type: Number,
+			enum: [0, 1, 2],
+			required: false,
+			default: 0,
+		},
 	},
 	{ Timestamp: true }
 );
