@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   Alert,
+  Dimensions,
   FlatList,
   Image,
   StyleSheet,
@@ -41,7 +42,24 @@ export default function ProductManagerScreen() {
       quantity: 5,
       image: "https://via.placeholder.com/80",
     },
+    {
+      id: "3",
+      name: "Quần jeans nam",
+      price: 250000,
+      quantity: 5,
+      image: "https://via.placeholder.com/80",
+    },
+    {
+      id: "4",
+      name: "Áo khoác nam",
+      price: 200000,
+      quantity: 5,
+      image: "https://via.placeholder.com/80",
+    },
   ]);
+  const screenWidth = Dimensions.get("window").width;
+  const ITEM_MARGIN = 8;
+  const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
   const handleAddProduct = () => {
     if (!name || !price || !quantity) {
       Alert.alert("Thiếu thông tin", "Vui lòng nhập đầy đủ các trường");
@@ -65,7 +83,12 @@ export default function ProductManagerScreen() {
     setImage("");
   };
   const renderItem = ({ item }: any) => (
-    <View style={styles.card}>
+    <View
+      style={[
+        styles.card,
+        { width: ITEM_WIDTH, marginHorizontal: ITEM_MARGIN / 2 },
+      ]}
+    >
       <Image source={{ uri: item.image }} style={styles.image} />
       <View style={{ flex: 1 }}>
         <Text style={styles.name}>{item.name}</Text>
@@ -80,17 +103,21 @@ export default function ProductManagerScreen() {
     <View style={styles.container}>
       {/* <Text style={styles.header}>Quản lý sản phẩm</Text> */}
 
-      <TextInput
-        placeholder="Tìm sản phẩm..."
-        style={styles.searchInput}
-        placeholderTextColor="#999"
-      />
+      <View style={{ padding: 10 }}>
+        <TextInput
+          placeholder="Tìm sản phẩm..."
+          style={styles.searchInput}
+          placeholderTextColor="#999"
+        />
+      </View>
 
       <FlatList
         data={products}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 80 }}
+        contentContainerStyle={{ paddingBottom: 80, paddingHorizontal: 5 }}
+        columnWrapperStyle={{ justifyContent: "space-between" }}
+        numColumns={2}
       />
 
       <TouchableOpacity
@@ -116,7 +143,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f6f6f6",
-    padding: 16,
   },
   header: {
     fontSize: 22,
@@ -135,8 +161,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#fff",
-    flexDirection: "row",
-    padding: 12,
+    paddingVertical: 12,
     marginBottom: 12,
     borderRadius: 8,
     alignItems: "center",

@@ -5,6 +5,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { Label } from "@react-navigation/elements";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import {
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -18,70 +19,80 @@ function ProfileBusiness() {
   return (
     <ScreenContainer>
       <View style={styles.container}>
-        <View style={{ alignItems: "center", marginTop: 20 }}>
-          <Avatar.Image
-            size={70}
-            source={{ uri: "https://i.pravatar.cc/100" }}
-          />
-          <Text style={styles.textPosition}>Hộ kinh doanh</Text>
-        </View>
-        <View style={{ flex: 1, width: "100%", marginTop: 20 }}>
-          <View style={{ marginTop: 10 }}>
-            <Label style={styles.label}>Tên đăng nhập </Label>
-            <TextInput
-              placeholder=""
-              style={[
-                styles.input,
-                styles.borderInput,
-                { color: "#494949ff", backgroundColor: "#edededff" },
-              ]}
-              defaultValue="Khang03"
-              editable={false}
+        <ScrollView>
+          <View style={{ alignItems: "center", marginTop: 20 }}>
+            <Avatar.Image
+              size={70}
+              source={{ uri: "https://i.pravatar.cc/100" }}
             />
+            <Text style={styles.textPosition}>Hộ kinh doanh</Text>
           </View>
-          <View style={{ marginTop: 10 }}>
-            <Label style={styles.label}>Tên chủ hộ </Label>
-            <TextInput
-              placeholder=""
-              style={[styles.input, styles.borderInput]}
-              defaultValue="Tax Demo"
-            />
-          </View>
-          <View style={{ marginTop: 10 }}>
-            <Label style={styles.label}>Số điện thoại </Label>
-            <TextInput
-              placeholder=""
-              style={[styles.input, styles.borderInput]}
-              defaultValue="0987654321"
-            />
-          </View>
-          <PinInputWithFaceID />
+          <View style={{ flex: 1, width: "100%", marginTop: 20 }}>
+            <View style={{ marginTop: 10 }}>
+              <Label style={styles.label}>Tên đăng nhập </Label>
+              <TextInput
+                placeholder=""
+                style={[
+                  styles.input,
+                  styles.borderInput,
+                  { color: "#494949ff", backgroundColor: "#edededff" },
+                ]}
+                defaultValue="Khang03"
+                editable={false}
+              />
+            </View>
+            <View style={{ marginTop: 10 }}>
+              <Label style={styles.label}>Tên chủ hộ </Label>
+              <TextInput
+                placeholder=""
+                style={[styles.input, styles.borderInput]}
+                defaultValue="Tax Demo"
+              />
+            </View>
+            <View style={{ marginTop: 10 }}>
+              <Label style={styles.label}>Tên của hàng </Label>
+              <TextInput
+                placeholder=""
+                style={[styles.input, styles.borderInput]}
+                defaultValue="Tú 230"
+              />
+            </View>
+            <View style={{ marginTop: 10 }}>
+              <Label style={styles.label}>Số điện thoại </Label>
+              <TextInput
+                placeholder=""
+                style={[styles.input, styles.borderInput]}
+                defaultValue="0987654321"
+              />
+            </View>
+            <PinInputWithFaceID />
 
-          <Label style={styles.label}>Thông tin kinh doanh</Label>
-          <View
-            style={{
-              position: "relative",
-              alignItems: "center",
-              flexDirection: "row",
-              height: 50,
-              width: "100%",
-            }}
-          >
-            <TextInput
-              placeholder=""
-              style={[styles.input, styles.borderInput, { marginBottom: 0 }]}
-              defaultValue="Xem chi tiết"
-              editable={false}
-              onPress={() => navigate.navigate("AboutScreen")}
-            />
-            <AntDesign
-              name="arrowright"
-              size={24}
-              color="black"
-              style={{ position: "absolute", right: 10 }}
-            />
+            <Label style={styles.label}>Thông tin kinh doanh</Label>
+            <View
+              style={{
+                position: "relative",
+                alignItems: "center",
+                flexDirection: "row",
+                height: 50,
+                width: "100%",
+              }}
+            >
+              <TextInput
+                placeholder=""
+                style={[styles.input, styles.borderInput, { marginBottom: 0 }]}
+                defaultValue="Xem chi tiết"
+                editable={false}
+                onPress={() => navigate.navigate("AboutScreen")}
+              />
+              <AntDesign
+                name="arrowright"
+                size={24}
+                color="black"
+                style={{ position: "absolute", right: 10 }}
+              />
+            </View>
           </View>
-        </View>
+        </ScrollView>
         <TouchableOpacity
           style={styles.changePassWrapper}
           onPress={() => navigate.navigate("ChangePasswordScreen")}

@@ -21,7 +21,11 @@ import { DatePickerInput } from "react-native-paper-dates";
 function BusinessRegistrationStepTwo({ navigation }: Props) {
   const [inputDate, setInputDate] = useState<Date | undefined>(undefined);
   const [loading, setLoading] = useState(false);
-
+  const [provinceList, setProvinceList] = useState<
+    { label: string; value: string }[]
+  >([]);
+  const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
@@ -92,7 +96,14 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
 
             <View style={{ marginTop: 16 }}>
               <Label style={stylesBST.labelInput}>Nơi cấp:</Label>
-              <Province />
+              <Province
+                selectedProvince={selectedProvince}
+                setSelectedProvince={setSelectedProvince}
+                selectedDistrict={selectedDistrict}
+                setSelectedDistrict={setSelectedDistrict}
+                setProvinceList={setProvinceList}
+                provinceList={provinceList}
+              />
             </View>
 
             <View style={{ marginTop: 30 }}>

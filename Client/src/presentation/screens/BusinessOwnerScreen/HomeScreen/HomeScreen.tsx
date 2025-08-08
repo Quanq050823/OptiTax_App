@@ -2,17 +2,44 @@ import { ColorMain } from "@/src/presentation/components/colors";
 import FeatureItem from "@/src/presentation/components/FeatureItem/FeatureItem";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import {
+  AntDesign,
   FontAwesome,
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
 import { Label } from "@react-navigation/elements";
 import * as React from "react";
-import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Button,
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import MlkitOcr from "react-native-mlkit-ocr";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import * as FileSystem from "expo-file-system";
+import * as ImageManipulator from "expo-image-manipulator";
+import ScanInvoice from "@/src/presentation/components/ScanInvoice/ScanInvoice";
 
+type FileType = {
+  uri: string;
+  name?: string;
+  type?: string;
+  size?: number;
+};
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+const GOOGLE_CLOUD_VISION_API_KEY = "AIzaSyAkxhcKWHtiwW1aOg8Um6YTU7By1S1PGkM";
 function HomeScreen(): React.JSX.Element {
   const navigate = useAppNavigation();
+  const [file, setFile] = React.useState<FileType | null>(null);
 
   // const navigate = useAppNavigation(); // Removed duplicate declaration
   const features = [
@@ -29,6 +56,12 @@ function HomeScreen(): React.JSX.Element {
       key: "report",
       label: "Báo cáo",
       icon: <FontAwesome name="bar-chart" size={32} color="#FF9800" />,
+    },
+    {
+      key: "capture invoices",
+      label: "Quét hoá đơn",
+      icon: <AntDesign name="scan1" size={24} color="black" />,
+      navigate: () => openCamera(setImageUri),
     },
     {
       key: "input",
@@ -114,6 +147,9 @@ function HomeScreen(): React.JSX.Element {
         <MaterialCommunityIcons name="cash-plus" size={32} color={ColorMain} />
       ),
       notify: 1,
+      navigate: () => {
+        navigate.navigate("ReceiptVoucherScreen");
+      },
     },
     {
       key: "ReceiptVoucher",
@@ -151,6 +187,103 @@ function HomeScreen(): React.JSX.Element {
       icon: <FontAwesome name="info-circle" size={32} color="#9E9E9E" />,
     },
   ];
+  const [imageUri, setImageUri] = React.useState<string | null>(null);
+
+  const [ocrResult, setOcrResult] = React.useState<string[]>([]);
+  const [loading, setLoading] = React.useState(false);
+  const runOcr = async (imageUri: string) => {
+    try {
+      setLoading(true);
+
+      // ✂️ Resize ảnh xuống (ví dụ chiều rộng max 800px)
+      const manipulatedImage = await ImageManipulator.manipulateAsync(
+        imageUri,
+        [{ resize: { width: 800 } }],
+        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+      );
+
+      console.log("Resized image URI:", manipulatedImage.uri);
+
+      const base64 = await FileSystem.readAsStringAsync(manipulatedImage.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      const body = {
+        requests: [
+          {
+            image: {
+              content: base64,
+            },
+            features: [{ type: "TEXT_DETECTION" }],
+          },
+        ],
+      };
+
+      const response = await fetch(
+        `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_CLOUD_VISION_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        }
+      );
+
+      const data = await response.json();
+      const text =
+        data.responses?.[0]?.fullTextAnnotation?.text || "Không nhận diện được";
+      setOcrResult(text.split("\n"));
+    } catch (error) {
+      console.error("OCR error:", error);
+      Alert.alert("Lỗi", "Không nhận diện được văn bản. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const selectImage = async () => {
+    // Yêu cầu quyền truy cập thư viện
+
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.status !== "granted") {
+      Alert.alert("Bạn cần cấp quyền truy cập thư viện ảnh để tiếp tục.");
+      return;
+    }
+
+    // Mở thư viện
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets && result.assets[0].uri) {
+      const uri = result.assets[0].uri;
+      setImageUri(uri);
+      runOcr(uri);
+    }
+  };
+  const openCamera = async (setImageUri: (uri: string | null) => void) => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (permissionResult.status !== "granted") {
+      Alert.alert(
+        "Quyền truy cập bị từ chối",
+        "Bạn cần cho phép truy cập camera để tiếp tục."
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 0.7,
+    });
+
+    if (!result.cancelled && result.assets && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+      runOcr(result.assets[0].uri);
+    }
+  };  
   return (
     <View style={{ flex: 1, width: "100%" }}>
       <ScrollView
@@ -193,6 +326,44 @@ function HomeScreen(): React.JSX.Element {
             ))}
           </View>
         </View>
+        <ScrollView contentContainerStyle={{ padding: 20 }}>
+          <Button title="Chọn ảnh hóa đơn" onPress={selectImage} />
+
+          {imageUri && (
+            <Image
+              source={{ uri: imageUri }}
+              style={{ width: "100%", height: 300, marginVertical: 10 }}
+              resizeMode="contain"
+            />
+          )}
+
+          {loading && <ActivityIndicator size="large" color="blue" />}
+        </ScrollView>
+        <ScanInvoice
+          imageUri={imageUri}
+          ocrResult={ocrResult}
+          loading={loading}
+          setImageUri={setImageUri}
+          setOcrResult={setOcrResult}
+          setLoading={setLoading}
+        />
+        {file && (
+          <View style={{ marginTop: 12 }}>
+            <Text>Đã chọn: {file.name || file.uri.split("/").pop()}</Text>
+
+            {file.uri && file.type !== "application/pdf" && (
+              <Image
+                source={{ uri: file.uri }}
+                style={{
+                  width: 200,
+                  height: 150,
+                  marginTop: 10,
+                  borderRadius: 8,
+                }}
+              />
+            )}
+          </View>
+        )}
         <View style={styles.container}>
           <Label
             style={{

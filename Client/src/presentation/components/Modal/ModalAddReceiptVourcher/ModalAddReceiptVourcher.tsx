@@ -314,7 +314,7 @@ const styleModal = StyleSheet.create({
     backgroundColor: "#fff",
     paddingVertical: 24,
     borderRadius: 12,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     paddingBottom: 50,
     overflow: "hidden",
   },

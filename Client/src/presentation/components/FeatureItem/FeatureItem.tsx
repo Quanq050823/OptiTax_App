@@ -25,6 +25,7 @@ function FeatureItem({ item }: any) {
           justifyContent: "center",
           position: "relative",
           minWidth: 50,
+          minHeight: 50,
         }}
       >
         {item.notify ? (

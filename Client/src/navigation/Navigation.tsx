@@ -1,5 +1,6 @@
 import NavigationAccountant from "@/src/navigation/NavigationAccountant";
 import NavigationBusiness from "@/src/navigation/NavigationBusiness";
+import BusinessRegistrationStepThree from "@/src/presentation/screens/Auth/BusinessRegistrationStepThree";
 import BusinessRegistrationStepTwo from "@/src/presentation/screens/Auth/BusinessRegistrationStepTwo";
 import LoginScreen from "@/src/presentation/screens/Auth/LoginScreen";
 import RegisterScreen from "@/src/presentation/screens/Auth/Register";
@@ -30,12 +31,15 @@ function AppNavigation() {
           component={NavigationBusiness}
         />
         <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
-
         <Stack.Screen
           name="BusinessRegistrationStepTwo"
           component={BusinessRegistrationStepTwo}
         />
+        <Stack.Screen
+          name="BusinessRegistrationStepThree"
+          component={BusinessRegistrationStepThree}
+        />
+        <Stack.Screen name="Register" component={RegisterScreen} />
 
         <Stack.Screen
           name="NavigationAccountant"
