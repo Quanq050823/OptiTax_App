@@ -7,7 +7,7 @@ import React from "react";
 import CustomDrawerBusiness from "@/src/navigation/components/CustomDrawer/CustomDrawerBusiness";
 import HeaderNavigation from "@/src/navigation/components/HeaderNavigation/HeaderNavigation";
 import Layout from "@/src/presentation/components/layout";
-import AboutScreen from "@/src/presentation/screens/About";
+import AboutScreen from "@/src/presentation/screens/BusinessOwnerScreen/Option/Option";
 import ChangePasswordScreen from "@/src/presentation/screens/BusinessOwnerScreen/ChangePasswordScreen/ChangePasswordScreen";
 import InvoiceInput from "@/src/presentation/screens/BusinessOwnerScreen/InvoiceInput";
 import InvoiceOutput from "@/src/presentation/screens/BusinessOwnerScreen/InvoiceOutput";
@@ -20,6 +20,7 @@ import StoreInformation from "@/src/presentation/screens/BusinessOwnerScreen/Set
 import PaymentVoucherScreen from "@/src/presentation/screens/BusinessOwnerScreen/Vote/PaymentVoucherScreen";
 import ReceiptVoucherScreen from "@/src/presentation/screens/BusinessOwnerScreen/Vote/ReceiptVoucherScreen";
 import { View } from "react-native";
+import Option from "@/src/presentation/screens/BusinessOwnerScreen/Option/Option";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
@@ -40,9 +41,9 @@ const HomeLayout = () => {
         component={HomeScreen}
       />
       <Stack.Screen
-        name="AboutScreen"
+        name="OptionScreen"
         options={{ title: "About" }}
-        component={AboutScreen}
+        component={Option}
       />
       <Stack.Screen
         name="ProfileBusiness"

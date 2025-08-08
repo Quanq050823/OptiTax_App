@@ -1,7 +1,7 @@
 import { iconNavigationColor } from "@/src/presentation/components/colors";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { JSX } from "react";
+import { JSX, useMemo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 interface NavigationBottomProps {
   activeTab: TabType;
@@ -22,38 +22,38 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
   const itemNavigate: {
     name: TabType;
     icon: (focused: boolean) => JSX.Element;
-  }[] = [
-    {
-      name: "home",
-      icon: (focused) => (
-        <AntDesign
-          name="home"
-          size={24}
-          color={focused ? iconNavigationColor : "#9d9d9d"}
-        />
-      ),
-    },
-    {
-      name: "invoice",
-      icon: (focused) => (
-        <FontAwesome
-          name="file-text-o"
-          size={24}
-          color={focused ? iconNavigationColor : "#9d9d9d"}
-        />
-      ),
-    },
-    {
-      name: "about",
-      icon: (focused) => (
-        <FontAwesome
-          name="info-circle"
-          size={24}
-          color={focused ? iconNavigationColor : "#9d9d9d"}
-        />
-      ),
-    },
-  ];
+  }[] = useMemo(
+    () => [
+      {
+        name: "Trang chủ",
+        icon: (focused) => (
+          <AntDesign
+            name="home"
+            size={24}
+            color={focused ? iconNavigationColor : "#9d9d9d"}
+          />
+        ),
+      },
+      {
+        name: "Hoá đơn",
+        icon: (focused) => (
+          <FontAwesome
+            name="file-text-o"
+            size={24}
+            color={focused ? iconNavigationColor : "#9d9d9d"}
+          />
+        ),
+      },
+
+      {
+        name: "Tuỳ chọn",
+        icon: (focused) => (
+          <FontAwesome name="user" size={24} color="#9d9d9d" />
+        ),
+      },
+    ],
+    []
+  );
   return (
     <View style={styles.container}>
       <View style={styles.ItemWrapper}>
@@ -85,35 +85,35 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
         })}
 
         {/* <TouchableOpacity
-          style={{ alignItems: "center", width: "20%" }}
-          onPress={() => setActiveTab("invoice")}
-        >
-          <FontAwesome
-            name="file-text-o"
-            size={24}
-            color={colorFocus("invoice")}
-          />
-          <Text style={{ color: colorFocus("invoice") }}>Invoice</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ alignItems: "center", width: "20%" }}
-          onPress={() => setActiveTab("about")}
-        >
-          <FontAwesome
-            name="file-text-o"
-            size={24}
-            color={colorFocus("about")}
-          />
-          <Text>About</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={{ alignItems: "center", width: "20%" }}>
-          <AntDesign name="home" size={24} color="black" />
-          <Text>Trang chủ</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={{ alignItems: "center", width: "20%" }}>
-          <AntDesign name="home" size={24} color="black" />
-          <Text>Hoá đơn</Text>
-        </TouchableOpacity> */}
+        style={{ alignItems: "center", width: "20%" }}
+        onPress={() => setActiveTab("invoice")}
+      >
+        <FontAwesome
+          name="file-text-o"
+          size={24}
+          color={colorFocus("invoice")}
+        />
+        <Text style={{ color: colorFocus("invoice") }}>Invoice</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{ alignItems: "center", width: "20%" }}
+        onPress={() => setActiveTab("about")}
+      >
+        <FontAwesome
+          name="file-text-o"
+          size={24}
+          color={colorFocus("about")}
+        />
+        <Text>About</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={{ alignItems: "center", width: "20%" }}>
+        <AntDesign name="home" size={24} color="black" />
+        <Text>Trang chủ</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={{ alignItems: "center", width: "20%" }}>
+        <AntDesign name="home" size={24} color="black" />
+        <Text>Hoá đơn</Text>
+      </TouchableOpacity> */}
       </View>
     </View>
   );

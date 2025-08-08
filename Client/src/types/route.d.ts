@@ -1,6 +1,6 @@
 type RootStackParamList = {
   HomeScreen: undefined;
-  AboutScreen: undefined;
+  OptionScreen: undefined;
   Login: undefined;
   Register: undefined;
   NavigationBusiness: undefined;
@@ -18,9 +18,10 @@ type RootStackParamList = {
   SearchAccountantScreen: undefined;
   ChangePasswordScreen: undefined;
   StoreInformationScreen: undefined;
+  BusinessRegistrationStepThree: undefined;
 };
 type Props = NativeStackScreenProps<RootStackParamList>;
-type TabType = "home" | "invoice" | "about";
+type TabType = "Trang chủ" | "Hoá đơn" | "Tuỳ chọn";
 type phieuThu = {
   id: string;
   name: string;
