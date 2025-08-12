@@ -17,37 +17,37 @@ import { View } from "react-native";
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppNavigation() {
-  return (
-    <View
-      style={{
-        flex: 1,
-        paddingBottom: 0,
-        backgroundColor: "#fff",
-      }}
-    >
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen
-          name="NavigationBusiness"
-          component={NavigationBusiness}
-        />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen
-          name="BusinessRegistrationStepTwo"
-          component={BusinessRegistrationStepTwo}
-        />
-        <Stack.Screen
-          name="BusinessRegistrationStepThree"
-          component={BusinessRegistrationStepThree}
-        />
-        <Stack.Screen name="Register" component={RegisterScreen} />
+	return (
+		<View
+			style={{
+				flex: 1,
+				paddingBottom: 0,
+				backgroundColor: "#fff",
+			}}
+		>
+			<Stack.Navigator screenOptions={{ headerShown: false }}>
+				<Stack.Screen name="Login" component={LoginScreen} />
+				<Stack.Screen
+					name="NavigationBusiness"
+					component={NavigationBusiness}
+				/>
+				<Stack.Screen
+					name="BusinessRegistrationStepTwo"
+					component={BusinessRegistrationStepTwo}
+				/>
+				<Stack.Screen
+					name="BusinessRegistrationStepThree"
+					component={BusinessRegistrationStepThree}
+				/>
+				<Stack.Screen name="Register" component={RegisterScreen} />
 
-        <Stack.Screen
-          name="NavigationAccountant"
-          component={NavigationAccountant}
-        />
-      </Stack.Navigator>
-    </View>
-  );
+				<Stack.Screen
+					name="NavigationAccountant"
+					component={NavigationAccountant}
+				/>
+			</Stack.Navigator>
+		</View>
+	);
 }
 
 export default AppNavigation;
