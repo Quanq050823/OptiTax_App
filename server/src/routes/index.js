@@ -5,6 +5,7 @@ import authRoute from "./authRoute.js";
 import businessOwnerRoute from "./businessOwnerRoute.js";
 import accountantRoute from "./accountantRoute.js";
 import productRoute from "./productRoute.js";
+import customerRoute from "./customerRoute.js";
 import { errorHandlingMiddleware } from "./../middlewares/errorHandlingMiddleware.js";
 import authenticate from "../middlewares/jwtMiddlewares.js";
 export default (app) => {
@@ -18,6 +19,7 @@ export default (app) => {
 	app.use("/api/business-owner", businessOwnerRoute);
 	app.use("/api/accountant", accountantRoute);
 	app.use("/api/product", productRoute);
+	app.use("/api/customer", customerRoute);
 
 	app.use(errorHandlingMiddleware);
 };
