@@ -3,6 +3,7 @@ import Province from "@/src/presentation/components/Auth/Province/Province";
 import SelectImage from "@/src/presentation/components/Auth/SelectImage/SelectImage";
 import SelectIndustry from "@/src/presentation/components/Auth/SelectIndustry/SelectIndustry";
 import { ColorMain } from "@/src/presentation/components/colors";
+import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { stylesAuth } from "@/src/presentation/screens/Auth/Styles";
 import { Label } from "@react-navigation/elements";
 import { CommonActions } from "@react-navigation/native";
@@ -19,17 +20,20 @@ import { TextInput } from "react-native-paper";
 import { DatePickerInput } from "react-native-paper-dates";
 
 function BusinessRegistrationStepTwo({ navigation }: Props) {
+  const navigate = useAppNavigation();
   const [inputDate, setInputDate] = useState<Date | undefined>(undefined);
   const [loading, setLoading] = useState(false);
+
   const [provinceList, setProvinceList] = useState<
     { label: string; value: string }[]
   >([]);
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [taxCode, setTaxcode] = useState<string | null>(null);
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={{ padding: 16 }}
+      contentContainerStyle={{ padding: 10 }}
     >
       <View style={stylesBST.container}>
         <View style={stylesAuth.wrapLogin}>
@@ -65,6 +69,7 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
                 underlineColor={ColorMain}
                 activeUnderlineColor={ColorMain}
                 placeholderTextColor={"#fff"}
+                onChangeText={(value) => setTaxcode(value)}
                 theme={{
                   colors: {
                     onSurfaceVariant: "#9d9d9d",
@@ -75,7 +80,7 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
               />
             </View>
 
-            <View style={{ width: "100%", marginTop: 10, height: 80 }}>
+            {/* <View style={{ width: "100%", marginTop: 10, height: 80 }}>
               <Label style={stylesBST.labelInput}>Ngày cấp:</Label>
               <DatePickerInput
                 locale="en"
@@ -92,10 +97,10 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
                   },
                 }}
               />
-            </View>
+            </View> */}
 
             <View style={{ marginTop: 16 }}>
-              <Label style={stylesBST.labelInput}>Nơi cấp:</Label>
+              <Label style={stylesBST.labelInput}>Địa chỉ:</Label>
               <Province
                 selectedProvince={selectedProvince}
                 setSelectedProvince={setSelectedProvince}
@@ -111,7 +116,7 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
               <SelectIndustry />
             </View>
 
-            <View style={{ width: "100%", marginTop: 30 }}>
+            {/* <View style={{ width: "100%", marginTop: 30 }}>
               <Label style={stylesBST.labelInput}>
                 Số giấy phép kinh doanh / đăng ký kinh doanh:
               </Label>
@@ -135,16 +140,14 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
                 Ảnh chụp GPKD (File upload mặt trước/đủ trang)
               </Label>
               <SelectImage />
-            </View>
+            </View> */}
             <TouchableOpacity
               style={[stylesAuth.btnLogin, { marginTop: 20 }]}
               onPress={() =>
-                navigation.dispatch(
-                  CommonActions.reset({
-                    index: 0,
-                    routes: [{ name: "NavigationBusiness" }],
-                  })
-                )
+                // navigate.navigate("BusinessRegistrationStepThree", {
+                //   taxCode: taxCode,
+                // })
+                navigate.navigate("NavigationBusiness")
               }
             >
               <Text style={stylesAuth.textBtnLogin}>

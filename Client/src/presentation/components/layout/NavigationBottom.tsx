@@ -35,10 +35,10 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
         ),
       },
       {
-        name: "Hoá đơn",
+        name: "Tiện ích",
         icon: (focused) => (
-          <FontAwesome
-            name="file-text-o"
+          <AntDesign
+            name="appstore1"
             size={24}
             color={focused ? iconNavigationColor : "#9d9d9d"}
           />
@@ -48,7 +48,11 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
       {
         name: "Tuỳ chọn",
         icon: (focused) => (
-          <FontAwesome name="user" size={24} color="#9d9d9d" />
+          <FontAwesome
+            name="user"
+            size={24}
+            color={focused ? iconNavigationColor : "#9d9d9d"}
+          />
         ),
       },
     ],
@@ -69,7 +73,7 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
               {item.icon(focused)}
               <Text
                 style={[
-                  { color: colorFocus(item.name) },
+                  { color: colorFocus(item.name), marginTop: 3 },
                   focused && {
                     textShadowColor: iconNavigationColor,
                     // textShadowOffset: { width: 0, height: 0 },

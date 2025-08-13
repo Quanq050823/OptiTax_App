@@ -48,7 +48,7 @@ function FormRegister({
       }}
     >
       <TextInput
-        label="Nhập số điện thoại"
+        label="Nhập email hoặc số điện thoại"
         style={stylesAuth.input}
         onChangeText={setUsername}
         underlineColor={ColorMain}

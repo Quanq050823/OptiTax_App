@@ -1,6 +1,12 @@
+import { ColorMain } from "@/src/presentation/components/colors";
 import ModalAddProduct from "@/src/presentation/components/Modal/ModalAddProduct/ModalAddProduct";
-import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import {
+  createProduct,
+  deleteProduct,
+  getProducts,
+} from "@/src/services/API/productService";
+import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Dimensions,
@@ -17,86 +23,153 @@ type Product = {
   id: string;
   name: string;
   price: number;
-  quantity: number;
-  image: string;
+  stock: number;
+  imageUrl: string;
 };
 
 export default function ProductManagerScreen() {
+  const [products, setProducts] = useState<Product[]>([]);
+
+  const [showAction, setShowAction] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
+  const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);
-  const [quantity, setQuantity] = useState(0);
+  const [stock, setStock] = useState(0);
   const [image, setImage] = useState("");
-  const [products, setProducts] = useState([
-    {
-      id: "1",
-      name: "Áo thun nam",
-      price: 150000,
-      quantity: 10,
-      image: "https://via.placeholder.com/80",
-    },
-    {
-      id: "2",
-      name: "Quần jeans nữ",
-      price: 250000,
-      quantity: 5,
-      image: "https://via.placeholder.com/80",
-    },
-    {
-      id: "3",
-      name: "Quần jeans nam",
-      price: 250000,
-      quantity: 5,
-      image: "https://via.placeholder.com/80",
-    },
-    {
-      id: "4",
-      name: "Áo khoác nam",
-      price: 200000,
-      quantity: 5,
-      image: "https://via.placeholder.com/80",
-    },
-  ]);
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  // const [products, setProducts] = useState([
+  //   {
+  //     id: "1",
+  //     name: "Áo thun nam",
+  //     price: 150000,
+  //     quantity: 10,
+  //     image: "https://via.placeholder.com/80",
+  //   },
+  //   {
+  //     id: "2",
+  //     name: "Quần jeans nữ",
+  //     price: 250000,
+  //     quantity: 5,
+  //     image: "https://via.placeholder.com/80",
+  //   },
+  //   {
+  //     id: "3",
+  //     name: "Quần jeans nam",
+  //     price: 250000,
+  //     quantity: 5,
+  //     image: "https://via.placeholder.com/80",
+  //   },
+  //   {
+  //     id: "4",
+  //     name: "Áo khoác nam",
+  //     price: 200000,
+  //     quantity: 5,
+  //     image: "https://via.placeholder.com/80",
+  //   },
+  // ]);
   const screenWidth = Dimensions.get("window").width;
   const ITEM_MARGIN = 8;
   const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
-  const handleAddProduct = () => {
-    if (!name || !price || !quantity) {
+
+  const newProduct = {
+    name: name,
+    code: code,
+    category: category,
+    unit: "li",
+    price: price,
+    description: description,
+    imageUrl: "https://example.com/images/tshirt001.jpg",
+    stock: stock,
+    attributes: [{ key: "đường", value: "có" }],
+  };
+
+  const fetchData = async () => {
+    try {
+      const data = await getProducts();
+      setProducts(data as Product[]);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleAddProduct = async () => {
+    if (!name || !price || !stock || !description || !code || !category) {
       Alert.alert("Thiếu thông tin", "Vui lòng nhập đầy đủ các trường");
       return;
     }
 
-    const newProduct = {
-      id: Date.now().toString(),
-      name,
-      price: price,
-      quantity: quantity,
-      image: image || "https://via.placeholder.com/80",
-    };
-
-    setProducts([...products, newProduct]);
+    const created = await createProduct(newProduct);
+    if (created && typeof created === "object" && "name" in created) {
+      Alert.alert(
+        "Thành công",
+        `Đã thêm sản phẩm: ${(created as { name: string }).name}`
+      );
+    } else {
+      Alert.alert("Lỗi", "Không thể lấy thông tin sản phẩm vừa tạo.");
+    }
+    fetchData();
     setVisible(false);
     // Reset input
     setName("");
     setPrice(0);
-    setQuantity(0);
+    setStock(0);
     setImage("");
+    setDescription("");
+  };
+
+  const handleShowAction = (code: string) => {
+    setShowAction((prev) => (prev === code ? null : code)); // toggle
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    try {
+      await deleteProduct(id);
+      fetchData(); // ⬅️ load lại danh sách sau khi xoá
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
   };
   const renderItem = ({ item }: any) => (
-    <View
-      style={[
-        styles.card,
-        { width: ITEM_WIDTH, marginHorizontal: ITEM_MARGIN / 2 },
-      ]}
-    >
-      <Image source={{ uri: item.image }} style={styles.image} />
-      <View style={{ flex: 1 }}>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.detail}>Giá: {item.price.toLocaleString()}đ</Text>
-        <Text style={styles.detail}>Số lượng: {item.quantity}</Text>
+    <TouchableOpacity onPress={() => handleShowAction(item.code)}>
+      <View
+        style={[
+          styles.card,
+          { width: ITEM_WIDTH, marginHorizontal: ITEM_MARGIN / 2 },
+        ]}
+      >
+        <Image source={{ uri: item.image }} style={styles.image} />
+        <View style={{ flex: 1 }}>
+          <Image source={{ uri: item.imageUrl }} />
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.detail}>Giá: {item.price.toLocaleString()}đ</Text>
+          <Text style={styles.detail}>Số lượng: {item.stock}</Text>
+        </View>
+        {showAction === item.code && (
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              justifyContent: "space-around",
+              marginTop: 20,
+            }}
+          >
+            <MaterialIcons
+              name="delete-outline"
+              size={24}
+              color="red"
+              onPress={() => handleDeleteProduct(item._id)}
+            />
+            <AntDesign name="edit" size={24} color={ColorMain} />
+          </View>
+        )}
       </View>
-      <Ionicons name="chevron-forward" size={24} color="#aaa" />
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -133,7 +206,10 @@ export default function ProductManagerScreen() {
         onAddProduct={handleAddProduct}
         setName={setName}
         setPrice={(price: string) => setPrice(Number(price))}
-        setQuantity={(quantity: string) => setQuantity(Number(quantity))}
+        setStock={(stock: string) => setStock(Number(stock))}
+        setCode={setCode}
+        setDescription={setDescription}
+        setCategory={setCategory}
       />
     </View>
   );

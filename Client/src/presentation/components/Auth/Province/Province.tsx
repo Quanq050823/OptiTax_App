@@ -45,7 +45,7 @@ function Province({
   }, [selectedProvince]);
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Chọn Tỉnh / Thành phố</Text>
+      {/* <Text style={styles.label}>Chọn Tỉnh / Thành phố</Text> */}
       {useMemo(
         () => (
           <Dropdown
@@ -53,7 +53,7 @@ function Province({
             data={provinceList}
             labelField="label"
             valueField="value"
-            placeholder="Chọn tỉnh"
+            placeholder="Chọn Tỉnh/ Thành phố"
             value={selectedProvince}
             onChange={(item) => setSelectedProvince(item.value)}
           />
@@ -61,13 +61,13 @@ function Province({
         [provinceList, selectedProvince, setSelectedProvince]
       )}
 
-      <Text style={[styles.label, { marginTop: 20 }]}>Chọn Quận / Huyện</Text>
+      <Text style={[styles.label, { marginTop: 10 }]}></Text>
       <Dropdown
         style={styles.dropdown}
         data={districtList}
         labelField="label"
         valueField="value"
-        placeholder="Chọn quận"
+        placeholder="Chọn Quận/ Huyện"
         value={selectedDistrict}
         onChange={(item) => setSelectedDistrict(item.value)}
         disable={!selectedProvince}
