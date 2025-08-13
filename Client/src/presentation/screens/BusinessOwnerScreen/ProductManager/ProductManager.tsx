@@ -1,5 +1,6 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import ModalAddProduct from "@/src/presentation/components/Modal/ModalAddProduct/ModalAddProduct";
+import ModalEditProduct from "@/src/presentation/components/Modal/ModalEditProduct/ModalEditProduct";
 import {
   createProduct,
   deleteProduct,
@@ -19,18 +20,11 @@ import {
   View,
 } from "react-native";
 
-type Product = {
-  id: string;
-  name: string;
-  price: number;
-  stock: number;
-  imageUrl: string;
-};
-
 export default function ProductManagerScreen() {
   const [products, setProducts] = useState<Product[]>([]);
-
+  const [idEditProduct, setIdEditProduct] = useState<string | null>(null);
   const [showAction, setShowAction] = useState<string | null>(null);
+  const [showEditProduct, setShowEditProduct] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
@@ -80,7 +74,8 @@ export default function ProductManagerScreen() {
     unit: "li",
     price: price,
     description: description,
-    imageUrl: "https://example.com/images/tshirt001.jpg",
+    imageUrl:
+      "https://www.okoone.com/wp-content/uploads/2024/06/React-native-2-logo.png",
     stock: stock,
     attributes: [{ key: "đường", value: "có" }],
   };
@@ -128,12 +123,36 @@ export default function ProductManagerScreen() {
   };
 
   const handleDeleteProduct = async (id: string) => {
-    try {
-      await deleteProduct(id);
-      fetchData(); // ⬅️ load lại danh sách sau khi xoá
-    } catch (error) {
-      console.error("Error deleting product:", error);
-    }
+    Alert.alert(
+      "Xác nhận xoá",
+      "Bạn có chắc muốn xoá sản phẩm này không?",
+      [
+        {
+          text: "Hủy",
+          style: "cancel",
+        },
+        {
+          text: "Xoá",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteProduct(id);
+              fetchData();
+              Alert.alert("Thành công", "Sản phẩm đã được xoá");
+            } catch (error) {
+              console.error("Error deleting product:", error);
+              Alert.alert("Lỗi", "Không thể xoá sản phẩm");
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const handleOpenModalEditProduct = (id: string) => {
+    setShowEditProduct((prev) => (prev === id ? null : id));
+    setIdEditProduct(id);
   };
   const renderItem = ({ item }: any) => (
     <TouchableOpacity onPress={() => handleShowAction(item.code)}>
@@ -143,9 +162,8 @@ export default function ProductManagerScreen() {
           { width: ITEM_WIDTH, marginHorizontal: ITEM_MARGIN / 2 },
         ]}
       >
-        <Image source={{ uri: item.image }} style={styles.image} />
-        <View style={{ flex: 1 }}>
-          <Image source={{ uri: item.imageUrl }} />
+        <View style={{ flex: 1, alignItems: "center", width: "80%" }}>
+          <Image source={{ uri: item.imageUrl }} style={styles.image} />
           <Text style={styles.name}>{item.name}</Text>
           <Text style={styles.detail}>Giá: {item.price.toLocaleString()}đ</Text>
           <Text style={styles.detail}>Số lượng: {item.stock}</Text>
@@ -165,7 +183,12 @@ export default function ProductManagerScreen() {
               color="red"
               onPress={() => handleDeleteProduct(item._id)}
             />
-            <AntDesign name="edit" size={24} color={ColorMain} />
+            <AntDesign
+              name="edit"
+              size={24}
+              color={ColorMain}
+              onPress={() => handleOpenModalEditProduct(item._id)}
+            />
           </View>
         )}
       </View>
@@ -186,7 +209,7 @@ export default function ProductManagerScreen() {
 
       <FlatList
         data={products}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 80, paddingHorizontal: 5 }}
         columnWrapperStyle={{ justifyContent: "space-between" }}
@@ -211,6 +234,13 @@ export default function ProductManagerScreen() {
         setDescription={setDescription}
         setCategory={setCategory}
       />
+      {showEditProduct && (
+        <ModalEditProduct
+          setShowEditProduct={setShowEditProduct}
+          fetchData={fetchData}
+          idEditProduct={idEditProduct}
+        />
+      )}
     </View>
   );
 }
@@ -253,11 +283,11 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 6,
-    marginRight: 12,
   },
   name: {
     fontSize: 16,
     fontWeight: "bold",
+    textAlign: "center",
   },
   detail: {
     fontSize: 14,
