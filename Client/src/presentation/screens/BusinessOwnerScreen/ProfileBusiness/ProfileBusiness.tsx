@@ -80,25 +80,7 @@ function ProfileBusiness() {
                     defaultValue={profile.name}
                   />
                 </View>
-                <View style={{ marginTop: 10 }}>
-                  <Label style={styles.label}>Tên của hàng </Label>
-                  <TextInput
-                    placeholder=""
-                    style={[styles.input, styles.borderInput]}
-                    defaultValue="Tú 230"
-                  />
-                </View>
-                <View style={{ marginTop: 10 }}>
-                  <Label style={styles.label}>Số điện thoại </Label>
-                  <TextInput
-                    placeholder=""
-                    style={[styles.input, styles.borderInput]}
-                    defaultValue="0987654321"
-                  />
-                </View>
-                <PinInputWithFaceID />
-
-                <Label style={styles.label}>Thông tin kinh doanh</Label>
+                <Label style={styles.label}>Cửa hàng</Label>
                 <View
                   style={{
                     position: "relative",
@@ -115,9 +97,9 @@ function ProfileBusiness() {
                       styles.borderInput,
                       { marginBottom: 0 },
                     ]}
-                    defaultValue="Xem chi tiết"
+                    defaultValue="Tạp hoá Tú 230"
                     editable={false}
-                    onPress={() => navigate.navigate("AboutScreen")}
+                    // onPress={() => navigate.navigate("AboutScreen")}
                   />
                   <AntDesign
                     name="arrowright"
@@ -126,6 +108,15 @@ function ProfileBusiness() {
                     style={{ position: "absolute", right: 10 }}
                   />
                 </View>
+                <View style={{ marginTop: 20 }}>
+                  <Label style={styles.label}>Số điện thoại </Label>
+                  <TextInput
+                    placeholder=""
+                    style={[styles.input, styles.borderInput]}
+                    defaultValue="0987654321"
+                  />
+                </View>
+                <PinInputWithFaceID />
               </View>
             </>
           ) : (
@@ -144,7 +135,12 @@ function ProfileBusiness() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 10, position: "relative" },
+  container: {
+    flex: 1,
+    paddingHorizontal: 10,
+    position: "relative",
+    paddingBottom: 90,
+  },
   label: {
     textAlign: "left",
     fontWeight: 500,

@@ -21,7 +21,7 @@ type RootStackParamList = {
   BusinessRegistrationStepThree: { taxCode: string | null };
 };
 type Props = NativeStackScreenProps<RootStackParamList>;
-type TabType = "Trang chủ" | "Tiện ích" | "Tuỳ chọn";
+type TabType = "Trang chủ" | "Tiện ích" | "Tuỳ chọn" | "Thông báo";
 type phieuThu = {
   id: string;
   name: string;
@@ -38,3 +38,16 @@ type phieuThu = {
 //  receiver: người nhận
 //  documentNumber: số chứng từ
 //submitter: người nộp
+
+type Product = {
+  _id: string;
+  name: string;
+  code: string;
+  price: number;
+  stock: number;
+  imageUrl: string;
+  description: string;
+  category: string;
+  unit: string;
+  attributes;
+};

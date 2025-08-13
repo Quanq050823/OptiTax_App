@@ -27,19 +27,20 @@ function LoginScreen({ navigation }: Props) {
       return;
     }
     setLoading(true);
+    const result = await login({ username, password });
+    console.log("Login result:", result);
     try {
-      const result = await login({ username, password });
       setLoading(false);
       navigation.replace("NavigationBusiness");
-    //   if (result?.role === 1) {
-    //   } else if (result?.role === 0) {
-    //     navigation.replace("NavigationAccountant");
-    //   } else {
-    //     Alert.alert(
-    //       "Đăng nhập thành công",
-    //       "Không xác định vai trò người dùng."
-    //     );
-    //   }
+      //   if (result?.role === 1) {
+      //   } else if (result?.role === 0) {
+      //     navigation.replace("NavigationAccountant");
+      //   } else {
+      //     Alert.alert(
+      //       "Đăng nhập thành công",
+      //       "Không xác định vai trò người dùng."
+      //     );
+      //   }
     } catch (error: any) {
       setLoading(false);
       Alert.alert("Đăng nhập thất bại", error?.message || "Có lỗi xảy ra.");

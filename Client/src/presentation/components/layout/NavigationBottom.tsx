@@ -1,4 +1,5 @@
 import { iconNavigationColor } from "@/src/presentation/components/colors";
+import { Ionicons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { JSX, useMemo } from "react";
@@ -46,6 +47,16 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
       },
 
       {
+        name: "Thông báo",
+        icon: (focused) => (
+          <Ionicons
+            name="notifications"
+            size={24}
+            color={focused ? iconNavigationColor : "#9d9d9d"}
+          />
+        ),
+      },
+      {
         name: "Tuỳ chọn",
         icon: (focused) => (
           <FontAwesome
@@ -58,6 +69,7 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
     ],
     []
   );
+
   return (
     <View style={styles.container}>
       <View style={styles.ItemWrapper}>
@@ -73,7 +85,7 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
               {item.icon(focused)}
               <Text
                 style={[
-                  { color: colorFocus(item.name), marginTop: 3 },
+                  { color: colorFocus(item.name), marginTop: 3, fontSize: 11 },
                   focused && {
                     textShadowColor: iconNavigationColor,
                     // textShadowOffset: { width: 0, height: 0 },
