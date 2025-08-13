@@ -15,7 +15,10 @@ interface ModalAddProductProps {
   onAddProduct: any;
   setName: (name: string) => void;
   setPrice: (price: string) => void;
-  setQuantity: (quantity: string) => void;
+  setStock: (quantity: string) => void;
+  setCode: (code: string) => void;
+  setDescription: (description: string) => void;
+  setCategory: (category: string) => void;
 }
 
 function ModalAddProduct({
@@ -24,7 +27,10 @@ function ModalAddProduct({
   onAddProduct,
   setName,
   setPrice,
-  setQuantity,
+  setStock,
+  setCode,
+  setDescription,
+  setCategory,
 }: ModalAddProductProps) {
   return (
     <Modal
@@ -53,6 +59,15 @@ function ModalAddProduct({
             </TouchableOpacity>
           </View>
           <View style={{ marginTop: 20 }}>
+            <Text style={styleModal.labelInput}>Mã sản phẩm </Text>
+            <TextInput
+              placeholder={"Nhập mã sp"}
+              style={styleModal.input}
+              placeholderTextColor={"#9d9d9d"}
+              onChangeText={(value) => setCode(value)}
+            />
+          </View>
+          <View style={{ marginTop: 20 }}>
             <Text style={styleModal.labelInput}>Tên </Text>
             <TextInput
               placeholder={"Nhập tên sản phẩm"}
@@ -78,7 +93,25 @@ function ModalAddProduct({
               style={styleModal.input}
               placeholderTextColor={"#9d9d9d"}
               keyboardType="numeric"
-              onChangeText={(value) => setQuantity(value)}
+              onChangeText={(value) => setStock(value)}
+            />
+          </View>
+          <View style={{ marginTop: 20 }}>
+            <Text style={styleModal.labelInput}>Danh mục </Text>
+            <TextInput
+              placeholder={"Ví dụ: Ăn uống,..."}
+              style={styleModal.input}
+              placeholderTextColor={"#9d9d9d"}
+              onChangeText={(value) => setCategory(value)}
+            />
+          </View>
+          <View style={{ marginTop: 20 }}>
+            <Text style={styleModal.labelInput}>Mô tả </Text>
+            <TextInput
+              placeholder={"Nhập mô tả sản phẩm"}
+              style={styleModal.input}
+              placeholderTextColor={"#9d9d9d"}
+              onChangeText={(value) => setDescription(value)}
             />
           </View>
           <View
@@ -119,7 +152,7 @@ const styleModal = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    width: "80%",
+    width: "90%",
     backgroundColor: "#fff",
     padding: 24,
     borderRadius: 12,

@@ -29,7 +29,7 @@ export const stylesAuth = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     backgroundColor: "#f3f3f3df",
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
   },
   inputWrapper: {
     position: "relative",
