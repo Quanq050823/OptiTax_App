@@ -18,6 +18,8 @@ import {
   Alert,
 } from "react-native";
 import { logout } from "@/src/services/API/authService";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { TokenStorage } from "@/src/utils/tokenStorage";
 type LoginNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const CustomDrawerBusiness = (props: any) => {
@@ -34,6 +36,12 @@ const CustomDrawerBusiness = (props: any) => {
     setIsLoggingOut(true);
     try {
       await logout();
+      // 2. Xóa token trên client
+      await AsyncStorage.removeItem("accessToken");
+      await AsyncStorage.removeItem("refreshToken");
+
+      console.log("Logout thành công, token đã bị xóa.");
+
       navigation.replace("Login");
     } catch (error: any) {
       setIsLoggingOut(false);

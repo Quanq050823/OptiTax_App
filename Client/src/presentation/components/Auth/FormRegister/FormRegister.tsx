@@ -1,7 +1,9 @@
 import PositionSelectRegister from "@/src/presentation/components/Auth/PositionSelectRegister";
 import { ColorMain } from "@/src/presentation/components/colors";
-import { RoleContext } from "@/src/presentation/Hooks/RoleContext";
+import { UserTypeContext } from "@/src/presentation/Hooks/UserTypeContext";
+import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { stylesAuth } from "@/src/presentation/screens/Auth/Styles";
+import { register } from "@/src/services/API/authService";
 import { useContext, useState } from "react";
 import {
   ActivityIndicator,
@@ -15,6 +17,8 @@ import { TextInput } from "react-native-paper";
 function FormRegister({
   navigation,
   username,
+  email,
+  setEmail,
   password,
   setUsername,
   setPassword,
@@ -25,18 +29,44 @@ function FormRegister({
   veryPassword,
 }: Props) {
   const [loading, setLoading] = useState(false);
-  const { role, setRole } = useContext(RoleContext);
-  const handleRegister = () => {
-    if (!username || !password || !veryPassword || !role) {
+  const { userType, setUserType } = useContext(UserTypeContext);
+  const navigate = useAppNavigation();
+  console.log(email);
+
+  const handleRegister = async () => {
+    if (!username || !email || !password || !veryPassword || !userType) {
       Alert.alert("Không được để trống!");
-    } else {
-      setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        setSubmit(true);
-        // Xử lý đăng ký xong ở đây
-      }, 2000);
+      return;
     }
+
+    setLoading(true);
+    try {
+      if (veryPassword !== password) {
+        Alert.alert("Mật khẩu xác thực không chính xác");
+        setLoading(false);
+
+        return;
+      }
+      const result = await register({
+        name: username,
+        email,
+        password,
+        userType,
+      });
+      setLoading(false);
+      setSubmit(true);
+    } catch (error: any) {
+      setLoading(false);
+      Alert.alert("Đăng ký thất bại", error?.message || "Có lỗi xảy ra.");
+    }
+    // } else {
+    //   setLoading(true);
+    //   setTimeout(() => {
+    //     setLoading(false);
+    //     setSubmit(true);
+    //     // Xử lý đăng ký xong ở đây
+    //   }, 2000);
+    // }
   };
   return (
     <View
@@ -48,9 +78,16 @@ function FormRegister({
       }}
     >
       <TextInput
-        label="Nhập email hoặc số điện thoại"
+        label="Nhập tên chủ hộ"
         style={stylesAuth.input}
         onChangeText={setUsername}
+        underlineColor={ColorMain}
+        activeUnderlineColor={ColorMain}
+      />
+      <TextInput
+        label="Nhập email hoặc số điện thoại"
+        style={stylesAuth.input}
+        onChangeText={setEmail}
         underlineColor={ColorMain}
         activeUnderlineColor={ColorMain}
       />

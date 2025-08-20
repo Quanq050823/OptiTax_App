@@ -21,6 +21,11 @@ import PaymentVoucherScreen from "@/src/presentation/screens/BusinessOwnerScreen
 import ReceiptVoucherScreen from "@/src/presentation/screens/BusinessOwnerScreen/Vote/ReceiptVoucherScreen";
 import { View } from "react-native";
 import Option from "@/src/presentation/screens/BusinessOwnerScreen/Option/Option";
+import CustomerManagerScreen from "@/src/presentation/screens/BusinessOwnerScreen/Customer/CustomerScreen";
+import ChooseTaxTypeForHouseholdBusiness from "@/src/presentation/screens/Auth/ChooseTaxTypeForHouseholdBusiness ";
+import SelectDigitalSignaturePlan from "@/src/presentation/screens/BusinessOwnerScreen/SelectDigitalSignaturePlan/SelectDigitalSignaturePlan";
+import SelectElectronicInvoice from "@/src/presentation/screens/BusinessOwnerScreen/SelectElectronicInvoice/SelectElectronicInvoice";
+import PaymentScreen from "@/src/presentation/screens/BusinessOwnerScreen/Payment/Payment";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
@@ -122,6 +127,41 @@ const HomeLayout = () => {
           title: "Thông tin cửa hàng",
         }}
         component={StoreInformation}
+      />
+      <Stack.Screen
+        name="CustomerManagerScreen"
+        options={{
+          title: "Danh sách khách hàng",
+        }}
+        component={CustomerManagerScreen}
+      />
+      <Stack.Screen
+        name="ChooseTaxTypeForHouseholdBusiness"
+        options={{
+          title: "Chọn hình thức khai báo thuế",
+        }}
+        component={ChooseTaxTypeForHouseholdBusiness}
+      />
+      <Stack.Screen
+        name="SelectDigitalSignaturePlan"
+        options={{
+          title: "Chọn gói Chứng thư số",
+        }}
+        component={SelectDigitalSignaturePlan}
+      />
+      <Stack.Screen
+        name="SelectElectronicInvoice"
+        options={{
+          title: "Chọn gói Hoá đơn điện tử",
+        }}
+        component={SelectElectronicInvoice}
+      />
+      <Stack.Screen
+        name="PaymentScreen"
+        options={{
+          title: "Chọn gói Hoá đơn điện tử",
+        }}
+        component={PaymentScreen}
       />
     </Stack.Navigator>
   );

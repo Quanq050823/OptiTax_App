@@ -10,7 +10,7 @@ function Layout() {
   const [activeTab, setActiveTab] = useState<TabType>("Trang chủ");
   return (
     <View style={{ flex: 1 }}>
-      <StatusBar barStyle={"light-content"} />
+      <StatusBar barStyle={"default"} />
       <HeaderScreen />
       <ImageBackground
         style={[styles.container]}

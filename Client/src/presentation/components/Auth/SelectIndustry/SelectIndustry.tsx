@@ -1,3 +1,4 @@
+import { ColorMain } from "@/src/presentation/components/colors";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
@@ -55,7 +56,11 @@ const data = [
   { label: "Kinh doanh livestream", value: "livestream_business" },
   { label: "Dropshipping", value: "dropshipping" },
 ];
-function SelectIndustry() {
+type Industry = {
+  setFormData: React.Dispatch<React.SetStateAction<FormDataType>>;
+};
+
+function SelectIndustry({ setFormData }: Industry) {
   const [value, setValue] = useState<string | null>(null);
   const [isFocus, setIsFocus] = useState(false);
   return (
@@ -67,6 +72,7 @@ function SelectIndustry() {
       iconStyle={styleSelect.iconStyle}
       data={data}
       search
+      dropdownPosition="top"
       maxHeight={300}
       labelField="label"
       valueField="value"
@@ -78,6 +84,7 @@ function SelectIndustry() {
       onChange={(item) => {
         setValue(item.value);
         setIsFocus(false);
+        setFormData((prev) => ({ ...prev, businessType: item.label }));
       }}
     />
   );
@@ -97,9 +104,11 @@ const styleSelect = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 16,
     backgroundColor: "#fff",
-    shadowColor: "#000",
     elevation: 2,
     marginTop: 7,
+    shadowColor: ColorMain,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
   },
   placeholderStyle: {
     color: "#999",

@@ -52,7 +52,7 @@ export const stylesAuth = StyleSheet.create({
   },
   btnLogin: {
     backgroundColor: ColorMain,
-    height: 40,
+    height: 50,
     borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",

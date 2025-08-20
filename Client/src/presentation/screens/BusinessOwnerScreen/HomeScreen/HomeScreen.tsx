@@ -57,11 +57,17 @@ function HomeScreen(): React.JSX.Element {
       label: "Báo cáo",
       icon: <FontAwesome name="bar-chart" size={32} color="#FF9800" />,
     },
+    // {
+    //   key: "capture invoices",
+    //   label: "Quét hoá đơn",
+    //   icon: <AntDesign name="scan1" size={24} color="black" />,
+    //   navigate: () => openCamera(setImageUri),
+    // },
     {
-      key: "capture invoices",
-      label: "Quét hoá đơn",
-      icon: <AntDesign name="scan1" size={24} color="black" />,
-      navigate: () => openCamera(setImageUri),
+      key: "customers",
+      label: "Khách hàng",
+      icon: <FontAwesome name="users" size={32} color="#2196F3" />,
+      navigate: () => navigate.navigate("CustomerManagerScreen"),
     },
     {
       key: "input",
@@ -283,7 +289,7 @@ function HomeScreen(): React.JSX.Element {
       setImageUri(result.assets[0].uri);
       runOcr(result.assets[0].uri);
     }
-  };  
+  };
   return (
     <View style={{ flex: 1, width: "100%" }}>
       <ScrollView

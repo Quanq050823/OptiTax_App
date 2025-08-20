@@ -57,6 +57,17 @@ function Option() {
               color={colorText}
             />
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.item}
+            onPress={() => navigate.navigate("ProductManager")}
+          >
+            <Text style={styles.titleItem}>Quản lý khách hàng</Text>
+            <MaterialIcons
+              name="keyboard-arrow-right"
+              size={20}
+              color={colorText}
+            />
+          </TouchableOpacity>
           <TouchableOpacity style={styles.item}>
             <Text style={styles.titleItem}>Cài đặt</Text>
             <MaterialIcons

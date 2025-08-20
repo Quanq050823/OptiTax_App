@@ -5,11 +5,14 @@ import SelectIndustry from "@/src/presentation/components/Auth/SelectIndustry/Se
 import { ColorMain } from "@/src/presentation/components/colors";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { stylesAuth } from "@/src/presentation/screens/Auth/Styles";
+import { BusinessInforAuth } from "@/src/services/API/profileService";
+import { TokenStorage } from "@/src/utils/tokenStorage";
 import { Label } from "@react-navigation/elements";
 import { CommonActions } from "@react-navigation/native";
 import { useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -30,10 +33,65 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [taxCode, setTaxcode] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState<FormDataType>({
+    businessName: "",
+    businessType: "",
+    taxCode: "",
+    address: {
+      city: null,
+      district: null,
+      ward: "Nhà",
+      street: "Ngoài Đường",
+    },
+    phoneNumber: "",
+    industry: "Ăn uống",
+  });
+
+  console.log(formData);
+
+  const handleSubmitInfoBuss = async () => {
+    const {
+      businessName,
+      businessType,
+      taxCode,
+      address,
+      phoneNumber,
+      industry,
+    } = formData;
+
+    
+    // Kiểm tra các trường bắt buộc
+    if (
+      !businessName.trim() ||
+      !businessType.trim() ||
+      !taxCode.trim() ||
+      !phoneNumber.trim() ||
+      !industry.trim() ||
+      !address.city ||
+      !address.district
+    ) {
+      Alert.alert(
+        "Thiếu thông tin",
+        "Vui lòng điền đầy đủ tất cả các trường bắt buộc."
+      );
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await BusinessInforAuth(formData);
+      setLoading(false);
+      navigate.navigate("NavigationBusiness");
+    } catch (error: any) {
+      setLoading(false);
+      Alert.alert("Xác minh thất bại", error?.message || "Có lỗi xảy ra.");
+    }
+  };
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={{ padding: 10 }}
+      contentContainerStyle={{ paddingHorizontal: 10 }}
     >
       <View style={stylesBST.container}>
         <View style={stylesAuth.wrapLogin}>
@@ -42,39 +100,69 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
             <Text style={stylesBST.label}>
               Xác minh thông tin hộ kinh doanh
             </Text>
-            <View style={{ width: "100%", marginTop: 20 }}>
-              <Label style={stylesBST.labelInput}>
-                Nhập tên hộ kinh doanh:
-              </Label>
+            <View style={{ width: "100%", marginTop: 50 }}>
+              <Text style={stylesBST.labelInput}>
+                Tên hộ kinh doanh{" "}
+                <Text style={{ color: "red", fontWeight: "500" }}>*</Text>
+              </Text>
               <TextInput
                 label="Nhập đúng theo giấy phép ĐKKD..."
                 style={stylesBST.input}
                 // onChangeText={setCode}
-                underlineColor={ColorMain}
-                activeUnderlineColor={ColorMain}
+                // underlineColor={ColorMain}
+                // activeUnderlineColor={ColorMain}
                 theme={{
                   colors: {
                     onSurfaceVariant: "#9d9d9d",
                   },
                 }}
+                onChangeText={(val) =>
+                  setFormData((prev) => ({ ...prev, businessName: val }))
+                }
               />
             </View>
             <View style={{ width: "100%", marginTop: 10 }}>
-              <Label style={stylesBST.labelInput}>
-                Mã hộ kinh doanh (Mã số thuế):
-              </Label>
+              <Text style={stylesBST.labelInput}>
+                Số điện thoại
+                <Text style={{ color: "red", fontWeight: "500" }}> *</Text>
+              </Text>
               <TextInput
-                label="Do cơ quan thuế cấp..."
+                label="Số điện thoại kinh doanh"
                 style={stylesBST.input}
-                underlineColor={ColorMain}
-                activeUnderlineColor={ColorMain}
+                // underlineColor={ColorMain}
+                // activeUnderlineColor={ColorMain}
                 placeholderTextColor={"#fff"}
-                onChangeText={(value) => setTaxcode(value)}
+                onChangeText={(val) =>
+                  setFormData((prev) => ({ ...prev, phoneNumber: val }))
+                }
                 theme={{
                   colors: {
                     onSurfaceVariant: "#9d9d9d",
-                    primary: ColorMain, // ✅ label khi focus
-                    text: "#000", // ✅ nội dung gõ vào
+                    primary: ColorMain,
+                    text: "#000",
+                  },
+                }}
+              />
+            </View>
+            <View style={{ width: "100%", marginTop: 10 }}>
+              <Text style={stylesBST.labelInput}>
+                Mã hộ kinh doanh (Mã số thuế)
+                <Text style={{ color: "red", fontWeight: "500" }}>*</Text>
+              </Text>
+              <TextInput
+                label="Do cơ quan thuế cấp..."
+                style={stylesBST.input}
+                // underlineColor={ColorMain}
+                // activeUnderlineColor={ColorMain}
+                placeholderTextColor={"#fff"}
+                onChangeText={(val) =>
+                  setFormData((prev) => ({ ...prev, taxCode: val }))
+                }
+                theme={{
+                  colors: {
+                    onSurfaceVariant: "#9d9d9d",
+                    primary: ColorMain,
+                    text: "#000",
                   },
                 }}
               />
@@ -100,7 +188,10 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
             </View> */}
 
             <View style={{ marginTop: 16 }}>
-              <Label style={stylesBST.labelInput}>Địa chỉ:</Label>
+              <Text style={stylesBST.labelInput}>
+                Địa chỉ
+                <Text style={{ color: "red", fontWeight: "500" }}> *</Text>
+              </Text>
               <Province
                 selectedProvince={selectedProvince}
                 setSelectedProvince={setSelectedProvince}
@@ -108,12 +199,16 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
                 setSelectedDistrict={setSelectedDistrict}
                 setProvinceList={setProvinceList}
                 provinceList={provinceList}
+                setFormData={setFormData}
               />
             </View>
 
             <View style={{ marginTop: 30 }}>
-              <Label style={stylesBST.labelInput}>Ngành nghề kinh doanh:</Label>
-              <SelectIndustry />
+              <Text style={stylesBST.labelInput}>
+                Ngành nghề kinh doanh
+                <Text style={{ color: "red", fontWeight: "500" }}> *</Text>
+              </Text>
+              <SelectIndustry setFormData={setFormData} />
             </View>
 
             {/* <View style={{ width: "100%", marginTop: 30 }}>
@@ -141,19 +236,22 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
               </Label>
               <SelectImage />
             </View> */}
-            <TouchableOpacity
-              style={[stylesAuth.btnLogin, { marginTop: 20 }]}
-              onPress={() =>
-                // navigate.navigate("BusinessRegistrationStepThree", {
-                //   taxCode: taxCode,
-                // })
-                navigate.navigate("NavigationBusiness")
-              }
-            >
-              <Text style={stylesAuth.textBtnLogin}>
-                {loading ? <ActivityIndicator color="#fff" /> : "Gửi"}
-              </Text>
-            </TouchableOpacity>
+            <View style={{ width: "100%", alignItems: "flex-end" }}>
+              <TouchableOpacity
+                style={[stylesBST.btn, { marginTop: 30 }]}
+                // onPress={() =>
+                //   // navigate.navigate("BusinessRegistrationStepThree", {
+                //   //   taxCode: taxCode,
+                //   // })
+                //   navigate.navigate("NavigationBusiness")
+                // }
+                onPress={handleSubmitInfoBuss}
+              >
+                <Text style={stylesAuth.textBtnLogin}>
+                  {loading ? <ActivityIndicator color="#fff" /> : "Tiếp theo"}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </View>
@@ -171,19 +269,32 @@ const stylesBST = StyleSheet.create({
     fontSize: 16,
     marginBottom: 15,
     backgroundColor: "#fff",
-
+    shadowColor: ColorMain,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
     width: "100%",
     marginTop: 5,
+    borderRadius: 8,
   },
   label: {
     width: "100%",
     textAlign: "center",
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 500,
+    color: ColorMain,
   },
   labelInput: {
     textAlign: "left",
-    fontWeight: 800,
+    fontWeight: 400,
+    fontSize: 15,
+  },
+  btn: {
+    backgroundColor: ColorMain,
+    height: 50,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "40%",
   },
 });
 export default BusinessRegistrationStepTwo;
