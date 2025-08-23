@@ -1,3 +1,4 @@
+import { ColorMain } from "@/src/presentation/components/colors";
 import { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
@@ -10,6 +11,7 @@ type ProvinceProps = {
   setSelectedDistrict: (value: string | null) => void;
   setProvinceList: (list: { label: string; value: string }[]) => void;
   provinceList: { label: string; value: string }[];
+  setFormData: React.Dispatch<React.SetStateAction<FormDataType>>;
 };
 function Province({
   selectedProvince,
@@ -18,6 +20,7 @@ function Province({
   setSelectedDistrict,
   setProvinceList,
   provinceList,
+  setFormData,
 }: ProvinceProps) {
   const [districtList, setDistrictList] = useState<
     { label: string; value: string }[]
@@ -54,8 +57,18 @@ function Province({
             labelField="label"
             valueField="value"
             placeholder="Chọn Tỉnh/ Thành phố"
+            placeholderStyle={{ color: "#9d9d9d" }}
             value={selectedProvince}
-            onChange={(item) => setSelectedProvince(item.value)}
+            onChange={(item) => {
+              setFormData((prev) => ({
+                ...prev,
+                address: {
+                  ...prev.address,
+                  city: item.label,
+                },
+              }));
+              setSelectedProvince(item.value);
+            }}
           />
         ),
         [provinceList, selectedProvince, setSelectedProvince]
@@ -67,16 +80,31 @@ function Province({
         data={districtList}
         labelField="label"
         valueField="value"
+        placeholderStyle={{ color: "#9d9d9d" }}
         placeholder="Chọn Quận/ Huyện"
         value={selectedDistrict}
-        onChange={(item) => setSelectedDistrict(item.value)}
+        onChange={(item) => {
+          setFormData((prev) => ({
+            ...prev,
+            address: {
+              ...prev.address,
+              district: item.label,
+            },
+          }));
+          setSelectedDistrict(item.value);
+        }}
         disable={!selectedProvince}
       />
     </View>
   );
 }
 const styles = StyleSheet.create({
-  container: { marginTop: 10 },
+  container: {
+    marginTop: 10,
+    shadowColor: ColorMain,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+  },
   dropdown: {
     height: 60,
     borderRadius: 8,
@@ -87,7 +115,6 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 4,
     color: "#9d9d9d",
-    fontWeight: "bold",
   },
 });
 export default Province;

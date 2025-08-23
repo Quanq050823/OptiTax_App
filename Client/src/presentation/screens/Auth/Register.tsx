@@ -3,32 +3,32 @@ import FormVeryCode from "@/src/presentation/components/Auth/FormRegister/FormVe
 import HeaderLogin from "@/src/presentation/components/Auth/header";
 import Logo from "@/src/presentation/components/Auth/Logo/Logo";
 import { ColorMain } from "@/src/presentation/components/colors";
-import { RoleContext } from "@/src/presentation/Hooks/RoleContext";
+import { UserTypeContext } from "@/src/presentation/Hooks/UserTypeContext";
 import { stylesAuth } from "@/src/presentation/screens/Auth/Styles";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Alert, ImageBackground, View } from "react-native";
 
 type User = {
   id: number;
   username: string;
   password: string;
-  role: string;
+  userType: number;
 };
 
 function RegisterScreen({ navigation }: Props) {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [veryPassword, setVeryPassword] = useState("");
-
+  const { userType, setUserType } = useContext(UserTypeContext);
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState("");
   const [submit, setSubmit] = useState(false);
   const [code, setCode] = useState("");
   const [userRegister, setUserRegister] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const [role, setRole] = useState();
   const handleSubmit = () => {
-    if (!username || !password || !veryPassword || !role) {
+    if (!username || !password || !veryPassword || !userType) {
       Alert.alert("Không được để trống!");
     } else {
       setSubmit(true);
@@ -44,9 +44,9 @@ function RegisterScreen({ navigation }: Props) {
         setLoading(true);
 
         // Xử lý đăng ký xong ở đây
-        if (role === "business") {
-          navigation.replace("BusinessRegistrationStepTwo");
-        } else if (role === "tax") {
+        if (userType === 1) {
+          navigation.replace("ChooseTaxTypeForHouseholdBusiness");
+        } else if (userType === 2) {
           navigation.replace("NavigationAccountant");
         }
       }, 2000);
@@ -54,7 +54,7 @@ function RegisterScreen({ navigation }: Props) {
   };
 
   return (
-    <RoleContext.Provider value={{ role, setRole }}>
+    <UserTypeContext.Provider value={{ userType, setUserType }}>
       <View style={{ flex: 1, backgroundColor: ColorMain }}>
         <HeaderLogin name={"Đăng ký"} />
         <View style={stylesAuth.containerWrapper}>
@@ -94,6 +94,8 @@ function RegisterScreen({ navigation }: Props) {
               ) : (
                 <FormRegister
                   username={username}
+                  email={email}
+                  setEmail={setEmail}
                   setUsername={setUsername}
                   password={password}
                   setPassword={setPassword}
@@ -103,14 +105,13 @@ function RegisterScreen({ navigation }: Props) {
                   setSubmit={setSubmit}
                   veryPassword={veryPassword}
                   setVeryPassword={setVeryPassword}
-                  role={role}
                 />
               )}
             </View>
           </ImageBackground>
         </View>
       </View>
-    </RoleContext.Provider>
+    </UserTypeContext.Provider>
   );
 }
 

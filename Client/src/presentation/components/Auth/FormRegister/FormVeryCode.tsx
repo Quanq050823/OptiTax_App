@@ -18,6 +18,8 @@ function FormVeryCode({
   navigation,
   setSubmit,
 }: Props) {
+
+  
   return (
     <View style={{ marginTop: 20, width: "100%", flex: 1 }}>
       <TouchableOpacity

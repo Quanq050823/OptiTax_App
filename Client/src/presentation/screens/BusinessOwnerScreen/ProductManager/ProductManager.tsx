@@ -19,6 +19,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Searchbar } from "react-native-paper";
 
 export default function ProductManagerScreen() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -33,6 +34,8 @@ export default function ProductManagerScreen() {
   const [image, setImage] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
   // const [products, setProducts] = useState([
   //   {
   //     id: "1",
@@ -159,7 +162,11 @@ export default function ProductManagerScreen() {
       <View
         style={[
           styles.card,
-          { width: ITEM_WIDTH, marginHorizontal: ITEM_MARGIN / 2 },
+          {
+            width: ITEM_WIDTH,
+            marginHorizontal: ITEM_MARGIN / 2,
+            position: "relative",
+          },
         ]}
       >
         <View style={{ flex: 1, alignItems: "center", width: "80%" }}>
@@ -169,27 +176,39 @@ export default function ProductManagerScreen() {
           <Text style={styles.detail}>Số lượng: {item.stock}</Text>
         </View>
         {showAction === item.code && (
-          <View
-            style={{
-              flexDirection: "row",
-              width: "100%",
-              justifyContent: "space-around",
-              marginTop: 20,
-            }}
-          >
-            <MaterialIcons
-              name="delete-outline"
-              size={24}
-              color="red"
-              onPress={() => handleDeleteProduct(item._id)}
-            />
-            <AntDesign
-              name="edit"
-              size={24}
-              color={ColorMain}
-              onPress={() => handleOpenModalEditProduct(item._id)}
-            />
-          </View>
+          <>
+            <View
+              style={{
+                flexDirection: "row",
+                width: "100%",
+                justifyContent: "space-around",
+                marginTop: 20,
+              }}
+            >
+              <MaterialIcons
+                name="delete-outline"
+                size={24}
+                color="red"
+                onPress={() => handleDeleteProduct(item._id)}
+              />
+              <AntDesign
+                name="edit"
+                size={24}
+                color={ColorMain}
+                onPress={() => handleOpenModalEditProduct(item._id)}
+              />
+            </View>
+            <View
+              style={{
+                position: "absolute",
+                flex: 1,
+                backgroundColor: "#24408f1a",
+                zIndex: -10,
+                inset: 0,
+                borderRadius: 8,
+              }}
+            ></View>
+          </>
         )}
       </View>
     </TouchableOpacity>
@@ -197,49 +216,71 @@ export default function ProductManagerScreen() {
 
   return (
     <View style={styles.container}>
-      {/* <Text style={styles.header}>Quản lý sản phẩm</Text> */}
-
-      <View style={{ padding: 10 }}>
+      {products ? (
+        <>
+          {/* <Text style={styles.header}>Quản lý sản phẩm</Text> */}
+          <View
+            style={[styles.shadow, { marginTop: 20, paddingHorizontal: 10 }]}
+          >
+            <Searchbar
+              placeholder="Tìm kiếm sản phẩm"
+              onChangeText={setSearchQuery}
+              value={searchQuery}
+              icon="magnify"
+              style={{ backgroundColor: "#fff" }}
+              iconColor={ColorMain}
+              placeholderTextColor={ColorMain}
+            />
+          </View>
+          {/* <View style={{ padding: 10 }}>
         <TextInput
           placeholder="Tìm sản phẩm..."
           style={styles.searchInput}
           placeholderTextColor="#999"
         />
-      </View>
-
-      <FlatList
-        data={products}
-        keyExtractor={(item) => item._id}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 80, paddingHorizontal: 5 }}
-        columnWrapperStyle={{ justifyContent: "space-between" }}
-        numColumns={2}
-      />
-
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => setVisible(true)}
-      >
-        <Ionicons name="add" size={28} color="#fff" />
-        <Text style={styles.addText}>Thêm sản phẩm</Text>
-      </TouchableOpacity>
-      <ModalAddProduct
-        visible={visible}
-        setVisible={setVisible}
-        onAddProduct={handleAddProduct}
-        setName={setName}
-        setPrice={(price: string) => setPrice(Number(price))}
-        setStock={(stock: string) => setStock(Number(stock))}
-        setCode={setCode}
-        setDescription={setDescription}
-        setCategory={setCategory}
-      />
-      {showEditProduct && (
-        <ModalEditProduct
-          setShowEditProduct={setShowEditProduct}
-          fetchData={fetchData}
-          idEditProduct={idEditProduct}
-        />
+      </View> */}
+          <FlatList
+            data={products}
+            keyExtractor={(item) => item._id}
+            renderItem={renderItem}
+            contentContainerStyle={{
+              paddingBottom: 80,
+              paddingHorizontal: 5,
+              marginTop: 20,
+            }}
+            columnWrapperStyle={{ justifyContent: "space-between" }}
+            numColumns={2}
+          />
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => setVisible(true)}
+          >
+            <Ionicons name="add" size={28} color="#fff" />
+            <Text style={styles.addText}>Thêm sản phẩm</Text>
+          </TouchableOpacity>
+          <ModalAddProduct
+            visible={visible}
+            setVisible={setVisible}
+            onAddProduct={handleAddProduct}
+            setName={setName}
+            setPrice={(price: string) => setPrice(Number(price))}
+            setStock={(stock: string) => setStock(Number(stock))}
+            setCode={setCode}
+            setDescription={setDescription}
+            setCategory={setCategory}
+          />
+          {showEditProduct && (
+            <ModalEditProduct
+              setShowEditProduct={setShowEditProduct}
+              fetchData={fetchData}
+              idEditProduct={idEditProduct}
+            />
+          )}
+        </>
+      ) : (
+        <View>
+          <Text>haha</Text>
+        </View>
       )}
     </View>
   );
@@ -271,6 +312,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderRadius: 8,
     alignItems: "center",
+    minHeight: 200,
 
     // Shadow
     shadowColor: "#000",
@@ -311,5 +353,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 8,
     fontWeight: "600",
+  },
+  shadow: {
+    shadowColor: ColorMain,
+    shadowOpacity: 0.22,
+    shadowOffset: { width: 0, height: 1 },
   },
 });

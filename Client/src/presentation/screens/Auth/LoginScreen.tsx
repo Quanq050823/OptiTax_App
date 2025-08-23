@@ -15,6 +15,7 @@ import {
   View,
 } from "react-native";
 import { TextInput } from "react-native-paper";
+import { TokenStorage } from "@/src/utils/tokenStorage";
 
 function LoginScreen({ navigation }: Props) {
   const [username, setUsername] = useState("");
@@ -22,14 +23,15 @@ function LoginScreen({ navigation }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const handleLogin = async () => {
+    
     if (!username || !password) {
       Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thông tin.");
       return;
     }
     setLoading(true);
-    const result = await login({ username, password });
-    console.log("Login result:", result);
     try {
+      const result = await login({ username, password });
+      console.log("Login result:", result);
       setLoading(false);
       navigation.replace("NavigationBusiness");
       //   if (result?.role === 1) {

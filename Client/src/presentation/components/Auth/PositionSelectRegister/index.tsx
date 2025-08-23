@@ -1,19 +1,18 @@
-import { RoleContext } from "@/src/presentation/Hooks/RoleContext";
+import { UserTypeContext } from "@/src/presentation/Hooks/UserTypeContext";
 import React, { useContext, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 
 const data = [
-  { label: "Hộ kinh doanh", value: "business" },
-  { label: "Kế toán viên", value: "tax" },
+  { label: "Hộ kinh doanh", value: 1 },
+  { label: "Kế toán viên", value: 2 },
 ];
 
 const PositionSelectRegister = () => {
-  const { role, setRole } = useContext(RoleContext);
-
+  const { userType, setUserType } = useContext(UserTypeContext);
   useEffect(() => {
-    console.log("✅ Vai trò đã cập nhật:", role);
-  }, [role]);
+    console.log(userType, "đã chọn");
+  }, [userType]);
 
   return (
     <View style={styles.container}>
@@ -25,9 +24,9 @@ const PositionSelectRegister = () => {
         labelField="label"
         valueField="value"
         placeholder="Chọn chức vụ --"
-        value={role}
+        value={userType}
         onChange={(item) => {
-          setRole(item.value);
+          setUserType(item.value);
         }}
       />
     </View>
