@@ -26,14 +26,24 @@ import ChooseTaxTypeForHouseholdBusiness from "@/src/presentation/screens/Auth/C
 import SelectDigitalSignaturePlan from "@/src/presentation/screens/BusinessOwnerScreen/SelectDigitalSignaturePlan/SelectDigitalSignaturePlan";
 import SelectElectronicInvoice from "@/src/presentation/screens/BusinessOwnerScreen/SelectElectronicInvoice/SelectElectronicInvoice";
 import PaymentScreen from "@/src/presentation/screens/BusinessOwnerScreen/Payment/Payment";
+import ReportScreen from "@/src/presentation/screens/BusinessOwnerScreen/ReportScreen/ReportScreen";
+import { ColorMain } from "@/src/presentation/components/colors";
+import InputProducts from "@/src/presentation/screens/BusinessOwnerScreen/InputProducts/InputProducts";
+import CreateVoucherInputProduct from "@/src/presentation/screens/BusinessOwnerScreen/CreateVoucherInputProduct/CreateVoucherInputProduct";
+import ScanBarcodeProduct from "@/src/presentation/screens/BusinessOwnerScreen/ScanBarcodeProduct/ScanBarcodeProduct";
+import Invoice from "@/src/presentation/screens/BusinessOwnerScreen/Invoice/Invoice";
+import InvoiceDetail from "@/src/presentation/screens/BusinessOwnerScreen/InvoiceDetail/InvoiceDetail";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
   return (
     <Stack.Navigator
-      screenOptions={{
-        header: (props) => <HeaderNavigation {...props} />,
-      }}
+      screenOptions={({ route }) => ({
+        header:
+          route.name === "ReportScreen"
+            ? undefined // 👉 dùng header mặc định
+            : (props) => <HeaderNavigation {...props} />,
+      })}
     >
       <Stack.Screen
         name="Layout"
@@ -99,7 +109,6 @@ const HomeLayout = () => {
         }}
         component={SettingScreen}
       />
-
       <Stack.Screen
         name="ProductManager"
         options={{
@@ -162,6 +171,58 @@ const HomeLayout = () => {
           title: "Chọn gói Hoá đơn điện tử",
         }}
         component={PaymentScreen}
+      />
+      <Stack.Screen
+        name="ReportScreen"
+        options={{
+          title: "Báo cáo",
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: "#3F4E87",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
+          headerBackTitle: "Trở lại ",
+        }}
+        component={ReportScreen}
+      />
+      <Stack.Screen
+        name="InputProductsScreen"
+        options={{
+          title: "Nhập hàng",
+        }}
+        component={InputProducts}
+      />
+
+      <Stack.Screen
+        name="ScanBarcodeProductScreen"
+        options={{
+          title: "Quét mã sản phẩm",
+        }}
+        component={ScanBarcodeProduct}
+      />
+      <Stack.Screen
+        name="CreateVoucherInputProductScreen"
+        options={{
+          title: "Tạo phiếu nhập",
+        }}
+        component={CreateVoucherInputProduct}
+      />
+      <Stack.Screen
+        name="InvoiceScreen"
+        options={{
+          title: "Hoá đơn",
+        }}
+        component={Invoice}
+      />
+      <Stack.Screen
+        name="InvoiceDetailScreen"
+        options={{
+          title: "Chi tiết",
+        }}
+        component={InvoiceDetail}
       />
     </Stack.Navigator>
   );

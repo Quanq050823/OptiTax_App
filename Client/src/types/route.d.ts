@@ -1,4 +1,5 @@
 type RootStackParamList = {
+  VerifyAuth: undefined;
   HomeScreen: undefined;
   OptionScreen: undefined;
   Login: undefined;
@@ -8,6 +9,8 @@ type RootStackParamList = {
   BusinessRegistrationStepTwo: undefined;
   ProfileBusiness: undefined;
   LanguagesScreen: undefined;
+  InvoiceScreen: undefined;
+  InvoiceDetailScreen: { item: Invoice };
   InvoiceInputScreen: undefined;
   InvoiceOutputScreen: undefined;
   ReceiptVoucherScreen: undefined;
@@ -22,6 +25,11 @@ type RootStackParamList = {
   CustomerManagerScreen: undefined;
   ChooseTaxTypeForHouseholdBusiness: undefined;
   SelectDigitalSignaturePlan: undefined;
+  ReportScreen: undefined;
+  InputProductsScreen: undefined;
+  CreateVoucherInputProductScreen: undefined;
+  ScanBarcodeProductScreen: undefined;
+
   SelectElectronicInvoice: {
     digitalSignature: {
       label: string;
@@ -84,4 +92,12 @@ type FormDataType = {
   };
   phoneNumber: string;
   industry: string;
+};
+
+type Invoice = {
+  id: string;
+  date: string;
+  supplier: string;
+  total: number;
+  status: number;
 };

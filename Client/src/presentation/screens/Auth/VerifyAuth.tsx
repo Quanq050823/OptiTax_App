@@ -8,7 +8,9 @@ import { UserTypeContext } from "@/src/presentation/Hooks/UserTypeContext";
 import { stylesAuth } from "@/src/presentation/screens/Auth/Styles";
 import { getUserProfile } from "@/src/services/API/profileService";
 import { useContext, useEffect, useState } from "react";
-import { Alert, ImageBackground, View } from "react-native";
+import { Alert, ImageBackground, Text, View } from "react-native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { usePathname } from "expo-router";
 
 type User = {
   id: number;
@@ -16,46 +18,34 @@ type User = {
   password: string;
   userType: number;
 };
+type RootStackNav = StackNavigationProp<RootStackParamList>;
 
-function RegisterScreen({ navigation }: Props) {
-  const navigate = useAppNavigation();
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [veryPassword, setVeryPassword] = useState("");
+function VerifyAuth({ navigation }: Props) {
   const { userType, setUserType } = useContext(UserTypeContext);
-  const [showPassword, setShowPassword] = useState(false);
-  const [submit, setSubmit] = useState(false);
-  const [code, setCode] = useState("");
-  const [userRegister, setUserRegister] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [role, setRole] = useState();
-  const handleSubmit = () => {
-    if (!username || !password || !veryPassword || !userType) {
-      Alert.alert("Không được để trống!");
-    } else {
-      setSubmit(true);
-    }
-  };
-  const handleVeriCode = () => {
-    setLoading(true);
-    if (!code) {
-      Alert.alert("Không được để trống");
-      setLoading(false);
-    } else {
-      setTimeout(() => {
-        setLoading(true);
+  useEffect(() => {
+    fetchProfile();
+  }, [userType]);
 
-        // Xử lý đăng ký xong ở đây
+  const [profile, setProfile] = useState<any>(null);
+  const path = usePathname();
+  console.log("📍 Current route:", path);
+  const fetchProfile = async () => {
+    try {
+      const data = (await getUserProfile()) as any;
+      if (data.isVerified === true) {
         if (userType === 1) {
           navigation.replace("BusinessRegistrationStepTwo");
         } else if (userType === 2) {
           navigation.replace("NavigationAccountant");
         }
-      }, 2000);
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      navigation.replace("Login");
+      
     }
   };
-  
+
   return (
     <UserTypeContext.Provider value={{ userType, setUserType }}>
       <View style={{ flex: 1, backgroundColor: ColorMain }}>
@@ -86,30 +76,17 @@ function RegisterScreen({ navigation }: Props) {
           >
             <View style={stylesAuth.wrapLogin}>
               <Logo widthLogo={70} heightLogo={65} />
-              {submit ? (
-                <FormVeryCode
-                  setCode={setCode}
-                  onVeryCode={handleVeriCode}
-                  navigation={navigation}
-                  setSubmit={setSubmit}
-                  loading={loading}
-                />
-              ) : (
-                <FormRegister
-                  username={username}
-                  email={email}
-                  setEmail={setEmail}
-                  setUsername={setUsername}
-                  password={password}
-                  setPassword={setPassword}
-                  showPassword={showPassword}
-                  setShowPassword={setShowPassword}
-                  navigation={navigation}
-                  setSubmit={setSubmit}
-                  veryPassword={veryPassword}
-                  setVeryPassword={setVeryPassword}
-                />
-              )}
+
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontSize: 18,
+                  fontWeight: "600",
+                  marginVertical: 100,
+                }}
+              >
+                Đang xác minh tài khoản
+              </Text>
             </View>
           </ImageBackground>
         </View>
@@ -118,4 +95,4 @@ function RegisterScreen({ navigation }: Props) {
   );
 }
 
-export default RegisterScreen;
+export default VerifyAuth;

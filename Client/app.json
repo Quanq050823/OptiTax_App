@@ -1,22 +1,33 @@
 {
   "expo": {
     "name": "TaxDemo",
-    "slug": "TaxDemo",
+    "slug": "taxDemo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "taxdemo",
     "userInterfaceStyle": "automatic",
+        "deepLink": true,
+
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Ứng dụng cần quyền truy cập camera để quét mã vạch"
+      },
+            "bundleIdentifier": "com.company.taxdemo"
+
+      
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+       "permissions": ["CAMERA"],
+             "package": "com.company.taxdemo"
+
     },
     "web": {
       "bundler": "metro",

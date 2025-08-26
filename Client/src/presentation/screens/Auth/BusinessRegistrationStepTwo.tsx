@@ -9,7 +9,8 @@ import { BusinessInforAuth } from "@/src/services/API/profileService";
 import { TokenStorage } from "@/src/utils/tokenStorage";
 import { Label } from "@react-navigation/elements";
 import { CommonActions } from "@react-navigation/native";
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -60,7 +61,6 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
       industry,
     } = formData;
 
-    
     // Kiểm tra các trường bắt buộc
     if (
       !businessName.trim() ||
@@ -88,6 +88,7 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
       Alert.alert("Xác minh thất bại", error?.message || "Có lỗi xảy ra.");
     }
   };
+
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
@@ -102,7 +103,7 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
             </Text>
             <View style={{ width: "100%", marginTop: 50 }}>
               <Text style={stylesBST.labelInput}>
-                Tên hộ kinh doanh{" "}
+                Tên hộ kinh doanh
                 <Text style={{ color: "red", fontWeight: "500" }}>*</Text>
               </Text>
               <TextInput

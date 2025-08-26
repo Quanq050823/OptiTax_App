@@ -263,7 +263,7 @@ export default function ProductManagerScreen() {
             setVisible={setVisible}
             onAddProduct={handleAddProduct}
             setName={setName}
-            setPrice={(price: string) => setPrice(Number(price))}
+            setPrice={(price: number) => setPrice(Number(price))}
             setStock={(stock: string) => setStock(Number(stock))}
             setCode={setCode}
             setDescription={setDescription}

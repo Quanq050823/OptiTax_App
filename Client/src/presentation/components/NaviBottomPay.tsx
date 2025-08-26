@@ -14,10 +14,17 @@ import { View } from "react-native";
 
 type NaviBottomPayProps = {
   label: string;
-  screen: keyof RootStackParamList;
-  selectedItems?: { label: string; price: number }[];
+  screen?: keyof RootStackParamList;
+  selectedItems?: {
+    label: string;
+    price: number;
+    qty: number;
+    name?: string;
+  }[];
   params?: any;
   selectedInvoice?: any;
+  des?: string;
+  qty?: number;
 };
 function NaviBottomPay({
   label,
@@ -25,6 +32,7 @@ function NaviBottomPay({
   selectedItems,
   params,
   selectedInvoice,
+  des,
 }: NaviBottomPayProps) {
   const [open, setOpen] = useState(false);
 
@@ -50,7 +58,10 @@ function NaviBottomPay({
     }
   };
   const totalPriceSelect =
-    selectedItems?.reduce((sum, item) => sum + item.price, 0) ?? 0;
+    selectedItems?.reduce(
+      (sum, item) => sum + item.price * (item.qty ?? 1),
+      0
+    ) ?? 0;
   return (
     <View style={styles.wrapper}>
       {/* Thanh bottom */}
@@ -62,7 +73,9 @@ function NaviBottomPay({
           activeOpacity={0.85}
         >
           <View style={styles.summaryLeft}>
-            <Text style={{ fontWeight: "600" }}>Tổng các gói đã chọn…</Text>
+            <Text style={{ fontWeight: "600" }}>
+              {des ? des : "Tổng các gói đã chọn…"}{" "}
+            </Text>
             {/* Mũi tên hướng lên (tam giác) */}
             <View style={styles.arrowUp} />
           </View>
@@ -106,8 +119,15 @@ function NaviBottomPay({
               }
               renderItem={({ item }) => (
                 <View style={styles.rowBetween}>
-                  <Text style={{ flex: 1 }}>{item.label}</Text>
-                  <Text>{item.price.toLocaleString("vi-VN")} VND</Text>
+                  <Text style={{ flex: 1 }}>
+                    {item.label || item.name} {item.qty ? ` x${item.qty}` : ""}
+                  </Text>
+                  <Text>
+                    {item.qty
+                      ? (item.price * item.qty).toLocaleString("vi-VN")
+                      : item.price.toLocaleString("vi-VN")}
+                    VND
+                  </Text>
                 </View>
               )}
               style={{ marginTop: 8 }}
@@ -119,7 +139,7 @@ function NaviBottomPay({
             <View style={styles.rowBetween}>
               <Text style={{ fontWeight: "700" }}>Tổng cộng</Text>
               <Text style={[styles.totalPrice, { marginTop: 0 }]}>
-                {totalPriceSelect?.toLocaleString("vi-VN")} VND
+                {totalPriceSelect.toLocaleString("vi-VN")} VND
               </Text>
             </View>
 
@@ -239,6 +259,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     gap: 10,
     marginTop: 8,
+    paddingBottom: 15,
   },
   sheetClose: {
     height: 44,

@@ -46,7 +46,7 @@ function HomeScreen(): React.JSX.Element {
     {
       key: "connect",
       label: "Kết nối KT",
-      icon: <FontAwesome name="users" size={32} color="#2196F3" />,
+      icon: <FontAwesome name="user" size={32} color="#009688" />,
       notify: 2,
       navigate: () => {
         navigate.navigate("SearchAccountantScreen");
@@ -56,6 +56,9 @@ function HomeScreen(): React.JSX.Element {
       key: "report",
       label: "Báo cáo",
       icon: <FontAwesome name="bar-chart" size={32} color="#FF9800" />,
+      navigate: () => {
+        navigate.navigate("ReportScreen");
+      },
     },
     // {
     //   key: "capture invoices",
@@ -73,6 +76,7 @@ function HomeScreen(): React.JSX.Element {
       key: "input",
       label: "Nhập hàng",
       icon: <FontAwesome name="download" size={32} color="#9C27B0" />,
+      navigate: () => navigate.navigate("InputProductsScreen"),
     },
     {
       key: "output",
@@ -144,6 +148,7 @@ function HomeScreen(): React.JSX.Element {
       label: "Hóa đơn",
       icon: <MaterialIcons name="receipt" size={32} color={ColorMain} />,
       notify: 1,
+      navigate: () => navigate.navigate("InvoiceScreen"),
     },
 
     {
@@ -332,7 +337,7 @@ function HomeScreen(): React.JSX.Element {
             ))}
           </View>
         </View>
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
+        {/* <ScrollView contentContainerStyle={{ padding: 20 }}>
           <Button title="Chọn ảnh hóa đơn" onPress={selectImage} />
 
           {imageUri && (
@@ -369,7 +374,7 @@ function HomeScreen(): React.JSX.Element {
               />
             )}
           </View>
-        )}
+        )} */}
         <View style={styles.container}>
           <Label
             style={{
