@@ -1,3 +1,4 @@
+import { ColorMain } from "@/src/presentation/components/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { Pressable, Text, View } from "react-native";
@@ -7,7 +8,7 @@ const HeaderNavigation: React.FC<NativeStackHeaderProps> = (props) => {
     <View
       style={{
         height: 100, // ✅ Chiều cao tùy ý
-        backgroundColor: "#fff",
+        backgroundColor: ColorMain,
         flexDirection: "row",
         alignItems: "center",
         paddingHorizontal: 10,
@@ -25,7 +26,7 @@ const HeaderNavigation: React.FC<NativeStackHeaderProps> = (props) => {
           zIndex: 10,
         }}
       >
-        <Ionicons name="arrow-back" size={24} color="#000" />
+        <Ionicons name="arrow-back" size={24} color="#fff" />
       </Pressable>
       <Text
         style={{
@@ -33,6 +34,7 @@ const HeaderNavigation: React.FC<NativeStackHeaderProps> = (props) => {
           fontWeight: "bold",
           flex: 1,
           textAlign: "center",
+          color: "#fff",
         }}
       >
         {props.options.title || props.route.name}

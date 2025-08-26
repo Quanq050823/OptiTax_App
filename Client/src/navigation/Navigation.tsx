@@ -5,6 +5,7 @@ import BusinessRegistrationStepTwo from "@/src/presentation/screens/Auth/Busines
 import ChooseTaxTypeForHouseholdBusiness from "@/src/presentation/screens/Auth/ChooseTaxTypeForHouseholdBusiness ";
 import LoginScreen from "@/src/presentation/screens/Auth/LoginScreen";
 import RegisterScreen from "@/src/presentation/screens/Auth/Register";
+import VerifyAuth from "@/src/presentation/screens/Auth/VerifyAuth";
 import SelectDigitalSignaturePlan from "@/src/presentation/screens/BusinessOwnerScreen/SelectDigitalSignaturePlan/SelectDigitalSignaturePlan";
 import TaxDeclaration from "@/src/presentation/screens/BusinessOwnerScreen/SelectDigitalSignaturePlan/SelectDigitalSignaturePlan";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -34,6 +35,8 @@ function AppNavigation() {
           component={NavigationBusiness}
         />
         <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="VerifyAuth" component={VerifyAuth} />
+        <Stack.Screen name="Register" component={RegisterScreen} />
 
         <Stack.Screen
           name="ChooseTaxTypeForHouseholdBusiness"
@@ -43,17 +46,11 @@ function AppNavigation() {
           name="SelectDigitalSignaturePlan"
           component={SelectDigitalSignaturePlan}
         />
-        <Stack.Screen
-          name="BusinessRegistrationStepTwo"
-          component={BusinessRegistrationStepTwo}
-        />
 
         <Stack.Screen
           name="BusinessRegistrationStepThree"
           component={BusinessRegistrationStepThree}
         />
-
-        <Stack.Screen name="Register" component={RegisterScreen} />
 
         <Stack.Screen
           name="NavigationAccountant"

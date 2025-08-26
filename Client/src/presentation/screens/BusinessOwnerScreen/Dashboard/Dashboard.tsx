@@ -1,5 +1,7 @@
+import Analytics from "@/src/presentation/components/Analytics";
 import { ColorMain } from "@/src/presentation/components/colors";
 import NotCompletedTaxReturnForm from "@/src/presentation/components/NotCompletedTaxReturnForm/NotCompletedTaxReturnForm";
+import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import ChooseTaxTypeForHouseholdBusiness from "@/src/presentation/screens/Auth/ChooseTaxTypeForHouseholdBusiness ";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -12,10 +14,11 @@ function Dashboard() {
   };
   return (
     <View style={{ flex: 1, backgroundColor: "#fff", width: "100%" }}>
-      <View style={styles.container}>
-        {!user.state && <NotCompletedTaxReturnForm />}
-      </View>
-      {/* <ChooseTaxTypeForHouseholdBusiness /> */}
+      <ScreenContainer>
+        <View style={styles.container}>
+          {!user.state ? <NotCompletedTaxReturnForm /> : <Analytics />}
+        </View>
+      </ScreenContainer>
     </View>
   );
 }

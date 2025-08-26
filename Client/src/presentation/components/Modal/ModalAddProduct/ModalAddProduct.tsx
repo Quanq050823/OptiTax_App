@@ -14,7 +14,7 @@ interface ModalAddProductProps {
   setVisible: (visible: boolean) => void;
   onAddProduct: any;
   setName: (name: string) => void;
-  setPrice: (price: string) => void;
+  setPrice: (price: number) => void;
   setStock: (quantity: string) => void;
   setCode: (code: string) => void;
   setDescription: (description: string) => void;
@@ -148,14 +148,15 @@ const styleModal = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "center",
+    justifyContent: "flex-end",
     alignItems: "center",
   },
   modalContent: {
-    width: "90%",
+    width: "100%",
     backgroundColor: "#fff",
     padding: 24,
     borderRadius: 12,
+    height: "90%",
   },
   modalText: {
     fontSize: 18,

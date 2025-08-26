@@ -18,8 +18,6 @@ function FormVeryCode({
   navigation,
   setSubmit,
 }: Props) {
-
-  
   return (
     <View style={{ marginTop: 20, width: "100%", flex: 1 }}>
       <TouchableOpacity
@@ -29,7 +27,7 @@ function FormVeryCode({
         <Ionicons name="arrow-back" size={17} color={ColorMain} />
         <Text style={styleLabel.text}>Trở lại</Text>
       </TouchableOpacity>
-      <Text style={{ marginBottom: 20, color: ColorMain, marginTop: 50 }}>
+      {/* <Text style={{ marginBottom: 20, color: ColorMain, marginTop: 50 }}>
         Mã xác nhận được gửi đến 0987654321
       </Text>
       <TextInput
@@ -46,7 +44,17 @@ function FormVeryCode({
         <Text style={stylesAuth.textBtnLogin}>
           {loading ? <ActivityIndicator color="#fff" /> : "Xác nhận"}
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      <Text
+        style={{
+          textAlign: "center",
+          fontSize: 18,
+          fontWeight: "600",
+          marginVertical: 100,
+        }}
+      >
+        Đang xác minh tài khoản
+      </Text>
       <TouchableOpacity
         style={{
           flexDirection: "row",

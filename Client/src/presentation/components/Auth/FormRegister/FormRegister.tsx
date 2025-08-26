@@ -34,10 +34,10 @@ function FormRegister({
   console.log(email);
 
   const handleRegister = async () => {
-    if (!username || !email || !password || !veryPassword || !userType) {
-      Alert.alert("Không được để trống!");
-      return;
-    }
+    // if (!username || !email || !password || !veryPassword || !userType) {
+    //   Alert.alert("Không được để trống!");
+    //   return;
+    // }
 
     setLoading(true);
     try {
@@ -54,7 +54,8 @@ function FormRegister({
         userType,
       });
       setLoading(false);
-      setSubmit(true);
+      navigate.navigate("VerifyAuth");
+      // setSubmit(true);
     } catch (error: any) {
       setLoading(false);
       Alert.alert("Đăng ký thất bại", error?.message || "Có lỗi xảy ra.");
