@@ -23,7 +23,6 @@ const InvoiceDetailScreen = ({ route }: any) => {
   return (
     <View style={styles.container}>
       {/* Tiêu đề */}
-      <Text style={styles.title}>Chi tiết hoá đơn</Text>
 
       {/* Thông tin chung */}
       <View style={styles.card}>
@@ -36,8 +35,17 @@ const InvoiceDetailScreen = ({ route }: any) => {
           <Text style={styles.value}>{item.date}</Text>
         </View>
         <View style={styles.flexLabel}>
-          <Text style={styles.label}>Nhà cung cấp:</Text>
-          <Text style={styles.value}>{item.supplier}</Text>
+          <Text style={styles.label}>
+            Mẫu số: <Text style={styles.value}>2</Text>
+          </Text>
+          <Text style={styles.label}>
+            Kí hiệu: <Text style={styles.value}>C25TNH</Text>
+          </Text>
+        </View>
+        <View style={styles.flexLabel}>
+          <Text style={styles.label}>
+            Số: <Text style={styles.value}>123</Text>
+          </Text>
         </View>
         <View style={styles.flexLabel}>
           <Text style={styles.label}>Tổng tiền:</Text>

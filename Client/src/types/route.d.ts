@@ -16,7 +16,7 @@ type RootStackParamList = {
   ReceiptVoucherScreen: undefined;
   PaymentVoucherScreen: undefined;
   SettingScreen: undefined;
-  ProductManager: undefined;
+  ProductManager: { scannedProduct?: any };
   Layout: undefined;
   SearchAccountantScreen: undefined;
   ChangePasswordScreen: undefined;
