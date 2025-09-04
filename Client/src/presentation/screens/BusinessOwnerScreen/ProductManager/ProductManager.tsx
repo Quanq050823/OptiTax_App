@@ -1,12 +1,25 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import ModalAddProduct from "@/src/presentation/components/Modal/ModalAddProduct/ModalAddProduct";
 import ModalEditProduct from "@/src/presentation/components/Modal/ModalEditProduct/ModalEditProduct";
+import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
+import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import {
   createProduct,
   deleteProduct,
   getProducts,
 } from "@/src/services/API/productService";
-import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import {
+  InvoiceListResponse,
+  Product,
+  RootStackParamList,
+} from "@/src/types/route";
+import {
+  AntDesign,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
+import { CommonActions, RouteProp, useRoute } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -22,7 +35,12 @@ import {
 import { Searchbar } from "react-native-paper";
 
 export default function ProductManagerScreen() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const route = useRoute<RouteProp<RootStackParamList, "ProductManager">>();
+  const productScan = route.params?.scannedProduct;
+  console.log(productScan);
+
+  const navigate = useAppNavigation();
+  const [products, setProducts] = useState<InvoiceListResponse | null>(null);
   const [idEditProduct, setIdEditProduct] = useState<string | null>(null);
   const [showAction, setShowAction] = useState<string | null>(null);
   const [showEditProduct, setShowEditProduct] = useState<string | null>(null);
@@ -36,36 +54,6 @@ export default function ProductManagerScreen() {
   const [category, setCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // const [products, setProducts] = useState([
-  //   {
-  //     id: "1",
-  //     name: "Áo thun nam",
-  //     price: 150000,
-  //     quantity: 10,
-  //     image: "https://via.placeholder.com/80",
-  //   },
-  //   {
-  //     id: "2",
-  //     name: "Quần jeans nữ",
-  //     price: 250000,
-  //     quantity: 5,
-  //     image: "https://via.placeholder.com/80",
-  //   },
-  //   {
-  //     id: "3",
-  //     name: "Quần jeans nam",
-  //     price: 250000,
-  //     quantity: 5,
-  //     image: "https://via.placeholder.com/80",
-  //   },
-  //   {
-  //     id: "4",
-  //     name: "Áo khoác nam",
-  //     price: 200000,
-  //     quantity: 5,
-  //     image: "https://via.placeholder.com/80",
-  //   },
-  // ]);
   const screenWidth = Dimensions.get("window").width;
   const ITEM_MARGIN = 8;
   const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
@@ -83,12 +71,32 @@ export default function ProductManagerScreen() {
     attributes: [{ key: "đường", value: "có" }],
   };
 
+  useEffect(() => {
+    if (productScan) {
+      setVisible(true);
+      // Có thể set luôn các field mặc định từ productScan
+      setName(productScan.name || "");
+      setCode(productScan._id?.toString() || "");
+      setCategory(
+        typeof productScan.category === "object"
+          ? Object.values(productScan.category).join(", ")
+          : productScan.category || ""
+      );
+      setDescription(productScan.description);
+    }
+  }, [productScan]);
   const fetchData = async () => {
     try {
       const data = await getProducts();
-      setProducts(data as Product[]);
+      setProducts(data);
     } catch (error) {
       console.error("Error fetching products:", error);
+      navigate.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: "Login" }],
+        })
+      );
     }
   };
 
@@ -219,18 +227,49 @@ export default function ProductManagerScreen() {
       {products ? (
         <>
           {/* <Text style={styles.header}>Quản lý sản phẩm</Text> */}
-          <View
-            style={[styles.shadow, { marginTop: 20, paddingHorizontal: 10 }]}
-          >
-            <Searchbar
-              placeholder="Tìm kiếm sản phẩm"
-              onChangeText={setSearchQuery}
-              value={searchQuery}
-              icon="magnify"
-              style={{ backgroundColor: "#fff" }}
-              iconColor={ColorMain}
-              placeholderTextColor={ColorMain}
-            />
+          <View style={{ paddingHorizontal: 10, paddingTop: 10 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor: "#fff",
+                shadowColor: ColorMain,
+                shadowOpacity: 0.22,
+                shadowOffset: { width: 0, height: 1 },
+                borderRadius: 50,
+                width: "100%",
+              }}
+            >
+              <Searchbar
+                placeholder="Tìm kiếm sản phẩm"
+                onChangeText={setSearchQuery}
+                value={searchQuery}
+                icon="magnify"
+                style={{
+                  backgroundColor: "transparent",
+                  width: "70%",
+                }}
+                iconColor={ColorMain}
+                placeholderTextColor={ColorMain}
+              />
+              <TouchableOpacity
+                style={{
+                  width: 60,
+                  height: 40,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 8,
+                }}
+                onPress={() => navigate.navigate("ScanBarcodeProductScreen")}
+              >
+                <MaterialCommunityIcons
+                  name="barcode-scan"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            </View>
           </View>
           {/* <View style={{ padding: 10 }}>
         <TextInput
@@ -248,7 +287,10 @@ export default function ProductManagerScreen() {
               paddingHorizontal: 5,
               marginTop: 20,
             }}
-            columnWrapperStyle={{ justifyContent: "space-between" }}
+            columnWrapperStyle={{
+              justifyContent: "space-between",
+              marginTop: 20,
+            }}
             numColumns={2}
           />
           <TouchableOpacity
@@ -263,6 +305,10 @@ export default function ProductManagerScreen() {
             setVisible={setVisible}
             onAddProduct={handleAddProduct}
             setName={setName}
+            name={name}
+            code={code}
+            category={category}
+            description={description}
             setPrice={(price: number) => setPrice(Number(price))}
             setStock={(stock: string) => setStock(Number(stock))}
             setCode={setCode}

@@ -1,11 +1,19 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import HeaderScreen from "@/src/presentation/components/layout/Header";
 import InvoiInputList from "@/src/presentation/components/List/InvoiInputList";
+import ModalLoginCCT from "@/src/presentation/components/Modal/ModalEditProduct/ModalLoginCCT";
 import ModalSynchronized from "@/src/presentation/components/Modal/ModalSynchronized";
 import SearchByName from "@/src/presentation/components/SearchByName";
-import { FontAwesome5, Fontisto } from "@expo/vector-icons";
-import { useState } from "react";
 import {
+  getInvoiceInputList,
+  getInvoiceList,
+} from "@/src/services/API/invoiceService";
+import { Invoice } from "@/src/types/route";
+import { FontAwesome5, Fontisto } from "@expo/vector-icons";
+import { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Easing,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,6 +23,55 @@ import {
 
 function InvoiceInput() {
   const [visible, setVisible] = useState(false);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [openLogin, setOpenLogin] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const spinValue = useRef(new Animated.Value(0)).current;
+
+  const fetchListInvoice = async () => {
+    try {
+      const data = await getInvoiceInputList();
+      setInvoices(data.data ?? []);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchListInvoice();
+  }, []);
+
+  useEffect(() => {
+    let animation: Animated.CompositeAnimation;
+    if (loading) {
+      animation = Animated.loop(
+        Animated.timing(spinValue, {
+          toValue: 1,
+          duration: 1000, // 1 vòng / giây
+          easing: Easing.linear,
+          useNativeDriver: true,
+        })
+      );
+      animation.start();
+    } else {
+      spinValue.stopAnimation();
+      spinValue.setValue(0);
+    }
+    return () => {
+      if (animation) animation.stop();
+    };
+  }, [loading]);
+  const spin = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
+  });
+  const handleLoadingSynchronized = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setOpenLogin(true);
+    }, 2000);
+  };
   return (
     <View style={{ flex: 1 }}>
       {/* <HeaderScreen /> */}
@@ -29,16 +86,31 @@ function InvoiceInput() {
       <View style={styles.synchronizedWrapper}>
         <TouchableOpacity
           style={styles.btnSyn}
-          onPress={() => setVisible(true)}
+          onPress={handleLoadingSynchronized}
         >
           <Text style={{ color: "#fff", fontSize: 14 }}>
-            Đồng bộ <Fontisto name="spinner-refresh" size={13} color="#fff" />
+            {loading ? (
+              <>
+                Đang đồng bộ &nbsp;
+                <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                  <Fontisto name="spinner-refresh" size={13} color="#fff" />
+                </Animated.View>
+              </>
+            ) : (
+              <>
+                Đồng bộ &nbsp;
+                <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                  <Fontisto name="spinner-refresh" size={13} color="#fff" />
+                </Animated.View>
+              </>
+            )}
           </Text>
         </TouchableOpacity>
       </View>
 
-      <InvoiInputList />
+      <InvoiInputList invoicesData={invoices} />
       <ModalSynchronized visible={visible} setVisible={setVisible} />
+      <ModalLoginCCT openLogin={openLogin} setOpenLogin={setOpenLogin} />
     </View>
   );
 }

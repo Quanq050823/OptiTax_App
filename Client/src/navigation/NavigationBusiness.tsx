@@ -33,6 +33,8 @@ import CreateVoucherInputProduct from "@/src/presentation/screens/BusinessOwnerS
 import ScanBarcodeProduct from "@/src/presentation/screens/BusinessOwnerScreen/ScanBarcodeProduct/ScanBarcodeProduct";
 import Invoice from "@/src/presentation/screens/BusinessOwnerScreen/Invoice/Invoice";
 import InvoiceDetail from "@/src/presentation/screens/BusinessOwnerScreen/InvoiceDetail/InvoiceDetail";
+import EditProfileScreen from "@/src/presentation/screens/BusinessOwnerScreen/EditProfileScreen/EditProfileScreen";
+import EditProfileBussinessStore from "@/src/presentation/screens/BusinessOwnerScreen/EditProfileBussinessStore/EditProfileBussinessStore";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
@@ -220,9 +222,23 @@ const HomeLayout = () => {
       <Stack.Screen
         name="InvoiceDetailScreen"
         options={{
-          title: "Chi tiết",
+          title: "Chi tiết hoá đơn",
         }}
         component={InvoiceDetail}
+      />
+      <Stack.Screen
+        name="EditProfileScreen"
+        options={{
+          title: "Chỉnh sửa thông tin",
+        }}
+        component={EditProfileScreen}
+      />
+      <Stack.Screen
+        name="EditProfileBussinessStore"
+        options={{
+          title: "Chỉnh sửa thông tin cửa hàng",
+        }}
+        component={EditProfileBussinessStore}
       />
     </Stack.Navigator>
   );

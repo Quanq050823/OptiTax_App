@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { ImageBackground, StatusBar, StyleSheet, View } from "react-native";
 import Option from "@/src/presentation/screens/BusinessOwnerScreen/Option/Option";
 import Dashboard from "@/src/presentation/screens/BusinessOwnerScreen/Dashboard/Dashboard";
+import NotificationScreen from "@/src/presentation/screens/BusinessOwnerScreen/Notifycation/Notifycation";
 function Layout() {
   const [activeTab, setActiveTab] = useState<TabType>("Trang chủ");
   return (
@@ -20,6 +21,7 @@ function Layout() {
         {activeTab === "Trang chủ" && <Dashboard />}
         {activeTab === "Tiện ích" && <HomeScreen />}
         {activeTab === "Tuỳ chọn" && <Option />}
+        {activeTab === "Thông báo" && <NotificationScreen />}
       </ImageBackground>
 
       <NavigationBottom setActiveTab={setActiveTab} activeTab={activeTab} />

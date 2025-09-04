@@ -3,6 +3,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -19,6 +20,10 @@ interface ModalAddProductProps {
   setCode: (code: string) => void;
   setDescription: (description: string) => void;
   setCategory: (category: string) => void;
+  name: string;
+  code: string;
+  category: string;
+  description: string;
 }
 
 function ModalAddProduct({
@@ -31,6 +36,10 @@ function ModalAddProduct({
   setCode,
   setDescription,
   setCategory,
+  name,
+  code,
+  category,
+  description,
 }: ModalAddProductProps) {
   return (
     <Modal
@@ -42,88 +51,97 @@ function ModalAddProduct({
     >
       <Pressable style={styleModal.overlay}>
         <View style={styleModal.modalContent}>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "center",
-              position: "relative",
-              width: "100%",
-            }}
-          >
-            <Text style={styleModal.modalText}>Sản phẩm mới</Text>
-            <TouchableOpacity
-              onPress={() => setVisible(false)}
-              style={{ position: "absolute", right: 0 }}
+          <ScrollView>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                position: "relative",
+                width: "100%",
+              }}
             >
-              <MaterialIcons name="cancel" size={24} color={ColorMain} />
-            </TouchableOpacity>
-          </View>
-          <View style={{ marginTop: 20 }}>
-            <Text style={styleModal.labelInput}>Mã sản phẩm </Text>
-            <TextInput
-              placeholder={"Nhập mã sp"}
-              style={styleModal.input}
-              placeholderTextColor={"#9d9d9d"}
-              onChangeText={(value) => setCode(value)}
-            />
-          </View>
-          <View style={{ marginTop: 20 }}>
-            <Text style={styleModal.labelInput}>Tên </Text>
-            <TextInput
-              placeholder={"Nhập tên sản phẩm"}
-              style={styleModal.input}
-              placeholderTextColor={"#9d9d9d"}
-              onChangeText={(value) => setName(value)}
-            />
-          </View>
-          <View style={{ marginTop: 20 }}>
-            <Text style={styleModal.labelInput}>Giá tiền (VND)</Text>
-            <TextInput
-              placeholder={"Nhập giá sản phẩm"}
-              style={styleModal.input}
-              placeholderTextColor={"#9d9d9d"}
-              keyboardType="number-pad"
-              onChangeText={(value) => setPrice(value)}
-            />
-          </View>
-          <View style={{ marginTop: 20 }}>
-            <Text style={styleModal.labelInput}>Số lượng</Text>
-            <TextInput
-              placeholder={"Nhập số lượng sản phẩm"}
-              style={styleModal.input}
-              placeholderTextColor={"#9d9d9d"}
-              keyboardType="numeric"
-              onChangeText={(value) => setStock(value)}
-            />
-          </View>
-          <View style={{ marginTop: 20 }}>
-            <Text style={styleModal.labelInput}>Danh mục </Text>
-            <TextInput
-              placeholder={"Ví dụ: Ăn uống,..."}
-              style={styleModal.input}
-              placeholderTextColor={"#9d9d9d"}
-              onChangeText={(value) => setCategory(value)}
-            />
-          </View>
-          <View style={{ marginTop: 20 }}>
-            <Text style={styleModal.labelInput}>Mô tả </Text>
-            <TextInput
-              placeholder={"Nhập mô tả sản phẩm"}
-              style={styleModal.input}
-              placeholderTextColor={"#9d9d9d"}
-              onChangeText={(value) => setDescription(value)}
-            />
-          </View>
-          <View
-            style={{ width: "100%", alignItems: "flex-end", marginTop: 20 }}
-          >
-            <TouchableOpacity
-              onPress={onAddProduct}
-              style={styleModal.AddButton}
+              <Text style={styleModal.modalText}>Sản phẩm mới</Text>
+              <TouchableOpacity
+                onPress={() => setVisible(false)}
+                style={{ position: "absolute", right: 0 }}
+              >
+                <MaterialIcons name="cancel" size={24} color={ColorMain} />
+              </TouchableOpacity>
+            </View>
+            <View style={{ marginTop: 20 }}>
+              <Text style={styleModal.labelInput}>Mã sản phẩm </Text>
+              <TextInput
+                placeholder={"Nhập mã sp"}
+                style={styleModal.input}
+                placeholderTextColor={"#9d9d9d"}
+                onChangeText={(value) => setCode(value)}
+                defaultValue={code}
+              />
+            </View>
+            <View style={{ marginTop: 20 }}>
+              <Text style={styleModal.labelInput}>Tên </Text>
+              <TextInput
+                placeholder={"Nhập tên sản phẩm"}
+                style={styleModal.input}
+                placeholderTextColor={"#9d9d9d"}
+                onChangeText={(value) => setName(value)}
+                value={name}
+              />
+            </View>
+            <View style={{ marginTop: 20 }}>
+              <Text style={styleModal.labelInput}>Giá tiền (VND)</Text>
+              <TextInput
+                placeholder={"Nhập giá sản phẩm"}
+                style={styleModal.input}
+                placeholderTextColor={"#9d9d9d"}
+                keyboardType="number-pad"
+                onChangeText={(value) => setPrice(Number(value) || 0)}
+                defaultValue="0"
+              />
+            </View>
+            <View style={{ marginTop: 20 }}>
+              <Text style={styleModal.labelInput}>Số lượng</Text>
+              <TextInput
+                placeholder={"Nhập số lượng sản phẩm"}
+                style={styleModal.input}
+                placeholderTextColor={"#9d9d9d"}
+                keyboardType="numeric"
+                onChangeText={(value) => setStock(value)}
+                defaultValue="0"
+              />
+            </View>
+            <View style={{ marginTop: 20 }}>
+              <Text style={styleModal.labelInput}>Danh mục </Text>
+              <TextInput
+                placeholder={"Ví dụ: Ăn uống,..."}
+                style={styleModal.input}
+                placeholderTextColor={"#9d9d9d"}
+                onChangeText={(value) => setCategory(value)}
+                defaultValue={category}
+              />
+            </View>
+            <View style={{ marginTop: 20 }}>
+              <Text style={styleModal.labelInput}>Mô tả </Text>
+              <TextInput
+                placeholder={"Nhập mô tả sản phẩm"}
+                style={[styleModal.input, { minHeight: 70 }]}
+                placeholderTextColor={"#9d9d9d"}
+                onChangeText={(value) => setDescription(value)}
+                defaultValue={description}
+                multiline
+              />
+            </View>
+            <View
+              style={{ width: "100%", alignItems: "flex-end", marginTop: 20 }}
             >
-              <Text style={styleModal.AddText}>Thêm</Text>
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity
+                onPress={onAddProduct}
+                style={styleModal.AddButton}
+              >
+                <Text style={styleModal.AddText}>Thêm</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
         </View>
       </Pressable>
     </Modal>

@@ -5,7 +5,7 @@ import SelectIndustry from "@/src/presentation/components/Auth/SelectIndustry/Se
 import { ColorMain } from "@/src/presentation/components/colors";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { stylesAuth } from "@/src/presentation/screens/Auth/Styles";
-import { BusinessInforAuth } from "@/src/services/API/profileService";
+import { BusinessInforAuth, CreateBusinessAuth } from "@/src/services/API/profileService";
 import { TokenStorage } from "@/src/utils/tokenStorage";
 import { Label } from "@react-navigation/elements";
 import { CommonActions } from "@react-navigation/native";
@@ -80,7 +80,7 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
 
     setLoading(true);
     try {
-      await BusinessInforAuth(formData);
+      await CreateBusinessAuth(formData);
       setLoading(false);
       navigate.navigate("NavigationBusiness");
     } catch (error: any) {

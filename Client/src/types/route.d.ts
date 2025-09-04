@@ -16,7 +16,7 @@ type RootStackParamList = {
   ReceiptVoucherScreen: undefined;
   PaymentVoucherScreen: undefined;
   SettingScreen: undefined;
-  ProductManager: undefined;
+  ProductManager: { scannedProduct?: any };
   Layout: undefined;
   SearchAccountantScreen: undefined;
   ChangePasswordScreen: undefined;
@@ -29,7 +29,8 @@ type RootStackParamList = {
   InputProductsScreen: undefined;
   CreateVoucherInputProductScreen: undefined;
   ScanBarcodeProductScreen: undefined;
-
+  EditProfileScreen: undefined;
+  EditProfileBussinessStore: undefined;
   SelectElectronicInvoice: {
     digitalSignature: {
       label: string;
@@ -70,34 +71,115 @@ type phieuThu = {
 type Product = {
   _id: string;
   name: string;
-  code: string;
+  code: string | null;
   price: number;
   stock: number;
-  imageUrl: string;
+  imageUrl: string | null;
   description: string;
   category: string;
-  unit: string;
-  attributes;
+  unit: string | null;
+  attributes: any;
 };
+export interface UserProfile {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  isDeleted: boolean;
+  role: string;
+  isVerified: boolean;
+  userType: number;
+  createDate: string;
+  __v: number;
+}
 
+export interface Profile extends UserProfile {
+  businessName?: string;
+  address?: any;
+  phoneNumber?: string;
+}
+
+export interface BusinessInfo {
+  businessName: string;
+  address: Address;
+  phoneNumber: string;
+  taxCode: string;
+  businessType: string;
+}
 type FormDataType = {
   businessName: string;
   businessType: string;
   taxCode: string;
-  address: {
-    street: string;
-    ward: string;
-    district: string | null;
-    city: string | null;
-  };
+  address: Address;
   phoneNumber: string;
   industry: string;
 };
 
-type Invoice = {
+export interface InvoiceItemExtra {
+  ttruong: string;
+  kdlieu: string;
+  dlieu: string;
+}
+
+export interface InvoiceProduct {
+  idhdon: string;
   id: string;
-  date: string;
-  supplier: string;
+  dgia: string;
+  dvtinh: string;
+  ltsuat: string | null;
+  sluong: string;
+  stbchu: string | null;
+  stckhau: string | null;
+  stt: string;
+  tchat: string;
+  ten: string;
+  thtcthue: string | null;
+  thtien: string;
+  tlckhau: string | null;
+  tsuat: string | null;
+  tthue: string | null;
+  sxep: string;
+  ttkhac: InvoiceItemExtra[];
+}
+
+export interface Invoice {
+  _id: string;
+  nbmst: string;
+  khmshdon: string;
+  khhdon: string;
+  shdon: string;
+  ncnhat: string;
+  mhdon: string;
+  nbten: string;
+  nbdchi: string;
+  nbsdthoai: string;
+  nmten: string;
+  nmtnmua: string;
+  nmmst: string;
+  nmdchi: string;
+  thtttoan: string;
+  dvtte: string;
+  hdhhdvu: InvoiceProduct[];
+  ttxly?: number | null;
+}
+
+export interface InvoicePagination {
+  page: number;
+  limit: number;
   total: number;
-  status: number;
-};
+  pages: number;
+}
+
+export interface InvoiceListResponse {
+  data: Invoice[];
+  pagination: InvoicePagination;
+}
+
+export interface Address {
+  city: string;
+  cityCode?: string; // VD: "79"
+  district: string | null; // VD: "Quận 1"
+  districtCode?: string;
+  ward: string;
+  street: string;
+}
