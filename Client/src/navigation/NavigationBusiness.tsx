@@ -220,7 +220,7 @@ const HomeLayout = () => {
       <Stack.Screen
         name="InvoiceDetailScreen"
         options={{
-          title: "Chi tiết",
+          title: "Hoá đơn bán hàng",
         }}
         component={InvoiceDetail}
       />

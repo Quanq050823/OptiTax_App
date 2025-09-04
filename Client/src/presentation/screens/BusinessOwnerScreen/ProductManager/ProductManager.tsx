@@ -1,12 +1,20 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import ModalAddProduct from "@/src/presentation/components/Modal/ModalAddProduct/ModalAddProduct";
 import ModalEditProduct from "@/src/presentation/components/Modal/ModalEditProduct/ModalEditProduct";
+import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
+import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import {
   createProduct,
   deleteProduct,
   getProducts,
 } from "@/src/services/API/productService";
-import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
+import { CommonActions, RouteProp, useRoute } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -22,6 +30,10 @@ import {
 import { Searchbar } from "react-native-paper";
 
 export default function ProductManagerScreen() {
+  const route = useRoute<RouteProp<RootStackParamList, "ProductManager">>();
+  const productScan = route.params?.scannedProduct;
+
+  const navigate = useAppNavigation();
   const [products, setProducts] = useState<Product[]>([]);
   const [idEditProduct, setIdEditProduct] = useState<string | null>(null);
   const [showAction, setShowAction] = useState<string | null>(null);
@@ -83,12 +95,32 @@ export default function ProductManagerScreen() {
     attributes: [{ key: "đường", value: "có" }],
   };
 
+  useEffect(() => {
+    if (productScan) {
+      setVisible(true);
+      // Có thể set luôn các field mặc định từ productScan
+      setName(productScan.productName || "");
+      setCode(productScan._id?.toString() || "");
+      setCategory(
+        typeof productScan.categories === "object"
+          ? Object.values(productScan.categories).join(", ")
+          : productScan.categories || ""
+      );
+      setDescription(productScan.description);
+    }
+  }, [productScan]);
   const fetchData = async () => {
     try {
       const data = await getProducts();
       setProducts(data as Product[]);
     } catch (error) {
       console.error("Error fetching products:", error);
+      navigate.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: "Login" }],
+        })
+      );
     }
   };
 
@@ -219,18 +251,49 @@ export default function ProductManagerScreen() {
       {products ? (
         <>
           {/* <Text style={styles.header}>Quản lý sản phẩm</Text> */}
-          <View
-            style={[styles.shadow, { marginTop: 20, paddingHorizontal: 10 }]}
-          >
-            <Searchbar
-              placeholder="Tìm kiếm sản phẩm"
-              onChangeText={setSearchQuery}
-              value={searchQuery}
-              icon="magnify"
-              style={{ backgroundColor: "#fff" }}
-              iconColor={ColorMain}
-              placeholderTextColor={ColorMain}
-            />
+          <View style={{ paddingHorizontal: 10, paddingTop: 10 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor: "#fff",
+                shadowColor: ColorMain,
+                shadowOpacity: 0.22,
+                shadowOffset: { width: 0, height: 1 },
+                borderRadius: 50,
+                width: "100%",
+              }}
+            >
+              <Searchbar
+                placeholder="Tìm kiếm sản phẩm"
+                onChangeText={setSearchQuery}
+                value={searchQuery}
+                icon="magnify"
+                style={{
+                  backgroundColor: "transparent",
+                  width: "70%",
+                }}
+                iconColor={ColorMain}
+                placeholderTextColor={ColorMain}
+              />
+              <TouchableOpacity
+                style={{
+                  width: 60,
+                  height: 40,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 8,
+                }}
+                onPress={() => navigate.navigate("ScanBarcodeProductScreen")}
+              >
+                <MaterialCommunityIcons
+                  name="barcode-scan"
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
+            </View>
           </View>
           {/* <View style={{ padding: 10 }}>
         <TextInput
@@ -248,7 +311,10 @@ export default function ProductManagerScreen() {
               paddingHorizontal: 5,
               marginTop: 20,
             }}
-            columnWrapperStyle={{ justifyContent: "space-between" }}
+            columnWrapperStyle={{
+              justifyContent: "space-between",
+              marginTop: 20,
+            }}
             numColumns={2}
           />
           <TouchableOpacity
@@ -263,6 +329,10 @@ export default function ProductManagerScreen() {
             setVisible={setVisible}
             onAddProduct={handleAddProduct}
             setName={setName}
+            name={name}
+            code={code}
+            category={category}
+            description={description}
             setPrice={(price: number) => setPrice(Number(price))}
             setStock={(stock: string) => setStock(Number(stock))}
             setCode={setCode}

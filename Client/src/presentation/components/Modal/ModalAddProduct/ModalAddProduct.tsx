@@ -19,6 +19,10 @@ interface ModalAddProductProps {
   setCode: (code: string) => void;
   setDescription: (description: string) => void;
   setCategory: (category: string) => void;
+  name: string;
+  code: string;
+  category: string;
+  description: string;
 }
 
 function ModalAddProduct({
@@ -31,6 +35,10 @@ function ModalAddProduct({
   setCode,
   setDescription,
   setCategory,
+  name,
+  code,
+  category,
+  description,
 }: ModalAddProductProps) {
   return (
     <Modal
@@ -65,6 +73,7 @@ function ModalAddProduct({
               style={styleModal.input}
               placeholderTextColor={"#9d9d9d"}
               onChangeText={(value) => setCode(value)}
+              defaultValue={code}
             />
           </View>
           <View style={{ marginTop: 20 }}>
@@ -74,6 +83,7 @@ function ModalAddProduct({
               style={styleModal.input}
               placeholderTextColor={"#9d9d9d"}
               onChangeText={(value) => setName(value)}
+              defaultValue={name}
             />
           </View>
           <View style={{ marginTop: 20 }}>
@@ -83,7 +93,8 @@ function ModalAddProduct({
               style={styleModal.input}
               placeholderTextColor={"#9d9d9d"}
               keyboardType="number-pad"
-              onChangeText={(value) => setPrice(value)}
+              onChangeText={(value) => setPrice(Number(value) || 0)}
+              defaultValue="0"
             />
           </View>
           <View style={{ marginTop: 20 }}>
@@ -94,6 +105,7 @@ function ModalAddProduct({
               placeholderTextColor={"#9d9d9d"}
               keyboardType="numeric"
               onChangeText={(value) => setStock(value)}
+              defaultValue="0"
             />
           </View>
           <View style={{ marginTop: 20 }}>
@@ -103,6 +115,7 @@ function ModalAddProduct({
               style={styleModal.input}
               placeholderTextColor={"#9d9d9d"}
               onChangeText={(value) => setCategory(value)}
+              defaultValue={category}
             />
           </View>
           <View style={{ marginTop: 20 }}>
@@ -112,6 +125,7 @@ function ModalAddProduct({
               style={styleModal.input}
               placeholderTextColor={"#9d9d9d"}
               onChangeText={(value) => setDescription(value)}
+              defaultValue={description}
             />
           </View>
           <View

@@ -34,21 +34,21 @@ const invoices: Invoice[] = [
 
 function InvoiInputList() {
   const navigate = useAppNavigation();
-  const getStatusInfo = (status: number) => {
-    switch (status) {
-      case 0:
-        return { text: "Chưa xử lý", color: "red" };
-      case 1:
-        return { text: "Đã xử lý", color: "green" };
-      case 2:
-        return { text: "Đang xử lý", color: ColorMain };
-      default:
-        return { text: "Không xác định", color: "gray" };
-    }
-  };
+  // const getStatusInfo = (status: number) => {
+  //   switch (status) {
+  //     case 0:
+  //       return { text: "Chưa xử lý", color: "red" };
+  //     case 1:
+  //       return { text: "Đã xử lý", color: "green" };
+  //     case 2:
+  //       return { text: "Đang xử lý", color: ColorMain };
+  //     default:
+  //       return { text: "Không xác định", color: "gray" };
+  //   }
+  // };
 
   const renderItem = ({ item }: { item: Invoice }) => {
-    const { text, color } = getStatusInfo(item.status);
+    // const { text, color } = getStatusInfo(item.status);
     return (
       <TouchableOpacity
         onPress={() => navigate.navigate("InvoiceDetailScreen", { item })}
@@ -67,7 +67,7 @@ function InvoiInputList() {
               alignItems: "center",
             }}
           >
-            <Text style={[styles.status, { color: color }]}>{text}</Text>
+            {/* <Text style={[styles.status, { color: color }]}>{text}</Text> */}
             <Text style={{ fontSize: 18, fontWeight: "600", color: ColorMain }}>
               {item.total.toLocaleString()} đ
             </Text>

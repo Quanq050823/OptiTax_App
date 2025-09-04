@@ -1,6 +1,8 @@
+import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { FontAwesome6 } from "@expo/vector-icons";
+import axios from "axios";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Button,
@@ -12,11 +14,20 @@ import {
 } from "react-native";
 
 function ScanBarcodeProduct() {
+  const navigate = useAppNavigation();
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<"front" | "back">("back");
   const [scannedCode, setScannedCode] = useState<string | null>(null);
-  const [product, setProduct] = useState<any | null>(null);
+  const [productScan, setProductScan] = useState<any | null>({
+    _id: 0,
+    productName: "",
+    price: 0,
+    quantity: 0,
+    categories: {},
+    description: "",
+  });
   const [loading, setLoading] = useState(false);
+
   if (!permission) {
     return <View />;
   }
@@ -40,9 +51,21 @@ function ScanBarcodeProduct() {
         `https://world.openfoodfacts.org/api/v2/product/${data}.json`
       );
       if (res.data && res.data.product) {
-        setProduct(res.data.product);
+        const product = {
+          _id: res.data.product._id,
+          productName: res.data.product.product_name,
+          price: 0,
+          quantity: 0,
+          categories: res.data.product.categories_properties,
+          description: "",
+        };
+        setProductScan(product);
+
+        navigate.navigate("ProductManager", {
+          scannedProduct: product, // dùng biến tạm, chắc chắn đã có giá trị
+        });
       } else {
-        setProduct(null);
+        setProductScan(null);
       }
     } catch (error) {
       console.error("Lỗi gọi API:", error);
@@ -50,6 +73,7 @@ function ScanBarcodeProduct() {
       setLoading(false);
     }
   };
+
   return (
     <View style={{ flex: 1, alignItems: "center" }}>
       {!scannedCode ? (
@@ -62,20 +86,25 @@ function ScanBarcodeProduct() {
         <ScrollView contentContainerStyle={styles.result}>
           {loading ? (
             <ActivityIndicator size="large" color="blue" />
-          ) : product ? (
+          ) : productScan ? (
             <>
-              <Text style={styles.title}>{product.product_name}</Text>
-              <Text>Thương hiệu: {product.brands}</Text>
-              <Text>Loại: {product.categories}</Text>
+              <Text style={styles.title}>{productScan.productName}</Text>
+              <Text>Thương hiệu: {productScan.brands}</Text>
               <Text>
-                Năng lượng: {product.nutriments?.["energy-kcal"]} kcal
+                Loại:
+                {typeof productScan.categories === "object"
+                  ? Object.values(productScan.categories).join(", ")
+                  : productScan.categories}
               </Text>
-              <Text>Mã vạch: {product.code}</Text>
+              <Text>
+                Năng lượng: {productScan.nutriments?.["energy-kcal"]} kcal
+              </Text>
+              <Text>Mã vạch: {productScan.code}</Text>
               <Button
                 title="Quét lại"
                 onPress={() => {
                   setScannedCode(null);
-                  setProduct(null);
+                  setProductScan(null);
                 }}
               />
             </>

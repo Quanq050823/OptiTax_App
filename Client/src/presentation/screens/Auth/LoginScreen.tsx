@@ -23,7 +23,6 @@ function LoginScreen({ navigation }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const handleLogin = async () => {
-    
     if (!username || !password) {
       Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thông tin.");
       return;
