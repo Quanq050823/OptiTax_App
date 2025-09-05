@@ -137,6 +137,7 @@ const InvoiceDetailScreen = ({ route }: any) => {
               </View>
 
               {/* <View style={styles.flexLabel}>
+
           <Text style={styles.label}>Trạng thái:</Text>
           <Text
             style={[styles.value, { color: statusColor, fontWeight: "bold" }]}

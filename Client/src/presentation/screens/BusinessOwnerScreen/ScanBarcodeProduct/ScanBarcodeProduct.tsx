@@ -2,6 +2,7 @@ import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { Product, RootStackParamList } from "@/src/types/route";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { RouteProp, useRoute } from "@react-navigation/native";
+
 import axios from "axios";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useEffect, useState } from "react";
@@ -28,6 +29,7 @@ function ScanBarcodeProduct() {
     price: 0,
     stock: 0,
     category: "",
+
     description: "",
   });
   const [loading, setLoading] = useState(false);
@@ -79,6 +81,7 @@ function ScanBarcodeProduct() {
           { scannedProduct: product },
           { merge: true }
         );
+
       } else {
         setProductScan(null);
       }

@@ -89,6 +89,7 @@ function InvoiInputList({ invoicesData }: invoice) {
             }}
           >
             {/* <Text style={[styles.status, { color: "#333" }]}>hihi</Text> */}
+
             <Text style={{ fontSize: 18, fontWeight: "600", color: ColorMain }}>
               {total.toLocaleString("vi-VN")} đ
             </Text>

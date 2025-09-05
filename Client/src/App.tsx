@@ -5,20 +5,23 @@ import { BusinessInforAuth } from "@/src/services/API/profileService";
 import { BusinessInfo } from "@/src/types/route";
 import { NavigationContainer } from "@react-navigation/native";
 import * as React from "react";
+
 import { View } from "react-native";
 import { PaperProvider } from "react-native-paper";
-const linking = {
-  prefixes: ["taxdemo://"],
-  config: {
-    screens: {
-      Authentication: {
-        screens: {
-          ConfirmEmail: "authentication/confirm-email",
-        },
-      },
-    },
-  },
-};
+
+// const linking = {
+//   prefixes: ["taxdemo://"],
+//   config: {
+//     screens: {
+//       Authentication: {
+//         screens: {
+//           ConfirmEmail: "authentication/confirm-email",
+//         },
+//       },
+//     },
+//   },
+// };
+
 
 function App() {
 

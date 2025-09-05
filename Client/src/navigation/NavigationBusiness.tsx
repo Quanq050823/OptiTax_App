@@ -226,6 +226,7 @@ const HomeLayout = () => {
         name="InvoiceDetailScreen"
         options={{
           title: "Chi tiết hoá đơn",
+
         }}
         component={InvoiceDetail}
       />
