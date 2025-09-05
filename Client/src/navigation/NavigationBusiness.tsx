@@ -35,6 +35,9 @@ import Invoice from "@/src/presentation/screens/BusinessOwnerScreen/Invoice/Invo
 import InvoiceDetail from "@/src/presentation/screens/BusinessOwnerScreen/InvoiceDetail/InvoiceDetail";
 import EditProfileScreen from "@/src/presentation/screens/BusinessOwnerScreen/EditProfileScreen/EditProfileScreen";
 import EditProfileBussinessStore from "@/src/presentation/screens/BusinessOwnerScreen/EditProfileBussinessStore/EditProfileBussinessStore";
+import CreateVoucherPayment from "@/src/presentation/screens/BusinessOwnerScreen/Vote/PaymentVoucherScreen/CreateVoucherPayment";
+import { RootStackParamList } from "@/src/types/route";
+import PaymentVoucherDetail from "@/src/presentation/screens/BusinessOwnerScreen/Vote/PaymentVoucherScreen/PaymentVoucherDetail";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
@@ -239,6 +242,20 @@ const HomeLayout = () => {
           title: "Chỉnh sửa thông tin cửa hàng",
         }}
         component={EditProfileBussinessStore}
+      />
+      <Stack.Screen
+        name="CreateVoucherPayment"
+        options={{
+          title: "Tạo phiếu chi",
+        }}
+        component={CreateVoucherPayment}
+      />
+      <Stack.Screen
+        name="PaymentVoucherDetail"
+        options={{
+          title: "Chi tiết phiếu chi",
+        }}
+        component={PaymentVoucherDetail}
       />
     </Stack.Navigator>
   );

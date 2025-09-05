@@ -31,6 +31,10 @@ type RootStackParamList = {
   ScanBarcodeProductScreen: undefined;
   EditProfileScreen: undefined;
   EditProfileBussinessStore: undefined;
+  CreateVoucherPayment: undefined;
+  PaymentVoucherDetail: {
+    voucher: PaymentVoucher;
+  };
   SelectElectronicInvoice: {
     digitalSignature: {
       label: string;
