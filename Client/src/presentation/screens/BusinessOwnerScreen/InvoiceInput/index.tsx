@@ -2,6 +2,8 @@ import { ColorMain } from "@/src/presentation/components/colors";
 import HeaderScreen from "@/src/presentation/components/layout/Header";
 import InvoiInputList from "@/src/presentation/components/List/InvoiInputList";
 import ModalLoginCCT from "@/src/presentation/components/Modal/ModalEditProduct/ModalLoginCCT";
+import ModalLoginCCT from "@/src/presentation/components/Modal/ModalLoginCCT";
+
 import ModalSynchronized from "@/src/presentation/components/Modal/ModalSynchronized";
 import SearchByName from "@/src/presentation/components/SearchByName";
 import {
@@ -41,6 +43,7 @@ function InvoiceInput() {
     fetchListInvoice();
   }, []);
 
+
   useEffect(() => {
     let animation: Animated.CompositeAnimation;
     if (loading) {
@@ -61,6 +64,7 @@ function InvoiceInput() {
       if (animation) animation.stop();
     };
   }, [loading]);
+
   const spin = spinValue.interpolate({
     inputRange: [0, 1],
     outputRange: ["0deg", "360deg"],
@@ -72,6 +76,7 @@ function InvoiceInput() {
       setOpenLogin(true);
     }, 2000);
   };
+
   return (
     <View style={{ flex: 1 }}>
       {/* <HeaderScreen /> */}
@@ -134,6 +139,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
   },
+  rotato: {},
 });
 
 export default InvoiceInput;

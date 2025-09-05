@@ -14,6 +14,7 @@ import {
   RootStackParamList,
 } from "@/src/types/route";
 import {
+
   AntDesign,
   Ionicons,
   MaterialCommunityIcons,
@@ -37,10 +38,10 @@ import { Searchbar } from "react-native-paper";
 export default function ProductManagerScreen() {
   const route = useRoute<RouteProp<RootStackParamList, "ProductManager">>();
   const productScan = route.params?.scannedProduct;
-  console.log(productScan);
 
   const navigate = useAppNavigation();
   const [products, setProducts] = useState<InvoiceListResponse | null>(null);
+
   const [idEditProduct, setIdEditProduct] = useState<string | null>(null);
   const [showAction, setShowAction] = useState<string | null>(null);
   const [showEditProduct, setShowEditProduct] = useState<string | null>(null);
@@ -81,6 +82,7 @@ export default function ProductManagerScreen() {
         typeof productScan.category === "object"
           ? Object.values(productScan.category).join(", ")
           : productScan.category || ""
+
       );
       setDescription(productScan.description);
     }

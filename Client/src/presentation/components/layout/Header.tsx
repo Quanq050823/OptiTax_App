@@ -20,10 +20,8 @@ function HeaderScreen() {
       </TouchableOpacity>
       <View style={{ alignItems: "center" }}>
         <Image
-          source={{
-            uri: "https://www.ncodetechnologies.com/images/icons/react-native-icn(512x512).png",
-          }}
-          style={{ width: 150, height: 50, resizeMode: "contain" }}
+          source={require("@/assets/images/icon_header.png")}
+          style={{ width: 150, height: 70, resizeMode: "contain" }}
         />
       </View>
       <TouchableOpacity>

@@ -133,6 +133,7 @@ function ModalAddProduct({
             </View>
             <View
               style={{ width: "100%", alignItems: "flex-end", marginTop: 20 }}
+
             >
               <TouchableOpacity
                 onPress={onAddProduct}
