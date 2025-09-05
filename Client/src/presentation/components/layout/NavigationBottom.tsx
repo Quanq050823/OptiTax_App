@@ -142,6 +142,10 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingHorizontal: 20,
     backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    elevation: 5,
   },
   ItemWrapper: {
     flex: 1,

@@ -169,6 +169,9 @@ function HomeScreen(): React.JSX.Element {
         <MaterialCommunityIcons name="cash-minus" size={32} color={ColorMain} />
       ),
       notify: 1,
+      navigate: () => {
+        navigate.navigate("PaymentVoucherScreen");
+      },
     },
   ];
   const accfeatures = [
@@ -423,8 +426,10 @@ const styles = StyleSheet.create({
     shadowColor: "#9d9d9d",
     shadowOffset: {
       width: 0,
-      height: 1,
+      height: 0,
     },
+    shadowOpacity: 0.22,
+    elevation: 3,
     marginBottom: 20,
     marginTop: 10,
   },

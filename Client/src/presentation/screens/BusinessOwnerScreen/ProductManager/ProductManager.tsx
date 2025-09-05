@@ -9,6 +9,12 @@ import {
   getProducts,
 } from "@/src/services/API/productService";
 import {
+  InvoiceListResponse,
+  Product,
+  RootStackParamList,
+} from "@/src/types/route";
+import {
+
   AntDesign,
   Ionicons,
   MaterialCommunityIcons,
@@ -34,7 +40,8 @@ export default function ProductManagerScreen() {
   const productScan = route.params?.scannedProduct;
 
   const navigate = useAppNavigation();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<InvoiceListResponse | null>(null);
+
   const [idEditProduct, setIdEditProduct] = useState<string | null>(null);
   const [showAction, setShowAction] = useState<string | null>(null);
   const [showEditProduct, setShowEditProduct] = useState<string | null>(null);
@@ -48,36 +55,6 @@ export default function ProductManagerScreen() {
   const [category, setCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // const [products, setProducts] = useState([
-  //   {
-  //     id: "1",
-  //     name: "Áo thun nam",
-  //     price: 150000,
-  //     quantity: 10,
-  //     image: "https://via.placeholder.com/80",
-  //   },
-  //   {
-  //     id: "2",
-  //     name: "Quần jeans nữ",
-  //     price: 250000,
-  //     quantity: 5,
-  //     image: "https://via.placeholder.com/80",
-  //   },
-  //   {
-  //     id: "3",
-  //     name: "Quần jeans nam",
-  //     price: 250000,
-  //     quantity: 5,
-  //     image: "https://via.placeholder.com/80",
-  //   },
-  //   {
-  //     id: "4",
-  //     name: "Áo khoác nam",
-  //     price: 200000,
-  //     quantity: 5,
-  //     image: "https://via.placeholder.com/80",
-  //   },
-  // ]);
   const screenWidth = Dimensions.get("window").width;
   const ITEM_MARGIN = 8;
   const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
@@ -99,12 +76,13 @@ export default function ProductManagerScreen() {
     if (productScan) {
       setVisible(true);
       // Có thể set luôn các field mặc định từ productScan
-      setName(productScan.productName || "");
+      setName(productScan.name || "");
       setCode(productScan._id?.toString() || "");
       setCategory(
-        typeof productScan.categories === "object"
-          ? Object.values(productScan.categories).join(", ")
-          : productScan.categories || ""
+        typeof productScan.category === "object"
+          ? Object.values(productScan.category).join(", ")
+          : productScan.category || ""
+
       );
       setDescription(productScan.description);
     }
@@ -112,7 +90,7 @@ export default function ProductManagerScreen() {
   const fetchData = async () => {
     try {
       const data = await getProducts();
-      setProducts(data as Product[]);
+      setProducts(data);
     } catch (error) {
       console.error("Error fetching products:", error);
       navigate.dispatch(

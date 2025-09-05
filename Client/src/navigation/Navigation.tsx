@@ -9,7 +9,9 @@ import RegisterScreen from "@/src/presentation/screens/Auth/Register";
 import VerifyAuth from "@/src/presentation/screens/Auth/VerifyAuth";
 import SelectDigitalSignaturePlan from "@/src/presentation/screens/BusinessOwnerScreen/SelectDigitalSignaturePlan/SelectDigitalSignaturePlan";
 import TaxDeclaration from "@/src/presentation/screens/BusinessOwnerScreen/SelectDigitalSignaturePlan/SelectDigitalSignaturePlan";
+import { RootStackParamList } from "@/src/types/route";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
@@ -53,6 +55,7 @@ function AppNavigation() {
           name="NavigationBusiness"
           component={NavigationBusiness}
         />
+
         <Stack.Screen name="VerifyAuth" component={VerifyAuth} />
         <Stack.Screen name="Register" component={RegisterScreen} />
 

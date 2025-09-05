@@ -1,9 +1,16 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import HeaderScreen from "@/src/presentation/components/layout/Header";
 import InvoiInputList from "@/src/presentation/components/List/InvoiInputList";
+import ModalLoginCCT from "@/src/presentation/components/Modal/ModalEditProduct/ModalLoginCCT";
 import ModalLoginCCT from "@/src/presentation/components/Modal/ModalLoginCCT";
+
 import ModalSynchronized from "@/src/presentation/components/Modal/ModalSynchronized";
 import SearchByName from "@/src/presentation/components/SearchByName";
+import {
+  getInvoiceInputList,
+  getInvoiceList,
+} from "@/src/services/API/invoiceService";
+import { Invoice } from "@/src/types/route";
 import { FontAwesome5, Fontisto } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -18,17 +25,24 @@ import {
 
 function InvoiceInput() {
   const [visible, setVisible] = useState(false);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [openLogin, setOpenLogin] = useState(false);
   const [loading, setLoading] = useState(false);
-  const handleLoadingSynchronized = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setOpenLogin(true);
-    }, 2000);
+  const spinValue = useRef(new Animated.Value(0)).current;
+
+  const fetchListInvoice = async () => {
+    try {
+      const data = await getInvoiceInputList();
+      setInvoices(data.data ?? []);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
   };
 
-  const spinValue = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    fetchListInvoice();
+  }, []);
+
 
   useEffect(() => {
     let animation: Animated.CompositeAnimation;
@@ -55,6 +69,14 @@ function InvoiceInput() {
     inputRange: [0, 1],
     outputRange: ["0deg", "360deg"],
   });
+  const handleLoadingSynchronized = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setOpenLogin(true);
+    }, 2000);
+  };
+
   return (
     <View style={{ flex: 1 }}>
       {/* <HeaderScreen /> */}
@@ -91,7 +113,7 @@ function InvoiceInput() {
         </TouchableOpacity>
       </View>
 
-      <InvoiInputList />
+      <InvoiInputList invoicesData={invoices} />
       <ModalSynchronized visible={visible} setVisible={setVisible} />
       <ModalLoginCCT openLogin={openLogin} setOpenLogin={setOpenLogin} />
     </View>

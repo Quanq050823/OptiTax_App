@@ -1,5 +1,11 @@
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
-import { MaterialIcons } from "@expo/vector-icons";
+import { useData } from "@/src/presentation/Hooks/useDataStore";
+import {
+  BusinessInforAuth,
+  getUserProfile,
+} from "@/src/services/API/profileService";
+import { Profile, UserProfile } from "@/src/types/route";
+import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import * as React from "react";
 import {
   Image,
@@ -13,6 +19,27 @@ import { Avatar } from "react-native-paper";
 
 function Option() {
   const navigate = useAppNavigation();
+  // const { data } = useData();
+  const [data, setData] = React.useState({});
+  const [profile, setProfile] = React.useState<Profile | null>(null);
+
+  const fetchProfile = async () => {
+    try {
+      const data: UserProfile = await getUserProfile();
+      const dataBussiness = await BusinessInforAuth();
+      setProfile({
+        ...data,
+        businessName: dataBussiness?.businessName,
+        address: dataBussiness?.address,
+        phoneNumber: dataBussiness?.phoneNumber,
+      });
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
+  React.useEffect(() => {
+    fetchProfile();
+  }, []);
   return (
     <View style={{ flex: 1, width: "100%" }}>
       {/* <HeaderScreen /> */}
@@ -20,23 +47,61 @@ function Option() {
         showsVerticalScrollIndicator={false}
         style={{
           backgroundColor: "#f7f7f7ff",
-          paddingHorizontal: 5,
         }}
       >
-        <View>
+        <View style={{ paddingHorizontal: 5, alignItems: "center" }}>
           <View style={styles.UserWrapper}>
-            <Avatar.Image
-              size={70}
-              source={{ uri: "https://i.pravatar.cc/100" }}
-            />
-            <Text style={styles.name}>Tú 230</Text>
-            <Text style={styles.role}>Hộ kinh doanh</Text>
+            <View>
+              <Avatar.Image
+                size={70}
+                source={{ uri: "https://i.pravatar.cc/100" }}
+              />
+            </View>
+            <View
+              style={{
+                justifyContent: "space-between",
+                flex: 1,
+                marginLeft: 15,
+                height: 60,
+              }}
+            >
+              <Text style={styles.name}>{profile?.businessName}</Text>
+              <Text style={styles.role}>{profile?.name}</Text>
+              <Text style={styles.role}>
+                {profile?.userType === 1 ? "Hộ kinh doanh" : "Kế toán viên"}
+              </Text>
+            </View>
             <TouchableOpacity
               style={styles.actionProfile}
               onPress={() => navigate.navigate("ProfileBusiness")}
             >
-              <Text style={{ fontWeight: 500 }}>Xem trang cá nhân</Text>
+              <AntDesign name="setting" size={24} color="black" />
             </TouchableOpacity>
+          </View>
+          <View
+            style={{
+              backgroundColor: "#efefefff",
+              flex: 1,
+              width: "90%",
+              borderRadius: 10,
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: 10,
+              paddingVertical: 20,
+              marginBottom: 20,
+              justifyContent: "space-between",
+            }}
+          >
+            <View style={styles.dataDev}>
+              <Text>Thu nhập: </Text>
+              <Text style={{ fontWeight: "600" }}>70,5</Text>
+              <AntDesign name="arrowup" size={15} color="green" />
+            </View>
+            <View style={styles.dataDev}>
+              <Text>Thu nhập: </Text>
+              <Text style={{ fontWeight: "600" }}>70,5</Text>
+              <AntDesign name="arrowup" size={15} color="red" />
+            </View>
           </View>
           <TouchableOpacity style={styles.item}>
             <Text style={styles.titleItem}>Quản lý hoá đơn</Text>
@@ -85,15 +150,15 @@ function Option() {
 const colorText = "#585858ff";
 const styles = StyleSheet.create({
   UserWrapper: {
-    alignItems: "center",
     marginBottom: 10,
-    backgroundColor: "#fff",
-    paddingVertical: 10,
+    paddingVertical: 20,
     borderRadius: 8,
+    flexDirection: "row",
+    paddingHorizontal: 10,
   },
   name: {
     marginTop: 10,
-    fontSize: 18,
+    fontSize: 20,
     color: colorText,
     fontWeight: 600,
   },
@@ -102,7 +167,6 @@ const styles = StyleSheet.create({
     color: colorText,
   },
   actionProfile: {
-    backgroundColor: "#e7e7e7ff",
     marginTop: 20,
     padding: 5,
     borderRadius: 5,
@@ -123,5 +187,9 @@ const styles = StyleSheet.create({
     marginBottom: 7,
   },
   titleItem: { fontSize: 15, color: colorText, fontWeight: "500" },
+  dataDev: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
 });
 export default Option;

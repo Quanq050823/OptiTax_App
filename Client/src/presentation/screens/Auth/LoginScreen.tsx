@@ -4,7 +4,7 @@ import Logo from "@/src/presentation/components/Auth/Logo/Logo";
 import { ColorMain } from "@/src/presentation/components/colors";
 import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
 import { stylesAuth } from "@/src/presentation/screens/Auth/Styles";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { login } from "@/src/services/API/authService";
 import {
   Alert,
@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import { TextInput } from "react-native-paper";
 import { TokenStorage } from "@/src/utils/tokenStorage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function LoginScreen({ navigation }: Props) {
   const [username, setUsername] = useState("");
@@ -30,7 +31,6 @@ function LoginScreen({ navigation }: Props) {
     setLoading(true);
     try {
       const result = await login({ username, password });
-      console.log("Login result:", result);
       setLoading(false);
       navigation.replace("NavigationBusiness");
       //   if (result?.role === 1) {
@@ -42,12 +42,26 @@ function LoginScreen({ navigation }: Props) {
       //       "Không xác định vai trò người dùng."
       //     );
       //   }
+      await AsyncStorage.setItem("username", username);
     } catch (error: any) {
       setLoading(false);
       Alert.alert("Đăng nhập thất bại", error?.message || "Có lỗi xảy ra.");
     }
   };
 
+  useEffect(() => {
+    const loadUsername = async () => {
+      try {
+        const savedUsername = await AsyncStorage.getItem("username");
+        if (savedUsername) {
+          setUsername(savedUsername); // gán vào state để hiển thị
+        }
+      } catch (e) {
+        console.log("Error loading username", e);
+      }
+    };
+    loadUsername();
+  }, []);
   return (
     <View style={{ flex: 1, backgroundColor: ColorMain }}>
       <StatusBar
@@ -90,6 +104,7 @@ function LoginScreen({ navigation }: Props) {
                 onChangeText={setUsername}
                 underlineColor={ColorMain}
                 activeUnderlineColor={ColorMain}
+                value={username}
               />
               <TextInput
                 label="Mật khẩu"

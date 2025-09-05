@@ -1,5 +1,8 @@
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
+import { Product, RootStackParamList } from "@/src/types/route";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { RouteProp, useRoute } from "@react-navigation/native";
+
 import axios from "axios";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useEffect, useState } from "react";
@@ -15,15 +18,18 @@ import {
 
 function ScanBarcodeProduct() {
   const navigate = useAppNavigation();
+  const route = useRoute<any>();
+
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<"front" | "back">("back");
   const [scannedCode, setScannedCode] = useState<string | null>(null);
   const [productScan, setProductScan] = useState<any | null>({
     _id: 0,
-    productName: "",
+    name: "",
     price: 0,
-    quantity: 0,
-    categories: {},
+    stock: 0,
+    category: "",
+
     description: "",
   });
   const [loading, setLoading] = useState(false);
@@ -50,20 +56,32 @@ function ScanBarcodeProduct() {
       const res = await axios.get<any>(
         `https://world.openfoodfacts.org/api/v2/product/${data}.json`
       );
+      console.log(res.data, "Dữ liệu sản phẩm");
+
       if (res.data && res.data.product) {
-        const product = {
+        const product: Product = {
           _id: res.data.product._id,
-          productName: res.data.product.product_name,
+          code: null,
+          imageUrl: null,
+          name: res.data.product.product_name,
           price: 0,
-          quantity: 0,
-          categories: res.data.product.categories_properties,
-          description: "",
+          stock: 0,
+          category: res.data.product.categories,
+          description: `${res.data.product.product_name} của thương hiệu ${res.data.product.brands}, dung tích ${res.data.product.quantity}, xuất xứ ${res.data.product.origins}.`,
+          attributes: [
+            ...(res.data.product.labels_tags || []),
+            ...(res.data.product.ingredients_analysis_tags || []),
+          ],
+          unit: null,
         };
         setProductScan(product);
 
-        navigate.navigate("ProductManager", {
-          scannedProduct: product, // dùng biến tạm, chắc chắn đã có giá trị
-        });
+        navigate.navigate(
+          "ProductManager",
+          { scannedProduct: product },
+          { merge: true }
+        );
+
       } else {
         setProductScan(null);
       }

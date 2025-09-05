@@ -35,16 +35,16 @@ const invoices: any = [
 type invoice = {
   invoicesData: Invoice[];
 };
-function InvoiInputList({ invoicesData }: invoice) {
+function InvoiceOutputList({ invoicesData }: invoice) {
   const navigate = useAppNavigation();
-  const getStatusInfo = (status: number) => {
-    switch (status) {
-      case 0:
-        return { text: "Chưa xử lý", color: "red" };
+  const getStatusInfo = (status?: number | string | null) => {
+    const s = Number(status); // ép string -> number
+
+    switch (s) {
       case 1:
-        return { text: "Đã xử lý", color: "green" };
-      case 2:
-        return { text: "Đang xử lý", color: ColorMain };
+        return { text: "Nháp", color: "red" };
+      case 8:
+        return { text: "Đã cấp mã", color: "green" };
       default:
         return { text: "Không xác định", color: "gray" };
     }
@@ -64,8 +64,10 @@ function InvoiInputList({ invoicesData }: invoice) {
       (sum, p) => sum + Number(p.thtien || 0),
       0
     );
-    const label = "Hoá đơn mua vào";
 
+    const statusInfo = getStatusInfo(item.ttxly ?? 0);
+    console.log(item.ttxly);
+    const label = "Hoá đơn bán ra";
     return (
       <TouchableOpacity
         onPress={() =>
@@ -83,13 +85,14 @@ function InvoiInputList({ invoicesData }: invoice) {
           <View
             style={{
               flexDirection: "row",
-              justifyContent: "flex-end",
+              justifyContent: "space-between",
               marginTop: 10,
               alignItems: "center",
             }}
           >
-            {/* <Text style={[styles.status, { color: "#333" }]}>hihi</Text> */}
-
+            <Text style={[styles.status, { color: statusInfo.color }]}>
+              {statusInfo.text}
+            </Text>
             <Text style={{ fontSize: 18, fontWeight: "600", color: ColorMain }}>
               {total.toLocaleString("vi-VN")} đ
             </Text>
@@ -146,4 +149,4 @@ const styles = StyleSheet.create({
     width: "70%",
   },
 });
-export default InvoiInputList;
+export default InvoiceOutputList;

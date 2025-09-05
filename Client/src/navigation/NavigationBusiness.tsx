@@ -33,6 +33,11 @@ import CreateVoucherInputProduct from "@/src/presentation/screens/BusinessOwnerS
 import ScanBarcodeProduct from "@/src/presentation/screens/BusinessOwnerScreen/ScanBarcodeProduct/ScanBarcodeProduct";
 import Invoice from "@/src/presentation/screens/BusinessOwnerScreen/Invoice/Invoice";
 import InvoiceDetail from "@/src/presentation/screens/BusinessOwnerScreen/InvoiceDetail/InvoiceDetail";
+import EditProfileScreen from "@/src/presentation/screens/BusinessOwnerScreen/EditProfileScreen/EditProfileScreen";
+import EditProfileBussinessStore from "@/src/presentation/screens/BusinessOwnerScreen/EditProfileBussinessStore/EditProfileBussinessStore";
+import CreateVoucherPayment from "@/src/presentation/screens/BusinessOwnerScreen/Vote/PaymentVoucherScreen/CreateVoucherPayment";
+import { RootStackParamList } from "@/src/types/route";
+import PaymentVoucherDetail from "@/src/presentation/screens/BusinessOwnerScreen/Vote/PaymentVoucherScreen/PaymentVoucherDetail";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
@@ -220,9 +225,38 @@ const HomeLayout = () => {
       <Stack.Screen
         name="InvoiceDetailScreen"
         options={{
-          title: "Hoá đơn bán hàng",
+          title: "Chi tiết hoá đơn",
+
         }}
         component={InvoiceDetail}
+      />
+      <Stack.Screen
+        name="EditProfileScreen"
+        options={{
+          title: "Chỉnh sửa thông tin",
+        }}
+        component={EditProfileScreen}
+      />
+      <Stack.Screen
+        name="EditProfileBussinessStore"
+        options={{
+          title: "Chỉnh sửa thông tin cửa hàng",
+        }}
+        component={EditProfileBussinessStore}
+      />
+      <Stack.Screen
+        name="CreateVoucherPayment"
+        options={{
+          title: "Tạo phiếu chi",
+        }}
+        component={CreateVoucherPayment}
+      />
+      <Stack.Screen
+        name="PaymentVoucherDetail"
+        options={{
+          title: "Chi tiết phiếu chi",
+        }}
+        component={PaymentVoucherDetail}
       />
     </Stack.Navigator>
   );
