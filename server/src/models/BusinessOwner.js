@@ -31,6 +31,7 @@ const BusinessOwnerSchema = mongoose.Schema(
 			enum: ["active", "inactive", "suspended"],
 			default: "active",
 		},
+		taxType: { type: String },
 		documents: [
 			{
 				name: { type: String, required: true },
@@ -39,11 +40,9 @@ const BusinessOwnerSchema = mongoose.Schema(
 				documentType: {
 					type: String,
 					enum: ["license", "tax_certificate", "id_card", "other"],
-					required: true,
 				},
 			},
 		],
-		isVerified: { type: Boolean, default: false },
 		verificationDate: { type: Date },
 		notes: { type: String },
 	},
