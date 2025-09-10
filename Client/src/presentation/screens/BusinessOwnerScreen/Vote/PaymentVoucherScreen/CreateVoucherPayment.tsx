@@ -1,8 +1,12 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
+import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
+import { createVoucherPayment } from "@/src/services/API/voucherService";
+import { PaymentVoucher } from "@/src/types/voucher";
 import { Fontisto } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -42,11 +46,32 @@ const payMethod = [
   { label: "Thẻ ATM", value: "5" },
 ];
 function CreateVoucherPayment() {
+  const navigate = useAppNavigation();
+
   const [height, setHeight] = useState(40); // chiều cao mặc định
   const [dateStart, setDateStart] = useState<Date | undefined>();
   const [dateEnd, setDateEnd] = useState<Date | undefined>();
   const [openModalDateStart, setOpenModalDateStart] = useState(false);
   const [openModalDateEnd, setOpenModalDateEnd] = useState(false);
+  const [voucher, setVoucher] = useState<PaymentVoucher>();
+  console.log(voucher);
+
+  const CreateVoucherPayment = async () => {
+    try {
+      const res = await createVoucherPayment(voucher as PaymentVoucher);
+      Alert.alert("Tạo phiếu chi thành công");
+      navigate.goBack();
+    } catch (error) {
+      Alert.alert("Tạo phiếu chi thất bại", " Vui lòng nhập đầy đủ thông tin");
+    }
+  };
+  useEffect(() => {
+    const date = new Date();
+    setVoucher({
+      ...voucher,
+      date: date.toLocaleDateString("vi-VN"), // gán thẳng chuỗi đã format
+    } as PaymentVoucher);
+  }, []);
   return (
     <ScrollView>
       <View
@@ -55,7 +80,7 @@ function CreateVoucherPayment() {
         <View style={styles.container}>
           <View>
             <Text style={{ marginBottom: 5, fontWeight: "700" }}>
-              Mã phiếu chi <Text style={{ color: "red" }}>*</Text>
+              Mã phiếu chi
             </Text>
 
             <TextInput placeholder="Mã tự động" style={styles.input} />
@@ -71,7 +96,12 @@ function CreateVoucherPayment() {
               valueField="value"
               placeholder={"-- Chọn danh mục chi --"}
               placeholderStyle={{ color: "#9d9d9d" }}
-              onChange={(item) => {}}
+              onChange={(item) => {
+                setVoucher({
+                  ...voucher,
+                  category: String(item.value),
+                } as PaymentVoucher);
+              }}
             />
           </View>
           <View style={{ marginTop: 20 }}>
@@ -83,12 +113,18 @@ function CreateVoucherPayment() {
               placeholder="0 đ"
               style={styles.input}
               keyboardType="number-pad"
+              onChangeText={(text) =>
+                setVoucher({
+                  ...voucher,
+                  amount: Number(text),
+                } as PaymentVoucher)
+              }
             />
           </View>
 
           <View style={{ marginTop: 20 }}>
             <Text style={{ marginBottom: 5, fontWeight: "700" }}>
-              Nhóm người nhận <Text style={{ color: "red" }}>*</Text>
+              Nhóm người nhận
             </Text>
             <Dropdown
               style={styles.dropdown}
@@ -103,7 +139,7 @@ function CreateVoucherPayment() {
 
           <View style={{ marginTop: 20 }}>
             <Text style={{ marginBottom: 5, fontWeight: "700" }}>
-              Tên người nhận <Text style={{ color: "red" }}>*</Text>
+              Tên người nhận
             </Text>
             <Dropdown
               style={styles.dropdown}
@@ -117,7 +153,7 @@ function CreateVoucherPayment() {
           </View>
           <View style={{ marginTop: 20 }}>
             <Text style={{ marginBottom: 5, fontWeight: "700" }}>
-              Phương thức thanh toán <Text style={{ color: "red" }}>*</Text>
+              Phương thức thanh toán
             </Text>
             <Dropdown
               style={styles.dropdown}
@@ -138,6 +174,12 @@ function CreateVoucherPayment() {
               onContentSizeChange={(e) =>
                 setHeight(e.nativeEvent.contentSize.height)
               }
+              onChangeText={(text) =>
+                setVoucher({
+                  ...voucher,
+                  description: String(text),
+                } as PaymentVoucher)
+              }
             />
           </View>
         </View>
@@ -157,6 +199,7 @@ function CreateVoucherPayment() {
                 defaultValue="24/09/2025"
                 style={[styles.input, { flex: 1 }]}
                 value={(dateStart ?? new Date()).toLocaleDateString("vi-VN")}
+                onChange={(item) => {}}
               />
               <TouchableOpacity
                 style={styles.btnSelectDate}
@@ -173,8 +216,21 @@ function CreateVoucherPayment() {
               date={dateStart}
               onDismiss={() => setOpenModalDateStart(false)}
               onConfirm={(params) => {
+                if (!params.date) return;
+
+                const day = String(params.date.getDate()).padStart(2, "0");
+                const month = String(params.date.getMonth() + 1).padStart(
+                  2,
+                  "0"
+                );
+                const year = params.date.getFullYear();
+                const formattedDate = `${day}/${month}/${year}`; // "30/09/2025"
                 setOpenModalDateStart(false);
                 setDateStart(params.date);
+                setVoucher({
+                  ...voucher,
+                  date: formattedDate, // gán thẳng chuỗi đã format
+                } as PaymentVoucher);
               }}
             />
             <View style={{ marginTop: 20 }}>
@@ -189,7 +245,10 @@ function CreateVoucherPayment() {
             </View>
           </View>
         </View>
-        <TouchableOpacity style={styles.btnSaveVoucher}>
+        <TouchableOpacity
+          style={styles.btnSaveVoucher}
+          onPress={CreateVoucherPayment}
+        >
           <Text style={{ color: "#fff", fontWeight: "600" }}>Lưu phiếu</Text>
         </TouchableOpacity>
       </View>

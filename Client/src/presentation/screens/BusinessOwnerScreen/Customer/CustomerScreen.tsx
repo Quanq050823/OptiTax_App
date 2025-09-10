@@ -8,14 +8,20 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Searchbar, shadow } from "react-native-paper";
 import { ListRenderItemInfo } from "react-native";
+import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
+import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 
 function CustomerManagerScreen() {
+  const navigate = useAppNavigation();
   const [searchQuery, setSearchQuery] = useState("");
   const [listCustomer, setListCustomer] = useState<Customer[]>([]);
+  const [filteredCustomer, setFilteredCustomer] = useState<Customer[]>([]);
+  console.log(searchQuery);
 
   useEffect(() => {
     const getListCustomer = async () => {
@@ -23,13 +29,35 @@ function CustomerManagerScreen() {
         const res: CustomerListResponse = await getCustomerList();
         console.log("API res:", res);
 
-        setListCustomer(res); // assuming the array is in 'customers'
+        setListCustomer(res);
+        setFilteredCustomer(res);
       } catch (error) {
         console.log(error);
       }
     };
     getListCustomer();
   }, []);
+
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+
+    if (text.trim() === "") {
+      setFilteredCustomer(listCustomer); // reset khi clear
+      return;
+    }
+
+    const lowerText = text.toLowerCase();
+    const filtered = listCustomer.filter(
+      (item) =>
+        item.name.toLowerCase().includes(lowerText) ||
+        item.code.toLowerCase().includes(lowerText) ||
+        item.phoneNumber.toLowerCase().includes(lowerText)
+    );
+
+    setFilteredCustomer(filtered);
+  };
+
+  console.log("helllo các bạn yêu của Khang và sau đây khang sẽ thử thách");
 
   const renderCustomerItem = ({ item }: ListRenderItemInfo<Customer>) => (
     <View style={styles.container}>
@@ -81,19 +109,25 @@ function CustomerManagerScreen() {
   );
   return (
     <View style={{ flex: 1, paddingVertical: 20, paddingHorizontal: 10 }}>
-      <View style={styles.shadow}>
+      <View style={styles.wrHead}>
         <Searchbar
           placeholder="Tìm kiếm khách hàng"
-          onChangeText={setSearchQuery}
+          onChangeText={handleSearch}
           value={searchQuery}
           icon="magnify"
-          style={{ backgroundColor: "#fff" }}
+          style={styles.search}
           iconColor={ColorMain}
           placeholderTextColor={ColorMain}
         />
+        <TouchableOpacity
+          style={styles.btnAddCustomer}
+          onPress={() => navigate.navigate("CreateCustomerScreen")}
+        >
+          <FontAwesome5 name="user-plus" size={20} color="#fff" />
+        </TouchableOpacity>
       </View>
       <FlatList
-        data={listCustomer}
+        data={filteredCustomer}
         keyExtractor={(item) => item._id.toString()}
         renderItem={renderCustomerItem}
       />
@@ -113,8 +147,25 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     minHeight: 100,
+    flex: 1,
   },
-  shadow: {
+  wrHead: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  search: {
+    backgroundColor: "#fff",
+    flex: 5,
+    shadowColor: ColorMain,
+    shadowOpacity: 0.22,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  btnAddCustomer: {
+    flex: 1,
+    backgroundColor: ColorMain,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 50,
     shadowColor: ColorMain,
     shadowOpacity: 0.22,
     shadowOffset: { width: 0, height: 1 },
