@@ -19,10 +19,11 @@ const ProductSchema = mongoose.Schema(
 		imageUrl: { type: String },
 		stock: { type: Number, default: 0 },
 		isActive: { type: Boolean, default: true },
-		attributes: [
+		materials: [
 			{
-				key: String,
-				value: String,
+				component: { type: String, required: true },
+				quantity: { type: Number, required: true },
+				unit: { type: String, required: true },
 			},
 		],
 	},
