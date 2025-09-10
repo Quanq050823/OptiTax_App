@@ -12,12 +12,25 @@ const create = async (req, res, next) => {
 		const owner = await BusinessOwner.findOne({ userId });
 		if (!owner)
 			return res.status(404).json({ message: "BusinessOwner not found" });
-
-		const product = await Product.create({
-			...req.body,
-			ownerId: owner._id,
-		});
-
+		let productData = { ...req.body, ownerId: owner._id };
+		if (!productData.code || productData.code.trim() === "") {
+			// Generate code: first letters of each word in name
+			const name = productData.name || "";
+			const initials = name
+				.split(/\s+/)
+				.map((word) => (word[0] ? word[0].toUpperCase() : ""))
+				.join("");
+			let baseCode = initials || "PRD";
+			let code = baseCode;
+			let suffix = 1;
+			// Ensure uniqueness for this owner
+			while (await Product.findOne({ ownerId: owner._id, code })) {
+				code = `${baseCode}${suffix}`;
+				suffix++;
+			}
+			productData.code = code;
+		}
+		const product = await Product.create(productData);
 		res.status(StatusCodes.CREATED).json(product);
 	} catch (err) {
 		next(err);
