@@ -1,9 +1,9 @@
 import axiosInstance from "@/src/services/API/axios";
-import { InvoiceListResponse } from "@/src/types/route";
+import { InvoiceListResponse, Product } from "@/src/types/route";
 
-export const getProducts = async (): Promise<InvoiceListResponse> => {
+export const getProducts = async (): Promise<Product> => {
   try {
-    const res = await axiosInstance.get<InvoiceListResponse>("product");
+    const res = await axiosInstance.get<Product>("product");
 
     return res.data;
   } catch (error: any) {

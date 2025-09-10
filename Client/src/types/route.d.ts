@@ -23,6 +23,7 @@ type RootStackParamList = {
   StoreInformationScreen: undefined;
   BusinessRegistrationStepThree: { taxCode: string | null };
   CustomerManagerScreen: undefined;
+  CreateCustomerScreen: undefined;
   ChooseTaxTypeForHouseholdBusiness: undefined;
   SelectDigitalSignaturePlan: undefined;
   ReportScreen: undefined;

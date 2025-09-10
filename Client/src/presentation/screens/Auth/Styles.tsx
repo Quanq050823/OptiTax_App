@@ -49,6 +49,7 @@ export const stylesAuth = StyleSheet.create({
     shadowRadius: 3,
     elevation: 5,
     width: "100%",
+    color: "#000",
   },
   btnLogin: {
     backgroundColor: ColorMain,

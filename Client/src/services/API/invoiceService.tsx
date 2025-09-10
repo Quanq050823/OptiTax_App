@@ -25,3 +25,17 @@ export const getInvoiceOutputList = async () => {
     throw error;
   }
 };
+export const getInvoiceOutputById = async (userId: string) => {
+  try {
+    const res = await axiosInstance.get<InvoiceListResponse>(
+      `output-invoice/ ${userId}`
+    );
+
+    return res.data;
+  } catch (error: any) {
+    if (error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }
+};

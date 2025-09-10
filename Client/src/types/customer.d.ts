@@ -5,7 +5,6 @@ export type Address = {
   city?: string;
   zipCode?: string;
 };
-
 export type Customer = {
   _id: string;
   ownerId: string;
@@ -13,18 +12,23 @@ export type Customer = {
   code: string;
   email?: string;
   phoneNumber: string;
-  customerType: "individual" | "business"; // có thể mở rộng thêm
+  customerType: "individual" | "business"; // cá nhân hoặc doanh nghiệp
   notes?: string;
-  creditLimit: number;
-  status: "active" | "inactive"; // có thể mở rộng thêm
+  status: "active" | "inactive"; // trạng thái
   tags: string[];
   totalOrders: number;
   totalSpent: number;
-  customFields: any[]; // nếu customFields có cấu trúc riêng thì định nghĩa rõ hơn
+  customFields: any[]; // nếu customFields có schema riêng thì define thêm
   address?: Address;
+  personalInfo?: PersonalInfo;
+  financialInfo?: FinancialInfo;
   createdAt: string; // ISO date string
   updatedAt: string;
   __v: number;
 };
 
+export type personalInfo = {
+  dateOfBirth?: string;
+  gender?: "male" | "female" | "other";
+};
 export type CustomerListResponse = Customer[];

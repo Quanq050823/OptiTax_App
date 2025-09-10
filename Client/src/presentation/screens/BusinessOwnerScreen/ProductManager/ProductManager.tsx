@@ -14,7 +14,6 @@ import {
   RootStackParamList,
 } from "@/src/types/route";
 import {
-
   AntDesign,
   Ionicons,
   MaterialCommunityIcons,
@@ -40,7 +39,7 @@ export default function ProductManagerScreen() {
   const productScan = route.params?.scannedProduct;
 
   const navigate = useAppNavigation();
-  const [products, setProducts] = useState<InvoiceListResponse | null>(null);
+  const [products, setProducts] = useState<Product | null>(null);
 
   const [idEditProduct, setIdEditProduct] = useState<string | null>(null);
   const [showAction, setShowAction] = useState<string | null>(null);
@@ -82,7 +81,6 @@ export default function ProductManagerScreen() {
         typeof productScan.category === "object"
           ? Object.values(productScan.category).join(", ")
           : productScan.category || ""
-
       );
       setDescription(productScan.description);
     }
@@ -107,7 +105,7 @@ export default function ProductManagerScreen() {
   }, []);
 
   const handleAddProduct = async () => {
-    if (!name || !price || !stock || !description || !code || !category) {
+    if (!name || !price || !description || !code || !category) {
       Alert.alert("Thiếu thông tin", "Vui lòng nhập đầy đủ các trường");
       return;
     }

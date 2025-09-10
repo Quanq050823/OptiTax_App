@@ -2,14 +2,10 @@ import { ColorMain } from "@/src/presentation/components/colors";
 import HeaderScreen from "@/src/presentation/components/layout/Header";
 import InvoiInputList from "@/src/presentation/components/List/InvoiInputList";
 import ModalLoginCCT from "@/src/presentation/components/Modal/ModalEditProduct/ModalLoginCCT";
-import ModalLoginCCT from "@/src/presentation/components/Modal/ModalLoginCCT";
 
 import ModalSynchronized from "@/src/presentation/components/Modal/ModalSynchronized";
 import SearchByName from "@/src/presentation/components/SearchByName";
-import {
-  getInvoiceInputList,
-  getInvoiceList,
-} from "@/src/services/API/invoiceService";
+import { getInvoiceInputList } from "@/src/services/API/invoiceService";
 import { Invoice } from "@/src/types/route";
 import { FontAwesome5, Fontisto } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
@@ -42,7 +38,6 @@ function InvoiceInput() {
   useEffect(() => {
     fetchListInvoice();
   }, []);
-
 
   useEffect(() => {
     let animation: Animated.CompositeAnimation;
