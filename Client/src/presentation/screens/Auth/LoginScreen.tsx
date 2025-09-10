@@ -105,6 +105,7 @@ function LoginScreen({ navigation }: Props) {
                 underlineColor={ColorMain}
                 activeUnderlineColor={ColorMain}
                 value={username}
+                textColor="#000"
               />
               <TextInput
                 label="Mật khẩu"
@@ -119,6 +120,7 @@ function LoginScreen({ navigation }: Props) {
                 }
                 underlineColor={ColorMain}
                 activeUnderlineColor={ColorMain}
+                textColor="#000"
               />
 
               {/* <TouchableOpacity

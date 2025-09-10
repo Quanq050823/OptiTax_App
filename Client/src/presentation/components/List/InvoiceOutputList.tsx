@@ -108,6 +108,7 @@ function InvoiceOutputList({ invoicesData }: invoice) {
       keyExtractor={(item) => item._id}
       renderItem={renderItem}
       contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
     />
   );
 }

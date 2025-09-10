@@ -9,7 +9,11 @@ import RegisterScreen from "@/src/presentation/screens/Auth/Register";
 import VerifyAuth from "@/src/presentation/screens/Auth/VerifyAuth";
 import SelectDigitalSignaturePlan from "@/src/presentation/screens/BusinessOwnerScreen/SelectDigitalSignaturePlan/SelectDigitalSignaturePlan";
 import TaxDeclaration from "@/src/presentation/screens/BusinessOwnerScreen/SelectDigitalSignaturePlan/SelectDigitalSignaturePlan";
-import { RootStackParamList } from "@/src/types/route";
+import {
+  BusinessInforAuth,
+  getUserProfile,
+} from "@/src/services/API/profileService";
+import { Profile, RootStackParamList, UserProfile } from "@/src/types/route";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";

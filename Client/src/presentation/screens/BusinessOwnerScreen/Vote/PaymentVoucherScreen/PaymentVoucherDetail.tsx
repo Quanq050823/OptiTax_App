@@ -71,7 +71,7 @@ function PaymentVoucherDetail() {
             </Text>
 
             <TextInput
-              value={voucher.id}
+              value={voucher._id}
               style={styles.input}
               editable={false}
             />

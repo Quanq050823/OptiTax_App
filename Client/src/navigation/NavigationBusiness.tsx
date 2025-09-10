@@ -2,7 +2,7 @@ import HomeScreen from "@/src/presentation/screens/BusinessOwnerScreen/HomeScree
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import CustomDrawerBusiness from "@/src/navigation/components/CustomDrawer/CustomDrawerBusiness";
 import HeaderNavigation from "@/src/navigation/components/HeaderNavigation/HeaderNavigation";
@@ -36,11 +36,39 @@ import InvoiceDetail from "@/src/presentation/screens/BusinessOwnerScreen/Invoic
 import EditProfileScreen from "@/src/presentation/screens/BusinessOwnerScreen/EditProfileScreen/EditProfileScreen";
 import EditProfileBussinessStore from "@/src/presentation/screens/BusinessOwnerScreen/EditProfileBussinessStore/EditProfileBussinessStore";
 import CreateVoucherPayment from "@/src/presentation/screens/BusinessOwnerScreen/Vote/PaymentVoucherScreen/CreateVoucherPayment";
-import { RootStackParamList } from "@/src/types/route";
+import { Profile, RootStackParamList, UserProfile } from "@/src/types/route";
 import PaymentVoucherDetail from "@/src/presentation/screens/BusinessOwnerScreen/Vote/PaymentVoucherScreen/PaymentVoucherDetail";
+import {
+  BusinessInforAuth,
+  getUserProfile,
+} from "@/src/services/API/profileService";
+import { useData } from "@/src/presentation/Hooks/useDataStore";
+import CreateCustomerScreen from "@/src/presentation/screens/BusinessOwnerScreen/Customer/CreateCustomerScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
+  const { data, setData } = useData(); // lấy data từ context
+
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  const fetchProfile = async () => {
+    try {
+      const data: UserProfile = await getUserProfile();
+      const dataBussiness = await BusinessInforAuth();
+      setProfile({
+        ...data,
+        businessName: dataBussiness?.businessName,
+        address: dataBussiness?.address,
+        phoneNumber: dataBussiness?.phoneNumber,
+      });
+      setData({ ...data, ...dataBussiness });
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
+  useEffect(() => {
+    fetchProfile();
+  }, []);
   return (
     <Stack.Navigator
       screenOptions={({ route }) => ({
@@ -226,7 +254,6 @@ const HomeLayout = () => {
         name="InvoiceDetailScreen"
         options={{
           title: "Chi tiết hoá đơn",
-
         }}
         component={InvoiceDetail}
       />
@@ -257,6 +284,13 @@ const HomeLayout = () => {
           title: "Chi tiết phiếu chi",
         }}
         component={PaymentVoucherDetail}
+      />
+      <Stack.Screen
+        name="CreateCustomerScreen"
+        options={{
+          title: "Tạo khách hàng",
+        }}
+        component={CreateCustomerScreen}
       />
     </Stack.Navigator>
   );
