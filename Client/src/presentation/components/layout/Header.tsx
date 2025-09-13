@@ -1,5 +1,5 @@
 import { ColorMain } from "@/src/presentation/components/colors";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as React from "react";
 import {
@@ -25,7 +25,7 @@ function HeaderScreen() {
         />
       </View>
       <TouchableOpacity>
-        <AntDesign name="message1" size={22} color="#fff" />
+        <Ionicons name="chatbubble-ellipses-outline" size={22} color="#fff" />
       </TouchableOpacity>
     </View>
   );

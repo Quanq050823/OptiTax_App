@@ -1,6 +1,6 @@
 import { iconNavigationColor } from "@/src/presentation/components/colors";
-import { Ionicons } from "@expo/vector-icons";
-import AntDesign from "@expo/vector-icons/AntDesign";
+import { TabType } from "@/src/types/route";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { JSX, useMemo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -38,8 +38,8 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
       {
         name: "Tiện ích",
         icon: (focused) => (
-          <AntDesign
-            name="appstore1"
+          <Ionicons
+            name="apps-sharp"
             size={24}
             color={focused ? iconNavigationColor : "#9d9d9d"}
           />

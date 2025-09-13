@@ -91,7 +91,7 @@ function ModalAddProductInVoucherInput({ visible, setVisible }: PropsModalAdd) {
               }}
             >
               <TouchableOpacity style={{ margin: 20 }}>
-                <AntDesign name="minuscircle" size={24} color={ColorMain} />
+                <AntDesign name="minus-circle" size={24} color={ColorMain} />
               </TouchableOpacity>
               <TextInput
                 placeholder="1"
@@ -99,7 +99,7 @@ function ModalAddProductInVoucherInput({ visible, setVisible }: PropsModalAdd) {
               />
 
               <TouchableOpacity style={{ margin: 20 }}>
-                <AntDesign name="pluscircle" size={24} color={ColorMain} />
+                <AntDesign name="plus-circle" size={24} color={ColorMain} />
               </TouchableOpacity>
             </View>
           </View>
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     backgroundColor: "rgba(0,0,0,0.5)", // nền mờ
-  },    
+  },
   modalView: {
     backgroundColor: "#fafafaff",
     padding: 10,

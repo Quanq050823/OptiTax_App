@@ -60,34 +60,34 @@ function AppNavigation() {
           component={NavigationBusiness}
         />
 
-				<Stack.Screen name="VerifyAuth" component={VerifyAuth} />
-				<Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="VerifyAuth" component={VerifyAuth} />
+        <Stack.Screen name="Register" component={RegisterScreen} />
 
-				<Stack.Screen
-					name="ChooseTaxTypeForHouseholdBusiness"
-					component={ChooseTaxTypeForHouseholdBusiness}
-				/>
-				<Stack.Screen
-					name="SelectDigitalSignaturePlan"
-					component={SelectDigitalSignaturePlan}
-				/>
+        <Stack.Screen
+          name="ChooseTaxTypeForHouseholdBusiness"
+          component={ChooseTaxTypeForHouseholdBusiness}
+        />
+        <Stack.Screen
+          name="SelectDigitalSignaturePlan"
+          component={SelectDigitalSignaturePlan}
+        />
 
-				<Stack.Screen
-					name="BusinessRegistrationStepThree"
-					component={BusinessRegistrationStepThree}
-				/>
-				<Stack.Screen
-					name="BusinessRegistrationStepTwo"
-					component={BusinessRegistrationStepTwo}
-				/>
+        <Stack.Screen
+          name="BusinessRegistrationStepThree"
+          component={BusinessRegistrationStepThree}
+        />
+        <Stack.Screen
+          name="BusinessRegistrationStepTwo"
+          component={BusinessRegistrationStepTwo}
+        />
 
-				<Stack.Screen
-					name="NavigationAccountant"
-					component={NavigationAccountant}
-				/>
-			</Stack.Navigator>
-		</View>
-	);
+        <Stack.Screen
+          name="NavigationAccountant"
+          component={NavigationAccountant}
+        />
+      </Stack.Navigator>
+    </View>
+  );
 }
 
 export default AppNavigation;

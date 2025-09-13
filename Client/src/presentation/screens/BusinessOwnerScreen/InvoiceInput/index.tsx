@@ -59,6 +59,7 @@ function InvoiceInput() {
       if (animation) animation.stop();
     };
   }, [loading]);
+  console.log(invoices);
 
   const spin = spinValue.interpolate({
     inputRange: [0, 1],

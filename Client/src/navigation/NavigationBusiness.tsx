@@ -1,4 +1,3 @@
-import HomeScreen from "@/src/presentation/screens/BusinessOwnerScreen/HomeScreen/HomeScreen";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
@@ -19,7 +18,7 @@ import Language from "@/src/presentation/screens/BusinessOwnerScreen/Setting/Lan
 import StoreInformation from "@/src/presentation/screens/BusinessOwnerScreen/Setting/StoreInfomation";
 import PaymentVoucherScreen from "@/src/presentation/screens/BusinessOwnerScreen/Vote/PaymentVoucherScreen";
 import ReceiptVoucherScreen from "@/src/presentation/screens/BusinessOwnerScreen/Vote/ReceiptVoucherScreen";
-import { View } from "react-native";
+import { Alert, View } from "react-native";
 import Option from "@/src/presentation/screens/BusinessOwnerScreen/Option/Option";
 import CustomerManagerScreen from "@/src/presentation/screens/BusinessOwnerScreen/Customer/CustomerScreen";
 import ChooseTaxTypeForHouseholdBusiness from "@/src/presentation/screens/Auth/ChooseTaxTypeForHouseholdBusiness ";
@@ -44,13 +43,19 @@ import {
 } from "@/src/services/API/profileService";
 import { useData } from "@/src/presentation/Hooks/useDataStore";
 import CreateCustomerScreen from "@/src/presentation/screens/BusinessOwnerScreen/Customer/CreateCustomerScreen";
+import ExportInvoice from "@/src/presentation/screens/ReportExport/ReportExport";
+import ReportExport from "@/src/presentation/screens/ReportExport/ReportExport";
+import ExportInvoiceOuput from "@/src/presentation/screens/ReportExport/ExportInvoiceOutput";
+import ExportInvoiceOutput from "@/src/presentation/screens/ReportExport/ExportInvoiceOutput";
+import HomeScreen from "@/src/presentation/screens/BusinessOwnerScreen/HomeScreen/HomeScreen";
+import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
   const { data, setData } = useData(); // lấy data từ context
 
   const [profile, setProfile] = useState<Profile | null>(null);
-
+  const navigate = useAppNavigation();
   const fetchProfile = async () => {
     try {
       const data: UserProfile = await getUserProfile();
@@ -63,7 +68,7 @@ const HomeLayout = () => {
       });
       setData({ ...data, ...dataBussiness });
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại!");
     }
   };
   useEffect(() => {
@@ -291,6 +296,20 @@ const HomeLayout = () => {
           title: "Tạo khách hàng",
         }}
         component={CreateCustomerScreen}
+      />
+      <Stack.Screen
+        name="ReportExportScreen"
+        options={{
+          title: "Xuất báo cáo",
+        }}
+        component={ReportExport}
+      />
+      <Stack.Screen
+        name="ExportInvoiceOuputScreen"
+        options={{
+          title: "Xuất báo cáo",
+        }}
+        component={ExportInvoiceOutput}
       />
     </Stack.Navigator>
   );

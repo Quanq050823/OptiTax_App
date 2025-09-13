@@ -1,6 +1,6 @@
 import { ColorMain } from "@/src/presentation/components/colors";
+import { phieuThu } from "@/src/types/route";
 import { AntDesign, Feather } from "@expo/vector-icons";
-import { Label } from "@react-navigation/elements";
 import { useCallback, useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -102,7 +102,7 @@ function ModalAddReceiptVourcher({
                   </TouchableOpacity>
                 </View>
                 <View>
-                  <Label style={styleModal.label}>Mã phiếu thu</Label>
+                  <Text style={styleModal.label}>Mã phiếu thu</Text>
                   <TextInput
                     placeholder="155508XXX(Mã tự động)"
                     style={[
@@ -114,7 +114,7 @@ function ModalAddReceiptVourcher({
                   />
                 </View>
                 <View>
-                  <Label style={styleModal.label}>Nhóm người nộp</Label>
+                  <Text style={styleModal.label}>Nhóm người nộp</Text>
                   <Dropdown
                     style={[
                       styleModal.dropdown,
@@ -134,7 +134,7 @@ function ModalAddReceiptVourcher({
                   />
                 </View>
                 <View>
-                  <Label style={styleModal.label}>Số chứng từ</Label>
+                  <Text style={styleModal.label}>Số chứng từ</Text>
                   <TextInput
                     placeholder=""
                     value={documentNumber}
@@ -143,23 +143,21 @@ function ModalAddReceiptVourcher({
                   />
                 </View>
                 <View>
-                  <Label style={styleModal.label}>Mã phiếu thu</Label>
+                  <Text style={styleModal.label}>Mã phiếu thu</Text>
                   <TextInput
                     placeholder=""
                     style={[styleModal.input, styleModal.borderInput]}
                   />
                 </View>
                 <View>
-                  <Label style={styleModal.label}>Người nộp</Label>
+                  <Text style={styleModal.label}>Người nộp</Text>
                   <TextInput
                     placeholder=""
                     style={[styleModal.input, styleModal.borderInput]}
                   />
                 </View>
                 <View>
-                  <Label style={styleModal.label}>
-                    Giá trị phiếu thu - VND
-                  </Label>
+                  <Text style={styleModal.label}>Giá trị phiếu thu - VND</Text>
                   <TextInput
                     placeholder="0đ"
                     value={amount}
@@ -169,7 +167,7 @@ function ModalAddReceiptVourcher({
                   />
                 </View>
                 <View>
-                  <Label style={styleModal.label}>Loại phiếu thu</Label>
+                  <Text style={styleModal.label}>Loại phiếu thu</Text>
                   <TouchableOpacity
                     style={[
                       styleModal.input,
@@ -201,7 +199,7 @@ function ModalAddReceiptVourcher({
                   </TouchableOpacity>
                 </View>
                 <View>
-                  <Label style={styleModal.label}>Ghi chú</Label>
+                  <Text style={styleModal.label}>Ghi chú</Text>
                   <TextInput
                     placeholder=""
                     style={[styleModal.input, styleModal.borderInput]}
@@ -263,9 +261,7 @@ function ModalAddReceiptVourcher({
                     width: "100%",
                   }}
                 >
-                  <Label style={styleModal.modalText}>
-                    Chọn loại phiếu thu
-                  </Label>
+                  <Text style={styleModal.modalText}>Chọn loại phiếu thu</Text>
                   <TouchableOpacity
                     onPress={() => setVisible(false)}
                     style={{ position: "absolute", right: 0 }}

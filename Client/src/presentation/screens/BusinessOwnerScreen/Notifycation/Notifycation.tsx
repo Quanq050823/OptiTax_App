@@ -53,9 +53,14 @@ const notifications: NotificationItem[] = [
 function NotificationCard({ item }: { item: NotificationItem }) {
   return (
     <Card style={{ margin: 8, backgroundColor: "#f4f4f4ff" }}>
-      <Card.Title title={item.title} subtitle={item.time} />
+      <Card.Title
+        title={item.title}
+        subtitle={item.time}
+        titleStyle={{ color: "#000", fontSize: 18, fontWeight: "bold" }}
+        subtitleStyle={{ color: "#838383ff", fontSize: 14 }}
+      />
       <Card.Content>
-        <Text>{item.description}</Text>
+        <Text style={{ color: "#000" }}>{item.description}</Text>
       </Card.Content>
     </Card>
   );

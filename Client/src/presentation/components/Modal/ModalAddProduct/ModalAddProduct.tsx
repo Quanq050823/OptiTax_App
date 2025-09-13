@@ -347,7 +347,7 @@ function ModalAddProduct({
                   }}
                   onPress={addIngredient}
                 >
-                  <AntDesign name="pluscircleo" size={17} color={ColorMain} />
+                  <AntDesign name="plus-circle" size={17} color={ColorMain} />
 
                   <Text style={styleModal.labelInput}>
                     &nbsp;Thêm nguyên liệu

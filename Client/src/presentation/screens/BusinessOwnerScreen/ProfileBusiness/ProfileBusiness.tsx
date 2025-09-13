@@ -10,7 +10,6 @@ import {
 import { Profile, RootStackParamList, UserProfile } from "@/src/types/route";
 import { Entypo, FontAwesome } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { Label } from "@react-navigation/elements";
 import {
   NavigationProp,
   useIsFocused,
@@ -117,14 +116,14 @@ function ProfileBusiness() {
                 style={[styles.rolesWrapper, { alignItems: "center" }]}
                 onPress={() => navigate.navigate("EditProfileBussinessStore")}
               >
-                <Label
+                <Te
                   style={[
                     styles.label,
                     { color: "#fff", fontSize: 17, fontWeight: "700" },
                   ]}
                 >
                   {profile.businessName}
-                </Label>
+                </Te>
                 <Text style={[styles.label, { color: "#fff", fontSize: 13 }]}>
                   <Entypo name="location-pin" size={15} color="#fff" />
                   {profile.address.street},{profile.address.ward},
@@ -138,7 +137,7 @@ function ProfileBusiness() {
                 </Text>
               </TouchableOpacity>
               {/* <View style={{ marginTop: 20 }}>
-                <Label style={styles.label}>Tên hộ kinh doanh</Label>
+                <Te style={styles.label}>Tên hộ kinh doanh</Te>
                 <View
                   style={{
                     position: "relative",

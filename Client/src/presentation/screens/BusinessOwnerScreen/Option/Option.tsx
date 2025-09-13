@@ -5,7 +5,7 @@ import {
   getUserProfile,
 } from "@/src/services/API/profileService";
 import { Profile, UserProfile } from "@/src/types/route";
-import { AntDesign, MaterialIcons } from "@expo/vector-icons";
+import {  AntDesign, MaterialIcons } from "@expo/vector-icons";
 import * as React from "react";
 import {
   Image,
@@ -95,12 +95,12 @@ function Option() {
             <View style={styles.dataDev}>
               <Text>Thu nhập: </Text>
               <Text style={{ fontWeight: "600" }}>70,5</Text>
-              <AntDesign name="arrowup" size={15} color="green" />
+              <AntDesign name="arrow-up" size={15} color="green" />
             </View>
             <View style={styles.dataDev}>
               <Text>Thu nhập: </Text>
               <Text style={{ fontWeight: "600" }}>70,5</Text>
-              <AntDesign name="arrowup" size={15} color="red" />
+              <AntDesign name="arrow-up" size={15} color="red" />
             </View>
           </View>
           <TouchableOpacity style={styles.item}>

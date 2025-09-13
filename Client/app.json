@@ -7,7 +7,6 @@
     "icon": "./assets/images/Icon_app.png",
     "scheme": "taxdemo",
     "userInterfaceStyle": "automatic",
-        "deepLink": true,
 
     "newArchEnabled": true,
     "ios": {

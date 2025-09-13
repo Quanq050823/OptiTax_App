@@ -33,6 +33,8 @@ type RootStackParamList = {
   EditProfileScreen: undefined;
   EditProfileBussinessStore: undefined;
   CreateVoucherPayment: undefined;
+  ReportExportScreen: undefined;
+  ExportInvoiceOuputScreen: undefined
   PaymentVoucherDetail: {
     voucher: PaymentVoucher;
   };
