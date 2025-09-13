@@ -25,6 +25,7 @@ import axios from "axios";
 import { Searchbar } from "react-native-paper";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import ModalAddProductInVoucherInput from "@/src/presentation/components/Modal/ModalAddProductInVoucherInput";
+import { Product } from "@/src/types/route";
 
 const screenWidth = Dimensions.get("window").width;
 const ITEM_MARGIN = 8;
@@ -79,7 +80,7 @@ function CreateVoucherInputProduct() {
               {qty}
             </Text>
             <TouchableOpacity onPress={() => increaseQuantity(item)}>
-              <AntDesign name="pluscircleo" size={20} color="#000" />
+              <AntDesign name="plus-circle" size={20} color="#000" />
             </TouchableOpacity>
           </View>
         )}
@@ -88,8 +89,8 @@ function CreateVoucherInputProduct() {
   };
   const fetchData = async () => {
     try {
-      const data = await getProducts();
-      setProducts(data as Product[]);
+      const data: Product = await getProducts();
+      setProducts([data]);
     } catch (error) {
       console.error("Error fetching products:", error);
     }

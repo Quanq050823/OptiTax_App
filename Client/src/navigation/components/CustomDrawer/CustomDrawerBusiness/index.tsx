@@ -128,7 +128,7 @@ const CustomDrawerBusiness = (props: any) => {
         screenName="ProductManager"
         icon={(focused, color, size) => (
           <AntDesign
-            name={focused ? "user" : "infocirlceo"}
+            name={focused ? "user" : "info-circle"}
             size={size}
             color={color}
           />

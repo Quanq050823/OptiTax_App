@@ -4,7 +4,6 @@ import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { getUserProfile } from "@/src/services/API/profileService";
 import { Profile, UserProfile } from "@/src/types/route";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import { Label } from "@react-navigation/elements";
 import { useEffect, useState } from "react";
 import {
   Image,
@@ -70,14 +69,14 @@ function EditProfileScreen() {
         </View>
 
         <View style={{ marginTop: 10 }}>
-          <Label style={styles.label}>Tên chủ hộ </Label>
+          <Text style={styles.label}>Tên chủ hộ </Text>
           <TextInput
             style={[styles.input, styles.borderInput]}
             value={profile?.name}
           />
         </View>
         <View style={{ marginTop: 10 }}>
-          <Label style={styles.label}>Email</Label>
+          <Text style={styles.label}>Email</Text>
           <TextInput
             placeholder=""
             style={[
@@ -92,14 +91,14 @@ function EditProfileScreen() {
 
         <View style={{ marginTop: 10, flexDirection: "row", gap: 10 }}>
           <View style={{ flex: 1 }}>
-            <Label style={styles.label}>Họ chủ hộ</Label>
+            <Text style={styles.label}>Họ chủ hộ</Text>
             <TextInput
               style={[styles.input, styles.borderInput]}
               placeholder="Nhập họ"
             />
           </View>
           <View style={{ flex: 1 }}>
-            <Label style={styles.label}>Tên chủ hộ</Label>
+            <Text style={styles.label}>Tên chủ hộ</Text>
             <TextInput
               style={[styles.input, styles.borderInput]}
               placeholder="Nhập tên"
@@ -108,7 +107,7 @@ function EditProfileScreen() {
         </View>
         {profile?.phone ? (
           <View style={{ marginTop: 10 }}>
-            <Label style={styles.label}>Tên chủ hộ </Label>
+            <Text style={styles.label}>Tên chủ hộ </Text>
             <TextInput
               style={[styles.input, styles.borderInput]}
               value={profile?.name}

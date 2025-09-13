@@ -73,7 +73,7 @@ function CustomerManagerScreen() {
             width: 70,
             height: 70,
           }}
-          style={{ backgroundColor: ColorMain, borderRadius: "50%" }}
+          style={{ backgroundColor: ColorMain, borderRadius: 50 }}
         />
       </View>
       <View

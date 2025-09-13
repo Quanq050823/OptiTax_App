@@ -1,6 +1,6 @@
+// import Province from "@/src/presentation/components/Auth/Province/Province";
 import Province from "@/src/presentation/components/Auth/Province/Province";
 import { ColorMain } from "@/src/presentation/components/colors";
-import { Label } from "@react-navigation/elements";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -289,7 +289,7 @@ function SearchAccountantScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.searchWrapper}>
-        <Label style={{ fontWeight: "500" }}>Lựa chọn địa điểm </Label>
+        <Text style={{ fontWeight: "500" }}>Lựa chọn địa điểm </Text>
         <View>
           <Province
             selectedProvince={selectedProvince}

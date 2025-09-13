@@ -4,10 +4,10 @@ import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import {
   AntDesign,
   FontAwesome,
+  FontAwesome6,
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
-import { Label } from "@react-navigation/elements";
 import * as React from "react";
 import {
   ActivityIndicator,
@@ -83,10 +83,16 @@ function HomeScreen(): React.JSX.Element {
       label: "Xuất hàng",
       icon: <FontAwesome name="upload" size={32} color="#00BCD4" />,
     },
+    // {
+    //   key: "expense",
+    //   label: "Chi phí",
+    //   icon: <FontAwesome name="money" size={32} color="#FF5722" />,
+    // },
     {
-      key: "expense",
-      label: "Chi phí",
-      icon: <FontAwesome name="money" size={32} color="#FF5722" />,
+      key: "exportInvoice",
+      label: "Xuất báo cáo",
+      icon: <FontAwesome6 name="file-export" size={24} color="#FF5722" />,
+      navigate: () => navigate.navigate("ReportExportScreen"),
     },
   ];
 
@@ -305,7 +311,7 @@ function HomeScreen(): React.JSX.Element {
         style={{ backgroundColor: "#f7f7f7ff", paddingHorizontal: 10 }}
       >
         <View style={styles.container}>
-          <Label
+          <Text
             style={{
               fontSize: 20,
               fontWeight: "bold",
@@ -315,7 +321,7 @@ function HomeScreen(): React.JSX.Element {
             }}
           >
             Tính năng
-          </Label>
+          </Text>
           <View style={styles.gridContainer}>
             {features.map((item, index) => (
               <FeatureItem key={index} item={item} />
@@ -323,7 +329,7 @@ function HomeScreen(): React.JSX.Element {
           </View>
         </View>
         <View style={styles.container}>
-          <Label
+          <Text
             style={{
               fontSize: 20,
               fontWeight: "bold",
@@ -333,7 +339,7 @@ function HomeScreen(): React.JSX.Element {
             }}
           >
             Hoá đơn - Phiếu
-          </Label>
+          </Text>
           <View style={styles.gridContainer}>
             {featuresInvoice.map((item, index) => (
               <FeatureItem key={index} item={item} />
@@ -379,7 +385,7 @@ function HomeScreen(): React.JSX.Element {
           </View>
         )} */}
         <View style={styles.container}>
-          <Label
+          <Text
             style={{
               fontSize: 20,
               fontWeight: "bold",
@@ -389,7 +395,7 @@ function HomeScreen(): React.JSX.Element {
             }}
           >
             Tính năng khác
-          </Label>
+          </Text>
           <View style={styles.gridContainer}>
             {features2.map((item, index) => (
               <FeatureItem key={index} item={item} />
@@ -397,7 +403,7 @@ function HomeScreen(): React.JSX.Element {
           </View>
         </View>
         <View style={styles.container}>
-          <Label
+          <Text
             style={{
               fontSize: 20,
               fontWeight: "bold",
@@ -407,7 +413,7 @@ function HomeScreen(): React.JSX.Element {
             }}
           >
             Nhân viên
-          </Label>
+          </Text>
           <View style={styles.gridContainer}>
             {accfeatures.map((item, index) => (
               <FeatureItem key={index} item={item} />
@@ -445,7 +451,6 @@ const styles = StyleSheet.create({
   gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "flex-start",
     paddingTop: 20,
     paddingHorizontal: 10,
   },
