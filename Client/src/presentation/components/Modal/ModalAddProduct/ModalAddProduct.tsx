@@ -17,20 +17,31 @@ import {
   View,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
+import { InvoiceProduct, Product } from "@/src/types/route";
+
+type NewProduct = {
+  name: string;
+  code: string;
+  ten?: string;
+  id?: string;
+  dgia?: string;
+  category: string;
+  unit: string;
+  price: number;
+  description: string;
+  imageUrl: string;
+  stock: number;
+  attributes: { key: string; value: string }[];
+};
 interface ModalAddProductProps {
   visible: boolean;
   setVisible: (visible: boolean) => void;
-  onAddProduct: any;
-  setName: (name: string) => void;
-  setPrice: (price: number) => void;
-  setStock: (quantity: string) => void;
-  setCode: (code: string) => void;
-  setDescription: (description: string) => void;
-  setCategory: (category: string) => void;
-  name: string;
-  code: string;
-  category: string;
-  description: string;
+  onAddProduct?: any;
+  newProduct: NewProduct;
+  setNewProduct: React.Dispatch<React.SetStateAction<NewProduct>>;
+  setProductSynchronized?: React.Dispatch<
+    React.SetStateAction<InvoiceProduct[]>
+  >;
 }
 
 type Ingredient = {
@@ -84,16 +95,9 @@ function ModalAddProduct({
   visible,
   setVisible,
   onAddProduct,
-  setName,
-  setPrice,
-  setStock,
-  setCode,
-  setDescription,
-  setCategory,
-  name,
-  code,
-  category,
-  description,
+  newProduct,
+  setNewProduct,
+  setProductSynchronized,
 }: ModalAddProductProps) {
   const [ingredients, setIngredients] = useState<Ingredient[]>([
     { material: null, quantity: "", unit: null },
@@ -173,8 +177,18 @@ function ModalAddProduct({
                     placeholder={"Nhập mã sp"}
                     style={styleModal.input}
                     placeholderTextColor={"#9d9d9d"}
-                    onChangeText={(value) => setCode(value)}
-                    defaultValue={code}
+                    onChangeText={(text) =>
+                      setNewProduct({ ...newProduct, code: text })
+                    }
+                    defaultValue={newProduct.code || newProduct.id
+
+
+
+
+
+
+                      
+                    }
                   />
                 </View>
                 <View style={{ marginTop: 20 }}>
@@ -183,8 +197,10 @@ function ModalAddProduct({
                     placeholder={"Nhập tên sản phẩm"}
                     style={styleModal.input}
                     placeholderTextColor={"#9d9d9d"}
-                    onChangeText={(value) => setName(value)}
-                    value={name}
+                    onChangeText={(text) =>
+                      setNewProduct({ ...newProduct, name: text })
+                    }
+                    value={newProduct.name || newProduct.ten}
                   />
                 </View>
                 <View style={{ flexDirection: "row", gap: 30 }}>
@@ -195,8 +211,10 @@ function ModalAddProduct({
                       style={styleModal.input}
                       placeholderTextColor={"#9d9d9d"}
                       keyboardType="number-pad"
-                      onChangeText={(value) => setPrice(Number(value) || 0)}
-                      defaultValue="0"
+                      onChangeText={(text) =>
+                        setNewProduct({ ...newProduct, price: Number(text) })
+                      }
+                      defaultValue={newProduct.dgia ? newProduct.dgia : "0"}
                     />
                   </View>
 
@@ -318,7 +336,7 @@ function ModalAddProduct({
                           placeholder={"Số lượng"}
                           style={[styleModal.input]}
                           placeholderTextColor={"#9d9d9d"}
-                          onChangeText={(value) => setPrice(Number(value))}
+                          // onChangeText={(value) => setPrice(Number(value))}
                         />
                       </View>
                       <View style={{ flex: 0.7 }}>
@@ -387,8 +405,10 @@ function ModalAddProduct({
                     placeholder={"Nhập mô tả sản phẩm"}
                     style={[styleModal.input, { minHeight: 60 }]}
                     placeholderTextColor={"#9d9d9d"}
-                    onChangeText={(value) => setDescription(value)}
-                    defaultValue={description}
+                    onChangeText={(text) =>
+                      setNewProduct({ ...newProduct, description: text })
+                    }
+                    defaultValue={newProduct.description}
                     multiline
                   />
                 </View>

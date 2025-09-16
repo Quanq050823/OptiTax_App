@@ -17,6 +17,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -33,10 +34,11 @@ const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
 
 function CreateVoucherInputProduct() {
   const navigate = useAppNavigation();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [visible, setVisible] = useState(false);
+  const [inputValues, setInputValues] = useState<{ [id: string]: string }>({});
 
   const renderItem = ({ item }: any) => {
     const qty = getQty(item._id);
@@ -54,7 +56,7 @@ function CreateVoucherInputProduct() {
         <View style={{ flex: 1, alignItems: "center", width: "80%" }}>
           <Image source={{ uri: item.imageUrl }} style={styles.image} />
           <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.detail}>Giá: {item.price.toLocaleString()}đ</Text>
+          <Text style={styles.detail}>Giá: {item.price}đ</Text>
           <Text style={styles.detail}>Tồn kho: {item.stock}</Text>
         </View>
 
@@ -70,15 +72,43 @@ function CreateVoucherInputProduct() {
             <TouchableOpacity onPress={() => decreaseQuantity(item)}>
               <AntDesign name="minus" size={20} color="#000" />
             </TouchableOpacity>
-            <Text
+            <TextInput
               style={{
                 marginHorizontal: 8,
                 fontWeight: "700",
                 color: ColorMain,
+                flex: 1,
+                textAlign: "center",
               }}
-            >
-              {qty}
-            </Text>
+              keyboardType="numeric"
+              value={inputValues[item._id] ?? qty.toString()}
+              onChangeText={(text) => {
+                setInputValues((prev) => ({ ...prev, [item._id]: text })); // cho phép rỗng
+              }}
+              onEndEditing={(e) => {
+                const text = e.nativeEvent.text;
+                const number = parseInt(text);
+
+                if (isNaN(number) || number <= 0) {
+                  // nếu rỗng hoặc 0 → remove khỏi selected
+                  setSelectedProducts((prev) =>
+                    prev.filter((p) => p._id !== item._id)
+                  );
+                  setInputValues((prev) => {
+                    const copy = { ...prev };
+                    delete copy[item._id];
+                    return copy;
+                  });
+                } else {
+                  updateQuantity(item, number);
+                  setInputValues((prev) => {
+                    const copy = { ...prev };
+                    delete copy[item._id]; // xoá state tạm, dùng qty thật
+                    return copy;
+                  });
+                }
+              }}
+            />
             <TouchableOpacity onPress={() => increaseQuantity(item)}>
               <AntDesign name="plus-circle" size={20} color="#000" />
             </TouchableOpacity>
@@ -90,11 +120,12 @@ function CreateVoucherInputProduct() {
   const fetchData = async () => {
     try {
       const data: Product = await getProducts();
-      setProducts([data]);
+      setProducts(data);
     } catch (error) {
       console.error("Error fetching products:", error);
     }
   };
+  console.log(products);
 
   useEffect(() => {
     fetchData();
@@ -127,6 +158,19 @@ function CreateVoucherInputProduct() {
     });
   };
 
+  const updateQuantity = (product: Product, qty?: number) => {
+    setSelectedProducts((prev) => {
+      if (qty === undefined) return prev; // 👈 không xử lý xoá khi đang gõ
+      if (qty <= 0) {
+        return prev.filter((p) => p._id !== product._id);
+      }
+      const exists = prev.find((p) => p._id === product._id);
+      if (exists) {
+        return prev.map((p) => (p._id === product._id ? { ...p, qty } : p));
+      }
+      return [...prev, { ...product, qty }];
+    });
+  };
   // Lấy số lượng hiện tại của sản phẩm
   const getQty = (id: string) => {
     const found = selectedProducts.find((p) => p._id === id);

@@ -27,7 +27,7 @@ type SetDataDayProps = {
     endDate?: CalendarDate;
   }) => void;
   loading: boolean;
-  setLoading: () => void;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 
   getQuarter: (month: number) => number;
 };
@@ -123,18 +123,18 @@ function SetDataDay({
           style={{
             flexDirection: "row",
             alignItems: "center",
-            backgroundColor: "#fff",
+            backgroundColor: "translate",
             paddingHorizontal: 25,
             borderRadius: 10,
             marginTop: 20,
-            shadowColor: ColorMain,
-            shadowOpacity: 0.5,
-            shadowOffset: { width: 0, height: 0 },
-            elevation: 5,
+            // shadowColor: ColorMain,
+            // shadowOpacity: 0.5,
+            // shadowOffset: { width: 0, height: 0 },
             paddingVertical: 10,
             width: "100%",
             justifyContent: "space-between",
-            borderWidth: 0.5,
+            borderWidth: 1,
+            borderColor: "#9d9d9d",
           }}
         >
           {/* Preview */}
