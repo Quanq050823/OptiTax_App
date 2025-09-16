@@ -3,7 +3,7 @@ import CustomDrawerItem from "@/src/navigation/components/CustomDrawer/CustomDra
 import InvoiceManageShow from "@/src/navigation/components/InvoiceManageShow";
 import Setting from "@/src/navigation/components/Setting";
 import VoteManager from "@/src/navigation/components/VoteManager/inden";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { DrawerContentScrollView } from "@react-navigation/drawer";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -136,6 +136,22 @@ const CustomDrawerBusiness = (props: any) => {
         onPress={() =>
           props.navigation.navigate("HomeLayout", {
             screen: "ProductManager",
+          })
+        }
+      />
+      <CustomDrawerItem
+        label="Quản lý kho hàng"
+        screenName="InventoryManagementScreen"
+        icon={(focused, color, size) => (
+          <MaterialCommunityIcons
+            name="package-variant-closed"
+            size={size}
+            color={color}
+          />
+        )}
+        onPress={() =>
+          props.navigation.navigate("HomeLayout", {
+            screen: "InventoryManagementScreen",
           })
         }
       />

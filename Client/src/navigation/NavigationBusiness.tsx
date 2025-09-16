@@ -49,6 +49,7 @@ import ExportInvoiceOuput from "@/src/presentation/screens/ReportExport/ExportIn
 import ExportInvoiceOutput from "@/src/presentation/screens/ReportExport/ExportInvoiceOutput";
 import HomeScreen from "@/src/presentation/screens/BusinessOwnerScreen/HomeScreen/HomeScreen";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
+import InventoryManagementScreen from "@/src/presentation/screens/InventoryManagementScreen/InventoryManagementScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
@@ -68,7 +69,7 @@ const HomeLayout = () => {
       });
       setData({ ...data, ...dataBussiness });
     } catch (error) {
-      Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại!");
+      // Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại!");
     }
   };
   useEffect(() => {
@@ -310,6 +311,13 @@ const HomeLayout = () => {
           title: "Xuất báo cáo",
         }}
         component={ExportInvoiceOutput}
+      />
+      <Stack.Screen
+        name="InventoryManagementScreen"
+        options={{
+          title: "Kho hàng",
+        }}
+        component={InventoryManagementScreen}
       />
     </Stack.Navigator>
   );

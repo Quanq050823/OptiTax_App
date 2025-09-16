@@ -33,13 +33,23 @@ import {
   View,
 } from "react-native";
 import { Searchbar } from "react-native-paper";
-
+type NewProduct = {
+  name: string;
+  code: string;
+  category: string;
+  unit: string;
+  price: number;
+  description: string;
+  imageUrl: string;
+  stock: number;
+  attributes: { key: string; value: string }[];
+};
 export default function ProductManagerScreen() {
   const route = useRoute<RouteProp<RootStackParamList, "ProductManager">>();
   const productScan = route.params?.scannedProduct;
 
   const navigate = useAppNavigation();
-  const [products, setProducts] = useState<Product | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
 
   const [idEditProduct, setIdEditProduct] = useState<string | null>(null);
   const [showAction, setShowAction] = useState<string | null>(null);
@@ -58,19 +68,17 @@ export default function ProductManagerScreen() {
   const ITEM_MARGIN = 8;
   const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
 
-  const newProduct = {
-    name: name,
-    code: code,
-    category: category,
-    unit: "li",
-    price: price,
-    description: description,
-    imageUrl:
-      "https://www.okoone.com/wp-content/uploads/2024/06/React-native-2-logo.png",
-    stock: stock,
-    attributes: [{ key: "đường", value: "có" }],
-  };
-
+  const [newProduct, setNewProduct] = useState<NewProduct>({
+    name: "",
+    code: "",
+    category: "",
+    unit: "",
+    price: 0,
+    description: "",
+    imageUrl: "",
+    stock: 0,
+    attributes: [],
+  });
   useEffect(() => {
     if (productScan) {
       setVisible(true);
@@ -304,16 +312,8 @@ export default function ProductManagerScreen() {
             visible={visible}
             setVisible={setVisible}
             onAddProduct={handleAddProduct}
-            setName={setName}
-            name={name}
-            code={code}
-            category={category}
-            description={description}
-            setPrice={(price: number) => setPrice(Number(price))}
-            setStock={(stock: string) => setStock(Number(stock))}
-            setCode={setCode}
-            setDescription={setDescription}
-            setCategory={setCategory}
+            newProduct={newProduct}
+            setNewProduct={setNewProduct}
           />
           {showEditProduct && (
             <ModalEditProduct

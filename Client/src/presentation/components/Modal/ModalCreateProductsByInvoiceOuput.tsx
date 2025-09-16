@@ -1,4 +1,5 @@
 import { ColorMain } from "@/src/presentation/components/colors";
+import ModalAddProduct from "@/src/presentation/components/Modal/ModalAddProduct/ModalAddProduct";
 import { Invoice, InvoiceProduct } from "@/src/types/route";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useEffect, useState } from "react";
@@ -16,6 +17,18 @@ import {
   View,
 } from "react-native";
 import { TextInput } from "react-native-paper";
+
+type NewProduct = {
+  name: string;
+  code: string;
+  category: string;
+  unit: string;
+  price: number;
+  description: string;
+  imageUrl: string;
+  stock: number;
+  attributes: { key: string; value: string }[];
+};
 interface ModalAddProductProps {
   openListProductSynchronized: boolean;
   setOpenListProductSynchronized: (
@@ -74,7 +87,18 @@ function ModalCreateProductsByInvoiceOuput({
   const [loading, setLoading] = useState(false);
   const gifSource = require("@/assets/images/icons_loading_smooth.gif"); // path tới file GIF
   const [startCreate, setStartCreate] = useState(false);
-  //   useEffect(() => {}, [invoicesData]);
+  const [visible, setVisible] = useState(false);
+  const [newProduct, setNewProduct] = useState<NewProduct>({
+    name: "",
+    code: "",
+    category: "",
+    unit: "",
+    price: 0,
+    description: "",
+    imageUrl: "",
+    stock: 0,
+    attributes: [],
+  }); //   useEffect(() => {}, [invoicesData]);
 
   //   console.log(JSON.stringify(productSynchronized, null, 2));
   const handleCreateSynchronized = () => {
@@ -135,7 +159,20 @@ function ModalCreateProductsByInvoiceOuput({
             Giá: {item.dgia.toLocaleString()}đ
           </Text>
           {/* <Text style={styleModal.detail}>Số lượng: {item.sluong}</Text> */}
+          <TouchableOpacity
+            style={[styleModal.btnCreate, { marginTop: 20 }]}
+            onPress={() => setVisible(true)}
+          >
+            <Text style={{ color: "#fff" }}>Cập nhập</Text>
+          </TouchableOpacity>
         </View>
+        <ModalAddProduct
+          visible={visible}
+          setVisible={setVisible}
+          newProduct={item}
+          setProductSynchronized={setProductSynchronized}
+          setNewProduct={setNewProduct}
+        />
         {/* {showAction === item.code && (
           <>
             <View
@@ -379,7 +416,6 @@ const styleModal = StyleSheet.create({
   },
   btnCreate: {
     backgroundColor: ColorMain,
-    width: 100,
     padding: 10,
     borderRadius: 10,
   },
