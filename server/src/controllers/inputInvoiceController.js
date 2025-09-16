@@ -29,4 +29,14 @@ const list = async (req, res, next) => {
 	}
 };
 
-export { getById, list };
+const create = async (req, res, next) => {
+	try {
+		const invoiceData = req.body;
+		const result = await inputInvoiceService.createInputInvoice(invoiceData);
+		res.status(StatusCodes.CREATED).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export { getById, list, create };

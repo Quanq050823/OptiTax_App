@@ -38,8 +38,8 @@ import CreateVoucherPayment from "@/src/presentation/screens/BusinessOwnerScreen
 import { Profile, RootStackParamList, UserProfile } from "@/src/types/route";
 import PaymentVoucherDetail from "@/src/presentation/screens/BusinessOwnerScreen/Vote/PaymentVoucherScreen/PaymentVoucherDetail";
 import {
-  BusinessInforAuth,
-  getUserProfile,
+	BusinessInforAuth,
+	getUserProfile,
 } from "@/src/services/API/profileService";
 import { useData } from "@/src/presentation/Hooks/useDataStore";
 import CreateCustomerScreen from "@/src/presentation/screens/BusinessOwnerScreen/Customer/CreateCustomerScreen";
@@ -49,11 +49,12 @@ import ExportInvoiceOuput from "@/src/presentation/screens/ReportExport/ExportIn
 import ExportInvoiceOutput from "@/src/presentation/screens/ReportExport/ExportInvoiceOutput";
 import HomeScreen from "@/src/presentation/screens/BusinessOwnerScreen/HomeScreen/HomeScreen";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
+
 import InventoryManagementScreen from "@/src/presentation/screens/InventoryManagementScreen/InventoryManagementScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
-  const { data, setData } = useData(); // lấy data từ context
+	const { data, setData } = useData(); // lấy data từ context
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const navigate = useAppNavigation();
@@ -324,48 +325,48 @@ const HomeLayout = () => {
 };
 
 const NavigationBusiness = () => {
-  const Drawer = createDrawerNavigator();
-  return (
-    // <SafeAreaView
-    //   style={{
-    //     flex: 1,
-    //     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-    //     paddingBottom: 0,
-    //   }}
-    // >
-    <View
-      style={{
-        flex: 1,
-      }}
-    >
-      <Drawer.Navigator
-        screenOptions={{
-          drawerStyle: { width: 300 },
-          headerStyle: { height: 100 },
-          drawerActiveTintColor: "#000",
-          headerTintColor: "black",
-          headerShown: false,
-        }}
-        drawerContent={(props) => <CustomDrawerBusiness {...props} />}
-      >
-        <Drawer.Screen
-          name="HomeLayout"
-          options={{
-            title: "Trang cá nhân",
-          }}
-          component={HomeLayout}
-        />
-        <Drawer.Screen
-          name="AboutScreen"
-          options={{
-            title: "Giới Thiệu",
-          }}
-          component={AboutScreen}
-        />
-      </Drawer.Navigator>
-    </View>
-    // </SafeAreaView>
-  );
+	const Drawer = createDrawerNavigator();
+	return (
+		// <SafeAreaView
+		//   style={{
+		//     flex: 1,
+		//     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+		//     paddingBottom: 0,
+		//   }}
+		// >
+		<View
+			style={{
+				flex: 1,
+			}}
+		>
+			<Drawer.Navigator
+				screenOptions={{
+					drawerStyle: { width: 300 },
+					headerStyle: { height: 100 },
+					drawerActiveTintColor: "#000",
+					headerTintColor: "black",
+					headerShown: false,
+				}}
+				drawerContent={(props) => <CustomDrawerBusiness {...props} />}
+			>
+				<Drawer.Screen
+					name="HomeLayout"
+					options={{
+						title: "Trang cá nhân",
+					}}
+					component={HomeLayout}
+				/>
+				<Drawer.Screen
+					name="AboutScreen"
+					options={{
+						title: "Giới Thiệu",
+					}}
+					component={AboutScreen}
+				/>
+			</Drawer.Navigator>
+		</View>
+		// </SafeAreaView>
+	);
 };
 
 export default NavigationBusiness;

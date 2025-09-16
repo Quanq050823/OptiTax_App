@@ -38,4 +38,10 @@ const listInputInvoices = async (filter = {}, options = {}) => {
 	};
 };
 
-export { getInputInvoiceById, listInputInvoices };
+const createInputInvoice = async (invoiceData) => {
+	const invoice = new InputInvoice(invoiceData);
+	await invoice.save();
+	return invoice;
+};
+
+export { getInputInvoiceById, listInputInvoices, createInputInvoice };
