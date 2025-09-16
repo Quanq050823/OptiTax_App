@@ -111,4 +111,29 @@ const remove = async (req, res, next) => {
 	}
 };
 
-export { create, getById, list, update, remove };
+const namesAndUnits = async (req, res, next) => {
+	try {
+		const userId = req.user.userId;
+		console.log("User ID:", userId); // Debugging line
+		const owner = await getBusinessOwnerByUserId(userId);
+		console.log("Business Owner:", owner); // Debugging line
+		if (!owner) {
+			return res
+				.status(StatusCodes.NOT_FOUND)
+				.json({ message: "Business owner profile not found" });
+		}
+		const items = await storageItemService.listStorageItems(
+			{},
+			{ limit: 1000 },
+			owner._id
+		); // limit to 1000 for safety
+		console.log("Owner ID:", owner._id); // Debugging line
+		const names = items.data.map((item) => item.name);
+		const units = items.data.map((item) => item.unit);
+		res.status(StatusCodes.OK).json({ names, units });
+	} catch (err) {
+		next(err);
+	}
+};
+
+export { create, getById, list, update, remove, namesAndUnits };

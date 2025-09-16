@@ -18,6 +18,12 @@ router.get(
 	storageItemController.list
 );
 router.get(
+	"/names-units",
+	authenticate,
+	authorization(["user", "admin"]),
+	storageItemController.namesAndUnits
+);
+router.get(
 	"/:id",
 	authenticate,
 	authorization(["user", "admin"]),
