@@ -6,6 +6,7 @@ import { StatusCodes } from "http-status-codes";
 const create = async (req, res, next) => {
 	try {
 		const userId = req.user.userId;
+		console.log("Creating business owner for userId:", userId);
 		const data = req.body;
 		const result = await businessOwnerService.createBusinessOwner(userId, data);
 		res.status(StatusCodes.CREATED).json(result);

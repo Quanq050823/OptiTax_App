@@ -71,6 +71,11 @@ const OutputInvoiceSchema = new mongoose.Schema(
 		thtttoan: String,
 		hdhhdvu: [hdhhdvuSchema],
 		qrcode: String,
+		businessOwnerId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "BusinessOwner",
+			required: true,
+		},
 	},
 	{ timestamps: true }
 );

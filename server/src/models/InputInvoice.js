@@ -53,6 +53,11 @@ const InputInvoiceSchema = new mongoose.Schema(
 		thtttoan: String,
 		dvtte: String,
 		hdhhdvu: [hdhhdvuSchema],
+		businessOwnerId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "BusinessOwner",
+			required: true,
+		},
 	},
 	{ timestamps: true }
 );
