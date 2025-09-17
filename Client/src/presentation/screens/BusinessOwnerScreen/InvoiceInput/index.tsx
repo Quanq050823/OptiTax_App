@@ -1,18 +1,17 @@
 import { ColorMain } from "@/src/presentation/components/colors";
-import HeaderScreen from "@/src/presentation/components/layout/Header";
 import InvoiInputList from "@/src/presentation/components/List/InvoiInputList";
+import ModalCreateProductsByInvoiceInput from "@/src/presentation/components/Modal/ModalCreateProductsByInvoiceInput";
 import ModalLoginCCT from "@/src/presentation/components/Modal/ModalEditProduct/ModalLoginCCT";
 
 import ModalSynchronized from "@/src/presentation/components/Modal/ModalSynchronized";
 import SearchByName from "@/src/presentation/components/SearchByName";
 import { getInvoiceInputList } from "@/src/services/API/invoiceService";
 import { Invoice } from "@/src/types/route";
-import { FontAwesome5, Fontisto } from "@expo/vector-icons";
+import { AntDesign, FontAwesome5, Fontisto } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Easing,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -25,6 +24,8 @@ function InvoiceInput() {
   const [openLogin, setOpenLogin] = useState(false);
   const [loading, setLoading] = useState(false);
   const spinValue = useRef(new Animated.Value(0)).current;
+  const [openListProductSynchronized, setOpenListProductSynchronized] =
+    useState(false);
 
   const fetchListInvoice = async () => {
     try {
@@ -87,6 +88,15 @@ function InvoiceInput() {
       <View style={styles.synchronizedWrapper}>
         <TouchableOpacity
           style={styles.btnSyn}
+          onPress={() => setOpenListProductSynchronized(true)}
+        >
+          <Text style={{ color: "#fff", fontSize: 14 }}>
+            Tạo sản phẩm &nbsp;
+            <AntDesign name="plus" size={15} color="#fff" />
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.btnSyn}
           onPress={handleLoadingSynchronized}
         >
           <Text style={{ color: "#fff", fontSize: 14 }}>
@@ -108,6 +118,11 @@ function InvoiceInput() {
           </Text>
         </TouchableOpacity>
       </View>
+      <ModalCreateProductsByInvoiceInput
+        setOpenListProductSynchronized={setOpenListProductSynchronized}
+        openListProductSynchronized={openListProductSynchronized}
+        invoicesData={invoices}
+      />
 
       <InvoiInputList invoicesData={invoices} />
       <ModalSynchronized visible={visible} setVisible={setVisible} />
@@ -127,7 +142,7 @@ const styles = StyleSheet.create({
   },
   synchronizedWrapper: {
     flexDirection: "row",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     marginTop: 15,
   },
   btnSyn: {
