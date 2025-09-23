@@ -10,10 +10,23 @@ import {
   getProducts,
 } from "@/src/services/API/productService";
 import {
+  createProductInventory,
+  deleteProductInventory,
+  getProductsInventory,
+  getProductsInventoryByKey,
+  searchProductsInventory,
+  updateProductInventory,
+} from "@/src/services/API/storageService";
+import {
   InvoiceListResponse,
   Product,
   RootStackParamList,
 } from "@/src/types/route";
+import {
+  NewProductInventory,
+  ProductInventory,
+  ProductInventoryList,
+} from "@/src/types/storage";
 import {
   AntDesign,
   Ionicons,
@@ -27,6 +40,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  ListRenderItem,
   StyleSheet,
   Text,
   TextInput,
@@ -59,41 +73,60 @@ const productData = [
     isActive: true,
   },
 ];
+
 export default function InventoryManagerScreen() {
   const route = useRoute<RouteProp<RootStackParamList, "ProductManager">>();
   const productScan = route.params?.scannedProduct;
 
   const navigate = useAppNavigation();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [productsInventory, setProductsInventory] = useState<
+    ProductInventory[]
+  >([]);
 
-  const [idEditProduct, setIdEditProduct] = useState<string | null>(null);
+  const [idEditProduct, setIdEditProduct] = useState<string>("");
   const [showAction, setShowAction] = useState<string | null>(null);
   const [showEditProduct, setShowEditProduct] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
-  const [code, setCode] = useState("");
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState(0);
-  const [stock, setStock] = useState(0);
-  const [image, setImage] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
+  const [visibleEdit, setVisibleEdit] = useState(false);
+  const [newProductInvenEdit, setNewProductInvenEdit] =
+    useState<ProductInventory>();
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const screenWidth = Dimensions.get("window").width;
   const ITEM_MARGIN = 8;
   const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
 
-  const [newProduct, setNewProduct] = useState<NewProduct>({
+  const [newProduct, setNewProduct] = useState<NewProductInventory>({
     name: "",
     code: "",
     category: "",
     unit: "",
     price: 0,
     description: "",
-    imageUrl: "",
+    imageURL: "",
     stock: 0,
     attributes: [],
   });
+
+  const fetchDataProductInventory = async () => {
+    try {
+      setLoading(true);
+
+      const res = await getProductsInventory();
+      console.log(res, "duwx ");
+
+      setProductsInventory(res.data ?? []);
+    } catch {
+      console.log("Lỗi! Chưa có dữ liệu!");
+      setProductsInventory([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchDataProductInventory();
+  }, []);
   useEffect(() => {
     if (productScan) {
       setVisible(true);
@@ -108,55 +141,25 @@ export default function InventoryManagerScreen() {
       setDescription(productScan.description);
     }
   }, [productScan]);
-  const fetchData = async () => {
+
+  const handleCreateProductInventory = async (
+    newProduct: NewProductInventory
+  ) => {
     try {
-      const data = await getProducts();
-      setProducts(data);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      navigate.dispatch(
-        CommonActions.reset({
-          index: 0,
-          routes: [{ name: "Login" }],
-        })
-      );
+      await createProductInventory(newProduct);
+      Alert.alert("Thành công", "Đã tạo nguyên liệu mới");
+      setVisible(false);
+      fetchDataProductInventory();
+    } catch {
+      Alert.alert("Lỗi", "Vui lòng kiểm tra các trường nguyên liệu");
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const handleAddProduct = async () => {
-    if (!name || !price || !description || !code || !category) {
-      Alert.alert("Thiếu thông tin", "Vui lòng nhập đầy đủ các trường");
-      return;
-    }
-
-    const created = await createProduct(newProduct);
-    if (created && typeof created === "object" && "name" in created) {
-      Alert.alert(
-        "Thành công",
-        `Đã thêm sản phẩm: ${(created as { name: string }).name}`
-      );
-    } else {
-      Alert.alert("Lỗi", "Không thể lấy thông tin sản phẩm vừa tạo.");
-    }
-    fetchData();
-    setVisible(false);
-    // Reset input
-    setName("");
-    setPrice(0);
-    setStock(0);
-    setImage("");
-    setDescription("");
+  const handleShowAction = (_id: string) => {
+    setShowAction((prev) => (prev === _id ? null : _id)); // toggle
   };
 
-  const handleShowAction = (code: string) => {
-    setShowAction((prev) => (prev === code ? null : code)); // toggle
-  };
-
-  const handleDeleteProduct = async (id: string) => {
+  const handleDeleteProductInventory = async (id: string) => {
     Alert.alert(
       "Xác nhận xoá",
       "Bạn có chắc muốn xoá sản phẩm này không?",
@@ -170,12 +173,12 @@ export default function InventoryManagerScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              await deleteProduct(id);
-              fetchData();
-              Alert.alert("Thành công", "Sản phẩm đã được xoá");
+              await deleteProductInventory(id);
+              fetchDataProductInventory();
+              Alert.alert("Thành công", "Nguyên liệu đã được xoá");
             } catch (error) {
               console.error("Error deleting product:", error);
-              Alert.alert("Lỗi", "Không thể xoá sản phẩm");
+              Alert.alert("Lỗi", "Không thể xoá nguyên liệu");
             }
           },
         },
@@ -183,13 +186,62 @@ export default function InventoryManagerScreen() {
       { cancelable: true }
     );
   };
+  // useEffect(() => {
+  //   const fetchNamesUnits = async () => {
+  //     try {
+  //       const res = await searchProductsInventory(searchQuery);
+  //       setProductsInventory(res.data);
+  //     } catch (err) {
+  //       console.error("Lỗi lấy names/units:", err);
+  //     }
+  //   };
 
-  const handleOpenModalEditProduct = (id: string) => {
-    setShowEditProduct((prev) => (prev === id ? null : id));
-    setIdEditProduct(id);
+  //   fetchNamesUnits();
+  // }, [searchQuery]);
+  const handleOpenModalEditProduct = (_id: string) => {
+    setShowEditProduct((prev) => (prev === _id ? null : _id));
+    setIdEditProduct(_id);
+    setVisibleEdit(true);
   };
-  const renderItem = ({ item }: any) => (
-    <TouchableOpacity onPress={() => handleShowAction(item.code)}>
+
+  const handleUpdateProductInventory = async (
+    id: string,
+    updatedFields: any
+  ) => {
+    // // Kiểm tra các trường bắt buộc
+    // if (
+    //   !updatedFields.name ||
+    //   !updatedFields.price ||
+    //   !updatedFields.stock ||
+    //   !updatedFields.imageURL ||
+    //   !updatedFields.unit
+    // ) {
+    //   Alert.alert("Thiếu thông tin", "Vui lòng nhập đầy đủ các trường");
+    //   return;
+    // }
+
+    // Tạo object chứa các trường cần cập nhật
+    const productData = {
+      name: updatedFields.name,
+      unit: updatedFields.unit,
+      price: Number(updatedFields.price),
+      imageURL: updatedFields.imageURL,
+      stock: Number(updatedFields.stock),
+    };
+
+    try {
+      const res = await updateProductInventory(id, productData); // đổi sang hàm update có id
+      console.log("Cập nhật thành công:", res);
+      Alert.alert("Thành công", "Sản phẩm đã được cập nhật");
+      setShowEditProduct(null);
+      fetchDataProductInventory();
+    } catch (error) {
+      console.error("Lỗi cập nhật sản phẩm:", error);
+      Alert.alert("Lỗi", "Không thể cập nhật sản phẩm");
+    }
+  };
+  const renderItem: ListRenderItem<ProductInventory> = ({ item }) => (
+    <TouchableOpacity onPress={() => handleShowAction(item._id)} key={item._id}>
       <View
         style={[
           styles.card,
@@ -201,12 +253,15 @@ export default function InventoryManagerScreen() {
         ]}
       >
         <View style={{ flex: 1, alignItems: "center", width: "80%" }}>
-          <Image source={{ uri: item.imageUrl }} style={styles.image} />
+          <Image source={{ uri: item.imageURL }} style={styles.image} />
+
           <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.detail}>Giá: {item.price.toLocaleString()}đ</Text>
+          {/* <Text style={styles.detail}>Giá: {item.stock.toString()}đ</Text> */}
+
           <Text style={styles.detail}>Số lượng: {item.stock}</Text>
+          <Text style={styles.detail}>Danh mục: {item.unit}</Text>
         </View>
-        {showAction === item.code && (
+        {showAction === item._id && (
           <>
             <View
               style={{
@@ -220,7 +275,7 @@ export default function InventoryManagerScreen() {
                 name="delete-outline"
                 size={24}
                 color="red"
-                onPress={() => handleDeleteProduct(item._id)}
+                onPress={() => handleDeleteProductInventory(item._id)}
               />
               <AntDesign
                 name="edit"
@@ -247,7 +302,9 @@ export default function InventoryManagerScreen() {
 
   return (
     <View style={styles.container}>
-      {products ? (
+      {loading ? (
+        <Text>Đang tải...</Text>
+      ) : productsInventory ? (
         <>
           {/* <Text style={styles.header}>Quản lý sản phẩm</Text> */}
           <View
@@ -312,8 +369,8 @@ export default function InventoryManagerScreen() {
         />
       </View> */}
           <FlatList
-            data={productData}
-            keyExtractor={(item) => item._id.toString()}
+            data={productsInventory}
+            keyExtractor={(item) => item._id}
             renderItem={renderItem}
             contentContainerStyle={{
               paddingBottom: 80,
@@ -336,15 +393,26 @@ export default function InventoryManagerScreen() {
           <ModalAddProductInventory
             visible={visible}
             setVisible={setVisible}
-            onAddProduct={handleAddProduct}
+            onAddOrEditProductInventory={() =>
+              handleCreateProductInventory(newProduct)
+            }
             newProduct={newProduct}
             setNewProduct={setNewProduct}
+            fetchData={fetchDataProductInventory}
           />
           {showEditProduct && (
-            <ModalEditProduct
-              setShowEditProduct={setShowEditProduct}
-              fetchData={fetchData}
-              idEditProduct={idEditProduct}
+            <ModalAddProductInventory
+              visible={visibleEdit}
+              setVisible={setVisibleEdit}
+              onAddOrEditProductInventory={() =>
+                handleUpdateProductInventory(idEditProduct, newProductInvenEdit)
+              }
+              newProduct={newProduct}
+              setNewProduct={setNewProduct}
+              newProductInvenEdit={newProductInvenEdit}
+              setNewProductInvenEdit={setNewProductInvenEdit}
+              fetchData={fetchDataProductInventory}
+              idProduct={idEditProduct}
             />
           )}
         </>
@@ -401,6 +469,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
+    marginTop: 10,
   },
   detail: {
     fontSize: 14,

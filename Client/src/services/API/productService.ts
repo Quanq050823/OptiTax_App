@@ -20,7 +20,7 @@ export const createProduct = async (products: {
   unit: string;
   price: number;
   description: string;
-  imageUrl: string;
+  imageURL: string;
   stock: number;
   attributes: { key: string; value: string }[];
 }) => {

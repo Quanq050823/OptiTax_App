@@ -1,7 +1,10 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  Alert,
+  Button,
+  Image,
   Modal,
   Pressable,
   ScrollView,
@@ -12,30 +15,34 @@ import {
   View,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
+import * as ImagePicker from "expo-image-picker";
+import {
+  createProductInventory,
+  getProductsInventoryById,
+  getUnitNameProduct,
+} from "@/src/services/API/storageService";
+import {
+  NewProductInventory,
+  ProductInventory,
+  UnitsNameProduct,
+} from "@/src/types/storage";
 
-type NewProduct = {
-  name: string;
-  code: string;
-  ten?: string;
-  id?: string;
-  dgia?: string;
-  category: string;
-  unit: string;
-  price: number;
-  description: string;
-  imageUrl: string;
-  stock: number;
-  attributes: { key: string; value: string }[];
-};
 interface ModalAddProductProps {
   visible: boolean;
   setVisible: (visible: boolean) => void;
-  onAddProduct?: any;
-  newProduct: NewProduct;
-  setNewProduct: React.Dispatch<React.SetStateAction<NewProduct>>;
+  onAddOrEditProductInventory: () => Promise<void>;
+  newProduct: NewProductInventory;
+  setNewProduct: React.Dispatch<React.SetStateAction<NewProductInventory>>;
   //   setProductSynchronized?: React.Dispatch<
   //     React.SetStateAction<InvoiceProduct[]>
   //   >;
+  fetchData: () => void;
+  idProduct?: string | null;
+  newProductInvenEdit?: ProductInventory;
+
+  setNewProductInvenEdit: React.Dispatch<
+    React.SetStateAction<ProductInventory | undefined>
+  >;
 }
 
 function ModalAddProductInventory({
@@ -43,6 +50,11 @@ function ModalAddProductInventory({
   setVisible,
   newProduct,
   setNewProduct,
+  fetchData,
+  onAddOrEditProductInventory,
+  idProduct,
+  setNewProductInvenEdit,
+  newProductInvenEdit,
 }: ModalAddProductProps) {
   const [categories, setCategories] = useState([
     { label: "Danh mục A", value: "a" },
@@ -61,7 +73,25 @@ function ModalAddProductInventory({
   const [value, setValue] = useState<string | null>(null);
   const [showInput, setShowInput] = useState(false);
   const [newCategory, setNewCategory] = useState("");
+  const [image, setImage] = useState<string | null>(null);
+  const [NameList, setNameList] = useState<UnitsNameProduct[]>([]);
+  const [unitList, setUnitList] = useState<UnitsNameProduct[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    if (!idProduct) return; // ❌ không có id thì bỏ qua
+
+    const fetchProductById = async () => {
+      try {
+        const res = await getProductsInventoryById(idProduct);
+        setNewProductInvenEdit(res);
+      } catch (error) {
+        console.error("Lỗi lấy dữ liệu sản phẩm:", error);
+      }
+    };
+
+    fetchProductById();
+  }, [idProduct]);
   const handleAddCategory = () => {
     if (newCategory.trim() === "") return;
     const newItem = { label: newCategory.trim(), value: newCategory.trim() };
@@ -70,6 +100,60 @@ function ModalAddProductInventory({
     setShowInput(false);
     setValue(newItem.value); // chọn luôn danh mục vừa thêm
   };
+
+  const handleCreateProductInventory = async () => {
+    try {
+      await createProductInventory(newProduct);
+      Alert.alert("Thành công", "Đã tạo nguyên liệu mới");
+      setVisible(false);
+      fetchData();
+    } catch {
+      Alert.alert("Lỗi", "Vui lòng kiểm tra các trường nguyên liệu");
+    }
+  };
+  const pickImage = async () => {
+    // xin quyền truy cập ảnh
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      alert("Bạn cần cấp quyền để chọn ảnh!");
+      return;
+    }
+
+    // mở thư viện ảnh
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true, // cho phép crop
+      aspect: [4, 3], // tỉ lệ crop
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setNewProduct({
+        ...newProduct,
+        imageURL: result.assets[0].uri, // cập nhật ảnh mới
+      }); // lưu uri ảnh
+      setImage(result.assets[0].uri); // lưu uri ảnh
+      setNewProductInvenEdit((prev) =>
+        prev ? { ...prev, imageURL: result.assets[0].uri } : prev
+      );
+    }
+  };
+
+  useEffect(() => {
+    const fetchUnitProduct = async () => {
+      try {
+        const res: UnitsNameProduct = await getUnitNameProduct();
+        setNameList(res.names);
+        setUnitList(res.units);
+      } catch {
+        Alert.alert("Không tìm thấy dữ liệu đơn vị tính");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUnitProduct();
+  }, []);
   return (
     <Modal
       visible={visible}
@@ -104,10 +188,14 @@ function ModalAddProductInventory({
                 placeholder={"Tên nguyên liệu"}
                 style={styles.input}
                 placeholderTextColor={"#9d9d9d"}
-                onChangeText={(text) =>
-                  setNewProduct({ ...newProduct, name: text })
-                }
-                value={newProduct.name || newProduct.ten}
+                onChangeText={(text) => {
+                  setNewProduct({ ...newProduct, name: text });
+
+                  setNewProductInvenEdit((prev) =>
+                    prev ? { ...prev, name: text } : prev
+                  );
+                }}
+                defaultValue={newProductInvenEdit?.name}
               />
             </View>
             <View style={{ marginTop: 20 }}>
@@ -128,6 +216,10 @@ function ModalAddProductInventory({
                     console.log("Người dùng muốn thêm danh mục mới");
                   } else {
                     setValue(item.value);
+                    setNewProduct({ ...newProduct, unit: item.label });
+                    setNewProductInvenEdit((prev) =>
+                      prev ? { ...prev, unit: item.label } : prev
+                    );
                   }
                 }}
                 renderItem={(item) => {
@@ -182,36 +274,76 @@ function ModalAddProductInventory({
                   placeholder={"VD: 10000"}
                   style={styles.input}
                   placeholderTextColor={"#9d9d9d"}
-                  onChangeText={(text) =>
-                    setNewProduct({ ...newProduct, name: text })
-                  }
-                  value={newProduct.name || newProduct.ten}
+                  onChangeText={(text) => {
+                    setNewProduct({ ...newProduct, price: Number(text) });
+
+                    setNewProductInvenEdit((prev) =>
+                      prev ? { ...prev, price: Number(text) } : prev
+                    );
+                  }}
+                  value={newProduct.price?.toString()}
                 />
               </View>
-              <View style={{ flex: 1 }}>
+              <View style={{ flex: 1.5 }}>
                 <Text style={styles.labelInput}>Đơn vị tính </Text>
-
-                <Dropdown
-                  style={styles.dropdown}
-                  data={[
-                    ...unitData,
-                    { label: "+ Thêm danh mục", value: "__add__" }, // item đặc biệt
-                  ]}
-                  labelField="label"
-                  valueField="value"
-                  placeholder="-- Chọn danh mục --"
-                  value={value}
-                  onChange={(item) => {
-                    if (item.value === "__add__") {
-                      // Xử lý logic mở input hoặc modal thêm danh mục
-                      console.log("Người dùng muốn thêm danh mục mới");
-                    } else {
-                      setValue(item.value);
-                    }
-                  }}
-                />
+                {!loading && (
+                  <Dropdown
+                    style={styles.dropdown}
+                    data={[
+                      ...unitData,
+                      { label: "+ Thêm danh mục", value: "__add__" }, // item đặc biệt
+                    ]}
+                    labelField="label"
+                    valueField="value"
+                    placeholder="-- Chọn danh mục --"
+                    value={value}
+                    onChange={(item) => {
+                      if (item.value === "__add__") {
+                        // Xử lý logic mở input hoặc modal thêm danh mục
+                        console.log("Người dùng muốn thêm danh mục mới");
+                      } else {
+                        setValue(item.value);
+                        //   setNewProductInvenEdit((prev) =>
+                        //   prev ? { ...prev, unit: item.label } : prev
+                        // );
+                      }
+                    }}
+                  />
+                )}
               </View>
             </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.labelInput}>Số lượng</Text>
+
+              <TextInput
+                placeholder={"VD: 10000"}
+                style={styles.input}
+                placeholderTextColor={"#9d9d9d"}
+                onChangeText={(text) => {
+                  setNewProduct({ ...newProduct, stock: Number(text) });
+
+                  setNewProductInvenEdit((prev) =>
+                    prev ? { ...prev, stock: Number(text) } : prev
+                  );
+                }}
+                value={newProduct.stock.toString()}
+              />
+            </View>
+            <View style={{ marginTop: 20 }}>
+              <Button title="Chọn ảnh" onPress={pickImage} />
+              {image && (
+                <Image
+                  source={{ uri: image }}
+                  style={{ width: 200, height: 200, marginTop: 10 }}
+                />
+              )}
+            </View>
+            <TouchableOpacity
+              style={styles.btnSaveProduct}
+              onPress={onAddOrEditProductInventory}
+            >
+              <Text style={{ color: "#fff" }}>Lưu nguyên liệu {}</Text>
+            </TouchableOpacity>
           </ScrollView>
         </View>
       </Pressable>
@@ -257,6 +389,13 @@ const styles = StyleSheet.create({
     elevation: 2,
     borderWidth: 1,
     borderColor: "#a4a4a4cc",
+  },
+  btnSaveProduct: {
+    alignItems: "center",
+    backgroundColor: ColorMain,
+    padding: 10,
+    marginTop: 20,
+    borderRadius: 10,
   },
 });
 export default ModalAddProductInventory;
