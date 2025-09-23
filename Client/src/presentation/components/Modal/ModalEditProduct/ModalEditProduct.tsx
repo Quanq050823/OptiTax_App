@@ -3,6 +3,7 @@ import {
   getProductsById,
   updateProduct,
 } from "@/src/services/API/productService";
+import { Product } from "@/src/types/route";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useEffect, useState } from "react";
 import {
