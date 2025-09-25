@@ -27,7 +27,7 @@ const InvoiceDetailSchema = new mongoose.Schema({
 	],
 });
 
-const InvoicesOutSchema = new mongoose.Schema(
+const InvoicesInSchema = new mongoose.Schema(
 	{
 		ownerId: {
 			type: mongoose.Schema.Types.ObjectId,
@@ -198,7 +198,7 @@ const InvoicesOutSchema = new mongoose.Schema(
 	{ timestamps: true }
 );
 
-InvoicesOutSchema.index({ ownerId: 1, mhdon: 1 }, { unique: true });
+InvoicesInSchema.index({ ownerId: 1, mhdon: 1 }, { unique: true });
 
-const InvoicesOut = mongoose.model("InvoicesOut", InvoicesOutSchema);
-export default InvoicesOut;
+const InvoicesIn = mongoose.model("InvoicesIn", InvoicesInSchema);
+export default InvoicesIn;
