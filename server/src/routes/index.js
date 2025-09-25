@@ -11,7 +11,7 @@ import inputInvoiceRoute from "./inputInvoiceRoute.js";
 import outputInvoiceRoute from "./outputInvoiceRoute.js";
 import expenseVoucherRoute from "./expenseVoucherRoute.js";
 import storageItemRoute from "./storageItemRoute.js";
-import invoicesOutRoute from "./invoicesOutRoute.js";
+import InvoicesInRoute from "./invoicesInRoute.js";
 import { errorHandlingMiddleware } from "./../middlewares/errorHandlingMiddleware.js";
 import authenticate from "../middlewares/jwtMiddlewares.js";
 
@@ -33,7 +33,7 @@ export default (app) => {
 	app.use("/api/output-invoice", outputInvoiceRoute);
 	app.use("/api/expense-voucher", expenseVoucherRoute);
 	app.use("/api/storage-item", storageItemRoute);
-	app.use("/api/invoices-out", invoicesOutRoute);
+	app.use("/api/invoices-in", InvoicesInRoute);
 
 	app.use(errorHandlingMiddleware);
 };
