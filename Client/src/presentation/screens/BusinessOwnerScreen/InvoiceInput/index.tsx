@@ -6,10 +6,13 @@ import ModalLoginCCT from "@/src/presentation/components/Modal/ModalEditProduct/
 import ModalSynchronized from "@/src/presentation/components/Modal/ModalSynchronized";
 import SearchByName from "@/src/presentation/components/SearchByName";
 import { getInvoiceInputList } from "@/src/services/API/invoiceService";
+import { getInvoiceIn, syncInvoiceIn } from "@/src/services/API/syncInvoiceIn";
 import { Invoice } from "@/src/types/route";
+import { syncDataInvoiceIn } from "@/src/types/syncData";
 import { AntDesign, FontAwesome5, Fontisto } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Animated,
   Easing,
   StyleSheet,
@@ -23,6 +26,12 @@ function InvoiceInput() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [openLogin, setOpenLogin] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [invoiceDataSync, setInvoiceDataSync] = useState<any>();
+  const [syncDataInvoiceIn, setSyncDataInvoiceIn] = useState<syncDataInvoiceIn>(
+    { dateto: "", datefrom: "", username: "0310711010", password: "AtbU1aA@" }
+  );
+  console.log(syncDataInvoiceIn, "Dataa sync");
+
   const spinValue = useRef(new Animated.Value(0)).current;
   const [openListProductSynchronized, setOpenListProductSynchronized] =
     useState(false);
@@ -60,7 +69,6 @@ function InvoiceInput() {
       if (animation) animation.stop();
     };
   }, [loading]);
-  console.log(invoices);
 
   const spin = spinValue.interpolate({
     inputRange: [0, 1],
@@ -70,10 +78,31 @@ function InvoiceInput() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      setOpenLogin(true);
+      setVisible(true);
     }, 2000);
   };
 
+  const handleSyncInvoiceIn = async () => {
+    try {
+      if (!syncDataInvoiceIn) return;
+      const res = await syncInvoiceIn(syncDataInvoiceIn);
+    } catch {
+      Alert.alert("Lỗi lấy dữ liệu!");
+    }
+  };
+
+  useEffect(() => {
+    const fetchInvoiceSync = async () => {
+      try {
+        const res = await getInvoiceIn();
+        console.log(res);
+      } catch {
+        console.log("Không có dữ liệu");
+      }
+    };
+
+    fetchInvoiceSync();
+  }, []);
   return (
     <View style={{ flex: 1 }}>
       {/* <HeaderScreen /> */}
@@ -125,7 +154,12 @@ function InvoiceInput() {
       />
 
       <InvoiInputList invoicesData={invoices} />
-      <ModalSynchronized visible={visible} setVisible={setVisible} />
+      <ModalSynchronized
+        visible={visible}
+        setVisible={setVisible}
+        setSyncDataInvoiceIn={setSyncDataInvoiceIn}
+        onSyncInvoiceIn={handleSyncInvoiceIn}
+      />
       <ModalLoginCCT openLogin={openLogin} setOpenLogin={setOpenLogin} />
     </View>
   );

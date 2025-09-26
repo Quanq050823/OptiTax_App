@@ -1,4 +1,5 @@
 import { ColorMain } from "@/src/presentation/components/colors";
+import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import ModalAddProduct from "@/src/presentation/components/Modal/ModalAddProduct/ModalAddProduct";
 import { Invoice, InvoiceProduct } from "@/src/types/route";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -269,7 +270,7 @@ function ModalCreateProductsByInvoiceOuput({
                 }}
                 numColumns={2}
               />
-              {loading && (
+              {/* {loading && (
                 <View
                   style={{
                     flex: 1,
@@ -293,7 +294,8 @@ function ModalCreateProductsByInvoiceOuput({
                   />
                   <Text style={{ color: "#fff" }}>Đang tạo...</Text>
                 </View>
-              )}
+              )} */}
+              <LoadingScreen visible={loading} />
             </>
           )}
         </View>

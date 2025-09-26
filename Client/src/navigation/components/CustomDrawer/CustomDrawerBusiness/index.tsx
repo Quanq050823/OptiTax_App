@@ -21,6 +21,7 @@ import { logout } from "@/src/services/API/authService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TokenStorage } from "@/src/utils/tokenStorage";
 import { RootStackParamList } from "@/src/types/route";
+import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 type LoginNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const CustomDrawerBusiness = (props: any) => {
@@ -31,17 +32,34 @@ const CustomDrawerBusiness = (props: any) => {
     return props.state.routeNames[props.state.index] === name;
   };
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     if (isLoggingOut) return;
 
-    setIsLoggingOut(true);
-    try {
-      await logout();
-      navigation.replace("Login");
-    } catch (error: any) {
-      setIsLoggingOut(false);
-      navigation.replace("Login");
-    }
+    Alert.alert(
+      "Đăng xuất",
+      "Bạn có chắc chắn muốn đăng xuất?",
+      [
+        {
+          text: "Huỷ",
+          style: "cancel",
+        },
+        {
+          text: "Đồng ý",
+          onPress: async () => {
+            setIsLoggingOut(true);
+            try {
+              await logout();
+              navigation.replace("Login");
+            } catch (error) {
+              setIsLoggingOut(false);
+              navigation.replace("Login");
+            }
+          },
+          style: "destructive",
+        },
+      ],
+      { cancelable: true }
+    );
   };
   return (
     <DrawerContentScrollView

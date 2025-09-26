@@ -5,7 +5,8 @@ import { BusinessInforAuth } from "@/src/services/API/profileService";
 import { BusinessInfo } from "@/src/types/route";
 import { NavigationContainer } from "@react-navigation/native";
 import * as React from "react";
-
+import { Buffer } from "buffer";
+global.Buffer = Buffer;
 import { View } from "react-native";
 import { PaperProvider } from "react-native-paper";
 
@@ -22,9 +23,7 @@ import { PaperProvider } from "react-native-paper";
 //   },
 // };
 
-
 function App() {
-
   return (
     <PaperProvider>
       <DataProvider>

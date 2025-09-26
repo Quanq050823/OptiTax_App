@@ -17,13 +17,14 @@ import {
 import { TextInput } from "react-native-paper";
 import { TokenStorage } from "@/src/utils/tokenStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 
 function LoginScreen({ navigation }: Props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   const handleLogin = async () => {
     if (!username || !password) {
       Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thông tin.");
@@ -161,6 +162,7 @@ function LoginScreen({ navigation }: Props) {
           </View>
         </ImageBackground>
       </View>
+      <LoadingScreen visible={loading} />
     </View>
   );
 }

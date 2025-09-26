@@ -1,4 +1,5 @@
 import { ColorMain } from "@/src/presentation/components/colors";
+import { syncDataInvoiceIn } from "@/src/types/syncData";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
@@ -16,8 +17,15 @@ import { DatePickerModal } from "react-native-paper-dates";
 type ModalOpen = {
   visible: boolean;
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  setSyncDataInvoiceIn: React.Dispatch<React.SetStateAction<syncDataInvoiceIn>>;
+  onSyncInvoiceIn: () => Promise<void>;
 };
-function ModalSynchronized({ visible, setVisible }: ModalOpen) {
+function ModalSynchronized({
+  visible,
+  setVisible,
+  setSyncDataInvoiceIn,
+  onSyncInvoiceIn,
+}: ModalOpen) {
   const [dateStart, setDateStart] = useState<Date | undefined>();
   const [dateEnd, setDateEnd] = useState<Date | undefined>();
   const [openModalDateStart, setOpenModalDateStart] = useState(false);
@@ -31,6 +39,13 @@ function ModalSynchronized({ visible, setVisible }: ModalOpen) {
     setDateStart(params.date);
     console.log("Ngày được chọn:", params.date);
   };
+
+  function formatDate(d: Date): string {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0"); // tháng bắt đầu từ 0
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}/${month}/${day}`;
+  }
   return (
     <Modal
       animationType="slide"
@@ -93,7 +108,13 @@ function ModalSynchronized({ visible, setVisible }: ModalOpen) {
                 onDismiss={() => setOpenModalDateStart(false)}
                 onConfirm={(params) => {
                   setOpenModalDateStart(false);
+                  if (!params.date) return;
                   setDateStart(params.date);
+
+                  setSyncDataInvoiceIn((prev) => ({
+                    ...prev,
+                    dateto: formatDate(params.date!).toString(),
+                  }));
                 }}
               />
             </View>
@@ -128,7 +149,13 @@ function ModalSynchronized({ visible, setVisible }: ModalOpen) {
                 onDismiss={() => setOpenModalDateEnd(false)}
                 onConfirm={(params) => {
                   setOpenModalDateEnd(false);
+                  if (!params.date) return;
                   setDateEnd(params.date);
+
+                  setSyncDataInvoiceIn((prev) => ({
+                    ...prev,
+                    datefrom: formatDate(params.date!).toString(),
+                  }));
                 }}
               />
             </View>
@@ -141,6 +168,7 @@ function ModalSynchronized({ visible, setVisible }: ModalOpen) {
               marginTop: 20,
               paddingVertical: 15,
             }}
+            onPress={onSyncInvoiceIn}
           >
             <Text style={{ color: "#fff" }}>Đồng bộ</Text>
           </TouchableOpacity>
