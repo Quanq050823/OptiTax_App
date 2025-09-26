@@ -1,4 +1,5 @@
 import { ColorMain } from "@/src/presentation/components/colors";
+import { exportFromTemplate } from "@/src/presentation/screens/ReportExport/ExportInvoiceOutput";
 import { AntDesign } from "@expo/vector-icons";
 import {
   ActivityIndicator,

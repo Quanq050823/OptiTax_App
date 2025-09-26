@@ -245,7 +245,7 @@ export default function ReportExport() {
     {
       key: "InvoiceInput",
       label: "Phí vật liệu, dụng cụ, sản phẩm, hàng hoá",
-      navigate: () => navigate.navigate("ExportInvoiceOuputScreen"),
+      navigate: () => navigate.navigate("ExportExcelScreen"),
     },
     {
       key: "VoucherOutput",

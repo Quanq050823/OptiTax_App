@@ -1,4 +1,5 @@
 import { ColorMain } from "@/src/presentation/components/colors";
+import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import ModalAddProduct from "@/src/presentation/components/Modal/ModalAddProduct/ModalAddProduct";
 import { createProductInventory } from "@/src/services/API/storageService";
 import { Invoice, InvoiceProduct } from "@/src/types/route";
@@ -319,7 +320,7 @@ function ModalCreateProductsByInvoiceInput({
                 }}
                 numColumns={2}
               />
-              {loading && (
+              {/* {loading && (
                 <View
                   style={{
                     flex: 1,
@@ -343,7 +344,10 @@ function ModalCreateProductsByInvoiceInput({
                   />
                   <Text style={{ color: "#fff" }}>Đang tạo...</Text>
                 </View>
-              )}
+              )} */}
+
+              <LoadingScreen visible={loading} />
+
               <TouchableOpacity
                 style={styleModal.btnAddProductStorage}
                 onPress={handleCreateMultiple}

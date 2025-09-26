@@ -2,6 +2,7 @@ import { ColorMain } from "@/src/presentation/components/colors";
 import HeaderScreen from "@/src/presentation/components/layout/Header";
 import InvoiceOutputList from "@/src/presentation/components/List/InvoiceOutputList";
 import InvoiInputList from "@/src/presentation/components/List/InvoiInputList";
+import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import ModalCreateProductsByInvoiceOuput from "@/src/presentation/components/Modal/ModalCreateProductsByInvoiceOuput";
 import ModalLoginCCT from "@/src/presentation/components/Modal/ModalEditProduct/ModalLoginCCT";
 import ModalSynchronized from "@/src/presentation/components/Modal/ModalSynchronized";
@@ -14,6 +15,7 @@ import { Invoice } from "@/src/types/route";
 import { AntDesign, FontAwesome5, Fontisto } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Animated,
   Easing,
   ScrollView,
@@ -22,6 +24,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { tr } from "react-native-paper-dates";
 
 function InvoiceOutput() {
   const [visible, setVisible] = useState(false);
@@ -33,11 +36,14 @@ function InvoiceOutput() {
   const spinValue = useRef(new Animated.Value(0)).current;
 
   const fetchListInvoice = async () => {
+    setLoading(true);
     try {
       const data = await getInvoiceOutputList();
       setInvoices(data.data ?? []);
+      setLoading(false);
     } catch (error) {
-      console.error("Error fetching products:", error);
+      Alert.alert("Không tìm thấy dữ liệu hoá đơn");
+      setLoading(false);
     }
   };
 
@@ -120,6 +126,8 @@ function InvoiceOutput() {
           </Text>
         </TouchableOpacity>
       </View>
+      <LoadingScreen visible={loading} />
+
       <ModalCreateProductsByInvoiceOuput
         setOpenListProductSynchronized={setOpenListProductSynchronized}
         openListProductSynchronized={openListProductSynchronized}
