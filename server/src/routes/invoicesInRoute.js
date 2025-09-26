@@ -6,7 +6,7 @@ import {
 	getInvoiceById,
 	updateInvoice,
 	deleteInvoice,
-} from "../controllers/invoicesOutController.js";
+} from "../controllers/invoicesInController.js";
 import authorization from "../middlewares/authorizationMiddleware.js";
 import authenticate from "../middlewares/jwtMiddlewares.js";
 
