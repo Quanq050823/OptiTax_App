@@ -1,7 +1,7 @@
-import InvoicesIn from "../models/InvoicesIn.js";
-import InvoicesInService from "../services/invoicesInService.js";
-import BusinessOwner from "../models/BusinessOwner.js";
 import axios from "axios";
+import BusinessOwner from "../models/BusinessOwner.js";
+import InvoicesInService from "../services/invoicesInService.js";
+
 export const syncInvoicesFromThirdParty = async (req, res) => {
   const token = "3J/EhtxvsAO74hsLC6PtTdSKM0VleDskquWltIl8SlM=";
   try {
@@ -84,6 +84,41 @@ export const syncInvoicesFromThirdParty = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+export const getInvoiceDetailFromThirdParty = async (req, res) => {
+	const token = "3J/EhtxvsAO74hsLC6PtTdSKM0VleDskquWltIl8SlM=";
+	try {
+		const { nbmst, khhdon, shdon, khmshdon } = req.body;
+		if (!nbmst || !khhdon || !shdon || !khmshdon) {
+			return res.status(400).json({
+				error: "Missing required parameters",
+				nbmst,
+				khhdon,
+				shdon,
+				khmshdon,
+			});
+		}
+		const userId = req.user.userId;
+		const owner = await BusinessOwner.findOne({ userId });
+		if (!owner)
+			return res.status(404).json({ message: "BusinessOwner not found" });
+		const mst = owner.taxCode;
+		const response = await axios.get(
+			"https://vuat-api.vitax.one/api/partner/Invoices/invoice-detail",
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+					"Content-Type": "application/json",
+				},
+				params: { nbmst, khhdon, shdon, khmshdon, mst },
+			}
+		);
+		console.log("response:", response.data);
+		res.status(200).json(response.data);
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
 };
 
 export const createInvoice = async (req, res) => {
