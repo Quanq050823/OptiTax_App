@@ -1,11 +1,13 @@
 import express from "express";
 import {
 	syncInvoicesFromThirdParty,
+	syncListInvoicesDetailsFromThirdParty,
 	createInvoice,
 	getInvoices,
 	getInvoiceById,
 	updateInvoice,
 	deleteInvoice,
+	getInvoiceDetailFromThirdParty,
 } from "../controllers/invoicesInController.js";
 import authorization from "../middlewares/authorizationMiddleware.js";
 import authenticate from "../middlewares/jwtMiddlewares.js";
@@ -14,11 +16,12 @@ const router = express.Router();
 
 router.post("/", authenticate, authorization(["user", "admin"]), createInvoice);
 router.get("/", authenticate, authorization(["user", "admin"]), getInvoices);
+// Route lấy chi tiết hóa đơn từ API bên thứ 3 (đặt trước route :id để tránh lỗi ObjectId)
 router.get(
-	"/:id",
+	"/invoice-detail",
 	authenticate,
 	authorization(["user", "admin"]),
-	getInvoiceById
+	getInvoiceDetailFromThirdParty
 );
 // Route test Postman đồng bộ hóa đơn từ API bên thứ 3
 router.post(
@@ -26,6 +29,18 @@ router.post(
 	authenticate,
 	authorization(["user", "admin"]),
 	syncInvoicesFromThirdParty
+);
+router.post(
+	"/sync-list-invoice-detail",
+	authenticate,
+	authorization(["user", "admin"]),
+	syncListInvoicesDetailsFromThirdParty
+);
+router.get(
+	"/:id",
+	authenticate,
+	authorization(["user", "admin"]),
+	getInvoiceById
 );
 router.put(
 	"/:id",

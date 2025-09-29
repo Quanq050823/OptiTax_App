@@ -7,7 +7,6 @@ import accountantRoute from "./accountantRoute.js";
 import productRoute from "./productRoute.js";
 import customerRoute from "./customerRoute.js";
 
-import inputInvoiceRoute from "./inputInvoiceRoute.js";
 import outputInvoiceRoute from "./outputInvoiceRoute.js";
 import expenseVoucherRoute from "./expenseVoucherRoute.js";
 import storageItemRoute from "./storageItemRoute.js";
@@ -29,7 +28,6 @@ export default (app) => {
 	app.use("/api/product", productRoute);
 	app.use("/api/customer", customerRoute);
 
-	app.use("/api/input-invoice", inputInvoiceRoute);
 	app.use("/api/output-invoice", outputInvoiceRoute);
 	app.use("/api/expense-voucher", expenseVoucherRoute);
 	app.use("/api/storage-item", storageItemRoute);
