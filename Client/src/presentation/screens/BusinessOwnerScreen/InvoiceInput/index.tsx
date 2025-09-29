@@ -5,9 +5,19 @@ import ModalLoginCCT from "@/src/presentation/components/Modal/ModalEditProduct/
 
 import ModalSynchronized from "@/src/presentation/components/Modal/ModalSynchronized";
 import SearchByName from "@/src/presentation/components/SearchByName";
+import { useData } from "@/src/presentation/Hooks/useDataStore";
 import { getInvoiceInputList } from "@/src/services/API/invoiceService";
-import { getInvoiceIn, syncInvoiceIn } from "@/src/services/API/syncInvoiceIn";
-import { Invoice } from "@/src/types/route";
+import {
+  BusinessInforAuth,
+  getUserProfile,
+} from "@/src/services/API/profileService";
+import {
+  getInvoiceIn,
+  getInvoiceInById,
+  syncInvoiceIn,
+} from "@/src/services/API/syncInvoiceIn";
+import { InvoiceSummary } from "@/src/types/invoiceIn";
+import { Invoice, Profile, UserProfile } from "@/src/types/route";
 import { syncDataInvoiceIn } from "@/src/types/syncData";
 import { AntDesign, FontAwesome5, Fontisto } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
@@ -22,13 +32,15 @@ import {
 } from "react-native";
 
 function InvoiceInput() {
+  const { data } = useData();
+
   const [visible, setVisible] = useState(false);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [openLogin, setOpenLogin] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [invoiceDataSync, setInvoiceDataSync] = useState<any>();
+  const [invoiceDataSync, setInvoiceDataSync] = useState<InvoiceSummary[]>([]);
   const [syncDataInvoiceIn, setSyncDataInvoiceIn] = useState<syncDataInvoiceIn>(
-    { dateto: "", datefrom: "", username: "0310711010", password: "AtbU1aA@" }
+    { dateto: "", datefrom: "" }
   );
   console.log(syncDataInvoiceIn, "Dataa sync");
 
@@ -86,6 +98,7 @@ function InvoiceInput() {
     try {
       if (!syncDataInvoiceIn) return;
       const res = await syncInvoiceIn(syncDataInvoiceIn);
+      setInvoiceDataSync(res as InvoiceSummary[]);
     } catch {
       Alert.alert("Lỗi lấy dữ liệu!");
     }
@@ -95,7 +108,9 @@ function InvoiceInput() {
     const fetchInvoiceSync = async () => {
       try {
         const res = await getInvoiceIn();
-        console.log(res);
+        console.log("👉 res:", res);
+
+        setInvoiceDataSync(res);
       } catch {
         console.log("Không có dữ liệu");
       }
@@ -103,6 +118,8 @@ function InvoiceInput() {
 
     fetchInvoiceSync();
   }, []);
+  console.log(data?._id, "data ic");
+
   return (
     <View style={{ flex: 1 }}>
       {/* <HeaderScreen /> */}
@@ -121,6 +138,15 @@ function InvoiceInput() {
         >
           <Text style={{ color: "#fff", fontSize: 14 }}>
             Tạo sản phẩm &nbsp;
+            <AntDesign name="plus" size={15} color="#fff" />
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.btnSyn}
+          onPress={() => setOpenLogin(true)}
+        >
+          <Text style={{ color: "#fff", fontSize: 14 }}>
+            Đăng nhập &nbsp;
             <AntDesign name="plus" size={15} color="#fff" />
           </Text>
         </TouchableOpacity>
@@ -153,14 +179,18 @@ function InvoiceInput() {
         invoicesData={invoices}
       />
 
-      <InvoiInputList invoicesData={invoices} />
+      <InvoiInputList invoicesData={invoiceDataSync} />
       <ModalSynchronized
         visible={visible}
         setVisible={setVisible}
         setSyncDataInvoiceIn={setSyncDataInvoiceIn}
         onSyncInvoiceIn={handleSyncInvoiceIn}
       />
-      <ModalLoginCCT openLogin={openLogin} setOpenLogin={setOpenLogin} />
+      <ModalLoginCCT
+        visible={openLogin}
+        openLogin={openLogin}
+        setOpenLogin={setOpenLogin}
+      />
     </View>
   );
 }

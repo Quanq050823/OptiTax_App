@@ -1,19 +1,19 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
-import { Pressable, Text, View } from "react-native";
+import { Platform, Pressable, Text, View } from "react-native";
 
 const HeaderNavigation: React.FC<NativeStackHeaderProps> = (props) => {
   return (
     <View
       style={{
-        height: 100, // ✅ Chiều cao tùy ý
+        height: Platform.OS === "ios" ? 100 : 60, // ✅ Chiều cao tùy ý
         backgroundColor: ColorMain,
         flexDirection: "row",
         alignItems: "center",
         paddingHorizontal: 10,
         position: "relative",
-        paddingTop: 50,
+        paddingTop: Platform.OS === "ios" ? 50 : 0,
       }}
     >
       <Pressable
@@ -22,7 +22,7 @@ const HeaderNavigation: React.FC<NativeStackHeaderProps> = (props) => {
           position: "absolute",
           left: 15,
 
-          bottom: 15,
+          bottom: Platform.OS === "ios" ? 15 : 15,
           zIndex: 10,
         }}
       >

@@ -1,7 +1,9 @@
 import { ColorMain } from "@/src/presentation/components/colors";
+import { loginCCT } from "@/src/services/API/syncInvoiceIn";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
+  Alert,
   Animated,
   Image,
   Modal,
@@ -15,13 +17,40 @@ import {
 type ModalOpen = {
   openLogin: boolean;
   setOpenLogin: React.Dispatch<React.SetStateAction<boolean>>;
+  visible: boolean;
 };
-function ModalLoginCCT({ openLogin, setOpenLogin }: ModalOpen) {
+function ModalLoginCCT({ openLogin, setOpenLogin, visible }: ModalOpen) {
+  const [account, setAccount] = useState({
+    username: "",
+    password: "",
+  });
+  console.log(account);
+
+  const handleLoginCCT = async () => {
+    try {
+      await loginCCT(account);
+      Alert.alert("Đăng nhập thành công");
+      setOpenLogin(false);
+    } catch (error: any) {
+      console.log("Login error:", error);
+
+      // Nếu server trả về response
+      if (error.response) {
+        console.log("Status:", error.response.status);
+        console.log("Data:", error.response.data);
+        Alert.alert("Lỗi đăng nhập", JSON.stringify(error.response.data));
+      } else {
+        // Nếu lỗi khác
+        Alert.alert("Lỗi đăng nhập", error.message || "Unknown error");
+      }
+    }
+  };
+
   return (
     <Modal
       animationType="slide"
       transparent={true}
-      visible={openLogin}
+      visible={visible}
       onRequestClose={() => setOpenLogin(false)}
     >
       <View style={styles.centeredView}>
@@ -39,11 +68,23 @@ function ModalLoginCCT({ openLogin, setOpenLogin }: ModalOpen) {
               placeholder="Nhập mã số thuế"
               style={styles.input}
               placeholderTextColor="#9d9d9d"
+              onChangeText={(value) =>
+                setAccount((prev) => ({
+                  ...prev,
+                  username: value,
+                }))
+              }
             />
             <TextInput
               placeholder="Nhập mật khẩu"
               style={styles.input}
               placeholderTextColor="#9d9d9d"
+              onChangeText={(value) =>
+                setAccount((prev) => ({
+                  ...prev,
+                  password: value,
+                }))
+              }
             />
             <View
               style={{ width: "100%", alignItems: "flex-end", marginTop: 10 }}
@@ -52,7 +93,7 @@ function ModalLoginCCT({ openLogin, setOpenLogin }: ModalOpen) {
                 Quên mật khẩu?
               </Text>
             </View>
-            <TouchableOpacity style={styles.btnLogin}>
+            <TouchableOpacity style={styles.btnLogin} onPress={handleLoginCCT}>
               <Text style={{ color: "#fff", fontWeight: "700", fontSize: 16 }}>
                 Đăng nhập
               </Text>

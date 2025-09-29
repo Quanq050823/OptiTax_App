@@ -1,5 +1,6 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
+import { InvoiceSummary } from "@/src/types/invoiceIn";
 import { Invoice } from "@/src/types/route";
 import {
   FlatList,
@@ -33,7 +34,7 @@ const invoices: any = [
   },
 ];
 type invoice = {
-  invoicesData: Invoice[];
+  invoicesData: InvoiceSummary[];
 };
 function InvoiInputList({ invoicesData }: invoice) {
   const navigate = useAppNavigation();
@@ -49,21 +50,11 @@ function InvoiInputList({ invoicesData }: invoice) {
         return { text: "Không xác định", color: "gray" };
     }
   };
-  const totalInvoice = (invoice: Invoice) => {
-    return invoice.hdhhdvu.reduce((sum, p) => sum + Number(p.thtien), 0);
-  };
 
-  const totals = invoicesData.map((inv) => ({
-    id: inv._id,
-    total: totalInvoice(inv),
-  }));
-
-  const renderItem = ({ item }: { item: Invoice }) => {
+  const renderItem = ({ item }: { item: InvoiceSummary }) => {
+    const total = item.tien.tong;
     // const { text, color } = getStatusInfo(item.status);
-    const total = item.hdhhdvu.reduce(
-      (sum, p) => sum + Number(p.thtien || 0),
-      0
-    );
+
     const label = "Hoá đơn mua vào";
 
     return (
@@ -74,12 +65,12 @@ function InvoiInputList({ invoicesData }: invoice) {
       >
         <View style={styles.card}>
           <View style={styles.headerItem}>
-            <Text style={styles.supplier}>{item.nbten}</Text>
+            <Text style={styles.supplier}>{item.loaiHoaDon}</Text>
             <Text style={{ color: "#4f4f4fff" }}>
-              {item.ncnhat.split("T")[0]}
+              {item.ngayKy.split("T")[0]}
             </Text>
           </View>
-          <Text style={styles.id}>Mã HĐ: {item.mhdon}</Text>
+          <Text style={styles.id}>Mã HĐ: {item.soHoaDon}</Text>
           <View
             style={{
               flexDirection: "row",
@@ -102,7 +93,7 @@ function InvoiInputList({ invoicesData }: invoice) {
   return (
     <FlatList
       data={invoicesData}
-      keyExtractor={(item) => item._id}
+      keyExtractor={(item) => item.soHoaDon}
       renderItem={renderItem}
       contentContainerStyle={styles.container}
     />

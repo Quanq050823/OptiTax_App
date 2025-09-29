@@ -135,7 +135,11 @@ function InvoiceOutput() {
       />
       <InvoiceOutputList invoicesData={invoices} />
       <ModalSynchronized visible={visible} setVisible={setVisible} />
-      <ModalLoginCCT openLogin={openLogin} setOpenLogin={setOpenLogin} />
+      <ModalLoginCCT
+        visible={openLogin}
+        openLogin={openLogin}
+        setOpenLogin={setOpenLogin}
+      />
     </View>
   );
 }
