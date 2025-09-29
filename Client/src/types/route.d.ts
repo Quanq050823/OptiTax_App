@@ -10,7 +10,7 @@ type RootStackParamList = {
   ProfileBusiness: undefined;
   LanguagesScreen: undefined;
   InvoiceScreen: undefined;
-  InvoiceDetailScreen: { item: Invoice };
+  InvoiceDetailScreen: { item: InvoiceSummary; total: number; label: string };
   InvoiceInputScreen: undefined;
   InvoiceOutputScreen: undefined;
   ReceiptVoucherScreen: undefined;

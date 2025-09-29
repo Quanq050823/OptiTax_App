@@ -1,12 +1,8 @@
-import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
-import { Asset } from "expo-asset";
+import * as XLSX from "xlsx";
+import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
-import ExcelJS from "exceljs";
-import { Buffer } from "buffer";
-import * as FileSystem from "expo-file-system/legacy";
+import { Asset } from "expo-asset";
 
-global.Buffer = Buffer;
 type Invoice = {
   soHoaDon: number;
   kyHieu: string;
@@ -18,7 +14,9 @@ type Invoice = {
   thueGTGT: number;
   tongThanhToan: number;
   ghiChu?: string;
+  products: Product[];
 };
+
 export type Product = {
   idhdon: string;
   id: string;
@@ -33,6 +31,7 @@ export type Product = {
   tthue: number;
   sotienckhau?: number;
 };
+
 const invoiceData: Invoice = {
   soHoaDon: 37974,
   kyHieu: "C25TSD",
@@ -47,7 +46,24 @@ const invoiceData: Invoice = {
   thueGTGT: 0,
   tongThanhToan: 2300000,
   ghiChu: "Thuế suất KCT (không chịu thuế)",
+  products: [
+    {
+      idhdon: "e8fa8ab3-1d96-49e7-9446-54303406edef",
+      id: "e8291a30-ef75-4c07-88dd-dd7fafbbbc31",
+      stt: 1,
+      ten: "PHẦN MỀM HÓA ĐƠN ĐIỆN TỬ 3000 HÓA ĐƠN - GOLD GIA HẠN",
+      sluong: 1,
+      dvtinh: "Gói",
+      dgia: 2300000,
+      thtien: 2300000,
+      tsuat: 0,
+      ltsuat: "KCT",
+      tthue: 0,
+      sotienckhau: 0,
+    },
+  ],
 };
+
 const products: Product[] = [
   {
     idhdon: "e8fa8ab3-1d96-49e7-9446-54303406edef",
@@ -64,75 +80,97 @@ const products: Product[] = [
     sotienckhau: 0,
   },
 ];
-export async function exportFromTemplate() {
+type ProductRow = Product & {
+  soHoaDon: number;
+  kyHieu: string;
+  ngayLap: string;
+  nguoiBanTen: string;
+  nguoiBanMst: string;
+  nguoiMuaTen: string;
+  nguoiMuaMst: string;
+  loaiHoaDon: string;
+};
+
+function flattenInvoices(invoices: Invoice[]): ProductRow[] {
+  return invoices.flatMap((inv) =>
+    inv.products.map((p) => ({
+      ...p,
+      soHoaDon: inv.soHoaDon,
+      kyHieu: inv.kyHieu,
+      ngayLap: inv.ngayLap,
+      nguoiBanTen: inv.nguoiBan.ten,
+      nguoiBanMst: inv.nguoiBan.mst,
+      nguoiMuaTen: inv.nguoiMua.ten,
+      nguoiMuaMst: inv.nguoiMua.mst,
+      loaiHoaDon: inv.loaiHoaDon,
+    }))
+  );
+}
+async function exportFromTemplate() {
   try {
-    // 1. Load template từ assets
+    // 1. Load file template Excel
     const asset = Asset.fromModule(
       require("../../../../assets/FileExportXlsx/SCTBH.xlsx")
     );
     await asset.downloadAsync();
+
     const templateUri = asset.localUri || asset.uri;
-
-    // 2. Đọc workbook
-    const workbook = new ExcelJS.Workbook();
-    const response = await fetch(templateUri);
-    const arrayBuffer = await response.arrayBuffer();
-    await workbook.xlsx.load(arrayBuffer);
-
-    // 3. Chọn worksheet
-    const worksheet = workbook.getWorksheet("Báo cáo");
-    if (!worksheet) throw new Error("Không tìm thấy worksheet");
-    products.map((p) => {
-      worksheet.getCell("I4").value = "2025-09-25";
-      worksheet.getCell("K4").value = "2025-09-25";
-
-      worksheet.getCell("A6").value = "2025-09-25";
-      worksheet.getCell("B6").value = invoiceData.ngayLap;
-      worksheet.getCell("C6").value = invoiceData.kyHieu;
-      worksheet.getCell("E6").value = invoiceData.soHoaDon;
-      worksheet.getCell(
-        "F6"
-      ).value = `${invoiceData.loaiHoaDon} - ${invoiceData.ghiChu}`;
-      worksheet.getCell("G6").value = invoiceData.loaiHoaDon;
-      worksheet.getCell("H6").value = invoiceData.soHoaDon;
-      worksheet.getCell("I6").value = invoiceData.nguoiMua.ten;
-      worksheet.getCell("J6").value = p.id;
-      worksheet.getCell("K6").value = p.ten;
-      worksheet.getCell("L6").value = p.dvtinh;
-      worksheet.getCell("M6").value = p.sluong;
-      worksheet.getCell("N6").value = p.dgia;
-      worksheet.getCell("O6").value = p.thtien;
+    const b64 = await FileSystem.readAsStringAsync(templateUri, {
+      encoding: "base64",
     });
 
-    // 4. Xuất workbook ra buffer
-    const buffer = await workbook.xlsx.writeBuffer();
+    // 2. Parse workbook
+    const wb = XLSX.read(b64, { type: "base64" });
+    const wsName = wb.SheetNames[0];
+    const ws = wb.Sheets[wsName];
 
-    // 5. Lưu file bằng legacy API
-    const fileUri = FileSystem.cacheDirectory + `BaoCao_${Date.now()}.xlsx`;
+    // 3. Điền thông tin hóa đơn (ví dụ: ô B2 = Số HĐ, B3 = Ngày, B4 = Người mua,...)
+    ws["B2"] = { t: "s", v: `${invoiceData.kyHieu}-${invoiceData.soHoaDon}` };
+    ws["B3"] = { t: "s", v: invoiceData.ngayLap };
+    ws["B4"] = { t: "s", v: invoiceData.nguoiMua.ten };
+    ws["B5"] = { t: "s", v: invoiceData.nguoiMua.mst };
+    ws["B6"] = { t: "s", v: invoiceData.nguoiBan.ten };
+    ws["B7"] = { t: "s", v: invoiceData.nguoiBan.mst };
+    ws["B8"] = { t: "s", v: invoiceData.loaiHoaDon };
 
-    await FileSystem.writeAsStringAsync(
-      fileUri,
-      Buffer.from(buffer).toString("base64"),
-      { encoding: FileSystem.EncodingType.Base64 }
-    );
+    // Tổng cộng
+    ws["E20"] = { t: "n", v: invoiceData.tienTruocThue };
+    ws["E21"] = { t: "n", v: invoiceData.thueGTGT };
+    ws["E22"] = { t: "n", v: invoiceData.tongThanhToan };
 
-    console.log("✅ File saved:", fileUri);
+    // 4. Điền bảng sản phẩm, bắt đầu từ dòng 10
+    const startRow = 10;
+    products.forEach((p, index) => {
+      const r = startRow + index;
+      ws[`A${r}`] = { t: "n", v: p.stt };
+      ws[`B${r}`] = { t: "s", v: p.ten };
+      ws[`C${r}`] = { t: "n", v: p.sluong };
+      ws[`D${r}`] = { t: "s", v: p.dvtinh };
+      ws[`E${r}`] = { t: "n", v: p.dgia };
+      ws[`F${r}`] = { t: "n", v: p.thtien };
+      ws[`G${r}`] = { t: "s", v: p.ltsuat };
+    });
 
-    // 6. Share
-    if (await Sharing.isAvailableAsync()) {
-      await Sharing.shareAsync(fileUri);
-    }
+    // 5. Ghi workbook ra base64
+    const wbout = XLSX.write(wb, { type: "base64", bookType: "xlsx" });
+
+    // 6. Lưu file mới
+    const fileUri =
+      ((FileSystem as any).cacheDirectory ?? "") + `HoaDon_${Date.now()}.xlsx`;
+    await FileSystem.writeAsStringAsync(fileUri, wbout, {
+      encoding: "base64",
+    });
+
+    // 7. Share
+    await Sharing.shareAsync(fileUri, {
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      dialogTitle: "Chia sẻ hóa đơn",
+      UTI: "com.microsoft.excel.xlsx",
+    });
   } catch (err) {
     console.error("❌ Export failed:", err);
   }
 }
 
-export default function ExportExcelScreen() {
-  return (
-    <View>
-      <TouchableOpacity onPress={exportFromTemplate}>
-        <Text>Xuất</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
+export default exportFromTemplate;

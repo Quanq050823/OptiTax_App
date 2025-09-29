@@ -113,28 +113,31 @@ const InvoiceDetailScreen = ({ route }: any) => {
               </Text>
               <View style={styles.flexLabel}>
                 <Text style={styles.label}>Mã HĐ:</Text>
-                <Text style={styles.value}>{item.mhdon}</Text>
+                <Text style={styles.value}>{item.soHoaDon}</Text>
               </View>
               <View style={styles.flexLabel}>
                 <Text style={styles.label}>Ngày lập:</Text>
-                <Text style={styles.value}>{item.ncnhat.split("T")[0]}</Text>
+                <Text style={styles.value}>{item.ngayKy.split("T")[0]}</Text>
               </View>
               <View style={styles.flexLabel}>
                 <Text style={styles.label}>Tên người bán:</Text>
-                <Text style={styles.value}>{item.nbten}</Text>
+                <Text style={styles.value}>{item.nguoiBan.ten}</Text>
               </View>
               <View style={styles.flexLabel}>
                 <Text style={styles.label}>Mã số thuế:</Text>
-                <Text style={styles.value}>{item.nbmst}</Text>
+                <Text style={styles.value}>{item.nguoiBan.mst}</Text>
               </View>
               <View style={styles.flexLabel}>
                 <Text style={styles.label}>Địa chỉ:</Text>
-                <Text style={styles.value}>{item.nbdchi}</Text>
+                <Text style={styles.value}>{item.nguoiBan.diaChi}</Text>
               </View>
-              <View style={styles.flexLabel}>
-                <Text style={styles.label}>Số điện thoại:</Text>
-                <Text style={styles.value}>{item.nbsdthoai}</Text>
-              </View>
+
+              {item.nguoiBan.stk && (
+                <View style={styles.flexLabel}>
+                  <Text style={styles.label}>Số tài khoản:</Text>
+                  <Text style={styles.value}>{item.nguoiBan.stk}</Text>
+                </View>
+              )}
 
               {/* <View style={styles.flexLabel}>
 
@@ -148,21 +151,16 @@ const InvoiceDetailScreen = ({ route }: any) => {
               <View style={styles.line}></View>
               <View style={[styles.flexLabel, { marginTop: 20 }]}>
                 <Text style={styles.label}>Tên người mua:</Text>
-                <Text style={styles.value}>{item.nmten}</Text>
+                <Text style={styles.value}>{item.nguoiMua.ten}</Text>
               </View>
-              {item.nmtnmua && (
-                <View style={[styles.flexLabel]}>
-                  <Text style={styles.label}>Hộ tên người mua:</Text>
-                  <Text style={styles.value}>{item.nmtnmua}</Text>
-                </View>
-              )}
+
               <View style={[styles.flexLabel]}>
                 <Text style={styles.label}>Mã số thuế:</Text>
-                <Text style={styles.value}>{item.nmmst}</Text>
+                <Text style={styles.value}>{item.nguoiMua.mst}</Text>
               </View>
               <View style={[styles.flexLabel]}>
                 <Text style={styles.label}>Địa chỉ:</Text>
-                <Text style={styles.value}>{item.nmdchi}</Text>
+                <Text style={styles.value}>{item.nguoiMua.diaChi}</Text>
               </View>
               <View
                 style={[styles.flexLabel, { justifyContent: "space-between" }]}
@@ -177,7 +175,7 @@ const InvoiceDetailScreen = ({ route }: any) => {
                     HTTT:
                   </Text>
                   <Text style={[styles.value, { textAlign: "left" }]}>
-                    {item.thtttoan}
+                    {item.thanhToan.hinhThuc}
                   </Text>
                 </View>
                 <View
@@ -191,7 +189,7 @@ const InvoiceDetailScreen = ({ route }: any) => {
                     Đơn vị tiền tệ:
                   </Text>
                   <Text style={[styles.value, { textAlign: "left", flex: 1 }]}>
-                    {item.dvtte}
+                    {item.tien.dvtte}
                   </Text>
                 </View>
               </View>

@@ -80,6 +80,8 @@ export const syncInvoicesFromThirdParty = async (req, res) => {
         fail++;
       }
     }
+    console.log({ sync, skip, fail });
+
     res.status(200).json({ sync, skip, fail });
   } catch (error) {
     res.status(500).json({ error: error.message });

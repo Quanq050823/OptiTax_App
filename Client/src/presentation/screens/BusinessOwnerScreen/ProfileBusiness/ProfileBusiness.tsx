@@ -1,8 +1,5 @@
 import { ColorMain } from "@/src/presentation/components/colors";
-import ModalUpdatePhoneBussiness from "@/src/presentation/components/Modal/ModalUpdatePhoneBussiness";
-import ModalEditProfileBussiness from "@/src/presentation/components/Modal/ModalUpdatePhoneBussiness";
-import PinInputWithFaceID from "@/src/presentation/components/PinInputWithFaceID/PinInputWithFaceID ";
-import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
+
 import {
   BusinessInforAuth,
   getUserProfile,
@@ -56,7 +53,7 @@ function ProfileBusiness() {
         {profile ? (
           <>
             <View style={{ alignItems: "center", marginTop: 20 }}>
-              <Avatar.Image size={70} source={{ uri: profile.imageUrl }} />
+              <Avatar.Image size={70} source={{ uri: profile._id }} />
               <Text
                 style={{
                   fontSize: 24,
@@ -116,14 +113,14 @@ function ProfileBusiness() {
                 style={[styles.rolesWrapper, { alignItems: "center" }]}
                 onPress={() => navigate.navigate("EditProfileBussinessStore")}
               >
-                <Te
+                <Text
                   style={[
                     styles.label,
                     { color: "#fff", fontSize: 17, fontWeight: "700" },
                   ]}
                 >
                   {profile.businessName}
-                </Te>
+                </Text>
                 <Text style={[styles.label, { color: "#fff", fontSize: 13 }]}>
                   <Entypo name="location-pin" size={15} color="#fff" />
                   {profile.address.street},{profile.address.ward},

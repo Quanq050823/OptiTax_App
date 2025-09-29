@@ -2,7 +2,7 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import LottieView from "lottie-react-native";
 
-const LoadingScreen = ({ visible }: any) => {
+const LoadingScreen = ({ visible }: { visible: boolean }) => {
   if (!visible) return null;
   return (
     <View style={styles.container}>
@@ -26,7 +26,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(153, 153, 153, 0.3)",
-    zIndex: 100,
+    zIndex: 9999,
+    elevation: 9999,
   },
 });
 export default LoadingScreen;

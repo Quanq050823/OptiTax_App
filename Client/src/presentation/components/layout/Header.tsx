@@ -32,8 +32,8 @@ function HeaderScreen() {
 }
 const styleHeader = StyleSheet.create({
   container: {
-    height: 110,
-    paddingTop: Platform.OS === "ios" ? 50 : 50,
+    height: Platform.OS === "ios" ? 110 : 80,
+    paddingTop: Platform.OS === "ios" ? 50 : 10,
     width: "100%",
     backgroundColor: ColorMain,
     flexDirection: "row",
