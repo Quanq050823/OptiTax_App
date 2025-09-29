@@ -1,6 +1,7 @@
 import express from "express";
 import {
 	syncInvoicesFromThirdParty,
+	syncListInvoicesDetailsFromThirdParty,
 	createInvoice,
 	getInvoices,
 	getInvoiceById,
@@ -28,6 +29,12 @@ router.post(
 	authenticate,
 	authorization(["user", "admin"]),
 	syncInvoicesFromThirdParty
+);
+router.post(
+	"/sync-list-invoice-detail",
+	authenticate,
+	authorization(["user", "admin"]),
+	syncListInvoicesDetailsFromThirdParty
 );
 router.get(
 	"/:id",

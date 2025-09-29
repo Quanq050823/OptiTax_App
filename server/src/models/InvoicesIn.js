@@ -1,32 +1,5 @@
 import mongoose from "mongoose";
 
-const InvoiceDetailSchema = new mongoose.Schema({
-	idhdon: { type: String },
-	id: { type: String },
-	dgia: { type: Number },
-	dvtinh: { type: String },
-	ltsuat: { type: String },
-	sluong: { type: Number },
-	stckhau: { type: Number },
-	stt: { type: Number },
-	tchat: { type: Number },
-	ten: { type: String },
-	thtien: { type: Number },
-	tlckhau: { type: Number },
-	tsuat: { type: Number },
-	sxep: { type: Number },
-	stbchu: { type: String },
-	thtcthue: { type: Number },
-	tthue: { type: Number },
-	ttkhac: [
-		{
-			ttruong: String,
-			kdlieu: String,
-			dlieu: mongoose.Schema.Types.Mixed,
-		},
-	],
-});
-
 const InvoicesInSchema = new mongoose.Schema(
 	{
 		ownerId: {
@@ -145,7 +118,33 @@ const InvoicesInSchema = new mongoose.Schema(
 		thtttoan: { type: String },
 		msttcgp: { type: String },
 		gchu: { type: String },
-		hdhhdvu: [InvoiceDetailSchema],
+		hdhhdvu: [
+			{
+				id: { type: String },
+				dgia: { type: Number },
+				dvtinh: { type: String },
+				ltsuat: { type: String },
+				sluong: { type: Number },
+				stckhau: { type: Number },
+				stt: { type: Number },
+				tchat: { type: Number },
+				ten: { type: String },
+				thtien: { type: Number },
+				tlckhau: { type: Number },
+				tsuat: { type: Number },
+				sxep: { type: Number },
+				stbchu: { type: String },
+				thtcthue: { type: Number },
+				tthue: { type: Number },
+				ttkhac: [
+					{
+						ttruong: String,
+						kdlieu: String,
+						dlieu: mongoose.Schema.Types.Mixed,
+					},
+				],
+			},
+		],
 		qrcode: { type: String },
 		tchatbchu: { type: String },
 		tthaibchu: { type: String },
