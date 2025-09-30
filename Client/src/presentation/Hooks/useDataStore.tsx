@@ -7,6 +7,8 @@ import {
   BusinessInforAuth,
   getUserProfile,
 } from "@/src/services/API/profileService";
+import { getInvoiceIn } from "@/src/services/API/syncInvoiceIn";
+import { InvoiceSummary } from "@/src/types/invoiceIn";
 import { Invoice, Profile, UserProfile } from "@/src/types/route";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -19,6 +21,7 @@ interface DataContextType {
   setInvoicesInput: React.Dispatch<React.SetStateAction<Invoice[]>>;
   setInvoicesOutput: React.Dispatch<React.SetStateAction<Invoice[]>>;
   fetchData: () => Promise<void>;
+  invoiceDataSync: InvoiceSummary[];
 }
 interface DataProviderProps {
   children: React.ReactNode;
@@ -29,6 +32,8 @@ export const DataProvider = ({ children }: DataProviderProps) => {
   const [data, setData] = useState<Profile | null>(null);
   const [invoicesInput, setInvoicesInput] = useState<Invoice[]>([]);
   const [invoicesOuput, setInvoicesOutput] = useState<Invoice[]>([]);
+  const [invoiceDataSync, setInvoiceDataSync] = useState<InvoiceSummary[]>([]);
+
   const fetchData = async () => {
     try {
       const user: UserProfile = await getUserProfile();
@@ -45,6 +50,9 @@ export const DataProvider = ({ children }: DataProviderProps) => {
 
       const data = await getInvoiceOutputList();
       setInvoicesOutput(data.data ?? []);
+
+      const invoiceInSync = await getInvoiceIn();
+      setInvoiceDataSync(invoiceInSync);
     } catch (error) {
       console.error("❌ Error fetchData:", error);
     }
@@ -53,7 +61,6 @@ export const DataProvider = ({ children }: DataProviderProps) => {
   // fetch ngay khi app chạy
   useEffect(() => {
     fetchData();
-    console.log(invoicesOuput);
   }, []);
 
   return (
@@ -66,6 +73,7 @@ export const DataProvider = ({ children }: DataProviderProps) => {
         invoicesOuput,
         setInvoicesOutput,
         fetchData,
+        invoiceDataSync,
       }}
     >
       {children}

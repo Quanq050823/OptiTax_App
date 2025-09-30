@@ -11,6 +11,7 @@ import SetDataDay from "@/src/presentation/components/SetDataDay";
 import * as XLSX from "xlsx";
 import * as FileSystem from "expo-file-system";
 import { Asset } from "expo-asset";
+import { exportInvoiceInputS2 } from "@/src/presentation/Controller/ExportInvoiceOutputS1";
 // ---- Dịch tiếng Việt cho DatePicker ----
 const viTranslation = {
   save: "Lưu",
@@ -253,7 +254,6 @@ export default function ExportInvoiceOutput() {
         range={range}
         onDismiss={onDismiss}
         onConfirmSingle={onConfirmSingle}
-        handleExportPDF={handleExportPDF}
         getQuarter={getQuarter}
         onConfirmRange={onConfirmRange}
         loading={loading}
