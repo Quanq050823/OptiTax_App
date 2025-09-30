@@ -22,7 +22,6 @@ type SetDataDayProps = {
   range: { startDate: CalendarDate; endDate: CalendarDate };
   onDismiss: () => void;
   onConfirmSingle: (params: { date: CalendarDate }) => void;
-  handleExportPDF?: () => void;
   onConfirmRange: (params: {
     startDate?: CalendarDate;
     endDate?: CalendarDate;
@@ -41,7 +40,6 @@ function SetDataDay({
   range,
   onDismiss,
   onConfirmSingle,
-  handleExportPDF,
   onConfirmRange,
   getQuarter,
   loading,
