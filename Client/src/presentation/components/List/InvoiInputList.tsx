@@ -52,7 +52,7 @@ function InvoiInputList({ invoicesData }: invoice) {
   };
 
   const renderItem = ({ item }: { item: InvoiceSummary }) => {
-    const total = item.tien.tong;
+    const total = item.tien?.tong || 0;
     // const { text, color } = getStatusInfo(item.status);
 
     const label = "Hoá đơn mua vào";
@@ -67,7 +67,7 @@ function InvoiInputList({ invoicesData }: invoice) {
           <View style={styles.headerItem}>
             <Text style={styles.supplier}>{item.loaiHoaDon}</Text>
             <Text style={{ color: "#4f4f4fff" }}>
-              {item.ngayKy.split("T")[0]}
+              {item.ngayKy?.split("T")[0]}
             </Text>
           </View>
           <Text style={styles.id}>Mã HĐ: {item.soHoaDon}</Text>
@@ -93,7 +93,7 @@ function InvoiInputList({ invoicesData }: invoice) {
   return (
     <FlatList
       data={invoicesData}
-      keyExtractor={(item) => item.soHoaDon}
+      keyExtractor={(item) => item.soHoaDon ? item.soHoaDon : Math.random().toString()}
       renderItem={renderItem}
       contentContainerStyle={styles.container}
     />

@@ -1,4 +1,5 @@
 import { ColorMain } from "@/src/presentation/components/colors";
+import { InvoiceSummary } from "@/src/types/invoiceIn";
 import { InvoiceProduct } from "@/src/types/route";
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
@@ -6,6 +7,7 @@ import { FlatList } from "react-native-gesture-handler";
 
 const InvoiceDetailScreen = ({ route }: any) => {
   const { item, total, label } = route.params; // nhận từ navigate
+  console.log(item, "Item detail");
 
   const getStatusInfo = (status: number) => {
     switch (status) {
@@ -39,9 +41,10 @@ const InvoiceDetailScreen = ({ route }: any) => {
   }: {
     item: InvoiceProduct;
     index: number;
-  }) => (
-    <>
+  }) => {
+    return (
       <View
+        key={item._id || index}
         style={[styles.row, { paddingHorizontal: 15, backgroundColor: "#fff" }]}
       >
         <Text style={[styles.cell, { flex: 0.5 }]}>{index + 1}</Text>
@@ -52,22 +55,25 @@ const InvoiceDetailScreen = ({ route }: any) => {
         <Text style={[styles.cell, { flex: 1 }]}>{item.dvtinh}</Text>
         <Text style={[styles.cell, { flex: 1 }]}>
           {Number(item.sluong) % 1 === 0
-            ? Number(item.sluong) // nếu là số nguyên thì giữ nguyên
+            ? Number(item.sluong)
             : Number(item.sluong).toString()}
         </Text>
         <Text style={[styles.cell, { flex: 1.5 }]}>
-          {Number(item.dgia).toLocaleString("vi-VN")}
+          {Number(item.dgia ?? 0).toLocaleString("vi-VN")}
         </Text>
         <Text style={[styles.cell, { flex: 2 }]}>
-          {Number(item.thtien).toLocaleString("vi-VN")}
+          {Number(item.thtien ?? 0).toLocaleString("vi-VN")}
         </Text>
       </View>
-    </>
-  );
+    );
+  };
+
+  console.log(item?.hdhhdvu, "Item hhdv");
+
   return (
     <>
       <FlatList
-        data={item.hdhhdvu}
+        data={item?.hdhhdvu ?? []}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
         ListFooterComponent={
@@ -75,11 +81,11 @@ const InvoiceDetailScreen = ({ route }: any) => {
             <View style={styles.card}>
               <View style={styles.flexLabel}>
                 <Text style={styles.label}>Tổng tiền thuế:</Text>
-                <Text style={styles.value}></Text>
+                <Text style={styles.value}>{item?.tien.thue} đ</Text>
               </View>
               <View style={styles.flexLabel}>
-                <Text style={styles.label}>Tổng tiền phí:</Text>
-                <Text style={styles.value}></Text>
+                <Text style={styles.label}>Tổng tiền hàng hoá:</Text>
+                <Text style={styles.value}>{item?.tien.truocThue} đ</Text>
               </View>
               <View style={styles.flexLabel}>
                 <Text style={styles.label}>Tổng tiền CKTM:</Text>

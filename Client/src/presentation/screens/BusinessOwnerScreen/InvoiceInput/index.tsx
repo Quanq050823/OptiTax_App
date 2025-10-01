@@ -1,5 +1,6 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import InvoiInputList from "@/src/presentation/components/List/InvoiInputList";
+import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import ModalCreateProductsByInvoiceInput from "@/src/presentation/components/Modal/ModalCreateProductsByInvoiceInput";
 import ModalLoginCCT from "@/src/presentation/components/Modal/ModalEditProduct/ModalLoginCCT";
 
@@ -39,10 +40,12 @@ function InvoiceInput() {
   const [openLogin, setOpenLogin] = useState(false);
   const [loading, setLoading] = useState(false);
   const [invoiceDataSync, setInvoiceDataSync] = useState<InvoiceSummary[]>([]);
+  const [listInvoiceDataSync, setListInvoiceDataSync] = useState<
+    InvoiceSummary[]
+  >([]);
   const [syncDataInvoiceIn, setSyncDataInvoiceIn] = useState<syncDataInvoiceIn>(
     { dateto: "", datefrom: "" }
   );
-  console.log(syncDataInvoiceIn, "Dataa sync");
 
   const spinValue = useRef(new Animated.Value(0)).current;
   const [openListProductSynchronized, setOpenListProductSynchronized] =
@@ -95,11 +98,15 @@ function InvoiceInput() {
   };
 
   const handleSyncInvoiceIn = async () => {
+    setLoading(true);
     try {
       if (!syncDataInvoiceIn) return;
       const res = await syncInvoiceIn(syncDataInvoiceIn);
-      setInvoiceDataSync(res as InvoiceSummary[]);
-    } catch {
+      setListInvoiceDataSync(res.invoices as InvoiceSummary[]);
+      setLoading(false);
+    } catch (err) {
+      setLoading(false);
+
       Alert.alert("Lỗi lấy dữ liệu!");
     }
   };
@@ -108,9 +115,8 @@ function InvoiceInput() {
     const fetchInvoiceSync = async () => {
       try {
         const res = await getInvoiceIn();
-        console.log("👉 res:", res);
 
-        setInvoiceDataSync(res);
+        setListInvoiceDataSync(res);
       } catch {
         console.log("Không có dữ liệu");
       }
@@ -118,10 +124,9 @@ function InvoiceInput() {
 
     fetchInvoiceSync();
   }, []);
-  console.log(data?._id, "data ic");
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, position: "relative" }}>
       {/* <HeaderScreen /> */}
       <View style={styles.searchWrapper}>
         <SearchByName label="Tìm kiếm nhà cung cấp" />
@@ -179,12 +184,14 @@ function InvoiceInput() {
         invoicesData={invoices}
       />
 
-      <InvoiInputList invoicesData={invoiceDataSync} />
+      <InvoiInputList invoicesData={listInvoiceDataSync} />
       <ModalSynchronized
         visible={visible}
         setVisible={setVisible}
         setSyncDataInvoiceIn={setSyncDataInvoiceIn}
         onSyncInvoiceIn={handleSyncInvoiceIn}
+        loading={loading}
+        setLoading={setLoading}
       />
       <ModalLoginCCT
         visible={openLogin}

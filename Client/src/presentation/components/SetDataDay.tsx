@@ -45,7 +45,6 @@ function SetDataDay({
   loading,
   setLoading,
 }: SetDataDayProps) {
-  console.log(selectedDate);
 
   return (
     <View
