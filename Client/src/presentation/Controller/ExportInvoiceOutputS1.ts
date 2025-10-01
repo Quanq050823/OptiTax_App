@@ -6,7 +6,7 @@ type DataSetup = {
   mode: "month" | "quarter" | "range";
   selectedDate?: CalendarDate | undefined;
   range: { startDate?: CalendarDate; endDate?: CalendarDate };
-  invoicesOuput: Invoice[];
+  invoicesOutput: Invoice[];
   profile: Profile | null;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -15,7 +15,7 @@ export async function exportInvoiceOutputS1({
   mode,
   selectedDate,
   range,
-  invoicesOuput,
+  invoicesOutput,
   profile,
   setLoading,
 }: DataSetup) {
@@ -27,7 +27,7 @@ export async function exportInvoiceOutputS1({
   };
   try {
     setLoading(true);
-    if (!invoicesOuput) return;
+    if (!invoicesOutput) return;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -60,7 +60,7 @@ export async function exportInvoiceOutputS1({
     }
 
     // --- 1. Lọc hoá đơn ---
-    const filtered = invoicesOuput.filter((inv) => {
+    const filtered = invoicesOutput.filter((inv) => {
       const invDate = new Date(inv.ncnhat);
       invDate.setHours(0, 0, 0, 0);
       return invDate >= startDate! && invDate <= endDate!;

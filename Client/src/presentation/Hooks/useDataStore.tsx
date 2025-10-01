@@ -8,20 +8,23 @@ import {
   getUserProfile,
 } from "@/src/services/API/profileService";
 import { getInvoiceIn } from "@/src/services/API/syncInvoiceIn";
+import { getVoucherPayment } from "@/src/services/API/voucherService";
 import { InvoiceSummary } from "@/src/types/invoiceIn";
 import { Invoice, Profile, UserProfile } from "@/src/types/route";
+import { PaymentVoucher, VoucherPaymentResponse } from "@/src/types/voucher";
 import { createContext, useContext, useEffect, useState } from "react";
 
 // context.tsx
 interface DataContextType {
   data: Profile | null;
   invoicesInput: Invoice[];
-  invoicesOuput: Invoice[];
+  invoicesOutput: Invoice[];
+  invoiceInputDataSync: InvoiceSummary[];
+  voucherPayList: PaymentVoucher[];
   setData: React.Dispatch<React.SetStateAction<Profile | null>>;
   setInvoicesInput: React.Dispatch<React.SetStateAction<Invoice[]>>;
   setInvoicesOutput: React.Dispatch<React.SetStateAction<Invoice[]>>;
   fetchData: () => Promise<void>;
-  invoiceDataSync: InvoiceSummary[];
 }
 interface DataProviderProps {
   children: React.ReactNode;
@@ -31,8 +34,11 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 export const DataProvider = ({ children }: DataProviderProps) => {
   const [data, setData] = useState<Profile | null>(null);
   const [invoicesInput, setInvoicesInput] = useState<Invoice[]>([]);
-  const [invoicesOuput, setInvoicesOutput] = useState<Invoice[]>([]);
-  const [invoiceDataSync, setInvoiceDataSync] = useState<InvoiceSummary[]>([]);
+  const [invoicesOutput, setInvoicesOutput] = useState<Invoice[]>([]);
+  const [invoiceInputDataSync, setInvoiceInputDataSync] = useState<
+    InvoiceSummary[]
+  >([]);
+  const [voucherPayList, setVoucherPayList] = useState<PaymentVoucher[]>([]);
 
   const fetchData = async () => {
     try {
@@ -45,14 +51,17 @@ export const DataProvider = ({ children }: DataProviderProps) => {
         phoneNumber: business?.phoneNumber,
       });
 
-      const res = await getInvoiceInputList();
-      setInvoicesInput(res.data ?? []);
+      const invoiceInSync = await getInvoiceIn();
+      setInvoiceInputDataSync(invoiceInSync);
+      // const res = await getInvoiceInputList();
+      // setInvoicesInput(res.data ?? []);
 
       const data = await getInvoiceOutputList();
       setInvoicesOutput(data.data ?? []);
 
-      const invoiceInSync = await getInvoiceIn();
-      setInvoiceDataSync(invoiceInSync);
+      const voucherData: VoucherPaymentResponse = await getVoucherPayment();
+      console.log(voucherData, "voucher payment");
+      setVoucherPayList(voucherData.data);
     } catch (error) {
       console.error("❌ Error fetchData:", error);
     }
@@ -70,10 +79,11 @@ export const DataProvider = ({ children }: DataProviderProps) => {
         setData,
         invoicesInput,
         setInvoicesInput,
-        invoicesOuput,
+        invoicesOutput,
         setInvoicesOutput,
         fetchData,
-        invoiceDataSync,
+        invoiceInputDataSync,
+        voucherPayList,
       }}
     >
       {children}

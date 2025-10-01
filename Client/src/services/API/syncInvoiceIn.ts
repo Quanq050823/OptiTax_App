@@ -1,7 +1,8 @@
 import { LoginResponse } from "@/src/services/API/authService";
 import axiosInstance from "@/src/services/API/axios";
-import { InvoiceSummary } from "@/src/types/invoiceIn";
+import { InvoiceListResponse, InvoiceSummary } from "@/src/types/invoiceIn";
 import axios from "axios";
+import { Alert } from "react-native";
 
 const token = "3J/EhtxvsAO74hsLC6PtTdSKM0VleDskquWltIl8SlM=";
 export const loginCCT = async (data: {
@@ -30,60 +31,64 @@ export const loginCCT = async (data: {
     throw error.response?.data || error;
   }
 };
-const mapInvoiceToSummary = (raw: any): InvoiceSummary => ({
-  // 1. Thông tin chung
-  kyHieu: raw.khhdon,
-  soHoaDon: raw.shdon,
-  mauSo: raw.khmshdon,
-  ngayLap: new Date(raw.tdlap).toISOString().split("T")[0], // yyyy-mm-dd
-  loaiHoaDon: raw.tlhdon || raw.thdon,
-  maCQT: raw.cqt,
-  maTraCuu: raw.mtdtchieu || raw.mhdon,
+const mapInvoiceToSummary = (item: any): InvoiceSummary => ({
+  kyHieu: item.khhdon,
+  soHoaDon: item.shdon,
+  mauSo: item.khmshdon,
+  ngayLap: item.tdlap,
+  loaiHoaDon: item.thdon,
+  maCQT: item.cqt,
+  maTraCuu: item.mhdon,
 
-  // 2. Bên bán
   nguoiBan: {
-    ten: raw.nbten,
-    mst: raw.nbmst,
-    diaChi: raw.nbdchi,
-    stk: raw.nbstkhoan,
+    ten: item.nbten,
+    mst: item.nbmst,
+    diaChi: item.nbdchi,
+    stk: item.nbstkhoan,
   },
 
-  // 3. Bên mua
   nguoiMua: {
-    ten: raw.nmten,
-    mst: raw.nmmst,
-    diaChi: raw.nmdchi,
+    ten: item.nmten,
+    mst: item.nmmst,
+    diaChi: item.nmdchi,
   },
 
-  // 4. Thông tin thanh toán
   thanhToan: {
-    hinhThuc: raw.httttoan,
-    trangThai: raw.ttkhac?.dlieu || "",
+    hinhThuc: item.thtttoan,
+    trangThai:
+      item.ttkhac?.find((x: any) => x.ttruong === "Trạng thái thanh toán")
+        ?.dlieu ?? "",
   },
 
-  // 5. Thông tin tiền thuế
   tien: {
-    truocThue: Number(raw.tgtcthue) || 0,
-    thue: Number(raw.tgtthue) || 0,
-    tong: Number(raw.tgtttbso) || 0,
-    bangChu: raw.tgtttbchu,
-    thueSuat: raw.thttltsuat?.[0]?.tsuat ? `${raw.thttltsuat[0].tsuat}%` : "",
+    truocThue: item.tgtcthue,
+    thue: item.tgtthue,
+    tong: item.tgtttbso,
+    bangChu: item.tgtttbchu,
+    thueSuat: item.thttltsuat?.[0]?.tsuat ?? "",
+    dvtte: item.dvtte,
   },
 
-  // 6. Khác
-  ngayKy: raw.nky,
-  trangThaiHoaDon: raw.tthaibchu || raw.tthai,
+  // ✅ giữ nguyên danh sách hàng hóa dịch vụ
+  hdhhdvu: item.hdhhdvu,
+
+  ngayKy: item.nky,
+  trangThaiHoaDon: item.tthaibchu,
 });
 
 export const syncInvoiceIn = async (data: {
   dateto: string;
   datefrom: string;
-}) => {
+}): Promise<InvoiceListResponse> => {
   try {
     const url = "invoices-in/sync-from-third-party";
-    console.log("👉 Gọi API:", axiosInstance.defaults.baseURL + url);
 
-    const res = await axiosInstance.post(url, data);
+    const res = await axiosInstance.post<InvoiceListResponse>(url, data);
+
+    Alert.alert(
+      "Kết quả đồng bộ",
+      `HĐ mới: ${res.data.sync}, HĐ đã có: ${res.data.skip},HĐ lỗi: ${res.data.fail}`
+    );
 
     return res.data;
   } catch (error: any) {

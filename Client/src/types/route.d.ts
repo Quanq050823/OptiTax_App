@@ -130,8 +130,8 @@ export interface InvoiceItemExtra {
 }
 
 export interface InvoiceProduct {
-  idhdon: string;
   id: string;
+  _id: string;
   dgia: string;
   dvtinh: string;
   ltsuat: string | null;

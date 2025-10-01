@@ -27,6 +27,7 @@ import InvoiInputList from "@/src/presentation/components/List/InvoiInputList";
 import InvoiceOutput from "@/src/presentation/screens/BusinessOwnerScreen/InvoiceOutput";
 import { exportInvoiceOutputS1 } from "@/src/presentation/Controller/ExportInvoiceOutputS1";
 import { exportInvoiceInputS2 } from "@/src/presentation/Controller/ExportInvoiceinputS2";
+import { exportCulateTotalCost } from "@/src/presentation/Controller/ExportalCulateTotalCost";
 
 type Feature = {
   key: string;
@@ -199,7 +200,7 @@ async function fillProductsChunked(
       row.getCell("A").value = "2025-09-25"; // Ngày hạch toán (demo cứng)
       row.getCell("B").value = invoice.ngayLap;
       row.getCell("C").value = invoice.kyHieu;
-      row.getCell("D").value = invoice.ngayLap;
+      row.getCell("D").value = new Date().toLocaleDateString("vi-VN");
       row.getCell("E").value = invoice.soHoaDon;
       row.getCell("F").value = `${invoice.loaiHoaDon} - ${
         invoice.ghiChu ?? ""
@@ -358,10 +359,16 @@ export default function ReportExport() {
   const [selectedKey, setSelectedKey] = useState<Feature | null>(null);
   const {
     data: profile,
-    invoicesOuput,
+    invoicesOutput,
     invoicesInput,
-    invoiceDataSync,
+    invoiceInputDataSync,
+    voucherPayList,
+    fetchData,
   } = useData();
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const [mode, setMode] = useState<"month" | "quarter" | "range">("month");
   const [visible, setVisible] = useState(false);
@@ -390,7 +397,7 @@ export default function ReportExport() {
           mode,
           selectedDate,
           range,
-          invoicesOuput,
+          invoicesOutput,
           profile,
           setLoading,
         }),
@@ -403,7 +410,7 @@ export default function ReportExport() {
           mode,
           selectedDate,
           range,
-          invoiceDataSync,
+          invoiceInputDataSync,
           profile,
           setLoading,
         }),
@@ -412,7 +419,15 @@ export default function ReportExport() {
     {
       key: "VoucherOutput",
       label: "Chi phí sản xuất kinh doanh",
-      // action: handleExportPDF,
+      action: () =>
+        exportCulateTotalCost({
+          mode,
+          selectedDate,
+          range,
+          voucherPayList,
+          profile,
+          setLoading,
+        }),
     },
     {
       key: "Tax",

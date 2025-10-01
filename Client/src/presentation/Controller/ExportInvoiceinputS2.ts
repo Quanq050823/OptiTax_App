@@ -1,5 +1,7 @@
-import { InvoiceSummary } from "@/src/types/invoiceIn";
+import { InvoiceProduct, InvoiceSummary } from "@/src/types/invoiceIn";
 import { Invoice, InvoiceListResponse, Profile } from "@/src/types/route";
+import * as FileSystem from "expo-file-system/legacy";
+
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { CalendarDate } from "react-native-paper-dates/lib/typescript/Date/Calendar";
@@ -7,16 +9,61 @@ type DataSetup = {
   mode: "month" | "quarter" | "range";
   selectedDate?: CalendarDate | undefined;
   range: { startDate?: CalendarDate; endDate?: CalendarDate };
-  invoiceDataSync: InvoiceSummary[];
+  invoiceInputDataSync: InvoiceSummary[];
   profile: Profile | null;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
+function mergeProducts(products: InvoiceProduct[]): InvoiceProduct[] {
+  const map = new Map<string, InvoiceProduct>();
+
+  for (const p of products) {
+    // key để xác định sản phẩm giống nhau
+    const key = `${p.name}-${p.price}-${p.unit}-${p.vatRate}`;
+
+    if (!map.has(key)) {
+      map.set(key, { ...p });
+    } else {
+      const existing = map.get(key)!;
+      const sluongNew = (existing.quantity ?? 0) + (p.quantity ?? 0);
+      const thtienNew = (existing.amount ?? 0) + (p.amount ?? 0);
+
+      map.set(key, {
+        ...existing,
+        quantity: sluongNew,
+        amount: thtienNew,
+      });
+    }
+  }
+
+  return Array.from(map.values());
+}
+
+function normalizeProducts(raw: any[]): InvoiceProduct[] {
+  return raw
+    .map((p) => ({
+      _id: p._id,
+      id: p.id,
+      name: p.ten,
+      unit: p.dvtinh,
+      quantity: p.sluong,
+      price: p.dgia,
+      amount: p.thtien,
+      vatRate: p.tsuat,
+      vatLabel: p.ltsuat,
+      meta: p.ttkhac,
+    }))
+    .filter((p) => {
+      const qty = Number(p.quantity ?? 0);
+      const price = Number(p.price ?? 0);
+      return qty > 0 && price > 0;
+    });
+}
 export async function exportInvoiceInputS2({
   mode,
   selectedDate,
   range,
-  invoiceDataSync,
+  invoiceInputDataSync,
   profile,
   setLoading,
 }: DataSetup) {
@@ -26,9 +73,10 @@ export async function exportInvoiceInputS2({
     if (month <= 9) return 3;
     return 4;
   };
+
   try {
     setLoading(true);
-    if (!invoiceDataSync) return;
+    if (!invoiceInputDataSync) return;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -61,8 +109,8 @@ export async function exportInvoiceInputS2({
     }
 
     // --- 1. Lọc hoá đơn ---
-    const filtered = invoiceDataSync.filter((inv) => {
-      const invDate = new Date(inv.ngayLap);
+    const filtered = invoiceInputDataSync.filter((inv) => {
+      const invDate = new Date(inv.ngayLap ?? "");
       invDate.setHours(0, 0, 0, 0);
       return invDate >= startDate! && invDate <= endDate!;
     });
@@ -70,55 +118,89 @@ export async function exportInvoiceInputS2({
     // --- 2. Gom nhóm theo ngày ---
     const grouped: Record<string, number> = {};
     filtered.forEach((inv) => {
-      const date = new Date(inv.ngayLap).toLocaleDateString("vi-VN");
+      const date = new Date(inv.ngayLap ?? "").toLocaleDateString("vi-VN");
       // let amount = 0;
       // if (Array.isArray(inv.hdhhdvu)) {
       //   inv.tgtttbso.forEach((item) => {
       //     amount += Number(item.thtien ?? 0);
       //   });
       // }
-      grouped[date] = (grouped[date] || 0) + inv.tien.tong;
+      grouped[date] = (grouped[date] || 0) + inv.tien?.tong!;
     });
     const grandTotal = Object.values(grouped).reduce(
       (sum, val) => sum + val,
       0
     );
-    console.log();
 
     // --- 3. Render HTML ---
+    // --- 3. Render HTML ---
+    // --- 3. Render HTML ---
+    // --- 3. Render HTML ---
     const rows = filtered
-      .map((inv, index) => {
-        let amount = 0;
-        if (Array.isArray(inv.hdhhdvu)) {
-          inv.hdhhdvu.forEach((item) => {
-            amount += Number(item.thtien ?? 0);
-          });
-        }
-        const qty = Array.isArray(inv.hdhhdvu)
-          ? inv.hdhhdvu.reduce((sum, item) => sum + Number(item.sl ?? 0), 0)
-          : 0;
+      .map((inv) => {
+        const merged = mergeProducts(
+          normalizeProducts(inv.hdhhdvu ?? [])
+        ).filter((p) => (p.price ?? 0) > 0 && (p.quantity ?? 0) > 0);
 
-        return `
+        if (merged.length === 0) return "";
+
+        return merged
+          .map(
+            (p, idx) => `
           <tr>
-            <td>${inv.soHoaDon || ""}</td>
-            <td>${new Date(inv.ngayLap).toLocaleDateString("vi-VN")}</td>
-            <td>${inv.ttien || "Mua hàng hoá"}</td>
-            <td>${inv.tien.dvtte || ""}</td>
-            <td>${inv.tien.tong}</td>
+            ${
+              idx === 0
+                ? `<td rowspan="${merged.length}">${inv.soHoaDon || ""}</td>
+                   <td rowspan="${merged.length}">
+                     ${new Date(inv.ngayLap ?? "").toLocaleDateString("vi-VN")}
+                   </td>`
+                : ""
+            }
+            <td>${p.name || ""}</td>
+            <td>${p.unit || ""}</td>
+            <td>${p.price?.toLocaleString("vi-VN") || ""}</td>
+            <td>${p.quantity ?? ""}</td>
+            <td>${p.amount?.toLocaleString("vi-VN") || ""}</td>
 
-            <td>${inv. ? qty.toLocaleString("vi-VN") : ""}</td>
-            <td>${inv.tien.tong.toLocaleString("vi-VN")}</td>
+            <td></td>
+            <td></td>
 
-            <td></td><td></td> <!-- Xuất -->
-            <td>${qty ? qty.toLocaleString("vi-VN") : ""}</td>
-            <td>${inv.tien.tong.toLocaleString("vi-VN")}</td>
-            
+            <td></td>
+            <td></td>
 
             <td></td>
           </tr>
-        `;
+        `
+          )
+          .join("");
       })
       .join("");
+
+    //Tính tổng toàn bộ ---
+    const allProducts = filtered.flatMap((inv) =>
+      mergeProducts(normalizeProducts(inv.hdhhdvu ?? [])).filter(
+        (p) => (p.price ?? 0) > 0 && (p.quantity ?? 0) > 0
+      )
+    );
+
+    const totalQuantity = allProducts.reduce(
+      (sum, p) => sum + (p.quantity ?? 0),
+      0
+    );
+    const totalAmount = allProducts.reduce(
+      (sum, p) => sum + (p.amount ?? 0),
+      0
+    );
+
+    // --- 4. Dòng tổng ---
+    const totalRow = `
+      <tr style="font-weight:bold; background:#f2f2f2;">
+        <td colspan="5" style="text-align:center;">TỔNG CỘNG</td>
+        <td>${totalQuantity}</td>
+        <td>${totalAmount.toLocaleString("vi-VN")}</td>
+        <td colspan="5"></td>
+      </tr>
+    `;
 
     // --- 3. HTML xuất ra ---
     const html = `
@@ -174,6 +256,7 @@ export async function exportInvoiceInputS2({
     <th>Số lượng</th><th>Thành tiền</th>
   </tr>
   ${rows}
+  ${totalRow}
 </table>
 
 <div class="note">
@@ -197,7 +280,18 @@ export async function exportInvoiceInputS2({
 `;
 
     const { uri } = await Print.printToFileAsync({ html });
-    await Sharing.shareAsync(uri);
+
+    // Tạo path mới trong documentDirectory
+    const newPath =
+      (FileSystem as any).documentDirectory +
+      `SoChiTietVatLieu_S2_${
+        startDate.getMonth() + 1
+      }_${startDate.getFullYear()}.pdf`;
+    await FileSystem.moveAsync({
+      from: uri,
+      to: newPath,
+    });
+    await Sharing.shareAsync(newPath);
   } catch (error) {
     console.error("Export PDF error:", error);
   } finally {

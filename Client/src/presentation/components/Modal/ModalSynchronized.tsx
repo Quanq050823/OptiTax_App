@@ -1,4 +1,5 @@
 import { ColorMain } from "@/src/presentation/components/colors";
+import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import { syncDataInvoiceIn } from "@/src/types/syncData";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
@@ -19,12 +20,16 @@ type ModalOpen = {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
   setSyncDataInvoiceIn: React.Dispatch<React.SetStateAction<syncDataInvoiceIn>>;
   onSyncInvoiceIn: () => Promise<void>;
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 function ModalSynchronized({
   visible,
   setVisible,
   setSyncDataInvoiceIn,
   onSyncInvoiceIn,
+  loading,
+  setLoading,
 }: ModalOpen) {
   const [dateStart, setDateStart] = useState<Date | undefined>();
   const [dateEnd, setDateEnd] = useState<Date | undefined>();
@@ -56,6 +61,7 @@ function ModalSynchronized({
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           {/* <View style={styles.grabber} /> */}
+          <LoadingScreen visible={loading} />
 
           <View>
             <Text
