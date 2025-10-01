@@ -193,6 +193,10 @@ const InvoicesInSchema = new mongoose.Schema(
 		mkhang: { type: String },
 		shdgoc: { type: String },
 		tbhgtngay: { type: Date },
+		isStorageSynced: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	{ timestamps: true }
 );
