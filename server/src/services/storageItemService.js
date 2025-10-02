@@ -1,5 +1,6 @@
 "use strict";
 
+import mongoose from "mongoose";
 import StorageItem from "../models/StorageItem.js";
 import ApiError from "../utils/ApiError.js";
 import { StatusCodes } from "http-status-codes";
@@ -17,7 +18,7 @@ const getStorageItemById = async (id, businessOwnerId) => {
 	return item;
 };
 
-const listStorageItems = async (filter = {}, options = {}, businessOwnerId) => {
+const listStorageItems = async (businessOwnerId, filter = {}, options = {}) => {
 	const {
 		page = 1,
 		limit = 10,
@@ -25,14 +26,15 @@ const listStorageItems = async (filter = {}, options = {}, businessOwnerId) => {
 		sortOrder = -1,
 	} = options;
 	const skip = (page - 1) * limit;
-	filter.businessOwnerId = businessOwnerId;
-	const query = StorageItem.find(filter)
+	const query = StorageItem.find({ businessOwnerId, ...filter })
 		.sort({ [sortBy]: sortOrder })
 		.skip(skip)
 		.limit(limit);
+	console.log("Query:", query.getQuery()); // Debugging line
+	console.log("Options:", { page, limit, sortBy, sortOrder }); // Debugging line
 	const [results, total] = await Promise.all([
 		query.exec(),
-		StorageItem.countDocuments(filter),
+		StorageItem.countDocuments({ businessOwnerId, ...filter }),
 	]);
 	return {
 		data: results,

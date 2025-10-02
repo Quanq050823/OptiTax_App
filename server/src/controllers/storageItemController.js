@@ -55,17 +55,16 @@ const list = async (req, res, next) => {
 				.status(StatusCodes.NOT_FOUND)
 				.json({ message: "Business owner profile not found" });
 		}
-		const { page, limit, sortBy, sortOrder, ...filter } = req.query;
 		const options = {
 			page: parseInt(page) || 1,
 			limit: parseInt(limit) || 10,
 			sortBy: sortBy || "createdAt",
-			sortOrder: parseInt(sortOrder) || -1,
+			sortOrder: sortOrder ? parseInt(sortOrder) : -1,
 		};
 		const result = await storageItemService.listStorageItems(
+			owner._id,
 			filter,
-			options,
-			owner._id
+			options
 		);
 		res.status(StatusCodes.OK).json(result);
 	} catch (err) {
@@ -124,9 +123,9 @@ const namesAndUnits = async (req, res, next) => {
 				.json({ message: "Business owner profile not found" });
 		}
 		const items = await storageItemService.listStorageItems(
-			{},
-			{ limit: 1000 },
-			owner._id
+			owner._id, // <-- FIXED: owner._id first
+			{}, // filter
+			{ limit: 1000 } // options
 		);
 		console.log("Owner ID:", owner._id);
 		const names = items.data.map((item) => item.name);
@@ -139,7 +138,8 @@ const namesAndUnits = async (req, res, next) => {
 
 const syncStorageItems = async (req, res, next) => {
 	try {
-		const businessOwnerId = req.user.id;
+		const userId = req.user.userId;
+		const owner = await getBusinessOwnerByUserId(userId);
 		const invoices = await InvoicesInService.getInvoices({
 			isStorageSynced: false,
 		});
@@ -155,13 +155,11 @@ const syncStorageItems = async (req, res, next) => {
 						stock: item.sluong,
 						unit: item.dvtinh,
 					};
-					console.log("Syncing item:", data);
-
 					try {
 						const existingItems = await storageItemService.listStorageItems(
-							{ name: data.name },
-							{ limit: 1 },
-							businessOwnerId
+							owner._id, // <-- FIXED: owner._id first
+							{ name: data.name }, // filter
+							{ limit: 1 } // options
 						);
 
 						if (existingItems.data.length > 0) {
@@ -169,10 +167,10 @@ const syncStorageItems = async (req, res, next) => {
 							await storageItemService.updateStorageItem(
 								existingItem._id,
 								{ stock: existingItem.stock + data.stock },
-								businessOwnerId
+								owner._id
 							);
 						} else {
-							await storageItemService.createStorageItem(data, businessOwnerId);
+							await storageItemService.createStorageItem(data, owner._id);
 						}
 						successCount++;
 					} catch (err) {
@@ -181,6 +179,7 @@ const syncStorageItems = async (req, res, next) => {
 					}
 				}
 			}
+			// Đánh dấu hóa đơn đã sync
 			try {
 				await InvoicesInService.updateInvoice(invoice._id, {
 					isStorageSynced: true,
@@ -203,38 +202,6 @@ const syncStorageItems = async (req, res, next) => {
 		next(error);
 	}
 };
-
-// const namesAndUnits = async (req, res, next) => {
-//   try {
-//     const userId = req.user.userId;
-//     console.log("User ID:", userId); // Debugging line
-//     const owner = await getBusinessOwnerByUserId(userId);
-//     console.log("Business Owner:", owner); // Debugging line
-//     if (!owner) {
-//       return res
-//         .status(StatusCodes.NOT_FOUND)
-//         .json({ message: "Business owner profile not found" });
-//     }
-//     const keyword = req.query.q || ""; // lấy từ query string ?q=...
-//     const regex = new RegExp(keyword, "i"); // không phân biệt hoa thường
-//     const items = await listStorageItems(
-//       {
-//         businessOwnerId: owner._id,
-//         $or: [{ name: regex }, { category: regex }],
-//       },
-//       { limit: 1000 },
-//       owner._id
-//     );
-
-//     res.status(200).json(items);
-//     console.log("Owner ID:", owner._id); // Debugging line
-//     const names = items.data.map((item) => item.name);
-//     const units = items.data.map((item) => item.unit);
-//     res.status(StatusCodes.OK).json({ names, units });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
 
 export {
 	create,

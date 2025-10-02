@@ -96,6 +96,8 @@ export const syncListInvoicesDetailsFromThirdParty = async (req, res) => {
 				params: { datefrom, dateto, mst: taxCode },
 			}
 		);
+		console.log(taxCode);
+		console.log(invoicesRes.data);
 		let invoices = [];
 		if (Array.isArray(invoicesRes.data)) {
 			invoices = invoicesRes.data;
