@@ -20,7 +20,7 @@ export const login = async (data: {
   try {
     const payload = { email: data.username, password: data.password };
     const response = await axios.post("auth/login", payload, {
-      withCredentials: true,
+      withCredentials: false,
     });
 
     const loginData = response.data as LoginResponse;

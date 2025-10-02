@@ -4,8 +4,10 @@ import {
   NewProductInventory,
   ProductInventory,
   ProductInventoryList,
+  SyncProductInventory,
   UnitsNameProduct,
 } from "@/src/types/storage";
+import { Alert } from "react-native";
 
 export const getProductsInventory = async (): Promise<ProductInventoryList> => {
   try {
@@ -48,6 +50,29 @@ export const createProductInventory = async (products: NewProductInventory) => {
     const res = await axiosInstance.post("storage-item", products);
 
     return res.data;
+  } catch (error: any) {
+    if (error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }
+};
+export const syncProduct = async (): Promise<SyncProductInventory> => {
+  try {
+    const res = await axiosInstance.post<SyncProductInventory>(
+      "storage-item/sync-from-invoices"
+    );
+
+    const data = res.data;
+
+    Alert.alert(
+      "Đồng bộ sản phẩm thành công",
+      data.successCount > 0
+        ? `Đã thêm ${data.successCount} sản phẩm mới từ hóa đơn`
+        : "Không có sản phẩm nào mới"
+    );
+
+    return data;
   } catch (error: any) {
     if (error.response) {
       throw error.response.data;
