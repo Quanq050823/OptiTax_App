@@ -15,6 +15,7 @@ import {
   getProductsInventory,
   getProductsInventoryByKey,
   searchProductsInventory,
+  syncProduct,
   updateProductInventory,
 } from "@/src/services/API/storageService";
 import {
@@ -300,6 +301,14 @@ export default function InventoryManagerScreen() {
     </TouchableOpacity>
   );
 
+  const handleSyncProductFromInvoiceIn = async () => {
+    try {
+      await syncProduct();
+      fetchDataProductInventory();
+    } catch (err) {
+      console.error("Lỗi lấy names/units:", err);
+    }
+  };
   return (
     <View style={styles.container}>
       {loading ? (
@@ -358,6 +367,14 @@ export default function InventoryManagerScreen() {
                   size={24}
                   color="black"
                 />
+              </TouchableOpacity>
+            </View>
+            <View style={{ width: "100%", alignItems: "flex-end" }}>
+              <TouchableOpacity
+                style={styles.btnSyn}
+                onPress={handleSyncProductFromInvoiceIn}
+              >
+                <Text style={{ color: "#fff" }}>Đồng bộ nguyên liệu</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -498,5 +515,12 @@ const styles = StyleSheet.create({
     shadowColor: ColorMain,
     shadowOpacity: 0.22,
     shadowOffset: { width: 0, height: 1 },
+  },
+  btnSyn: {
+    backgroundColor: ColorMain,
+    padding: 10,
+    borderRadius: 10,
+    minWidth: 50,
+    marginTop: 20,
   },
 });

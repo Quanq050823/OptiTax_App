@@ -40,3 +40,9 @@ export type UnitsNameProduct = {
   names: [];
   units: [];
 };
+
+export type SyncProductInventory = {
+  message: string;
+  successCount: number;
+  failCount: number;
+};
