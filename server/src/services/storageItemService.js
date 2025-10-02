@@ -30,8 +30,6 @@ const listStorageItems = async (businessOwnerId, filter = {}, options = {}) => {
 		.sort({ [sortBy]: sortOrder })
 		.skip(skip)
 		.limit(limit);
-	console.log("Query:", query.getQuery()); // Debugging line
-	console.log("Options:", { page, limit, sortBy, sortOrder }); // Debugging line
 	const [results, total] = await Promise.all([
 		query.exec(),
 		StorageItem.countDocuments({ businessOwnerId, ...filter }),

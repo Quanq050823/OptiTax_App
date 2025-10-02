@@ -55,6 +55,7 @@ const list = async (req, res, next) => {
 				.status(StatusCodes.NOT_FOUND)
 				.json({ message: "Business owner profile not found" });
 		}
+		const { page, limit, sortBy, sortOrder, ...filter } = req.query;
 		const options = {
 			page: parseInt(page) || 1,
 			limit: parseInt(limit) || 10,
@@ -123,9 +124,9 @@ const namesAndUnits = async (req, res, next) => {
 				.json({ message: "Business owner profile not found" });
 		}
 		const items = await storageItemService.listStorageItems(
-			owner._id, // <-- FIXED: owner._id first
-			{}, // filter
-			{ limit: 1000 } // options
+			owner._id,
+			{},
+			{ limit: 1000 }
 		);
 		console.log("Owner ID:", owner._id);
 		const names = items.data.map((item) => item.name);
