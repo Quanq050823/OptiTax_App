@@ -8,7 +8,6 @@ import { getBusinessOwnerByUserId } from "../services/businessOwnerService.js";
 const create = async (req, res, next) => {
 	try {
 		const userId = req.user.userId;
-		console.log("User ID:", userId);
 		const owner = await getBusinessOwnerByUserId(userId);
 		if (!owner) {
 			return res
@@ -35,7 +34,7 @@ const getAllByOwner = async (req, res, next) => {
 		const options = {
 			page: parseInt(page) || 1,
 			limit: parseInt(limit) || 10,
-			sortBy: sortBy || "createdAt",
+			sortBy: sortBy || "hire_date",
 			sortOrder: sortOrder ? parseInt(sortOrder) : -1,
 		};
 		const result = await employeeService.listEmployees(
