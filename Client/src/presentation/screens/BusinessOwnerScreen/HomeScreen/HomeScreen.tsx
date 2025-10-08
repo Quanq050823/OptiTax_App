@@ -4,6 +4,7 @@ import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import {
   AntDesign,
   FontAwesome,
+  FontAwesome5,
   FontAwesome6,
   MaterialCommunityIcons,
   MaterialIcons,
@@ -97,6 +98,13 @@ function HomeScreen(): React.JSX.Element {
   ];
 
   const features2 = [
+    {
+      key: "tax",
+      label: "Thuế",
+      icon: <FontAwesome5 name="money-bill-wave" size={24} color="#0e4224ff" />,
+      navigate: () => navigate.navigate("TaxScreen"),
+
+    },
     {
       key: "staff",
       label: "Nhân sự",
