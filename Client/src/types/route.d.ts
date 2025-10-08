@@ -36,6 +36,7 @@ type RootStackParamList = {
   ReportExportScreen: undefined;
   ExportInvoiceOuputScreen: undefined;
   ExportExcelScreen: undefined;
+  TaxScreen: undefined
   PaymentVoucherDetail: {
     voucher: PaymentVoucher;
   };
