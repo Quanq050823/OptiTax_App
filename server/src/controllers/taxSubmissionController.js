@@ -1,6 +1,6 @@
 "use strict";
 
-import * as employeeService from "../services/employeeService.js";
+import * as taxService from "../services/taxSubmissionService.js";
 import { StatusCodes } from "http-status-codes";
 
 import { getBusinessOwnerByUserId } from "../services/businessOwnerService.js";
@@ -15,7 +15,7 @@ const create = async (req, res, next) => {
 				.status(StatusCodes.NOT_FOUND)
 				.json({ message: "Business owner profile not found" });
 		}
-		const result = await employeeService.createEmployee(req.body, owner._id);
+		const result = await taxService.createTaxSubmission(req.body, owner._id);
 		res.status(StatusCodes.CREATED).json(result);
 	} catch (err) {
 		next(err);
@@ -38,7 +38,7 @@ const getAllByOwner = async (req, res, next) => {
 			sortBy: sortBy || "createdAt",
 			sortOrder: sortOrder ? parseInt(sortOrder) : -1,
 		};
-		const result = await employeeService.listEmployees(
+		const result = await taxService.listTaxSubmissions(
 			owner._id,
 			filter,
 			options
@@ -58,7 +58,7 @@ const getById = async (req, res, next) => {
 				.status(StatusCodes.NOT_FOUND)
 				.json({ message: "Business owner profile not found" });
 		}
-		const result = await employeeService.getEmployeeById(
+		const result = await taxService.getTaxSubmissionById(
 			req.params.id,
 			owner._id
 		);
@@ -77,7 +77,7 @@ const update = async (req, res, next) => {
 				.status(StatusCodes.NOT_FOUND)
 				.json({ message: "Business owner profile not found" });
 		}
-		const result = await employeeService.updateEmployee(
+		const result = await taxService.updateTaxSubmission(
 			req.params.id,
 			req.body,
 			owner._id
@@ -97,7 +97,7 @@ const remove = async (req, res, next) => {
 				.status(StatusCodes.NOT_FOUND)
 				.json({ message: "Business owner profile not found" });
 		}
-		const result = await employeeService.deleteEmployee(
+		const result = await taxService.deleteTaxSubmission(
 			req.params.id,
 			owner._id
 		);
