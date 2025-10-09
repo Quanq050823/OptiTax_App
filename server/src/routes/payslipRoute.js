@@ -1,5 +1,5 @@
 import express from "express";
-import * as employeeController from "../controllers/employeeController.js";
+import * as payslipController from "../controllers/payslipController.js";
 import authorization from "../middlewares/authorizationMiddleware.js";
 import authenticate from "../middlewares/jwtMiddlewares.js";
 
@@ -8,34 +8,34 @@ router.post(
 	"/",
 	authenticate,
 	authorization(["user", "admin"]),
-	employeeController.create
+	payslipController.create
 );
 
 router.get(
 	"/",
 	authenticate,
 	authorization(["user", "admin"]),
-	employeeController.getAllByOwner
+	payslipController.getAllByOwner
 );
 
 router.get(
 	"/:id",
 	authenticate,
 	authorization(["user", "admin"]),
-	employeeController.getById
+	payslipController.getById
 );
 
 router.put(
 	"/:id",
 	authenticate,
 	authorization(["user", "admin"]),
-	employeeController.update
+	payslipController.update
 );
 
 router.delete(
 	"/:id",
 	authenticate,
 	authorization(["user", "admin"]),
-	employeeController.remove
+	payslipController.remove
 );
 export default router;

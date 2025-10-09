@@ -13,6 +13,7 @@ import storageItemRoute from "./storageItemRoute.js";
 import InvoicesInRoute from "./invoicesInRoute.js";
 import taxSubmissionRoute from "./taxSubmissionRoute.js";
 import employeeRoute from "./employeeRoute.js";
+import payslipRoute from "./payslipRoute.js";
 import { errorHandlingMiddleware } from "./../middlewares/errorHandlingMiddleware.js";
 import authenticate from "../middlewares/jwtMiddlewares.js";
 
@@ -37,6 +38,7 @@ export default (app) => {
 	app.use("/api/tax-submission", taxSubmissionRoute);
 
 	app.use("/api/employees", employeeRoute);
+	app.use("/api/payslip", payslipRoute);
 
 	app.use(errorHandlingMiddleware);
 };
