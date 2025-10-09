@@ -52,6 +52,7 @@ import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 
 import InventoryManagementScreen from "@/src/presentation/screens/BusinessOwnerScreen/InventoryManagementScreen/InventoryManagementScreen";
 import ExportExcel from "@/src/presentation/screens/ReportExport/ExportExcel";
+import TaxScreen from "../presentation/screens/BusinessOwnerScreen/TaxScreen/TaxScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
@@ -327,6 +328,13 @@ const HomeLayout = () => {
           title: "Kho hàng",
         }}
         component={ExportExcel}
+      />
+      <Stack.Screen
+        name="TaxScreen"
+        options={{
+          title: "Thuế",
+        }}
+        component={TaxScreen}
       />
     </Stack.Navigator>
   );
