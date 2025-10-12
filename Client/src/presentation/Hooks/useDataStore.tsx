@@ -8,9 +8,11 @@ import {
   getUserProfile,
 } from "@/src/services/API/profileService";
 import { getInvoiceIn } from "@/src/services/API/syncInvoiceIn";
+import { getTaxList } from "@/src/services/API/taxService";
 import { getVoucherPayment } from "@/src/services/API/voucherService";
 import { InvoiceSummary } from "@/src/types/invoiceIn";
 import { Invoice, Profile, UserProfile } from "@/src/types/route";
+import { TaxItem } from "@/src/types/tax";
 import { PaymentVoucher, VoucherPaymentResponse } from "@/src/types/voucher";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -19,6 +21,7 @@ interface DataContextType {
   data: Profile | null;
   invoicesInput: Invoice[];
   invoicesOutput: Invoice[];
+  taxList: TaxItem[];
   invoiceInputDataSync: InvoiceSummary[];
   voucherPayList: PaymentVoucher[];
   setData: React.Dispatch<React.SetStateAction<Profile | null>>;
@@ -39,7 +42,7 @@ export const DataProvider = ({ children }: DataProviderProps) => {
     InvoiceSummary[]
   >([]);
   const [voucherPayList, setVoucherPayList] = useState<PaymentVoucher[]>([]);
-
+  const [taxList, setTaxList] = useState<TaxItem[]>([]);
   const fetchData = async () => {
     try {
       const user: UserProfile = await getUserProfile();
@@ -58,6 +61,9 @@ export const DataProvider = ({ children }: DataProviderProps) => {
 
       const data = await getInvoiceOutputList();
       setInvoicesOutput(data.data ?? []);
+
+      const dataTax = await getTaxList();
+      setTaxList(dataTax.data);
 
       const voucherData: VoucherPaymentResponse = await getVoucherPayment();
       console.log(voucherData, "voucher payment");
@@ -83,6 +89,7 @@ export const DataProvider = ({ children }: DataProviderProps) => {
         setInvoicesOutput,
         fetchData,
         invoiceInputDataSync,
+        taxList,
         voucherPayList,
       }}
     >

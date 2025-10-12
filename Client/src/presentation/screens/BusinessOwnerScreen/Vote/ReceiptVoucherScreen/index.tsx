@@ -1,5 +1,6 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import ModalAddReceiptVourcher from "@/src/presentation/components/Modal/ModalAddReceiptVourcher/ModalAddReceiptVourcher";
+import { phieuThu } from "@/src/types/route";
 import { AntDesign } from "@expo/vector-icons";
 import * as React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";

@@ -28,6 +28,7 @@ import InvoiceOutput from "@/src/presentation/screens/BusinessOwnerScreen/Invoic
 import { exportInvoiceOutputS1 } from "@/src/presentation/Controller/ExportInvoiceOutputS1";
 import { exportInvoiceInputS2 } from "@/src/presentation/Controller/ExportInvoiceinputS2";
 import { exportCulateTotalCost } from "@/src/presentation/Controller/ExportalCulateTotalCost";
+import { ExportTaxSubmitS4 } from "../../Controller/ExportTaxSubmit";
 
 type Feature = {
   key: string;
@@ -364,6 +365,7 @@ export default function ReportExport() {
     invoiceInputDataSync,
     voucherPayList,
     fetchData,
+    taxList,
   } = useData();
 
   useEffect(() => {
@@ -432,7 +434,16 @@ export default function ReportExport() {
     {
       key: "Tax",
       label: "Tình hình thực hiện nghĩa vụ thuế",
-      // action: handleExportPDF,
+      action: () =>
+        ExportTaxSubmitS4({
+          mode,
+          selectedDate,
+          range,
+          taxList,
+          profile,
+          setLoading,
+          invoicesOutput,
+        }),
     },
     {
       key: "Pay",
