@@ -170,6 +170,7 @@ export interface Invoice {
   dvtte: string;
   hdhhdvu: InvoiceProduct[];
   ttxly?: number | null;
+  tgtttbso: number
 }
 
 export interface InvoicePagination {

@@ -2,7 +2,7 @@ import { ColorMain } from "@/src/presentation/components/colors";
 import { StyleSheet, Text, View } from "react-native";
 
 type TagItem = {
-  content: string;
+  content?: string;
 };
 function TagItem({ content }: TagItem) {
   return (
@@ -19,7 +19,6 @@ function TagItem({ content }: TagItem) {
           shadowOpacity: 0.2,
           shadowRadius: 2,
           elevation: 3, // Android
-
           position: "absolute",
           top: 0,
           right: 8,
