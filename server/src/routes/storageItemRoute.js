@@ -43,6 +43,13 @@ router.post(
 	storageItemController.syncStorageItems
 );
 
+router.post(
+	"/:id/gen-type",
+	authenticate,
+	authorization(["user", "admin"]),
+	storageItemController.genTypeItem
+);
+
 router.delete(
 	"/:id",
 	authenticate,

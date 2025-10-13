@@ -204,6 +204,31 @@ const syncStorageItems = async (req, res, next) => {
 	}
 };
 
+const genTypeItem = async (req, res, next) => {
+	try {
+		const userId = req.user.userId;
+		const owner = await getBusinessOwnerByUserId(userId);
+		if (!owner) {
+			return res
+				.status(StatusCodes.NOT_FOUND)
+				.json({ message: "Business owner profile not found" });
+		}
+		if (!req.body.category) {
+			return res
+				.status(StatusCodes.BAD_REQUEST)
+				.json({ message: "Missing category" });
+		}
+		const result = await storageItemService.generateTypeItems(
+			req.params.id,
+			req.body,
+			owner._id
+		);
+		res.status(StatusCodes.OK).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
 export {
 	create,
 	getById,
@@ -212,4 +237,5 @@ export {
 	remove,
 	namesAndUnits,
 	syncStorageItems,
+	genTypeItem,
 };

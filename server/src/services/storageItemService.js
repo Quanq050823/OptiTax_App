@@ -48,8 +48,7 @@ const listStorageItems = async (businessOwnerId, filter = {}, options = {}) => {
 const updateStorageItem = async (id, data, businessOwnerId) => {
 	const item = await StorageItem.findOneAndUpdate(
 		{ _id: id, businessOwnerId },
-		data,
-		{ new: true }
+		data
 	);
 	if (!item)
 		throw new ApiError(StatusCodes.NOT_FOUND, "Storage item not found");
@@ -63,10 +62,22 @@ const deleteStorageItem = async (id, businessOwnerId) => {
 	return item;
 };
 
+const generateTypeItems = async (id, data, businessOwnerId) => {
+	const item = await StorageItem.findOneAndUpdate(
+		{ _id: id, businessOwnerId },
+		{ category: data.category, syncStatus: true },
+		{ new: true }
+	);
+	if (!item)
+		throw new ApiError(StatusCodes.NOT_FOUND, "Storage item not found");
+	return item;
+};
+
 export {
 	createStorageItem,
 	getStorageItemById,
 	listStorageItems,
 	updateStorageItem,
 	deleteStorageItem,
+	generateTypeItems,
 };
