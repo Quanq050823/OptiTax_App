@@ -73,6 +73,62 @@ const list = async (req, res, next) => {
 	}
 };
 
+const listStorageItems = async (req, res, next) => {
+	try {
+		const userId = req.user.userId;
+		const owner = await getBusinessOwnerByUserId(userId);
+		if (!owner) {
+			return res
+				.status(StatusCodes.NOT_FOUND)
+				.json({ message: "Business owner profile not found" });
+		}
+		const { page, limit, sortBy, sortOrder, ...filter } = req.query;
+		const options = {
+			page: parseInt(page) || 1,
+			limit: parseInt(limit) || 10,
+			sortBy: sortBy || "createdAt",
+			sortOrder: sortOrder ? parseInt(sortOrder) : -1,
+		};
+		const syncedFilter = { ...filter, syncStatus: true };
+		const result = await storageItemService.listStorageItems(
+			owner._id,
+			syncedFilter,
+			options
+		);
+		res.status(StatusCodes.OK).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
+const listNewSyncItem = async (req, res, next) => {
+	try {
+		const userId = req.user.userId;
+		const owner = await getBusinessOwnerByUserId(userId);
+		if (!owner) {
+			return res
+				.status(StatusCodes.NOT_FOUND)
+				.json({ message: "Business owner profile not found" });
+		}
+		const { page, limit, sortBy, sortOrder, ...filter } = req.query;
+		const options = {
+			page: parseInt(page) || 1,
+			limit: parseInt(limit) || 10,
+			sortBy: sortBy || "createdAt",
+			sortOrder: sortOrder ? parseInt(sortOrder) : -1,
+		};
+		const newSyncFilter = { ...filter, syncStatus: false };
+		const result = await storageItemService.listStorageItems(
+			owner._id,
+			newSyncFilter,
+			options
+		);
+		res.status(StatusCodes.OK).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
 const update = async (req, res, next) => {
 	try {
 		const userId = req.user.userId;
@@ -233,6 +289,8 @@ export {
 	create,
 	getById,
 	list,
+	listStorageItems,
+	listNewSyncItem,
 	update,
 	remove,
 	namesAndUnits,

@@ -18,6 +18,18 @@ router.get(
 	storageItemController.list
 );
 router.get(
+	"/synced",
+	authenticate,
+	authorization(["user", "admin"]),
+	storageItemController.listStorageItems
+);
+router.get(
+	"/new-sync",
+	authenticate,
+	authorization(["user", "admin"]),
+	storageItemController.listNewSyncItem
+);
+router.get(
 	"/names-units",
 	authenticate,
 	authorization(["user", "admin"]),
