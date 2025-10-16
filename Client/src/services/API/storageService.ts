@@ -129,3 +129,39 @@ export const getProductsInventoryById = async (
     throw error;
   }
 };
+
+export const assignCategoryForProducts = async (
+  products: ProductInventory[],
+  category: number
+) => {
+  if (!products.length) {
+    Alert.alert("⚠️ Chưa có sản phẩm nào được chọn!");
+    return;
+  }
+
+  try {
+    const requests = products.map((item) => {
+      // 🧭 Log endpoint trước khi gọi
+      console.log(
+        "🔗 Endpoint:",
+        axiosInstance.defaults.baseURL + `storage-item/${item._id}/gen-type`
+      );
+      console.log("📦 Payload:", { category });
+
+      return axiosInstance.post(`storage-item/${item._id}/gen-type`, 
+        category,
+      );
+    });
+
+    await Promise.all(requests);
+
+    Alert.alert("✅ Thành công", `Đã cập nhật ${products.length} sản phẩm!`);
+  } catch (error: any) {
+    console.error(
+      "❌ Lỗi cập nhật category:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+    Alert.alert("Lỗi", "Không thể cập nhật category. Vui lòng thử lại!");
+  }
+};

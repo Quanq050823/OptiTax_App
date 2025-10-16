@@ -3,6 +3,7 @@ import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import ModalAddProduct from "@/src/presentation/components/Modal/ModalAddProduct/ModalAddProduct";
 import ModalAddProductInventory from "@/src/presentation/components/Modal/ModalAddProductInventory";
 import ModalEditProduct from "@/src/presentation/components/Modal/ModalEditProduct/ModalEditProduct";
+import NewIngredientButton from "@/src/presentation/components/NewIngredientButton";
 import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import {
@@ -31,6 +32,7 @@ import {
 } from "@/src/types/storage";
 import {
   AntDesign,
+  Entypo,
   Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
@@ -85,7 +87,9 @@ export default function InventoryManagerScreen() {
   const [productsInventory, setProductsInventory] = useState<
     ProductInventory[]
   >([]);
-
+  const [productInventoryNew, setProductsInventoryNew] = useState<
+    ProductInventory[]
+  >([]);
   const [idEditProduct, setIdEditProduct] = useState<string>("");
   const [showAction, setShowAction] = useState<string | null>(null);
   const [showEditProduct, setShowEditProduct] = useState<string | null>(null);
@@ -117,7 +121,15 @@ export default function InventoryManagerScreen() {
       const res = await getProductsInventory();
       console.log(res, "duwx ");
 
-      setProductsInventory(res.data ?? []);
+      const filteredData = (res.data ?? []).filter(
+        (item) => item.syncStatus === true
+      );
+      const unsyncedProducts = res.data.filter(
+        (item) => item.syncStatus === false
+      );
+
+      setProductsInventory(filteredData);
+      setProductsInventoryNew(unsyncedProducts);
     } catch {
       console.log("Lỗi! Chưa có dữ liệu!");
       setProductsInventory([]);
@@ -128,6 +140,9 @@ export default function InventoryManagerScreen() {
   useEffect(() => {
     fetchDataProductInventory();
   }, []);
+
+  console.log(productInventoryNew.length);
+
   useEffect(() => {
     if (productScan) {
       setVisible(true);
@@ -272,27 +287,41 @@ export default function InventoryManagerScreen() {
                 flex: 1,
                 backgroundColor: "#2d303648",
                 inset: 0,
-                alignItems: "center"
+                alignItems: "center",
               }}
             >
-              <TouchableOpacity                 onPress={() => handleOpenModalEditProduct(item._id)}
- style={{flexDirection: "row", backgroundColor: "#fff", alignItems: "center", padding: 10, borderRadius: 10}}>
-              
-              <AntDesign
-                name="edit"
-                size={24}
-                color={ColorMain}
-              /><Text style={{marginLeft: 10}}>Chỉnh sửa</Text></TouchableOpacity>
-              <TouchableOpacity                 onPress={() => handleOpenModalEditProduct(item._id)}
- style={{flexDirection: "row", backgroundColor: "#fff", alignItems: "center", padding: 10, borderRadius: 10, marginTop: 20}}>
-              
-             <MaterialIcons
-                name="delete-outline"
-                size={24}
-                color="red"
-                onPress={() => handleDeleteProductInventory(item._id)}
-              /><Text style={{marginLeft: 10}}>Xóa</Text></TouchableOpacity>
-              
+              <TouchableOpacity
+                onPress={() => handleOpenModalEditProduct(item._id)}
+                style={{
+                  flexDirection: "row",
+                  backgroundColor: "#fff",
+                  alignItems: "center",
+                  padding: 10,
+                  borderRadius: 10,
+                }}
+              >
+                <AntDesign name="edit" size={24} color={ColorMain} />
+                <Text style={{ marginLeft: 10 }}>Chỉnh sửa</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => handleOpenModalEditProduct(item._id)}
+                style={{
+                  flexDirection: "row",
+                  backgroundColor: "#fff",
+                  alignItems: "center",
+                  padding: 10,
+                  borderRadius: 10,
+                  marginTop: 20,
+                }}
+              >
+                <MaterialIcons
+                  name="delete-outline"
+                  size={24}
+                  color="red"
+                  onPress={() => handleDeleteProductInventory(item._id)}
+                />
+                <Text style={{ marginLeft: 10 }}>Xóa</Text>
+              </TouchableOpacity>
             </View>
             <View
               style={{
@@ -389,18 +418,30 @@ export default function InventoryManagerScreen() {
                 />
               </TouchableOpacity>
             </View>
-            <View style={{ width: "100%", alignItems: "flex-end", flexDirection: "row", justifyContent: "space-between" }}>
+            <View
+              style={{
+                width: "100%",
+                alignItems: "flex-end",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
               <TouchableOpacity
                 style={styles.btnSyn}
                 onPress={handleSyncProductFromInvoiceIn}
               >
-                <Text style={{ color: "#fff" }}>Thêm nguyên liệu</Text>
+                <Text style={{ color: "#fff" }}>Đồng bộ </Text>
+                <Entypo name="arrow-bold-down" size={17} color="#fff" />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.btnSyn}
-                onPress={handleSyncProductFromInvoiceIn}
+                onPress={() => navigate.navigate("NewIngredientList")}
               >
-                <Text style={{ color: "#fff" }}>Đồng bộ nguyên liệu</Text>
+                <Text style={{ color: "#fff" }}>Nguyên liệu mới </Text>
+                <Entypo name="new-message" size={17} color="#fff" />
+                {productInventoryNew.length > 0 && (
+                  <NewIngredientButton quantity={productInventoryNew.length} />
+                )}
               </TouchableOpacity>
             </View>
           </View>
@@ -434,7 +475,6 @@ export default function InventoryManagerScreen() {
                 title="Đang tải dữ liệu..."
               />
             }
-
           />
           <TouchableOpacity
             style={styles.addButton}
@@ -452,8 +492,7 @@ export default function InventoryManagerScreen() {
             newProduct={newProduct}
             setNewProduct={setNewProduct}
             fetchData={fetchDataProductInventory}
-            setNewProductInvenEdit={() => { }}
-
+            setNewProductInvenEdit={() => {}}
           />
           {showEditProduct && (
             <ModalAddProductInventory
@@ -560,5 +599,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     minWidth: 50,
     marginTop: 20,
+    flexDirection: "row",
+    position: "relative",
   },
 });
