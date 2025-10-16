@@ -7,6 +7,7 @@ export interface ProductInventory {
   createdAt: string;
   updatedAt: string;
   businessOwnerId: string;
+  syncStatus: boolean;
   __v: number;
 }
 

@@ -22,6 +22,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TokenStorage } from "@/src/utils/tokenStorage";
 import { RootStackParamList } from "@/src/types/route";
 import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
+import Employees from "../../Employees/Employees";
 type LoginNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const CustomDrawerBusiness = (props: any) => {
@@ -127,6 +128,7 @@ const CustomDrawerBusiness = (props: any) => {
       </View>
       <InvoiceManageShow {...props} />
       <VoteManager {...props} />
+      <Employees {...props} />
       <Setting {...props} />
       <CustomDrawerItem
         label="Tài khoản"
