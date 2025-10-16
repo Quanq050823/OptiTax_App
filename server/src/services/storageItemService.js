@@ -73,6 +73,25 @@ const generateTypeItems = async (id, data, businessOwnerId) => {
 	return item;
 };
 
+const updateUnitConversion = async (id, conversionData, businessOwnerId) => {
+	const updateData = {
+		conversionUnit: {
+			...conversionData,
+			isActive: true,
+		},
+	};
+
+	const item = await StorageItem.findOneAndUpdate(
+		{ _id: id, businessOwnerId },
+		updateData,
+		{ new: true }
+	);
+
+	if (!item)
+		throw new ApiError(StatusCodes.NOT_FOUND, "Storage item not found");
+	return item;
+};
+
 export {
 	createStorageItem,
 	getStorageItemById,
@@ -80,4 +99,5 @@ export {
 	updateStorageItem,
 	deleteStorageItem,
 	generateTypeItems,
+	updateUnitConversion,
 };

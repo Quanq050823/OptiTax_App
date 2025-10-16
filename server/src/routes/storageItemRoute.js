@@ -62,6 +62,13 @@ router.post(
 	storageItemController.genTypeItem
 );
 
+router.put(
+	"/:id/unit-conversion",
+	authenticate,
+	authorization(["user", "admin"]),
+	storageItemController.updateUnitConversion
+);
+
 router.delete(
 	"/:id",
 	authenticate,

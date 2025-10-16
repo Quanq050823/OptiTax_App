@@ -285,6 +285,69 @@ const genTypeItem = async (req, res, next) => {
 	}
 };
 
+const updateUnitConversion = async (req, res, next) => {
+	try {
+		const userId = req.user.userId;
+		const owner = await getBusinessOwnerByUserId(userId);
+		if (!owner) {
+			return res
+				.status(StatusCodes.NOT_FOUND)
+				.json({ message: "Business owner profile not found" });
+		}
+
+		const { from, to } = req.body;
+
+		// Validate required fields
+		if (!from || !to) {
+			return res.status(StatusCodes.BAD_REQUEST).json({
+				message: "Missing required fields: from, to",
+			});
+		}
+
+		// Validate from and to objects
+		if (!from.itemQuantity || !to.itemName || !to.itemQuantity) {
+			return res.status(StatusCodes.BAD_REQUEST).json({
+				message: "from and to must contain itemName and itemQuantity",
+			});
+		}
+
+		// Validate quantities are numbers and greater than 0
+		if (
+			typeof from.itemQuantity !== "number" ||
+			typeof to.itemQuantity !== "number" ||
+			from.itemQuantity <= 0 ||
+			to.itemQuantity <= 0
+		) {
+			return res.status(StatusCodes.BAD_REQUEST).json({
+				message: "itemQuantity must be a positive number",
+			});
+		}
+
+		// Automatically calculate conversionRate
+		const conversionRate = to.itemQuantity / from.itemQuantity;
+
+		const conversionData = {
+			from,
+			to,
+			conversionRate,
+		};
+
+		const result = await storageItemService.updateUnitConversion(
+			req.params.id,
+			conversionData,
+			owner._id
+		);
+
+		res.status(StatusCodes.OK).json({
+			message: "Unit conversion updated successfully",
+			conversionRate: conversionRate,
+			data: result,
+		});
+	} catch (err) {
+		next(err);
+	}
+};
+
 export {
 	create,
 	getById,
@@ -296,4 +359,5 @@ export {
 	namesAndUnits,
 	syncStorageItems,
 	genTypeItem,
+	updateUnitConversion,
 };
