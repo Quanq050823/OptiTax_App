@@ -42,6 +42,7 @@ type RootStackParamList = {
   PaymentVoucherDetail: {
     voucher: PaymentVoucher;
   };
+  ExportInvoicePayment: undefined
   SelectElectronicInvoice: {
     digitalSignature: {
       label: string;

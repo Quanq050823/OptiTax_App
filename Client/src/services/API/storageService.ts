@@ -142,15 +142,17 @@ export const assignCategoryForProducts = async (
   try {
     const requests = products.map((item) => {
       // 🧭 Log endpoint trước khi gọi
+          console.log("📦 Dữ liệu gửi lên:", JSON.stringify({ category }, null, 2));
+
       console.log(
         "🔗 Endpoint:",
         axiosInstance.defaults.baseURL + `storage-item/${item._id}/gen-type`
       );
       console.log("📦 Payload:", { category });
 
-      return axiosInstance.post(`storage-item/${item._id}/gen-type`, 
+      return axiosInstance.post(`storage-item/${item._id}/gen-type`, {
         category,
-      );
+      });
     });
 
     await Promise.all(requests);

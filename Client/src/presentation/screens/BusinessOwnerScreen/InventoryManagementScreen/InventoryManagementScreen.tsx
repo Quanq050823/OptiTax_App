@@ -105,7 +105,8 @@ export default function InventoryManagerScreen() {
   const ITEM_MARGIN = 8;
   const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
   const [loadingMore, setLoadingMore] = useState(false);
-
+  const [isActive, setIsActive] = useState(false);
+  const [toolsList, setToolsList] = useState<ProductInventory[]>([]);
   const [newProduct, setNewProduct] = useState<NewProductInventory>({
     name: "",
     unit: "",
@@ -121,14 +122,21 @@ export default function InventoryManagerScreen() {
       const res = await getProductsInventory();
       console.log(res, "duwx ");
 
-      const filteredData = (res.data ?? []).filter(
+      const syncedProducts = (res.data ?? []).filter(
         (item) => item.syncStatus === true
       );
       const unsyncedProducts = res.data.filter(
         (item) => item.syncStatus === false
       );
-
-      setProductsInventory(filteredData);
+      // ✅ Lọc thêm theo category
+      const category1Products = syncedProducts.filter(
+        (item) => item.category === 1
+      );
+      const category2Products = syncedProducts.filter(
+        (item) => item.category === 2
+      );
+      setProductsInventory(category1Products);
+      setToolsList(category2Products); // dụng cụ
       setProductsInventoryNew(unsyncedProducts);
     } catch {
       console.log("Lỗi! Chưa có dữ liệu!");
@@ -360,6 +368,46 @@ export default function InventoryManagerScreen() {
   };
   return (
     <View style={styles.container}>
+      <View style={styles.cateWrapper}>
+        <TouchableOpacity
+          style={[
+            styles.cateItem,
+            !isActive && {
+              borderBottomWidth: 3,
+              borderColor: ColorMain,
+            },
+          ]}
+          onPress={() => setIsActive(false)}
+        >
+          <Text
+            style={[
+              styles.textCate,
+              !isActive && { color: ColorMain, fontWeight: "700" },
+            ]}
+          >
+            Nguyên liệu
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.cateItem,
+            isActive && {
+              borderBottomWidth: 3,
+              borderColor: ColorMain,
+            },
+          ]}
+          onPress={() => setIsActive(true)}
+        >
+          <Text
+            style={[
+              styles.textCate,
+              isActive && { color: ColorMain, fontWeight: "700" },
+            ]}
+          >
+            Dụng cụ
+          </Text>
+        </TouchableOpacity>
+      </View>
       {loading ? (
         <LoadingScreen visible={loading} />
       ) : productsInventory ? (
@@ -452,36 +500,67 @@ export default function InventoryManagerScreen() {
           placeholderTextColor="#999"
         />
       </View> */}
-          <FlatList
-            data={productsInventory}
-            keyExtractor={(item) => item._id}
-            renderItem={renderItem}
-            contentContainerStyle={{
-              paddingBottom: 80,
-              paddingHorizontal: 5,
-              marginTop: 20,
-            }}
-            columnWrapperStyle={{
-              justifyContent: "space-between",
-              marginTop: 20,
-            }}
-            numColumns={2}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                colors={["#FF6B00"]} // màu xoay (Android)
-                tintColor="#FF6B00" // màu xoay (iOS)
-                title="Đang tải dữ liệu..."
+          <>
+            {!isActive ? (
+              <FlatList
+                data={productsInventory}
+                keyExtractor={(item) => item._id}
+                renderItem={renderItem}
+                contentContainerStyle={{
+                  paddingBottom: 80,
+                  paddingHorizontal: 5,
+                  marginTop: 20,
+                }}
+                columnWrapperStyle={{
+                  justifyContent: "space-between",
+                  marginTop: 20,
+                }}
+                numColumns={2}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    colors={["#FF6B00"]} // màu xoay (Android)
+                    tintColor="#FF6B00" // màu xoay (iOS)
+                    title="Đang tải dữ liệu..."
+                  />
+                }
               />
-            }
-          />
+            ) : (
+              <>
+                <FlatList
+                  data={toolsList}
+                  keyExtractor={(item) => item._id}
+                  renderItem={renderItem}
+                  contentContainerStyle={{
+                    paddingBottom: 80,
+                    paddingHorizontal: 5,
+                    marginTop: 20,
+                  }}
+                  columnWrapperStyle={{
+                    justifyContent: "space-between",
+                    marginTop: 20,
+                  }}
+                  numColumns={2}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      colors={["#FF6B00"]} // màu xoay (Android)
+                      tintColor="#FF6B00" // màu xoay (iOS)
+                      title="Đang tải dữ liệu..."
+                    />
+                  }
+                />
+              </>
+            )}
+          </>
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => setVisible(true)}
           >
             <Ionicons name="add" size={28} color="#fff" />
-            <Text style={styles.addText}>Thêm sản phẩm</Text>
+            <Text style={styles.addText}>Thêm mặt hàng kho</Text>
           </TouchableOpacity>
           <ModalAddProductInventory
             visible={visible}
@@ -602,4 +681,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     position: "relative",
   },
+  cateWrapper: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    height: 50,
+    backgroundColor: "#fff",
+    shadowColor: ColorMain,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+  },
+  cateItem: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 8,
+  },
+  textCate: { fontSize: 16, color: "#9c9c9cff" },
 });
