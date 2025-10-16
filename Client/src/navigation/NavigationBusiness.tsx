@@ -55,6 +55,7 @@ import ExportExcel from "@/src/presentation/screens/ReportExport/ExportExcel";
 import TaxScreen from "../presentation/screens/BusinessOwnerScreen/TaxScreen/TaxScreen";
 import EmployeesScreen from "../presentation/screens/BusinessOwnerScreen/EmployeesScreen/Employees";
 import NewIngredientList from "../presentation/screens/BusinessOwnerScreen/NewIngredientList/NewIngredientList";
+import ExportInvoicePayment from "../presentation/screens/BusinessOwnerScreen/ExportInvoicePayment/ExportInvoicePayment";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
@@ -351,6 +352,13 @@ const HomeLayout = () => {
           title: "Nhân viên",
         }}
         component={EmployeesScreen}
+      />
+      <Stack.Screen
+        name="ExportInvoicePayment"
+        options={{
+          title: "Hóa đơn mới",
+        }}
+        component={ExportInvoicePayment}
       />
     </Stack.Navigator>
   );

@@ -146,29 +146,39 @@ function NewIngredientList() {
           )}
         </TouchableOpacity>
       </View>
-      <FlatList
-        data={newIngredientList}
-        keyExtractor={(item) => item._id}
-        renderItem={renderItem}
-        contentContainerStyle={{
-          paddingBottom: 80,
-          paddingHorizontal: 5,
-        }}
-        columnWrapperStyle={{
-          justifyContent: "space-between",
-          marginTop: 20,
-        }}
-        numColumns={2}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={["#FF6B00"]} // màu xoay (Android)
-            tintColor="#FF6B00" // màu xoay (iOS)
-            title="Đang tải dữ liệu..."
-          />
-        }
-      />
+      {newIngredientList.length > 0 ? (
+        <FlatList
+          data={newIngredientList}
+          keyExtractor={(item) => item._id}
+          renderItem={renderItem}
+          contentContainerStyle={{
+            paddingBottom: 80,
+            paddingHorizontal: 5,
+          }}
+          columnWrapperStyle={{
+            justifyContent: "space-between",
+            marginTop: 20,
+          }}
+          numColumns={2}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={["#FF6B00"]} // màu xoay (Android)
+              tintColor="#FF6B00" // màu xoay (iOS)
+              title="Đang tải dữ liệu..."
+            />
+          }
+        />
+      ) : (
+        <View
+          style={{ flex: 1, alignContent: "center", justifyContent: "center" }}
+        >
+          <Text style={{ textAlign: "center", marginBottom: 100 }}>
+            Không có nguyên liệu mới
+          </Text>
+        </View>
+      )}
       {selected && (
         <TouchableOpacity
           onPress={() => setOpenModalAddCate(true)}

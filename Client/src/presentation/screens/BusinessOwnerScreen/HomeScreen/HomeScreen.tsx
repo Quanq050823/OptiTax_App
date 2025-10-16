@@ -103,7 +103,6 @@ function HomeScreen(): React.JSX.Element {
       label: "Thuế",
       icon: <FontAwesome5 name="money-bill-wave" size={24} color="#0e4224ff" />,
       navigate: () => navigate.navigate("TaxScreen"),
-
     },
     {
       key: "staff",
@@ -186,6 +185,18 @@ function HomeScreen(): React.JSX.Element {
       navigate: () => {
         navigate.navigate("PaymentVoucherScreen");
       },
+    },
+    {
+      key: "invoicePay",
+      label: "Xuất hóa đơn",
+      icon: (
+        <MaterialCommunityIcons
+          name="invoice-text-plus"
+          size={32}
+          color="black"
+        />
+      ),
+      navigate: () => navigate.navigate("ExportInvoicePayment"),
     },
   ];
   const accfeatures = [

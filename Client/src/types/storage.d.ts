@@ -9,6 +9,7 @@ export interface ProductInventory {
   businessOwnerId: string;
   syncStatus: boolean;
   __v: number;
+  category: number
 }
 
 export interface ProductInventoryList {
