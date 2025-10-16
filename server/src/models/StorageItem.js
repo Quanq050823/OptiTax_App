@@ -15,11 +15,12 @@ const StorageItemSchema = new mongoose.Schema(
 			from: {
 				itemQuantity: { type: Number },
 			},
-			to: {
-				itemName: { type: String },
-				itemQuantity: { type: Number },
-			},
-			conversionRate: { type: Number },
+			to: [
+				{
+					itemName: { type: String },
+					itemQuantity: { type: Number },
+				},
+			],
 			isActive: { type: Boolean, default: false },
 		},
 		businessOwnerId: {

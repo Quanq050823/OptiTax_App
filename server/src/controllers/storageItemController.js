@@ -304,32 +304,46 @@ const updateUnitConversion = async (req, res, next) => {
 			});
 		}
 
-		// Validate from and to objects
-		if (!from.itemQuantity || !to.itemName || !to.itemQuantity) {
+		// Validate from object
+		if (!from.itemQuantity) {
 			return res.status(StatusCodes.BAD_REQUEST).json({
-				message: "from and to must contain itemName and itemQuantity",
+				message: "from must contain itemQuantity",
 			});
 		}
 
-		// Validate quantities are numbers and greater than 0
-		if (
-			typeof from.itemQuantity !== "number" ||
-			typeof to.itemQuantity !== "number" ||
-			from.itemQuantity <= 0 ||
-			to.itemQuantity <= 0
-		) {
+		// Validate to is array
+		if (!Array.isArray(to) || to.length === 0) {
 			return res.status(StatusCodes.BAD_REQUEST).json({
-				message: "itemQuantity must be a positive number",
+				message: "to must be a non-empty array of conversion units",
 			});
 		}
 
-		// Automatically calculate conversionRate
-		const conversionRate = to.itemQuantity / from.itemQuantity;
+		// Validate each item in to array
+		for (let i = 0; i < to.length; i++) {
+			const toItem = to[i];
+			if (!toItem.itemName || !toItem.itemQuantity) {
+				return res.status(StatusCodes.BAD_REQUEST).json({
+					message: `to[${i}] must contain itemName and itemQuantity`,
+				});
+			}
+
+			if (typeof toItem.itemQuantity !== "number" || toItem.itemQuantity <= 0) {
+				return res.status(StatusCodes.BAD_REQUEST).json({
+					message: `to[${i}].itemQuantity must be a positive number`,
+				});
+			}
+		}
+
+		// Validate from quantity
+		if (typeof from.itemQuantity !== "number" || from.itemQuantity <= 0) {
+			return res.status(StatusCodes.BAD_REQUEST).json({
+				message: "from.itemQuantity must be a positive number",
+			});
+		}
 
 		const conversionData = {
 			from,
 			to,
-			conversionRate,
 		};
 
 		const result = await storageItemService.updateUnitConversion(
@@ -340,7 +354,6 @@ const updateUnitConversion = async (req, res, next) => {
 
 		res.status(StatusCodes.OK).json({
 			message: "Unit conversion updated successfully",
-			conversionRate: conversionRate,
 			data: result,
 		});
 	} catch (err) {
