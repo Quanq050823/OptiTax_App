@@ -386,6 +386,7 @@ const NavigationBusiness = () => {
           drawerActiveTintColor: "#000",
           headerTintColor: "black",
           headerShown: false,
+          drawerPosition: "right",
         }}
         drawerContent={(props) => <CustomDrawerBusiness {...props} />}
       >

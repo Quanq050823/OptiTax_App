@@ -28,6 +28,7 @@ import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import * as FileSystem from "expo-file-system";
 import * as ImageManipulator from "expo-image-manipulator";
 import ScanInvoice from "@/src/presentation/components/ScanInvoice/ScanInvoice";
+import { LinearGradient } from "expo-linear-gradient";
 
 type FileType = {
   uri: string;
@@ -327,20 +328,51 @@ function HomeScreen(): React.JSX.Element {
     <View style={{ flex: 1, width: "100%" }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        style={{ backgroundColor: "#f7f7f7ff", paddingHorizontal: 10 }}
+        style={{
+          backgroundColor: "#f7f7f7ff",
+          paddingHorizontal: 10,
+          paddingVertical: 10,
+        }}
       >
         <View style={styles.container}>
-          <Text
+          <View
             style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              marginLeft: 10,
-              textAlign: "left",
-              padding: 10,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 2,
+              elevation: 5, // 👈 hoạt động trên Android
+              borderRadius: 10,
+              position: "absolute",
+              top: -5,
+              left: -5,
+              zIndex: 1,
+              width: "45%",
             }}
           >
-            Tính năng
-          </Text>
+            <LinearGradient
+              colors={[ColorMain, "#6A7DB3"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 3 }}
+              style={{
+                borderTopLeftRadius: 10,
+                borderBottomRightRadius: 15,
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "bold",
+                  textAlign: "left",
+                  padding: 10,
+                  color: "#fff",
+                }}
+              >
+                Tính năng
+              </Text>
+            </LinearGradient>
+          </View>
           <View style={styles.gridContainer}>
             {features.map((item, index) => (
               <FeatureItem key={index} item={item} />
@@ -348,17 +380,46 @@ function HomeScreen(): React.JSX.Element {
           </View>
         </View>
         <View style={styles.container}>
-          <Text
+          <View
             style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              marginLeft: 10,
-              textAlign: "left",
-              padding: 10,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 2,
+              elevation: 5, // 👈 hoạt động trên Android
+              borderRadius: 10,
+              position: "absolute",
+              top: -5,
+              left: -5,
+              zIndex: 1,
+              width: "55%",
             }}
           >
-            Hoá đơn - Phiếu
-          </Text>
+            <LinearGradient
+              colors={[ColorMain, "#6A7DB3"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 3 }}
+              style={{
+                borderTopLeftRadius: 10,
+                borderBottomRightRadius: 15,
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "bold",
+                  textAlign: "left",
+                  padding: 10,
+                  color: "#fff",
+                }}
+              >
+                Hoá đơn - Phiếu
+              </Text>
+            </LinearGradient>
+          </View>
+          <View style={[styles.wrTitle, { width: "55%" }]}></View>
+
           <View style={styles.gridContainer}>
             {featuresInvoice.map((item, index) => (
               <FeatureItem key={index} item={item} />
@@ -404,17 +465,44 @@ function HomeScreen(): React.JSX.Element {
           </View>
         )} */}
         <View style={styles.container}>
-          <Text
+          <View
             style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              marginLeft: 10,
-              textAlign: "left",
-              padding: 10,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 2,
+              elevation: 5, // 👈 hoạt động trên Android
+              borderRadius: 10,
+              position: "absolute",
+              top: -5,
+              left: -5,
+              zIndex: 1,
+              width: "55%",
             }}
           >
-            Tính năng khác
-          </Text>
+            <LinearGradient
+              colors={[ColorMain, "#6A7DB3"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 3 }}
+              style={{
+                borderTopLeftRadius: 10,
+                borderBottomRightRadius: 15,
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "bold",
+                  textAlign: "left",
+                  padding: 10,
+                  color: "#fff",
+                }}
+              >
+                Tính năng khác
+              </Text>
+            </LinearGradient>
+          </View>
           <View style={styles.gridContainer}>
             {features2.map((item, index) => (
               <FeatureItem key={index} item={item} />
@@ -457,6 +545,26 @@ const styles = StyleSheet.create({
     elevation: 3,
     marginBottom: 20,
     marginTop: 10,
+    borderWidth: 0.2,
+    borderColor: ColorMain,
+    paddingTop: 40,
+  },
+  wrTitle: {
+    borderTopLeftRadius: 10,
+    borderBottomRightRadius: 15,
+    width: "35%",
+    alignItems: "center",
+    position: "absolute",
+    top: -5,
+    left: -5,
+    zIndex: 1,
+    shadowColor: "#9d9d9d",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.5,
+    elevation: 3,
   },
   page: {
     width: SCREEN_WIDTH,

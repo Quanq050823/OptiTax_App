@@ -9,8 +9,9 @@ import {
 
 type Quantity = {
   quantity: number;
+  width?: number;
 };
-export default function NewIngredientButton({ quantity }: Quantity) {
+export default function NewIngredientButton({ quantity, width }: Quantity) {
   const scale = useRef(new Animated.Value(1)).current;
   const rotate = useRef(new Animated.Value(0)).current;
 
@@ -69,6 +70,8 @@ export default function NewIngredientButton({ quantity }: Quantity) {
           styles.badge,
           {
             transform: [{ scale }, { rotate: rotateInterpolate }],
+            width: width ? width : 20,
+            height: width ? width : 20,
           },
         ]}
       >
@@ -98,7 +101,7 @@ const styles = StyleSheet.create({
     left: -7,
     backgroundColor: "#df1a1aff",
     borderRadius: 12,
-    minWidth: 20,
+    width: 20,
     height: 20,
     justifyContent: "center",
     alignItems: "center",

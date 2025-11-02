@@ -1,4 +1,4 @@
-import { ColorMain } from "@/src/presentation/components/colors";
+import { ColorMain, textColorMain } from "@/src/presentation/components/colors";
 import { StyleSheet } from "react-native";
 
 export const stylesAuth = StyleSheet.create({
@@ -28,8 +28,11 @@ export const stylesAuth = StyleSheet.create({
     flex: 1,
     width: "100%",
     alignItems: "center",
-    backgroundColor: "#f3f3f3df",
+    backgroundColor: "#fffffff8",
     paddingHorizontal: 10,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    paddingTop: 70,
   },
   inputWrapper: {
     position: "relative",
@@ -41,12 +44,12 @@ export const stylesAuth = StyleSheet.create({
   },
   input: {
     fontSize: 16,
-    marginBottom: 15,
+    marginBottom: 20,
     backgroundColor: "#fff",
     shadowColor: "#9d9d9d",
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
+    shadowOpacity: 0.5,
+    shadowRadius: 1,
     elevation: 5,
     width: "100%",
     color: "#000",
@@ -54,7 +57,7 @@ export const stylesAuth = StyleSheet.create({
   btnLogin: {
     backgroundColor: ColorMain,
     height: 50,
-    borderRadius: 5,
+    borderRadius: 50,
     justifyContent: "center",
     alignItems: "center",
     width: "100%",
@@ -69,7 +72,9 @@ export const stylesAuth = StyleSheet.create({
     alignItems: "center",
   },
   FogotPassTitle: {
-    color: ColorMain,
+    color: textColorMain,
+    fontSize: 16,
+    fontWeight: "600",
   },
-  actionCase: { flexDirection: "row", justifyContent: "space-between" },
+  actionCase: {},
 });

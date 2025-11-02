@@ -11,6 +11,9 @@ import {
   Dimensions,
   Animated,
   ActivityIndicator,
+  ImageBackground,
+  Image,
+  Alert,
 } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { CalendarDate } from "react-native-paper-dates/lib/typescript/Date/Calendar";
@@ -385,8 +388,13 @@ export default function ReportExport() {
   });
 
   const renderRadio = (checked: boolean) => (
-    <View style={styles.radioOuter}>
-      {checked && <View style={styles.radioInner} />}
+    <View
+      style={[
+        styles.radioOuter,
+        { borderColor: checked ? "#fff" : "#a4a4a4ff" },
+      ]}
+    >
+      {checked && <View style={[styles.radioInner]} />}
     </View>
   );
 
@@ -525,7 +533,7 @@ export default function ReportExport() {
           style={[
             styles.item,
             {
-              backgroundColor: isSelected ? ColorMain : "#7d7d7dff",
+              backgroundColor: isSelected ? ColorMain : "#fff",
               position: "relative",
             },
           ]}
@@ -541,7 +549,12 @@ export default function ReportExport() {
             }}
           >
             {renderRadio(isSelected)}
-            <Text style={{ color: "#fff", fontWeight: "700" }}>
+            <Text
+              style={{
+                color: isSelected ? "#fff" : "#000",
+                fontWeight: "700",
+              }}
+            >
               {item.label}
             </Text>
           </View>
@@ -551,80 +564,112 @@ export default function ReportExport() {
   };
   return (
     <>
-      <PaperProvider>
-        <View style={{ flex: 1 }}>
-          <Portal>
-            <LoadingScreen visible={loading} />
-          </Portal>
+      <ImageBackground
+        style={[styles.container]}
+        source={require("@/assets/images/background.png")}
+        resizeMode="cover"
+      >
+        <PaperProvider>
+          <View style={{ flex: 1 }}>
+            <Portal>
+              <LoadingScreen visible={loading} />
+            </Portal>
 
-          <SetDataDay
-            mode={mode}
-            setMode={setMode}
-            selectedDate={selectedDate}
-            setVisible={setVisible}
-            visible={visible}
-            range={range}
-            onDismiss={onDismiss}
-            onConfirmSingle={onConfirmSingle}
-            getQuarter={getQuarter}
-            onConfirmRange={onConfirmRange}
-            loading={loading}
-            setLoading={setLoading}
-          />
-          <View
-            style={{
-              marginBottom: 20,
-              width: "100%",
-              justifyContent: "center",
-              flexDirection: "row",
-              gap: 20,
-            }}
-          >
-            <TouchableOpacity
-              // onPress={() => {
-              //   if (!selectedKey) {
-              //     alert("Vui lòng chọn chức năng");
-              //     return;
-              //   }
-              //   // selectedKey.action?.(); // 👉 Gọi đúng function đã gắn
-              //   handleExportPDF();
-              // }}
-              onPress={() => {
-                if (!selectedKey) {
-                  alert("Vui lòng chọn chức năng");
-                  return;
-                }
-                selectedKey.action?.();
+            <SetDataDay
+              mode={mode}
+              setMode={setMode}
+              selectedDate={selectedDate}
+              setVisible={setVisible}
+              visible={visible}
+              range={range}
+              onDismiss={onDismiss}
+              onConfirmSingle={onConfirmSingle}
+              getQuarter={getQuarter}
+              onConfirmRange={onConfirmRange}
+              loading={loading}
+              setLoading={setLoading}
+            />
+            <View
+              style={{
+                marginBottom: 20,
+                width: "100%",
+                justifyContent: "center",
+                flexDirection: "row",
+                gap: 20,
               }}
-              style={styles.btnExport}
             >
-              <Text style={{ color: "#fff" }}>📄 Xuất PDF</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                if (!selectedKey) {
-                  alert("Vui lòng chọn chức năng");
-                  return;
-                }
-                selectedKey.exportExcel?.(); // 👉 Gọi đúng function đã gắn
-              }}
-              style={styles.btnExportExcel}
-            >
-              <Text style={{ color: "#fff" }}>📄 Xuất Excel</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                // onPress={() => {
+                //   if (!selectedKey) {
+                //     alert("Vui lòng chọn chức năng");
+                //     return;
+                //   }
+                //   // selectedKey.action?.(); // 👉 Gọi đúng function đã gắn
+                //   handleExportPDF();
+                // }}
+                onPress={() => {
+                  if (!selectedKey) {
+                    Alert.alert("Thông báo", "Vui lòng chọn một mục để xuất");
+                    return;
+                  }
+                  selectedKey.action?.();
+                }}
+                style={[
+                  styles.btnExportExcel,
+                  { borderWidth: 0.5, borderColor: "#b51919ff" },
+                ]}
+              >
+                <Image
+                  source={require("@/assets/images/pdf.png")}
+                  height={10}
+                  width={10}
+                  style={{ width: 20, height: 20, marginLeft: 5 }}
+                />
+                <Text style={{ color: "#b51919ff", fontWeight: "600" }}>
+                  &nbsp; Xuất PDF
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  if (!selectedKey) {
+                    alert("Vui lòng chọn chức năng");
+                    return;
+                  }
+                  selectedKey.exportExcel?.(); // 👉 Gọi đúng function đã gắn
+                }}
+                style={[
+                  styles.btnExportExcel,
+                  { borderWidth: 0.5, borderColor: "#0e7237ff" },
+                ]}
+              >
+                <Image
+                  source={require("@/assets/images/xls.png")}
+                  height={10}
+                  width={10}
+                  style={{ width: 20, height: 20, marginLeft: 5 }}
+                />
+                <Text style={{ color: "#0e7237ff", fontWeight: "600" }}>
+                  &nbsp; Xuất Excel
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.gridContainer}>
+              <FlatList
+                data={features}
+                renderItem={renderItem}
+                numColumns={1}
+              />
+            </View>
           </View>
-          <View style={styles.gridContainer}>
-            <FlatList data={features} renderItem={renderItem} numColumns={1} />
-          </View>
-        </View>
-      </PaperProvider>
+        </PaperProvider>
+      </ImageBackground>
     </>
   );
 }
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
-  container: {},
+  container: { flex: 1, alignItems: "center" },
   gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -667,7 +712,9 @@ const styles = StyleSheet.create({
   },
   btnExportExcel: {
     padding: 10,
-    backgroundColor: "#0e7237ff",
+    // backgroundColor: "#0e7237ff",
     borderRadius: 10,
+    flexDirection: "row",
+    alignItems: "center",
   },
 });

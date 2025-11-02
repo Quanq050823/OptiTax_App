@@ -9,7 +9,7 @@ export interface ProductInventory {
   businessOwnerId: string;
   syncStatus: boolean;
   __v: number;
-  category: number
+  category: number;
 }
 
 export interface ProductInventoryList {
@@ -26,7 +26,7 @@ export interface NewProductInventory {
   name: string;
   code?: string;
   category?: string;
-  unit: string;
+  units: string;
   price?: number;
   description?: string;
   imageURL?: string;

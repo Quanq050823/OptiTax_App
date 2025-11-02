@@ -54,7 +54,7 @@ function AppNavigation() {
       }}
     >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {/* {!isLoggedIn && <Stack.Screen name="Login" component={LoginScreen} />} */}
+        {!isLoggedIn && <Stack.Screen name="Login" component={LoginScreen} />}
         <Stack.Screen
           name="NavigationBusiness"
           component={NavigationBusiness}
@@ -67,6 +67,7 @@ function AppNavigation() {
           name="ChooseTaxTypeForHouseholdBusiness"
           component={ChooseTaxTypeForHouseholdBusiness}
         />
+
         <Stack.Screen
           name="SelectDigitalSignaturePlan"
           component={SelectDigitalSignaturePlan}
@@ -80,7 +81,6 @@ function AppNavigation() {
           name="BusinessRegistrationStepTwo"
           component={BusinessRegistrationStepTwo}
         />
-
         <Stack.Screen
           name="NavigationAccountant"
           component={NavigationAccountant}

@@ -8,7 +8,14 @@ import { UserTypeContext } from "@/src/presentation/Hooks/UserTypeContext";
 import { stylesAuth } from "@/src/presentation/screens/Auth/Styles";
 import { getUserProfile } from "@/src/services/API/profileService";
 import { useContext, useEffect, useState } from "react";
-import { Alert, ImageBackground, View } from "react-native";
+import {
+  Alert,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  View,
+} from "react-native";
 
 type User = {
   id: number;
@@ -55,65 +62,76 @@ function RegisterScreen({ navigation }: Props) {
       }, 2000);
     }
   };
-  
+
   return (
     <UserTypeContext.Provider value={{ userType, setUserType }}>
-      <View style={{ flex: 1, backgroundColor: ColorMain }}>
-        <HeaderLogin name={"Đăng ký"} />
-        <View style={stylesAuth.containerWrapper}>
-          <View
-            style={{
-              position: "absolute",
-              top: -7,
-              left: -20,
-              width: "110%",
-              right: 0,
-              height: 50,
-              backgroundColor: "rgba(36, 36, 36, 0.12)",
-              borderTopLeftRadius: 100,
-              borderTopRightRadius: 100,
-              shadowColor: "#333",
-              shadowOffset: { width: 0, height: 7 },
-              shadowOpacity: 1,
-              shadowRadius: 3,
-              elevation: 10,
-            }}
-          />
-          <ImageBackground
-            style={[stylesAuth.container, { backgroundColor: ColorMain }]}
-            source={require("@/assets/images/themeLogin.jpg")}
-            resizeMode="cover"
-          >
-            <View style={stylesAuth.wrapLogin}>
-              <Logo widthLogo={70} heightLogo={65} />
-              {submit ? (
-                <FormVeryCode
-                  setCode={setCode}
-                  onVeryCode={handleVeriCode}
-                  navigation={navigation}
-                  setSubmit={setSubmit}
-                  loading={loading}
-                />
-              ) : (
-                <FormRegister
-                  username={username}
-                  email={email}
-                  setEmail={setEmail}
-                  setUsername={setUsername}
-                  password={password}
-                  setPassword={setPassword}
-                  showPassword={showPassword}
-                  setShowPassword={setShowPassword}
-                  navigation={navigation}
-                  setSubmit={setSubmit}
-                  veryPassword={veryPassword}
-                  setVeryPassword={setVeryPassword}
-                />
-              )}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"} // iOS dùng "padding", Android dùng "height"
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={{ flex: 1, backgroundColor: ColorMain }}>
+            <HeaderLogin name={"Đăng ký"} />
+
+            <View style={stylesAuth.containerWrapper}>
+              <View
+                style={{
+                  position: "absolute",
+                  top: 7,
+                  left: -20,
+                  width: "110%",
+                  right: 0,
+                  height: 50,
+                  backgroundColor: "rgba(152, 43, 43, 0.12)",
+                  borderTopLeftRadius: 100,
+                  borderTopRightRadius: 100,
+                  shadowColor: "#252525ff",
+                  shadowOffset: { width: 0, height: -10 },
+                  shadowOpacity: 5,
+                  shadowRadius: 10,
+                  elevation: 10,
+                }}
+              />
+              <ImageBackground
+                style={[stylesAuth.container, { backgroundColor: ColorMain }]}
+                source={require("@/assets/images/themeLogin.jpg")}
+                resizeMode="cover"
+              >
+                <View style={stylesAuth.wrapLogin}>
+                  <Logo widthLogo={70} heightLogo={65} />
+                  {submit ? (
+                    <FormVeryCode
+                      setCode={setCode}
+                      onVeryCode={handleVeriCode}
+                      navigation={navigation}
+                      setSubmit={setSubmit}
+                      loading={loading}
+                    />
+                  ) : (
+                    <FormRegister
+                      username={username}
+                      email={email}
+                      setEmail={setEmail}
+                      setUsername={setUsername}
+                      password={password}
+                      setPassword={setPassword}
+                      showPassword={showPassword}
+                      setShowPassword={setShowPassword}
+                      navigation={navigation}
+                      setSubmit={setSubmit}
+                      veryPassword={veryPassword}
+                      setVeryPassword={setVeryPassword}
+                    />
+                  )}
+                </View>
+              </ImageBackground>
             </View>
-          </ImageBackground>
-        </View>
-      </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </UserTypeContext.Provider>
   );
 }

@@ -1,12 +1,18 @@
 import { ColorMain } from "@/src/presentation/components/colors";
-import React, { useEffect, useRef } from "react";
-import { ScrollView, Text, View, Dimensions, Animated } from "react-native";
+import { AntDesign } from "@expo/vector-icons";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  LineChart,
-  BarChart,
-  PieChart,
-  ProgressChart,
-} from "react-native-chart-kit";
+  ScrollView,
+  Text,
+  View,
+  Dimensions,
+  Animated,
+  StyleSheet,
+  TouchableOpacity,
+  Easing,
+  TouchableHighlight,
+} from "react-native";
+import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -28,7 +34,11 @@ export default function Analytics() {
   const fade2 = useRef(new Animated.Value(0)).current;
   const translateY2 = useRef(new Animated.Value(50)).current;
 
+  const spinValue = useRef(new Animated.Value(0)).current;
+  const [isUpdating, setIsUpdating] = useState(false);
+
   useEffect(() => {
+    // Hiệu ứng khi vào trang
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -42,32 +52,115 @@ export default function Analytics() {
       }),
     ]).start();
 
-    // Chart 2 có độ trễ
     Animated.parallel([
       Animated.timing(fade2, {
         toValue: 1,
         duration: 800,
-        delay: 200, // 👈 delay 0.5s
+        delay: 200,
         useNativeDriver: true,
       }),
       Animated.timing(translateY2, {
         toValue: 0,
         duration: 800,
-        delay: 200, // 👈 delay 0.5s
+        delay: 200,
         useNativeDriver: true,
       }),
     ]).start();
   }, []);
+
+  // Animation quay vòng
+  const spin = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
+  });
+
+  const startSync = () => {
+    setIsUpdating(true);
+    Animated.timing(spinValue, {
+      toValue: 1,
+      duration: 3000, // quay 3 giây
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start(() => {
+      spinValue.setValue(0);
+      setIsUpdating(false);
+    });
+  };
+
   return (
     <ScrollView>
-      <View style={{ backgroundColor: "#fff", marginTop: 20, width: "100%" }}>
+      <View style={{ marginTop: 20, width: "100%" }}>
+        {/* Nút đồng bộ */}
+        <View style={styles.syncWr}>
+          {/* Nút đồng bộ */}
+          <TouchableOpacity onPress={startSync} activeOpacity={0.8}>
+            <Animated.View
+              style={[styles.syncButton, { transform: [{ rotate: spin }] }]}
+            >
+              <AntDesign name="sync" size={36} color="#fff" />
+            </Animated.View>
+          </TouchableOpacity>
+
+          {/* Text hướng dẫn nhỏ */}
+          <Text style={styles.syncHint}>
+            {isUpdating ? "Đang đồng bộ dữ liệu..." : "Nhấn để đồng bộ dữ liệu"}
+          </Text>
+
+          {/* Khu vực tổng hợp thuế */}
+          <View style={styles.taxContainer}>
+            <View style={[styles.taxCard, { backgroundColor: "#dae7ffff" }]}>
+              <Text style={styles.taxLabel}>Thuế GTGT</Text>
+              <Text style={styles.taxValue}>
+                {isUpdating ? "..." : "1.000.000 đ"}
+              </Text>
+            </View>
+
+            <View style={[styles.taxCard, { backgroundColor: "#d8f7e1ff" }]}>
+              <Text style={styles.taxLabel}>Thuế TNCN</Text>
+              <Text style={styles.taxValue}>
+                {isUpdating ? "..." : "1.402.000 đ"}
+              </Text>
+            </View>
+
+            <View style={[styles.taxCard, { backgroundColor: "#FFF4E5" }]}>
+              <Text style={styles.taxLabel}>TỔNG</Text>
+              <Text style={[styles.taxValue, { color: "#FF7B00" }]}>
+                {isUpdating ? "..." : "2.000.000 đ"}
+              </Text>
+            </View>
+          </View>
+        </View>
+        {/* Hạn nộp tờ khai */}
+        <View style={styles.deadlineCard}>
+          <View style={styles.deadlineLeft}>
+            <Text style={styles.deadlineLabel}>Hạn nộp tờ khai tháng 10</Text>
+            <Text style={styles.deadlineDate}>20 / 11 / 2025</Text>
+
+            <View style={styles.deadlineStatusBox}>
+              <AntDesign name="clock-circle" size={14} color="#000" />
+              <Text style={styles.deadlineStatus}>Còn 7 ngày nữa</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity style={styles.deadlineBtn} activeOpacity={0.8}>
+            <Text style={styles.deadlineBtnText}>Xem chi tiết</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity style={styles.btnShow}>
+          <Text style={{ color: "#fff", fontWeight: "600", fontSize: 15 }}>
+            Tờ khai 04 / CNKD &nbsp;
+            <AntDesign name="folder-open" size={17} color="#fff" />
+          </Text>
+        </TouchableOpacity>
+        {/* Line Chart */}
         <Animated.View
           style={{ opacity: fadeAnim, transform: [{ translateY }] }}
         >
           <View
             style={{
               marginBottom: 50,
-              marginTop: 20,
+              marginTop: 50,
               shadowColor: "#eaeaeaff",
               shadowOffset: { width: 0, height: 1 },
               shadowOpacity: 0.5,
@@ -75,7 +168,6 @@ export default function Analytics() {
               elevation: 6,
             }}
           >
-            {/* Line Chart */}
             <Text
               style={{
                 fontWeight: "600",
@@ -101,25 +193,20 @@ export default function Analytics() {
                   "T11",
                   "T12",
                 ],
-                datasets: [
-                  {
-                    data: dataPriceMouth,
-                  },
-                ],
+                datasets: [{ data: dataPriceMouth }],
               }}
               width={screenWidth - 32}
               height={220}
               chartConfig={{
-                backgroundColor: "#3F4E87",
-                backgroundGradientFrom: "#3F4E87",
+                backgroundColor: ColorMain,
+                backgroundGradientFrom: ColorMain,
                 backgroundGradientTo: "#6A7DB3",
                 color: (opacity = 1) => `rgba(255,255,255,${opacity})`,
               }}
-              formatYLabel={
-                (value) =>
-                  parseInt(value)
-                    .toString()
-                    .replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "tr" // 👈 thêm dấu chấm
+              formatYLabel={(value) =>
+                parseInt(value)
+                  .toString()
+                  .replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "tr"
               }
               bezier
               style={{
@@ -140,11 +227,12 @@ export default function Analytics() {
             </Text>
           </View>
         </Animated.View>
+
+        {/* Bar Chart */}
         <Animated.View
           style={{ opacity: fade2, transform: [{ translateY: translateY2 }] }}
         >
           <View style={{ marginBottom: 50 }}>
-            {/* Bar Chart */}
             <Text
               style={{
                 fontWeight: "600",
@@ -162,11 +250,9 @@ export default function Analytics() {
               }}
               width={screenWidth - 32}
               height={220}
-              yAxisLabel=""
-              yAxisSuffix=""
               chartConfig={{
-                backgroundColor: "#3F4E87",
-                backgroundGradientFrom: "#3F4E87",
+                backgroundColor: ColorMain,
+                backgroundGradientFrom: ColorMain,
                 backgroundGradientTo: "#6A7DB3",
                 color: (opacity = 1) => `rgba(255,255,255,${opacity})`,
               }}
@@ -188,8 +274,9 @@ export default function Analytics() {
             </Text>
           </View>
         </Animated.View>
-        <View style={{ width: "100%", alignItems: "center" }}>
-          {/* Pie Chart */}
+
+        {/* Pie Chart */}
+        <View style={{ width: "100%", alignItems: "center", marginBottom: 80 }}>
           <Text style={{ marginLeft: 16, fontWeight: "600" }}>
             Tỉ lệ dịch vụ
           </Text>
@@ -198,21 +285,21 @@ export default function Analytics() {
               {
                 name: "Chữ ký số",
                 population: 215,
-                color: "#3F4E87",
+                color: ColorMain,
                 legendFontColor: "#333",
                 legendFontSize: 14,
               },
               {
                 name: "Hoá đơn",
                 population: 280,
-                color: "#6A7DB3",
+                color: "#58d7b5ff",
                 legendFontColor: "#333",
                 legendFontSize: 14,
               },
               {
                 name: "Khác",
                 population: 120,
-                color: "#A9B7D9",
+                color: "#93ffe9ff",
                 legendFontColor: "#333",
                 legendFontSize: 14,
               },
@@ -232,3 +319,124 @@ export default function Analytics() {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  syncWr: {
+    alignItems: "center",
+    justifyContent: "space-around",
+    marginVertical: 20,
+  },
+  syncButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: ColorMain,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: ColorMain,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  syncHint: {
+    marginTop: 12,
+    color: "#777",
+    fontSize: 14,
+  },
+  taxContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginTop: 30,
+  },
+  taxCard: {
+    flex: 1,
+    marginHorizontal: 5,
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  taxLabel: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#333",
+  },
+  taxValue: {
+    marginTop: 6,
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#000",
+  },
+  deadlineCard: {
+    width: "95%",
+    backgroundColor: "#fff",
+    alignSelf: "center",
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
+    marginTop: 30,
+    // shadowColor: "#9d9d9d",
+    // shadowOpacity: 0.5,
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowRadius: 3,
+    // elevation: 4,
+    borderWidth: 0.5,
+    borderColor: ColorMain,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  deadlineLeft: {
+    flex: 1,
+  },
+  deadlineLabel: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#333",
+  },
+  deadlineDate: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: "#FF7B00",
+    marginTop: 4,
+  },
+  deadlineStatusBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 6,
+  },
+  deadlineStatus: {
+    marginLeft: 5,
+    color: "#000",
+    fontWeight: "500",
+    fontSize: 14,
+  },
+  deadlineBtn: {
+    backgroundColor: ColorMain,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+  },
+  deadlineBtnText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 13,
+  },
+  btnShow: {
+    width: "95%",
+    backgroundColor: ColorMain,
+    marginTop: 30,
+    alignSelf: "center",
+    borderRadius: 10,
+    minHeight: 50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

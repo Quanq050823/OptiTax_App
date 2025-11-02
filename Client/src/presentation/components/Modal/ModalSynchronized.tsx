@@ -1,4 +1,4 @@
-import { ColorMain } from "@/src/presentation/components/colors";
+import { ColorMain, textColorMain } from "@/src/presentation/components/colors";
 import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import { syncDataInvoiceIn } from "@/src/types/syncData";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
@@ -68,7 +68,7 @@ function ModalSynchronized({
               style={{
                 fontSize: 20,
                 fontWeight: "600",
-                color: ColorMain,
+                color: textColorMain,
                 marginBottom: 20,
               }}
             >
@@ -98,7 +98,7 @@ function ModalSynchronized({
                   onPress={() => setOpenModalDateStart(true)}
                   style={{ marginVertical: 10, borderRadius: 10 }}
                 >
-                  <Text style={{ color: ColorMain }}>
+                  <Text style={{ color: textColorMain }}>
                     {dateStart
                       ? dateStart.toLocaleDateString("vi-VN")
                       : "Chọn ngày"}
@@ -119,7 +119,7 @@ function ModalSynchronized({
 
                   setSyncDataInvoiceIn((prev) => ({
                     ...prev,
-                    dateto: formatDate(params.date!).toString(),
+                    datefrom: formatDate(params.date!).toString(),
                   }));
                 }}
               />
@@ -139,7 +139,7 @@ function ModalSynchronized({
                   onPress={() => setOpenModalDateEnd(true)}
                   style={{ marginVertical: 10, borderRadius: 10 }}
                 >
-                  <Text style={{ color: ColorMain }}>
+                  <Text style={{ color: textColorMain }}>
                     {dateEnd
                       ? dateEnd.toLocaleDateString("vi-VN")
                       : "Chọn ngày"}
@@ -160,7 +160,7 @@ function ModalSynchronized({
 
                   setSyncDataInvoiceIn((prev) => ({
                     ...prev,
-                    datefrom: formatDate(params.date!).toString(),
+                    dateto: formatDate(params.date!).toString(),
                   }));
                 }}
               />
@@ -168,13 +168,14 @@ function ModalSynchronized({
           </View>
           <TouchableOpacity
             style={{
-              backgroundColor: ColorMain,
+              backgroundColor: !dateStart || !dateEnd ? "#ccc" : ColorMain,
               paddingHorizontal: 20,
               borderRadius: 10,
               marginTop: 20,
               paddingVertical: 15,
             }}
             onPress={onSyncInvoiceIn}
+            disabled={!dateStart || !dateEnd ? true : false}
           >
             <Text style={{ color: "#fff" }}>Đồng bộ</Text>
           </TouchableOpacity>
@@ -231,7 +232,7 @@ const styles = StyleSheet.create({
     borderColor: "#e7e7e7ff",
   },
   label: {
-    color: "#5a5a5aff",
+    color: "#000000ff",
     fontWeight: "500",
     marginTop: 30,
     fontSize: 15,

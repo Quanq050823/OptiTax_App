@@ -1,4 +1,4 @@
-import { ColorMain } from "@/src/presentation/components/colors";
+import { ColorMain, textColorMain } from "@/src/presentation/components/colors";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -77,7 +77,9 @@ function ModalAddProductInventory({
   const [NameList, setNameList] = useState<UnitsNameProduct[]>([]);
   const [unitList, setUnitList] = useState<UnitsNameProduct[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dataUnitGet, setDataUnitGet] = useState<{ label: string; value: string }[]>([]);
+  const [dataUnitGet, setDataUnitGet] = useState<
+    { label: string; value: string }[]
+  >([]);
   useEffect(() => {
     if (!idProduct) return; // ❌ không có id thì bỏ qua
 
@@ -89,7 +91,6 @@ function ModalAddProductInventory({
         console.error("Lỗi lấy dữ liệu sản phẩm:", error);
       }
     };
-
 
     fetchProductById();
   }, [idProduct]);
@@ -172,7 +173,8 @@ function ModalAddProductInventory({
       }
     };
 
-    if (visible) { // chỉ fetch khi modal mở
+    if (visible) {
+      // chỉ fetch khi modal mở
       fetchUnits();
     }
   }, [visible]);
@@ -230,7 +232,6 @@ function ModalAddProductInventory({
                 placeholderTextColor={"#9d9d9d"}
                 onChangeText={(text) => {
                   setNewProduct({ ...newProduct, price: Number(text) });
-
                   setNewProductInvenEdit((prev) =>
                     prev ? { ...prev, price: Number(text) } : prev
                   );
@@ -240,7 +241,7 @@ function ModalAddProductInventory({
             </View>
 
             <View style={{ marginTop: 20, flexDirection: "row", gap: 20 }}>
-              <View style={{ flex: 1 }} >
+              <View style={{ flex: 1 }}>
                 <Text style={styles.labelInput}>Số lượng </Text>
                 <TextInput
                   placeholder={"VD: 10000"}
@@ -250,7 +251,7 @@ function ModalAddProductInventory({
                     setNewProduct({ ...newProduct, stock: Number(text) });
 
                     setNewProductInvenEdit((prev) =>
-                      prev ? { ...prev, price: Number(text) } : prev
+                      prev ? { ...prev, stock: Number(text) } : prev
                     );
                   }}
                   value={newProduct.stock?.toString()}
@@ -268,13 +269,23 @@ function ModalAddProductInventory({
                     labelField="label"
                     valueField="value"
                     placeholder="---"
-                    value={value}
+                    value={
+                      newProductInvenEdit?.unit
+                        ? dataUnitGet.find(
+                            (item) =>
+                              item.label.toLowerCase().trim() ===
+                              newProductInvenEdit?.unit.toLowerCase().trim()
+                          )?.value
+                        : value
+                    }
                     onChange={(item) => {
+                      setValue(item.label);
+
                       if (item.value === "__add__") {
                         // Xử lý logic mở input hoặc modal thêm danh mục
                         console.log(dataUnitGet, "dataaaa");
                       } else {
-                        setNewProduct({ ...newProduct, unit: item.value });
+                        setNewProduct({ ...newProduct, units: item.label });
                         //   setNewProductInvenEdit((prev) =>
                         //   prev ? { ...prev, unit: item.label } : prev
                         // );
@@ -305,19 +316,27 @@ function ModalAddProductInventory({
               {image && (
                 <Image
                   source={{ uri: image }}
-                  style={{ width: 200, height: 200, marginTop: 10, alignSelf: "center", marginBottom: 20 }}
+                  style={{
+                    width: 200,
+                    height: 200,
+                    marginTop: 10,
+                    alignSelf: "center",
+                    marginBottom: 20,
+                  }}
                 />
               )}
               <TouchableOpacity onPress={pickImage} style={styles.addImage}>
                 <Ionicons name="images-outline" size={24} color="black" />
-                <Text style={{marginLeft: 10}}>Chọn ảnh</Text>
+                <Text style={{ marginLeft: 10 }}>Chọn ảnh</Text>
               </TouchableOpacity>
             </View>
             <TouchableOpacity
               style={styles.btnSaveProduct}
               onPress={onAddOrEditProductInventory}
             >
-              <Text style={{ color: "#fff", fontWeight: "600" }}>Lưu nguyên liệu { }</Text>
+              <Text style={{ color: "#fff", fontWeight: "600" }}>
+                Lưu nguyên liệu {}
+              </Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
@@ -339,7 +358,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     height: "95%",
     padding: 10,
-    paddingTop: 20
+    paddingTop: 20,
   },
   modalText: {
     fontSize: 18,
@@ -355,13 +374,17 @@ const styles = StyleSheet.create({
     padding: 10,
     shadowColor: "#313131ff",
     shadowOffset: { width: 0, height: 0.5 },
-    shadowOpacity: 0.5,
+    shadowOpacity: 0.2,
     marginHorizontal: 5,
     shadowRadius: 2,
     elevation: 5,
-
   },
-  labelInput: { textAlign: "left", marginBottom: 7, color: ColorMain, fontWeight: "600" },
+  labelInput: {
+    textAlign: "left",
+    marginBottom: 7,
+    color: textColorMain,
+    fontWeight: "600",
+  },
   dropdown: {
     height: 50,
     borderRadius: 5,
@@ -370,7 +393,7 @@ const styles = StyleSheet.create({
 
     shadowColor: "#555555ff",
     shadowOffset: { width: 0, height: 0.5 },
-    shadowOpacity: 0.5,
+    shadowOpacity: 0.2,
     marginHorizontal: 5,
     shadowRadius: 2,
     elevation: 5,
@@ -382,6 +405,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
     borderRadius: 10,
   },
-  addImage: {flexDirection: "row", alignItems:"center", borderWidth: 1, padding: 10, justifyContent: "center", borderRadius: 10}
+  addImage: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    padding: 10,
+    justifyContent: "center",
+    borderRadius: 10,
+  },
 });
 export default ModalAddProductInventory;

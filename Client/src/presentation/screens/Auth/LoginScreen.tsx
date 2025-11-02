@@ -9,6 +9,8 @@ import { login } from "@/src/services/API/authService";
 import {
   Alert,
   ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
   StatusBar,
   Text,
   TouchableOpacity,
@@ -65,38 +67,42 @@ function LoginScreen({ navigation }: Props) {
     loadUsername();
   }, []);
   return (
-    <View style={{ flex: 1, backgroundColor: ColorMain }}>
-      <StatusBar
-        backgroundColor="transparent"
-        barStyle="light-content"
-        translucent={true}
-      />
-      <HeaderLogin name={"Đăng nhập"} />
-
-      <View style={stylesAuth.containerWrapper}>
-        <View
-          style={{
-            position: "absolute",
-            top: -7,
-            left: -20,
-            width: "110%",
-            right: 0,
-            height: 50,
-            backgroundColor: "rgba(36, 36, 36, 0.12)",
-            borderTopLeftRadius: 100,
-            borderTopRightRadius: 100,
-            shadowColor: "#333",
-            shadowOffset: { width: 0, height: 7 },
-            shadowOpacity: 1,
-            shadowRadius: 3,
-            elevation: 10,
-          }}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"} // iOS dùng "padding", Android dùng "height"
+      style={{ flex: 1 }}
+    >
+      <View style={{ flex: 1, backgroundColor: ColorMain }}>
+        <StatusBar
+          backgroundColor="transparent"
+          barStyle="light-content"
+          translucent={true}
         />
-        <ImageBackground
+        <HeaderLogin name={"Đăng nhập"} />
+
+        <View style={stylesAuth.containerWrapper}>
+          <View
+            style={{
+              position: "absolute",
+              top: 7,
+              left: -20,
+              width: "110%",
+              right: 0,
+              height: 50,
+              backgroundColor: "rgba(152, 43, 43, 0.12)",
+              borderTopLeftRadius: 100,
+              borderTopRightRadius: 100,
+              shadowColor: "#252525ff",
+              shadowOffset: { width: 0, height: -10 },
+              shadowOpacity: 5,
+              shadowRadius: 10,
+              elevation: 10,
+            }}
+          />
+          {/* <ImageBackground
           style={[stylesAuth.container, { backgroundColor: ColorMain }]}
           source={require("@/assets/images/themeLogin.jpg")}
           resizeMode="cover"
-        >
+        > */}
           <View style={stylesAuth.wrapLogin}>
             <Logo widthLogo={70} heightLogo={65} />
             <View style={{ marginTop: 50, width: "100%" }}>
@@ -152,18 +158,20 @@ function LoginScreen({ navigation }: Props) {
                   style={stylesAuth.FogotPass}
                   onPress={() => navigation.navigate("Register")}
                 >
-                  <Text style={stylesAuth.FogotPassTitle}>
-                    Đăng ký tài khoản
+                  <Text>
+                    Bạn chưa có tài khoản? &nbsp;
+                    <Text style={stylesAuth.FogotPassTitle}>Đăng ký</Text>
                   </Text>
                 </TouchableOpacity>
               </View>
             </View>
             <SignOther />
           </View>
-        </ImageBackground>
+          {/* </ImageBackground> */}
+        </View>
+        <LoadingScreen visible={loading} />
       </View>
-      <LoadingScreen visible={loading} />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

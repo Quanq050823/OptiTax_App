@@ -1,5 +1,11 @@
 import React from "react";
-import { StyleSheet, View, ViewProps } from "react-native";
+import {
+  ImageBackground,
+
+  StyleSheet,
+  View,
+  ViewProps,
+} from "react-native";
 
 interface ScreenContainerProps extends ViewProps {
   children: React.ReactNode;
@@ -11,16 +17,21 @@ const ScreenContainer = ({
   ...rest
 }: ScreenContainerProps) => {
   return (
-    <View style={[styles.container, style]} {...rest}>
-      {children}
-    </View>
+    <ImageBackground
+      style={{ flex: 1 }}
+      source={require("@/assets/images/background.png")}
+      resizeMode="cover"
+    >
+      <View style={[styles.container, style]} {...rest}>
+        {children}
+      </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingVertical: 10, // ✅ Padding mặc định cho mọi trang
     paddingHorizontal: 10, // ✅ Padding ngang mặc định
   },
 });

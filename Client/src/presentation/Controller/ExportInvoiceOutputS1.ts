@@ -2,6 +2,8 @@ import { Invoice, InvoiceListResponse, Profile } from "@/src/types/route";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { CalendarDate } from "react-native-paper-dates/lib/typescript/Date/Calendar";
+import * as FileSystem from "expo-file-system/legacy";
+
 type DataSetup = {
   mode: "month" | "quarter" | "range";
   selectedDate?: CalendarDate | undefined;
@@ -179,7 +181,18 @@ export async function exportInvoiceOutputS1({
     `;
 
     const { uri } = await Print.printToFileAsync({ html });
-    await Sharing.shareAsync(uri);
+
+    // Tạo path mới trong documentDirectory
+    const newPath =
+      (FileSystem as any).documentDirectory +
+      `So_Chi_Tiet_Doanh_Thu_Ban_Hang_Hoa_Dich_Vu_S1_${
+        startDate.getMonth() + 1
+      }_${startDate.getFullYear()}.pdf`;
+    await FileSystem.moveAsync({
+      from: uri,
+      to: newPath,
+    });
+    await Sharing.shareAsync(newPath);
   } catch (error) {
     console.error("Export PDF error:", error);
   } finally {

@@ -168,11 +168,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dropdown: {
-    height: 60,
+    height: 50,
     borderRadius: 8,
     paddingHorizontal: 12,
     backgroundColor: "#fff",
     elevation: 2,
+    // shadowColor: "#343434ff",
+    // shadowOffset: { width: 0, height: 1 },
+    // shadowOpacity: 0.5,
+    // shadowRadius: 1,
+    borderWidth: 0.5,
+    borderColor: "#cfcfcf",
   },
 });
 

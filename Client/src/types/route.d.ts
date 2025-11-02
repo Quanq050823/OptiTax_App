@@ -36,13 +36,13 @@ type RootStackParamList = {
   ReportExportScreen: undefined;
   ExportInvoiceOuputScreen: undefined;
   ExportExcelScreen: undefined;
-  TaxScreen: undefined
-  EmployeesScreen: undefined
-  NewIngredientList: undefined
+  TaxScreen: undefined;
+  EmployeesScreen: undefined;
+  NewIngredientList: undefined;
   PaymentVoucherDetail: {
     voucher: PaymentVoucher;
   };
-  ExportInvoicePayment: undefined
+  ExportInvoicePayment: undefined;
   SelectElectronicInvoice: {
     digitalSignature: {
       label: string;
@@ -122,6 +122,7 @@ type FormDataType = {
   businessName: string;
   businessType: string;
   taxCode: string;
+  taxType: string;
   address: Address;
   phoneNumber: string;
   industry: string;
@@ -173,7 +174,7 @@ export interface Invoice {
   dvtte: string;
   hdhhdvu: InvoiceProduct[];
   ttxly?: number | null;
-  tgtttbso: number
+  tgtttbso: number;
 }
 
 export interface InvoicePagination {
@@ -189,7 +190,7 @@ export interface InvoiceListResponse {
 }
 
 export interface Address {
-  city: string;
+  city: string | null;
   cityCode?: string; // VD: "79"
   district: string | null; // VD: "Quận 1"
   districtCode?: string;

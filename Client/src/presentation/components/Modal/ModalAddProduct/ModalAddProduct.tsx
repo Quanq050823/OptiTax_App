@@ -91,6 +91,16 @@ const nguyenLieu = [
     value: "duong",
   },
 ];
+
+const BUSINESS_TYPES = [
+  { label: "Phân phối / Cung cấp hàng hóa", value: "distribution" },
+  { label: "Dịch vụ (không bao gồm vật liệu)", value: "service_no_material" },
+  {
+    label: "Sản xuất / Xây dựng (có vật liệu)",
+    value: "production_with_material",
+  },
+  { label: "Hoạt động kinh doanh khác", value: "other_business" },
+];
 function ModalAddProduct({
   visible,
   setVisible,
@@ -146,31 +156,36 @@ function ModalAddProduct({
     >
       <Pressable style={styleModal.overlay}>
         <View style={styleModal.modalContent}>
-          <KeyboardAwareScrollView
-            enableOnAndroid={true}
-            extraScrollHeight={100} // khoảng cách thêm khi bàn phím hiện
-            keyboardOpeningTime={0}
-            contentContainerStyle={{ paddingBottom: 40 }}
-            keyboardShouldPersistTaps="handled"
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              position: "relative",
+              width: "100%",
+              backgroundColor: "#fff",
+              borderRadius: 10,
+              paddingTop: 20,
+              borderBottomWidth: 0.5,
+              borderBottomColor: "#999999ff",
+            }}
           >
-            <ScrollView>
+            <Text style={styleModal.modalText}>Sản phẩm mới</Text>
+            <TouchableOpacity
+              onPress={() => setVisible(false)}
+              style={{ position: "absolute", right: 10, top: 20 }}
+            >
+              <MaterialIcons name="cancel" size={24} color={ColorMain} />
+            </TouchableOpacity>
+          </View>
+          <ScrollView>
+            <KeyboardAwareScrollView
+              enableOnAndroid={true}
+              extraScrollHeight={100} // khoảng cách thêm khi bàn phím hiện
+              keyboardOpeningTime={0}
+              contentContainerStyle={{ paddingBottom: 40 }}
+              keyboardShouldPersistTaps="handled"
+            >
               <View style={styleModal.wrAddField}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    position: "relative",
-                    width: "100%",
-                  }}
-                >
-                  <Text style={styleModal.modalText}>Sản phẩm mới</Text>
-                  <TouchableOpacity
-                    onPress={() => setVisible(false)}
-                    style={{ position: "absolute", right: 0 }}
-                  >
-                    <MaterialIcons name="cancel" size={24} color={ColorMain} />
-                  </TouchableOpacity>
-                </View>
                 <View style={{ marginTop: 20 }}>
                   <Text style={styleModal.labelInput}>Mã sản phẩm </Text>
                   <TextInput
@@ -180,15 +195,7 @@ function ModalAddProduct({
                     onChangeText={(text) =>
                       setNewProduct({ ...newProduct, code: text })
                     }
-                    defaultValue={newProduct.code || newProduct.id
-
-
-
-
-
-
-                      
-                    }
+                    defaultValue={newProduct.code || newProduct.id}
                   />
                 </View>
                 <View style={{ marginTop: 20 }}>
@@ -359,7 +366,7 @@ function ModalAddProduct({
                 ))}
                 <TouchableOpacity
                   style={{
-                    marginTop: 30,
+                    marginTop: 0,
                     flexDirection: "row",
                     alignContent: "center",
                   }}
@@ -367,7 +374,7 @@ function ModalAddProduct({
                 >
                   <AntDesign name="plus-circle" size={17} color={ColorMain} />
 
-                  <Text style={styleModal.labelInput}>
+                  <Text style={[styleModal.labelInput, { color: ColorMain }]}>
                     &nbsp;Thêm nguyên liệu
                   </Text>
                 </TouchableOpacity>
@@ -399,6 +406,28 @@ function ModalAddProduct({
                 </View>
               </View>
               <View style={[styleModal.wrAddField, { paddingTop: 20 }]}>
+                <Text style={styleModal.labelInput}>Định nghĩa sản phẩm </Text>
+
+                <Dropdown
+                  style={styleModal.dropdown}
+                  data={BUSINESS_TYPES}
+                  labelField="label"
+                  valueField="value"
+                  placeholder={"Nguyên liệu"}
+                  search
+                  containerStyle={{ width: "90%" }}
+                  searchPlaceholder="Tìm nguyên liệu..."
+                  inputSearchStyle={{
+                    // style cho ô tìm kiếm
+                    height: 40,
+                    fontSize: 14,
+                    color: "#333",
+                  }}
+                  placeholderStyle={{ color: "#9d9d9d" }}
+                  onChange={(item) => {}}
+                />
+              </View>
+              <View style={[styleModal.wrAddField, { paddingTop: 20 }]}>
                 <View>
                   <Text style={styleModal.labelInput}>Mô tả </Text>
                   <TextInput
@@ -423,8 +452,8 @@ function ModalAddProduct({
                   <Text style={styleModal.AddText}>Thêm</Text>
                 </TouchableOpacity>
               </View>
-            </ScrollView>
-          </KeyboardAwareScrollView>
+            </KeyboardAwareScrollView>
+          </ScrollView>
         </View>
       </Pressable>
     </Modal>
@@ -494,19 +523,24 @@ const styleModal = StyleSheet.create({
     height: 40,
     width: "100%",
     backgroundColor: "#fff",
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: "#a4a4a4cc",
     borderRadius: 5,
     padding: 5,
   },
-  labelInput: { textAlign: "left", marginBottom: 7, color: ColorMain },
+  labelInput: {
+    textAlign: "left",
+    marginBottom: 7,
+    color: "#000",
+    fontWeight: "500",
+  },
   dropdown: {
     height: 40,
     borderRadius: 5,
     paddingHorizontal: 12,
     backgroundColor: "#fff",
     elevation: 2,
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: "#a4a4a4cc",
   },
   btnAction: {
