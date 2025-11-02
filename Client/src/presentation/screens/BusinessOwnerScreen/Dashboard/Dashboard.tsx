@@ -13,10 +13,10 @@ function Dashboard() {
     state: false,
   };
   return (
-    <View style={{ flex: 1, backgroundColor: "#fff", width: "100%" }}>
+    <View style={{ flex: 1, width: "100%" }}>
       <ScreenContainer>
         <View style={styles.container}>
-          {!user.state ? <NotCompletedTaxReturnForm /> : <Analytics />}
+          {user.state ? <NotCompletedTaxReturnForm /> : <Analytics />}
         </View>
       </ScreenContainer>
     </View>

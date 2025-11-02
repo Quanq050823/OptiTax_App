@@ -29,6 +29,16 @@ const categories = [
   { label: "Sản phẩm", value: 1 },
   { label: "Dụng cụ", value: 2 },
 ];
+
+const BUSINESS_TYPES = [
+  { label: "Phân phối / Cung cấp hàng hóa", value: "distribution" },
+  { label: "Dịch vụ (không bao gồm vật liệu)", value: "service_no_material" },
+  {
+    label: "Sản xuất / Xây dựng (có vật liệu)",
+    value: "production_with_material",
+  },
+  { label: "Hoạt động kinh doanh khác", value: "other_business" },
+];
 function ModalAddCategoryByProductStorage({
   visible,
   setVisible,
@@ -41,7 +51,7 @@ function ModalAddCategoryByProductStorage({
   const [openModalDateStart, setOpenModalDateStart] = useState(false);
   const [openModalDateEnd, setOpenModalDateEnd] = useState(false);
   const [value, setValue] = useState<number | null>(null);
-
+  const [businessType, setBusinessType] = useState<string | null>(null);
   const onDismiss = () => {
     setVisible(false);
   };
@@ -80,12 +90,30 @@ function ModalAddCategoryByProductStorage({
                 data={categories}
                 labelField="label" // 👈 key hiển thị
                 valueField="value" // 👈 key lưu giá trị
-                placeholder="Chọn loại sản phẩm"
+                placeholder="Chọn loại vật liệu"
                 value={value}
                 onChange={(item) => {
                   const numericValue = Number(item.value);
 
                   setValue(numericValue);
+                  console.log("Đã chọn:", item);
+                }}
+                maxHeight={300}
+                selectedTextStyle={styles.selectedText}
+                placeholderStyle={styles.placeholder}
+                itemTextStyle={{ color: "#333" }}
+              />
+              <Dropdown
+                style={styles.dropdown}
+                data={BUSINESS_TYPES}
+                labelField="label" // 👈 key hiển thị
+                valueField="value" // 👈 key lưu giá trị
+                placeholder="Chọn loại hình hoạt động"
+                value={value}
+                onChange={(item) => {
+                  const numericValue = Number(item.value);
+
+                  setBusinessType(item.label);
                   console.log("Đã chọn:", item);
                 }}
                 maxHeight={300}
@@ -193,9 +221,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 12,
     backgroundColor: "#fff",
+    marginBottom: 20,
   },
   placeholder: {
-    color: "#aaa",
+    color: "#787878ff",
   },
   selectedText: {
     color: "#000",
@@ -206,7 +235,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 7,
     minWidth: 70,
-    marginTop: 20,
     flexDirection: "row",
     position: "relative",
     alignItems: "center",

@@ -19,7 +19,6 @@ function SearchByName({ label }: labelSearch) {
       }}
       iconColor={ColorMain}
       placeholderTextColor={ColorMain}
-      
     />
   );
 }

@@ -235,7 +235,12 @@ export default function ProductManagerScreen() {
       {products ? (
         <>
           {/* <Text style={styles.header}>Quản lý sản phẩm</Text> */}
-          <View style={{ paddingHorizontal: 10, paddingTop: 10 }}>
+          <View
+            style={{
+              paddingHorizontal: 10,
+              paddingVertical: 10,
+            }}
+          >
             <View
               style={{
                 flexDirection: "row",
@@ -290,6 +295,7 @@ export default function ProductManagerScreen() {
             data={products}
             keyExtractor={(item) => item._id}
             renderItem={renderItem}
+            showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               paddingBottom: 80,
               paddingHorizontal: 5,
@@ -306,7 +312,7 @@ export default function ProductManagerScreen() {
             onPress={() => setVisible(true)}
           >
             <Ionicons name="add" size={28} color="#fff" />
-            <Text style={styles.addText}>Thêm sản phẩm</Text>
+            {/* <Text style={styles.addText}>Thêm sản phẩm</Text> */}
           </TouchableOpacity>
           <ModalAddProduct
             visible={visible}
@@ -384,15 +390,21 @@ const styles = StyleSheet.create({
   },
   addButton: {
     position: "absolute",
-    bottom: 16,
-    left: 16,
-    right: 16,
-    backgroundColor: "#2f80ed",
+    bottom: 50,
+    width: 70,
+    height: 70,
+    backgroundColor: ColorMain,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 14,
-    borderRadius: 10,
+    borderRadius: 50,
+    right: 20,
+    shadowColor: "#747474ff",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
   },
   addText: {
     color: "#fff",

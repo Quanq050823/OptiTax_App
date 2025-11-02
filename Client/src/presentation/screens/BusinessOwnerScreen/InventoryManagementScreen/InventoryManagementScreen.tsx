@@ -1,4 +1,4 @@
-import { ColorMain } from "@/src/presentation/components/colors";
+import { ColorMain, textColorMain } from "@/src/presentation/components/colors";
 import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import ModalAddProduct from "@/src/presentation/components/Modal/ModalAddProduct/ModalAddProduct";
 import ModalAddProductInventory from "@/src/presentation/components/Modal/ModalAddProductInventory";
@@ -109,7 +109,7 @@ export default function InventoryManagerScreen() {
   const [toolsList, setToolsList] = useState<ProductInventory[]>([]);
   const [newProduct, setNewProduct] = useState<NewProductInventory>({
     name: "",
-    unit: "",
+    units: "",
     price: 0,
     imageURL: "",
     stock: 0,
@@ -560,7 +560,6 @@ export default function InventoryManagerScreen() {
             onPress={() => setVisible(true)}
           >
             <Ionicons name="add" size={28} color="#fff" />
-            <Text style={styles.addText}>Thêm mặt hàng kho</Text>
           </TouchableOpacity>
           <ModalAddProductInventory
             visible={visible}
@@ -651,15 +650,21 @@ const styles = StyleSheet.create({
   },
   addButton: {
     position: "absolute",
-    bottom: 16,
-    left: 16,
-    right: 16,
-    backgroundColor: "#2f80ed",
+    bottom: 50,
+    width: 70,
+    height: 70,
+    backgroundColor: ColorMain,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 14,
-    borderRadius: 10,
+    borderRadius: 50,
+    right: 20,
+    shadowColor: "#747474ff",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
   },
   addText: {
     color: "#fff",
@@ -697,5 +702,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 8,
   },
-  textCate: { fontSize: 16, color: "#9c9c9cff" },
+  textCate: { fontSize: 16, color: "#6d6d6dff" },
 });

@@ -1,3 +1,4 @@
+import { ColorMain } from "@/src/presentation/components/colors";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { useData } from "@/src/presentation/Hooks/useDataStore";
 import {
@@ -5,7 +6,13 @@ import {
   getUserProfile,
 } from "@/src/services/API/profileService";
 import { Profile, UserProfile } from "@/src/types/route";
-import {  AntDesign, MaterialIcons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Feather,
+  FontAwesome6,
+  MaterialIcons,
+} from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import * as React from "react";
 import {
   Image,
@@ -46,37 +53,56 @@ function Option() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={{
-          backgroundColor: "#f7f7f7ff",
+          backgroundColor: "#e9f2f2db",
         }}
       >
-        <View style={{ paddingHorizontal: 5, alignItems: "center" }}>
+        <View style={{ paddingHorizontal: 10, alignItems: "center" }}>
           <View style={styles.UserWrapper}>
-            <View>
+            <LinearGradient
+              colors={[ColorMain, "#5b74b8ff"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 3 }}
+              style={{
+                borderTopLeftRadius: 15,
+                borderBottomRightRadius: 15,
+                alignItems: "center",
+                padding: 5,
+                width: "100%",
+                flexDirection: "row",
+                paddingHorizontal: 20,
+                paddingVertical: 20,
+                shadowColor: "#00000033",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 4,
+                elevation: 5,
+              }}
+            >
               <Avatar.Image
                 size={70}
                 source={{ uri: "https://i.pravatar.cc/100" }}
               />
-            </View>
-            <View
-              style={{
-                justifyContent: "space-between",
-                flex: 1,
-                marginLeft: 15,
-                height: 60,
-              }}
-            >
-              <Text style={styles.name}>{profile?.businessName}</Text>
-              <Text style={styles.role}>{profile?.name}</Text>
-              <Text style={styles.role}>
-                {profile?.userType === 1 ? "Hộ kinh doanh" : "Kế toán viên"}
-              </Text>
-            </View>
-            <TouchableOpacity
-              style={styles.actionProfile}
-              onPress={() => navigate.navigate("ProfileBusiness")}
-            >
-              <AntDesign name="setting" size={24} color="black" />
-            </TouchableOpacity>
+              <View
+                style={{
+                  justifyContent: "space-between",
+                  flex: 1,
+                  marginLeft: 15,
+                  height: 60,
+                }}
+              >
+                <Text style={styles.name}>{profile?.businessName}</Text>
+                <Text style={styles.role}>{profile?.email}</Text>
+                <Text style={styles.role}>
+                  {profile?.userType === 1 ? "Hộ kinh doanh" : "Kế toán viên"}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.actionProfile}
+                onPress={() => navigate.navigate("ProfileBusiness")}
+              >
+                <AntDesign name="setting" size={24} color="#fff" />
+              </TouchableOpacity>
+            </LinearGradient>
           </View>
           <View
             style={{
@@ -103,44 +129,61 @@ function Option() {
               <AntDesign name="arrow-up" size={15} color="red" />
             </View>
           </View>
-          <TouchableOpacity style={styles.item}>
-            <Text style={styles.titleItem}>Quản lý hoá đơn</Text>
-            <MaterialIcons
-              name="keyboard-arrow-right"
-              size={20}
-              color={colorText}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.item}
-            onPress={() => navigate.navigate("ProductManager")}
-          >
-            <Text style={styles.titleItem}>Quản lý sản phẩm</Text>
-            <MaterialIcons
-              name="keyboard-arrow-right"
-              size={20}
-              color={colorText}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.item}
-            onPress={() => navigate.navigate("ProductManager")}
-          >
-            <Text style={styles.titleItem}>Quản lý khách hàng</Text>
-            <MaterialIcons
-              name="keyboard-arrow-right"
-              size={20}
-              color={colorText}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.item}>
-            <Text style={styles.titleItem}>Cài đặt</Text>
-            <MaterialIcons
-              name="keyboard-arrow-right"
-              size={20}
-              color={colorText}
-            />
-          </TouchableOpacity>
+          <View style={styles.wrItem}>
+            <TouchableOpacity style={styles.item}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <FontAwesome6 name="file-invoice" size={17} color="black" />
+                <Text style={styles.titleItem}>Quản lý hoá đơn</Text>
+              </View>
+              <MaterialIcons
+                name="keyboard-arrow-right"
+                size={20}
+                color={colorText}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => navigate.navigate("ProductManager")}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <AntDesign name="product" size={17} color="black" />
+                <Text style={styles.titleItem}>Quản lý sản phẩm</Text>
+              </View>
+
+              <MaterialIcons
+                name="keyboard-arrow-right"
+                size={20}
+                color={colorText}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => navigate.navigate("ProductManager")}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Feather name="users" size={17} color="black" />
+                <Text style={styles.titleItem}>Quản lý khách hàng</Text>
+              </View>
+
+              <MaterialIcons
+                name="keyboard-arrow-right"
+                size={20}
+                color={colorText}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.item}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Feather name="settings" size={17} color="black" />
+                <Text style={styles.titleItem}>Cài đặt</Text>
+              </View>
+
+              <MaterialIcons
+                name="keyboard-arrow-right"
+                size={20}
+                color={colorText}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -157,17 +200,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   name: {
-    marginTop: 10,
     fontSize: 20,
-    color: colorText,
-    fontWeight: 600,
+    color: "#fff",
+    fontWeight: "700",
   },
   role: {
     fontSize: 13,
-    color: colorText,
+    color: "#fff",
   },
   actionProfile: {
-    marginTop: 20,
     padding: 5,
     borderRadius: 5,
   },
@@ -175,21 +216,31 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    backgroundColor: "#fff",
+    backgroundColor: "transparent",
     paddingVertical: 15,
     paddingHorizontal: 10,
     borderRadius: 8,
+    // shadowColor: "#a7a7a7ff",
+    // shadowOffset: { width: 0, height: 1 },
+    // shadowRadius: 8,
+    // shadowOpacity: 0.2,
+    // elevation: 5,
+  },
+  titleItem: { fontSize: 15, color: "#000", fontWeight: "500", marginLeft: 10 },
+  dataDev: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  wrItem: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
     shadowColor: "#a7a7a7ff",
     shadowOffset: { width: 0, height: 1 },
     shadowRadius: 8,
     shadowOpacity: 0.2,
     elevation: 5,
-    marginBottom: 7,
-  },
-  titleItem: { fontSize: 15, color: colorText, fontWeight: "500" },
-  dataDev: {
-    flexDirection: "row",
-    alignItems: "center",
   },
 });
 export default Option;

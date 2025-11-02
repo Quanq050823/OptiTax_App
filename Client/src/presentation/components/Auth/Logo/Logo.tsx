@@ -5,18 +5,17 @@ type LogoProps = {
   heightLogo?: number;
 };
 function Logo({ widthLogo, heightLogo }: LogoProps) {
-
   return (
     <>
-      <Image
+      {/* <Image
         source={{
           uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/640px-React-icon.svg.png",
         }}
         height={heightLogo}
         width={widthLogo}
         style={{ marginTop: 70 }}
-      />
-      <Text style={stylesAuth.title}>TAX DEMO</Text>
+      /> */}
+      <Text style={stylesAuth.title}>EON SOFTWARE</Text>
     </>
   );
 }

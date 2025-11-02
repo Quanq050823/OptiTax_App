@@ -26,13 +26,17 @@ import {
 } from "react-native";
 import { tr } from "react-native-paper-dates";
 
-function InvoiceOutput() {
+type InvoiceOutputProps = {
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
+};
+
+function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
   const [visible, setVisible] = useState(false);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [openLogin, setOpenLogin] = useState(false);
   const [openListProductSynchronized, setOpenListProductSynchronized] =
     useState(false);
-  const [loading, setLoading] = useState(false);
   const spinValue = useRef(new Animated.Value(0)).current;
 
   const fetchListInvoice = async () => {
@@ -126,7 +130,6 @@ function InvoiceOutput() {
           </Text>
         </TouchableOpacity>
       </View>
-      <LoadingScreen visible={loading} />
 
       <ModalCreateProductsByInvoiceOuput
         setOpenListProductSynchronized={setOpenListProductSynchronized}
@@ -152,6 +155,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     borderWidth: 1,
     borderColor: "#d8d7d7ff",
+    marginTop: 20,
   },
   synchronizedWrapper: {
     flexDirection: "row",

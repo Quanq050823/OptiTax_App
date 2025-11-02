@@ -1,4 +1,6 @@
-export const ColorMain = "#3F4E87";
+// export const ColorMain = "#3F4E87";
+export const ColorMain = "#4dbf99ff";
 export const themeBackground = "#9d9d9d";
 export const iconNavigationColor = "#3F4E87";
+export const textColorMain = "#2d926dff";
 // export const iconNavigationColor = "#0b2177ff"

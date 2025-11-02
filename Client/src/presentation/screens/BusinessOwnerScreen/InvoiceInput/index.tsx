@@ -1,4 +1,4 @@
-import { ColorMain } from "@/src/presentation/components/colors";
+import { ColorMain, textColorMain } from "@/src/presentation/components/colors";
 import InvoiInputList from "@/src/presentation/components/List/InvoiInputList";
 import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import ModalCreateProductsByInvoiceInput from "@/src/presentation/components/Modal/ModalCreateProductsByInvoiceInput";
@@ -132,12 +132,12 @@ function InvoiceInput() {
         <SearchByName label="Tìm kiếm nhà cung cấp" />
         <View style={{ flex: 1, alignItems: "center", paddingRight: 20 }}>
           <TouchableOpacity>
-            <FontAwesome5 name="calendar-alt" size={24} color={ColorMain} />
+            <FontAwesome5 name="calendar-alt" size={24} color={textColorMain} />
           </TouchableOpacity>
         </View>
       </View>
       <View style={styles.synchronizedWrapper}>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.btnSyn}
           onPress={() => setOpenListProductSynchronized(true)}
         >
@@ -145,8 +145,8 @@ function InvoiceInput() {
             Tạo sản phẩm &nbsp;
             <AntDesign name="plus" size={15} color="#fff" />
           </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+        </TouchableOpacity> */}
+        {/* <TouchableOpacity
           style={styles.btnSyn}
           onPress={() => setOpenLogin(true)}
         >
@@ -154,7 +154,7 @@ function InvoiceInput() {
             Đăng nhập &nbsp;
             <AntDesign name="plus" size={15} color="#fff" />
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity
           style={styles.btnSyn}
           onPress={handleLoadingSynchronized}
@@ -210,10 +210,11 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     borderWidth: 1,
     borderColor: "#d8d7d7ff",
+    marginTop: 20,
   },
   synchronizedWrapper: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     marginTop: 15,
   },
   btnSyn: {

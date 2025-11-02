@@ -1,4 +1,5 @@
 import { ColorMain } from "@/src/presentation/components/colors";
+import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
 import InvoiceInput from "@/src/presentation/screens/BusinessOwnerScreen/InvoiceInput";
 import InvoiceOutput from "@/src/presentation/screens/BusinessOwnerScreen/InvoiceOutput";
@@ -7,6 +8,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 function Invoice() {
   const [isActive, setIsActive] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.cateWrapper}>
@@ -50,8 +53,13 @@ function Invoice() {
         </TouchableOpacity>
       </View>
       <ScreenContainer>
-        {!isActive ? <InvoiceInput /> : <InvoiceOutput />}
+        {!isActive ? (
+          <InvoiceInput />
+        ) : (
+          <InvoiceOutput loading={loading} setLoading={setLoading} />
+        )}
       </ScreenContainer>
+      <LoadingScreen visible={loading} />
     </View>
   );
 }
@@ -65,6 +73,9 @@ const styles = StyleSheet.create({
     shadowColor: ColorMain,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    zIndex: 10,
   },
   cateItem: {
     flex: 1,

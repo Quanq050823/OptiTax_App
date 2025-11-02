@@ -1,4 +1,4 @@
-import { ColorMain } from "@/src/presentation/components/colors";
+import { ColorMain, textColorMain } from "@/src/presentation/components/colors";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 function SignOther() {
@@ -49,15 +49,15 @@ const styles = StyleSheet.create({
   },
   title: { color: "#9d9d9d" },
   loginOther: {
-    borderWidth: 1,
+    borderWidth: 0.5,
     padding: 15,
-    marginTop: 50,
+    marginTop: 30,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
     borderRadius: 5,
-    borderColor: ColorMain,
+    borderColor: textColorMain,
   },
   imageLoginOther: {
     position: "absolute",

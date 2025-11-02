@@ -227,7 +227,7 @@ export async function exportCulateTotalCost({
 
     const newPath =
       (FileSystem as any).documentDirectory +
-      `SoChiTietVatLieu_S2_${
+      `So_Chi_Phi_San_Xuat_Kinh-Doanh_S3_${
         startDate.getMonth() + 1
       }_${startDate.getFullYear()}.pdf`;
 
