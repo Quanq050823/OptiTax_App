@@ -56,6 +56,7 @@ import TaxScreen from "../presentation/screens/BusinessOwnerScreen/TaxScreen/Tax
 import EmployeesScreen from "../presentation/screens/BusinessOwnerScreen/EmployeesScreen/Employees";
 import NewIngredientList from "../presentation/screens/BusinessOwnerScreen/NewIngredientList/NewIngredientList";
 import ExportInvoicePayment from "../presentation/screens/BusinessOwnerScreen/ExportInvoicePayment/ExportInvoicePayment";
+import PaymentInvoiceScreen from "@/src/presentation/screens/BusinessOwnerScreen/PaymentInvoice/PaymentInvoice";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
@@ -359,6 +360,13 @@ const HomeLayout = () => {
           title: "Hóa đơn mới",
         }}
         component={ExportInvoicePayment}
+      />
+      <Stack.Screen
+        name="PaymentInvoiceScreen"
+        options={{
+          title: "Thanh toán hoá đơn",
+        }}
+        component={PaymentInvoiceScreen}
       />
     </Stack.Navigator>
   );

@@ -26,7 +26,7 @@ type ModalOpen = {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 const categories = [
-  { label: "Sản phẩm", value: 1 },
+  { label: "Nguyên vât liệu", value: 1 },
   { label: "Dụng cụ", value: 2 },
 ];
 

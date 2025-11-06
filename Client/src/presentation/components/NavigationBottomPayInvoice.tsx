@@ -1,6 +1,7 @@
-import { ColorMain } from "@/src/presentation/components/colors";
+import { ColorMain, textColorMain } from "@/src/presentation/components/colors";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { Product, RootStackParamList } from "@/src/types/route";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   Alert,
@@ -27,8 +28,10 @@ type NaviBottomPayProps = {
   des?: string;
   qty?: number;
   selectedProduct?: (Product & { quantity: number; total: number })[];
+  totalAfterTax: number | null;
+  disabled?: boolean;
 };
-function NaviBottomPay({
+function NavigationBottomPayInvoice({
   label,
   screen,
   selectedItems,
@@ -36,6 +39,8 @@ function NaviBottomPay({
   selectedInvoice,
   des,
   selectedProduct,
+  totalAfterTax,
+  disabled,
 }: NaviBottomPayProps) {
   const [open, setOpen] = useState(false);
 
@@ -47,6 +52,7 @@ function NaviBottomPay({
   //   };
   //   console.log(totalPrice, "số tiền");
 
+  // ✅ Disable khi tổng tiền bằng 0
   const handlePress = () => {
     if (!params) {
       Alert.alert("Vui lòng chọn một gói chữ ký số!");
@@ -61,10 +67,13 @@ function NaviBottomPay({
     }
   };
   const totalPriceSelect =
-    selectedItems?.reduce(
-      (sum, item) => sum + item.price * (item.qty ?? 1),
+    selectedProduct?.reduce(
+      (sum, item) => sum + item.price * (item.quantity ?? 1),
       0
     ) ?? 0;
+
+  const isPayDisabled = totalPriceSelect === 0;
+
   return (
     <View style={styles.wrapper}>
       {/* Thanh bottom */}
@@ -77,19 +86,26 @@ function NaviBottomPay({
         >
           <View style={styles.summaryLeft}>
             <Text style={{ fontWeight: "600" }}>
-              {des ? des : "Tổng các gói đã chọn…"}{" "}
+              {des ? des : "Chi tiết hoá đơn..."}
             </Text>
             {/* Mũi tên hướng lên (tam giác) */}
             <View style={styles.arrowUp} />
           </View>
 
           <Text style={styles.totalPrice}>
-            {(totalPriceSelect ?? 0).toLocaleString("vi-VN")} VND
+            {totalAfterTax
+              ? totalAfterTax?.toLocaleString("vi-VN")
+              : (totalPriceSelect ?? 0).toLocaleString("vi-VN")}
+            VND
           </Text>
         </TouchableOpacity>
 
         {/* Nút tiếp theo */}
-        <TouchableOpacity style={styles.btnPay} onPress={handlePress}>
+        <TouchableOpacity
+          style={[styles.btnPay, isPayDisabled && { opacity: 0.5 }]}
+          onPress={handlePress}
+          disabled={isPayDisabled}
+        >
           <Text style={{ color: "#fff", fontWeight: "600" }}>{label}</Text>
         </TouchableOpacity>
       </View>
@@ -135,8 +151,8 @@ function NaviBottomPay({
                   <Text>
                     {item.qty
                       ? (item.price * item.qty).toLocaleString("vi-VN")
-                      : item.price.toLocaleString("vi-VN")}&nbsp;
-                    VND
+                      : item.price.toLocaleString("vi-VN")}
+                    &nbsp; VND
                   </Text>
                 </View>
               )}
@@ -144,12 +160,85 @@ function NaviBottomPay({
               contentContainerStyle={{ paddingBottom: 8 }}
             />
 
+            <View>
+              <Text style={styles.sheetTitle}>Chi tiết</Text>
+              <Text style={styles.sheetTitle}>Khuyến mãi</Text>
+              <Text style={styles.sheetTitle}>Phụ thu</Text>
+              <Text style={styles.sheetTitle}>Tổng tiền trước thueesC</Text>
+              <Text style={styles.sheetTitle}>Giảm trừ thuế</Text>
+            </View>
+            <View style={styles.wrOtherPay}>
+              <Text>Tạm tính</Text>
+              <Text
+                style={{
+                  color: textColorMain,
+                  fontWeight: "700",
+                  fontSize: 17,
+                }}
+              >
+                {totalPriceSelect.toLocaleString("vi-VN")} VND
+              </Text>
+            </View>
+
+            <View style={styles.wrOtherPay}>
+              <Text>Khuyến mãi</Text>
+              <View
+                style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
+              >
+                <Text style={{ fontSize: 17 }}>0</Text>
+                <MaterialIcons
+                  name="arrow-forward-ios"
+                  size={17}
+                  color="black"
+                />
+              </View>
+            </View>
+            <View style={styles.wrOtherPay}>
+              <Text>Phụ thu</Text>
+              <View
+                style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
+              >
+                <Text style={{ fontSize: 17 }}>0</Text>
+                <MaterialIcons
+                  name="arrow-forward-ios"
+                  size={17}
+                  color="black"
+                />
+              </View>
+            </View>
+
+            <View style={styles.wrOtherPay}>
+              <Text>Tổng tiền trước thuế</Text>
+              <Text
+                style={{
+                  color: textColorMain,
+                  fontWeight: "700",
+                  fontSize: 17,
+                }}
+              >
+                {totalPriceSelect.toLocaleString("vi-VN")} VND
+              </Text>
+            </View>
+
+            <View style={styles.wrOtherPay}>
+              <Text>Giảm trừ thuế % </Text>
+              <View
+                style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
+              >
+                <Text style={{ fontSize: 17 }}>0</Text>
+                <MaterialIcons
+                  name="arrow-forward-ios"
+                  size={17}
+                  color="black"
+                />
+              </View>
+            </View>
             <View style={styles.divider} />
 
             <View style={styles.rowBetween}>
               <Text style={{ fontWeight: "700" }}>Tổng cộng</Text>
               <Text style={[styles.totalPrice, { marginTop: 0 }]}>
-                {totalPriceSelect.toLocaleString("vi-VN")} VND
+                {totalAfterTax?.toLocaleString("vi-VN")} VND
               </Text>
             </View>
 
@@ -160,7 +249,11 @@ function NaviBottomPay({
               >
                 <Text style={{ fontWeight: "600" }}>Đóng</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.sheetPay} onPress={handlePress}>
+              <TouchableOpacity
+                style={styles.sheetPay}
+                onPress={handlePress}
+                disabled={isPayDisabled}
+              >
                 <Text style={{ color: "#fff", fontWeight: "700" }}>
                   {label}
                 </Text>
@@ -175,7 +268,12 @@ function NaviBottomPay({
 const DROPUP_BG = "#fff";
 const styles = StyleSheet.create({
   wrapper: { position: "absolute", width: "100%", bottom: 0 },
-
+  wrOtherPay: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 4,
+    marginBottom: 5,
+  },
   actionBottom: {
     backgroundColor: "#fff",
     padding: 15,
@@ -289,4 +387,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NaviBottomPay;
+export default NavigationBottomPayInvoice;

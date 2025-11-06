@@ -464,7 +464,7 @@ function HomeScreen(): React.JSX.Element {
             )}
           </View>
         )} */}
-        <View style={styles.container}>
+        {/* <View style={styles.container}>
           <View
             style={{
               shadowColor: "#000",
@@ -526,7 +526,7 @@ function HomeScreen(): React.JSX.Element {
               <FeatureItem key={index} item={item} />
             ))}
           </View>
-        </View>
+        </View> */}
       </ScrollView>
     </View>
   );
