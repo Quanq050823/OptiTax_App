@@ -42,7 +42,10 @@ type RootStackParamList = {
   PaymentVoucherDetail: {
     voucher: PaymentVoucher;
   };
-  ExportInvoicePayment: undefined;
+  PaymentInvoiceScreen: {
+    items: (Product & { quantity: number; total: number })[];
+  };
+  ExportInvoicePayment: { items?: Product[] } | undefined;
   SelectElectronicInvoice: {
     digitalSignature: {
       label: string;
@@ -62,7 +65,7 @@ type RootStackParamList = {
   };
 };
 type Props = NativeStackScreenProps<RootStackParamList>;
-type TabType = "Trang chủ" | "Tiện ích" | "Tuỳ chọn" | "Thông báo";
+type TabType = "Trang chủ" | "Tiện ích" | "Tuỳ chọn" | "Thông báo" | "Xuất HĐ";
 type phieuThu = {
   id: string;
   name: string;

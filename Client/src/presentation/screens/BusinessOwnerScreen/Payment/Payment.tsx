@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { ColorMain } from "@/src/presentation/components/colors";
 import { useState } from "react";
+import { RootStackParamList } from "@/src/types/route";
 
 type CheckoutRouteProp = RouteProp<RootStackParamList, "PaymentScreen">;
 type CheckoutItem = {

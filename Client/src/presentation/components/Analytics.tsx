@@ -1,4 +1,5 @@
 import { ColorMain } from "@/src/presentation/components/colors";
+import ModalSyncDashBoard from "@/src/presentation/components/Modal/ModalSyncDashBoard";
 import { AntDesign } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -17,6 +18,7 @@ import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
 const screenWidth = Dimensions.get("window").width;
 
 export default function Analytics() {
+  const [visiSync, setVisiSync] = useState(false);
   const dataPriceMouth = [
     2000, 4500, 2800, 8000, 9900, 4300, 5500, 6000, 1000, 7800, 1200, 3000,
   ];
@@ -85,10 +87,12 @@ export default function Analytics() {
       spinValue.setValue(0);
       setIsUpdating(false);
     });
+    setVisiSync(true);
   };
 
   return (
-    <ScrollView>
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <ModalSyncDashBoard visible={visiSync} setVisible={setVisiSync} />
       <View style={{ marginTop: 20, width: "100%" }}>
         {/* Nút đồng bộ */}
         <View style={styles.syncWr}>
@@ -135,16 +139,30 @@ export default function Analytics() {
           <View style={styles.deadlineLeft}>
             <Text style={styles.deadlineLabel}>Hạn nộp tờ khai tháng 10</Text>
             <Text style={styles.deadlineDate}>20 / 11 / 2025</Text>
-
-            <View style={styles.deadlineStatusBox}>
-              <AntDesign name="clock-circle" size={14} color="#000" />
-              <Text style={styles.deadlineStatus}>Còn 7 ngày nữa</Text>
-            </View>
           </View>
-
-          <TouchableOpacity style={styles.deadlineBtn} activeOpacity={0.8}>
+          <View style={styles.deadlineStatusBox}>
+            {/* <AntDesign name="clock-circle" size={14} color="#000" /> */}
+            <View
+              style={{
+                position: "absolute",
+                height: 30,
+                borderWidth: 0.3,
+                left: -10,
+                borderColor: "#bebebeff",
+              }}
+            />
+            <Text style={styles.deadlineStatus}>
+              <Text
+                style={{ fontSize: 40, color: "#FF7B00", fontWeight: "600" }}
+              >
+                7
+              </Text>
+              ngày
+            </Text>
+          </View>
+          {/* <TouchableOpacity style={styles.deadlineBtn} activeOpacity={0.8}>
             <Text style={styles.deadlineBtnText}>Xem chi tiết</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         <TouchableOpacity style={styles.btnShow}>
@@ -394,7 +412,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   deadlineLeft: {
-    flex: 1,
+    flex: 3,
   },
   deadlineLabel: {
     fontSize: 15,
@@ -411,6 +429,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginTop: 6,
+    flex: 1,
+    position: "relative",
+    alignContent: "center",
+    justifyContent: "center",
   },
   deadlineStatus: {
     marginLeft: 5,

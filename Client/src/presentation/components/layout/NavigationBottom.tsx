@@ -1,9 +1,15 @@
 import {
   ColorMain,
   iconNavigationColor,
+  textColorMain,
 } from "@/src/presentation/components/colors";
+import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { TabType } from "@/src/types/route";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import React, { JSX, useMemo } from "react";
 import {
@@ -13,6 +19,7 @@ import {
   View,
   Dimensions,
 } from "react-native";
+import { he } from "react-native-paper-dates";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -29,7 +36,7 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
   setActiveTab,
 }) => {
   const { width } = Dimensions.get("window");
-  const TAB_COUNT = 4;
+  const TAB_COUNT = 5;
   const TAB_WIDTH = width / TAB_COUNT;
 
   const itemNavigate: {
@@ -43,7 +50,7 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
           <AntDesign
             name="home"
             size={24}
-            color={focused ? "#fff" : "#676767ff"}
+            color={focused ? ColorMain : "#676767ff"}
           />
         ),
       },
@@ -53,8 +60,43 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
           <Ionicons
             name="apps-sharp"
             size={24}
-            color={focused ? "#fff" : "#676767ff"}
+            color={focused ? ColorMain : "#676767ff"}
           />
+        ),
+      },
+      {
+        name: "Xuất HĐ",
+        icon: (focused) => (
+          <View style={{ position: "relative", width: 24, height: 25 }}>
+            <View
+              style={{
+                position: "absolute",
+                top: -50, // nổi lên
+                left: "50%",
+                transform: [{ translateX: -35 }], // luôn căn giữa
+                width: 70,
+                height: 70,
+                backgroundColor: ColorMain,
+                borderRadius: 50,
+                borderColor: "#fff",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 10,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: 0.3,
+                shadowRadius: 4.65,
+                elevation: 8,
+                borderWidth: 3,
+              }}
+            >
+              <MaterialCommunityIcons
+                name="invoice-text-plus"
+                size={32}
+                color="#fff"
+              />
+            </View>
+          </View>
         ),
       },
       {
@@ -63,7 +105,7 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
           <Ionicons
             name="notifications"
             size={24}
-            color={focused ? "#fff" : "#676767ff"}
+            color={focused ? ColorMain : "#676767ff"}
           />
         ),
       },
@@ -73,7 +115,7 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
           <FontAwesome
             name="user"
             size={24}
-            color={focused ? "#fff" : "#676767ff"}
+            color={focused ? ColorMain : "#676767ff"}
           />
         ),
       },
@@ -81,6 +123,7 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
     []
   );
 
+  const navigation = useAppNavigation();
   // Dùng reanimated để di chuyển nền
   const activeIndex = useSharedValue(
     itemNavigate.findIndex((i) => i.name === activeTab)
@@ -100,13 +143,13 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
     <View style={styles.container}>
       <View style={styles.ItemWrapper}>
         {/* Nền di chuyển dưới icon */}
-        <Animated.View
+        {/* <Animated.View
           style={[
             styles.indicator,
-            { width: TAB_WIDTH - 20, backgroundColor: ColorMain },
+            { width: TAB_WIDTH * 0.87, backgroundColor: ColorMain },
             animatedIndicator,
           ]}
-        />
+        /> */}
 
         {itemNavigate.map((item, idx) => {
           const focused = activeTab === item.name;
@@ -116,6 +159,11 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
               key={item.name}
               style={styles.tabItem}
               onPress={() => {
+                if (item.name === "Xuất HĐ") {
+                  navigation.navigate("ExportInvoicePayment"); // 👈 thay bằng tên screen thật của bạn
+                  return;
+                }
+
                 setActiveTab(item.name as TabType);
                 activeIndex.value = idx;
               }}
@@ -124,8 +172,12 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
               <Text
                 style={[
                   styles.label,
-                  { color: focused ? "#fff" : "#313131ff" },
+                  { color: focused ? ColorMain : "#313131ff" },
                   focused && styles.focusedLabel,
+                  item.name === "Xuất HĐ" && {
+                    fontWeight: "700",
+                    color: textColorMain,
+                  }, // ✅ thêm dòng này
                 ]}
               >
                 {item.name}
@@ -159,7 +211,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   tabItem: {
-    width: Dimensions.get("window").width / 4,
+    width: Dimensions.get("window").width / 5,
     alignItems: "center",
     gap: 0,
     zIndex: 2,
@@ -174,8 +226,8 @@ const styles = StyleSheet.create({
   indicator: {
     position: "absolute",
     height: 50,
-    borderRadius: 30,
-    left: 10,
+    borderRadius: 20,
+    left: 5,
     top: 10,
     zIndex: 1,
   },
