@@ -23,6 +23,7 @@ import { TokenStorage } from "@/src/utils/tokenStorage";
 import { RootStackParamList } from "@/src/types/route";
 import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import Employees from "../../Employees/Employees";
+import { useLogout } from "@/src/presentation/Hooks/useLogout";
 type LoginNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const CustomDrawerBusiness = (props: any) => {
@@ -33,35 +34,8 @@ const CustomDrawerBusiness = (props: any) => {
     return props.state.routeNames[props.state.index] === name;
   };
 
-  const handleLogout = () => {
-    if (isLoggingOut) return;
+  const { handleLogout, loading: logoutLoading } = useLogout();
 
-    Alert.alert(
-      "Đăng xuất",
-      "Bạn có chắc chắn muốn đăng xuất?",
-      [
-        {
-          text: "Huỷ",
-          style: "cancel",
-        },
-        {
-          text: "Đồng ý",
-          onPress: async () => {
-            setIsLoggingOut(true);
-            try {
-              await logout();
-              navigation.replace("Login");
-            } catch (error) {
-              setIsLoggingOut(false);
-              navigation.replace("Login");
-            }
-          },
-          style: "destructive",
-        },
-      ],
-      { cancelable: true }
-    );
-  };
   return (
     <DrawerContentScrollView
       {...props}
@@ -175,7 +149,7 @@ const CustomDrawerBusiness = (props: any) => {
           })
         }
       />
-      <TouchableOpacity onPress={handleLogout} disabled={isLoggingOut}>
+      <TouchableOpacity onPress={handleLogout} disabled={logoutLoading}>
         <View style={styles.logoutContainer}>
           <AntDesign
             name="logout"

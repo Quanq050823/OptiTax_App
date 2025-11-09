@@ -81,11 +81,11 @@ const InvoiceDetailScreen = ({ route }: any) => {
             <View style={styles.card}>
               <View style={styles.flexLabel}>
                 <Text style={styles.label}>Tổng tiền thuế:</Text>
-                <Text style={styles.value}>{item?.tien.thue} đ</Text>
+                {/* <Text style={styles.value}>{item?.tien.thue} đ</Text> */}
               </View>
               <View style={styles.flexLabel}>
                 <Text style={styles.label}>Tổng tiền hàng hoá:</Text>
-                <Text style={styles.value}>{item?.tien.truocThue} đ</Text>
+                {/* <Text style={styles.value}>{item?.tien.truocThue} đ</Text> */}
               </View>
               <View style={styles.flexLabel}>
                 <Text style={styles.label}>Tổng tiền CKTM:</Text>

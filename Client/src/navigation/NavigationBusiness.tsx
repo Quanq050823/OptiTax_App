@@ -21,7 +21,7 @@ import ReceiptVoucherScreen from "@/src/presentation/screens/BusinessOwnerScreen
 import { Alert, View } from "react-native";
 import Option from "@/src/presentation/screens/BusinessOwnerScreen/Option/Option";
 import CustomerManagerScreen from "@/src/presentation/screens/BusinessOwnerScreen/Customer/CustomerScreen";
-import ChooseTaxTypeForHouseholdBusiness from "@/src/presentation/screens/Auth/ChooseTaxTypeForHouseholdBusiness ";
+import ChooseTaxTypeForHouseholdBusiness from "@/src/presentation/screens/Auth/ChooseTaxTypeForHouseholdBusiness";
 import SelectDigitalSignaturePlan from "@/src/presentation/screens/BusinessOwnerScreen/SelectDigitalSignaturePlan/SelectDigitalSignaturePlan";
 import SelectElectronicInvoice from "@/src/presentation/screens/BusinessOwnerScreen/SelectElectronicInvoice/SelectElectronicInvoice";
 import PaymentScreen from "@/src/presentation/screens/BusinessOwnerScreen/Payment/Payment";
@@ -57,6 +57,8 @@ import EmployeesScreen from "../presentation/screens/BusinessOwnerScreen/Employe
 import NewIngredientList from "../presentation/screens/BusinessOwnerScreen/NewIngredientList/NewIngredientList";
 import ExportInvoicePayment from "../presentation/screens/BusinessOwnerScreen/ExportInvoicePayment/ExportInvoicePayment";
 import PaymentInvoiceScreen from "@/src/presentation/screens/BusinessOwnerScreen/PaymentInvoice/PaymentInvoice";
+import ChooseReportItem from "@/src/presentation/screens/BusinessOwnerScreen/ChooseReportItemScreen/ChooseReportItem";
+import ChartExport from "@/src/presentation/screens/BusinessOwnerScreen/ChartExportSceen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
@@ -367,6 +369,20 @@ const HomeLayout = () => {
           title: "Thanh toán hoá đơn",
         }}
         component={PaymentInvoiceScreen}
+      />
+      <Stack.Screen
+        name="ChooseReportItemScreen"
+        options={{
+          title: "Chọn báo cáo",
+        }}
+        component={ChooseReportItem}
+      />
+      <Stack.Screen
+        name="ChartExportScreen"
+        options={{
+          title: "Doanh thu",
+        }}
+        component={ChartExport}
       />
     </Stack.Navigator>
   );

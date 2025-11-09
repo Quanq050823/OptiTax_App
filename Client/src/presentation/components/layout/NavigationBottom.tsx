@@ -3,6 +3,7 @@ import {
   iconNavigationColor,
   textColorMain,
 } from "@/src/presentation/components/colors";
+import NewIngredientButton from "@/src/presentation/components/NewIngredientButton";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { TabType } from "@/src/types/route";
 import {
@@ -108,6 +109,7 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
             color={focused ? ColorMain : "#676767ff"}
           />
         ),
+        NewIngredientButton: <NewIngredientButton width={20} quantity={3} />,
       },
       {
         name: "Tuỳ chọn",

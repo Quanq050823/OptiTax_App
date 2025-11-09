@@ -1,4 +1,4 @@
-import { ColorMain } from "@/src/presentation/components/colors";
+import { ColorMain, textColorMain } from "@/src/presentation/components/colors";
 import NaviBottomPay from "@/src/presentation/components/NaviBottomPay";
 import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     borderRadius: 7,
   },
   headerText: {
-    color: ColorMain,
+    color: textColorMain,
     fontSize: 16,
     fontWeight: "700",
   },
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
 
   optionSelected: {
     borderColor: ColorMain,
-    backgroundColor: "#EAF2FF",
+    backgroundColor: "#caf7e6ff",
     shadowColor: ColorMain,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.5,
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     borderColor: "#cfcfcfff",
   },
   radioSelected: {
-    backgroundColor: "#3F4E87",
+    backgroundColor: textColorMain,
     borderColor: "#fff",
   },
   actionPage: {

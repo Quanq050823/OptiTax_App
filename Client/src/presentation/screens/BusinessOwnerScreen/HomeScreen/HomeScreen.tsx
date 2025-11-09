@@ -59,7 +59,7 @@ function HomeScreen(): React.JSX.Element {
       label: "Báo cáo",
       icon: <FontAwesome name="bar-chart" size={32} color="#FF9800" />,
       navigate: () => {
-        navigate.navigate("ReportScreen");
+        navigate.navigate("ChooseReportItemScreen");
       },
     },
     // {

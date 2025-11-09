@@ -1,6 +1,6 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
-import ChooseTaxTypeForHouseholdBusiness from "@/src/presentation/screens/Auth/ChooseTaxTypeForHouseholdBusiness ";
+import ChooseTaxTypeForHouseholdBusiness from "@/src/presentation/screens/Auth/ChooseTaxTypeForHouseholdBusiness";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 

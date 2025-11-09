@@ -1,10 +1,11 @@
 import axios from "axios";
 import { TokenStorage } from "../../utils/tokenStorage";
 
-const BASE_URL = "http://192.168.100.72:3001/api/";
+const BASE_URL = "http://192.168.1.229:3001/api/";
 
-const axiosInstance = axios.create({
+export const axiosInstance = axios.create({
   baseURL: BASE_URL,
+  withCredentials: true, // nếu backend cần cookie
 });
 
 axiosInstance.interceptors.request.use(

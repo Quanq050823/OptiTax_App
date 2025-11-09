@@ -164,7 +164,7 @@ const mockInvoices: InvoiceSummary[] = [
 function ModalSyncDashBoard({ visible, setVisible }: ModalSyncDashBoardType) {
   return (
     <Modal
-      visible={true}
+      visible={visible}
       animationType="slide"
       transparent={true}
       onRequestClose={() => setVisible(false)}
@@ -209,7 +209,7 @@ function ModalSyncDashBoard({ visible, setVisible }: ModalSyncDashBoardType) {
               <Text
                 style={{ fontSize: 17, fontWeight: "600", color: "#858585ff" }}
               >
-                Hoá đơn
+                Hoá đơn mua vào
               </Text>
             </View>
             <View
@@ -234,7 +234,7 @@ function ModalSyncDashBoard({ visible, setVisible }: ModalSyncDashBoardType) {
                 <Text style={{ fontWeight: "600", color: textColorMain }}>
                   Hoá đơn mới
                 </Text>
-                <Text>0</Text>
+                <Text style={styles.textResultSync}>0</Text>
               </View>
               <View
                 style={{ alignItems: "center", position: "relative", flex: 1 }}
@@ -251,13 +251,13 @@ function ModalSyncDashBoard({ visible, setVisible }: ModalSyncDashBoardType) {
                 <Text style={{ fontWeight: "600", color: "#23609aff" }}>
                   Hoá đơn đã có
                 </Text>
-                <Text>0</Text>
+                <Text style={styles.textResultSync}>0</Text>
               </View>
               <View style={{ alignItems: "center", flex: 1 }}>
                 <Text style={{ color: "#cf3030ff", fontWeight: "600" }}>
                   Hoá đơn lỗi
                 </Text>
-                <Text style={{ color: "#cf3030ff" }}>0</Text>
+                <Text style={styles.textResultSync}>0</Text>
               </View>
             </View>
           </View>
@@ -279,7 +279,7 @@ function ModalSyncDashBoard({ visible, setVisible }: ModalSyncDashBoardType) {
               <Text
                 style={{ fontSize: 17, fontWeight: "600", color: "#858585ff" }}
               >
-                Sản phẩm từ hoá đơn
+                Nguyên liệu từ hoá đơn
               </Text>
             </View>
 
@@ -292,15 +292,14 @@ function ModalSyncDashBoard({ visible, setVisible }: ModalSyncDashBoardType) {
               flexDirection: "row",
               justifyContent: "space-between",
               gap: 10,
+              paddingHorizontal: 10,
             }}
           >
             <TouchableOpacity
-              style={styles.btnSaveVoucher}
+              style={styles.btnExitModalSync}
               //   onPress={onAddOrEditProductInventory}
             >
-              <Text style={{ color: "#fff", fontWeight: "600" }}>
-                Lưu hoá đơn
-              </Text>
+              <Text style={{ color: ColorMain, fontWeight: "600" }}>Xong</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -348,6 +347,19 @@ const styles = StyleSheet.create({
   },
   labelModal: {
     alignItems: "center",
+  },
+  textResultSync: {
+    fontSize: 17,
+  },
+  btnExitModalSync: {
+    alignItems: "center",
+    backgroundColor: "transparent",
+    padding: 15,
+    marginTop: 20,
+    borderRadius: 10,
+    flex: 1,
+    borderWidth: 0.5,
+    borderColor: ColorMain,
   },
 });
 
