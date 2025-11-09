@@ -1,5 +1,6 @@
-import axios from "./axios";
+import axios, { axiosInstance } from "./axios";
 import { TokenStorage } from "../../utils/tokenStorage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface LoginResponse {
   accessToken: string;
@@ -12,7 +13,11 @@ export interface LoginResponse {
 export interface LogoutResponse {
   message: string;
 }
-
+export interface CheckLoginResponse {
+  isAuthenticated: boolean;
+  accessToken?: string;
+  refreshToken?: string;
+}
 export const login = async (data: {
   username: string;
   password: string;
@@ -20,7 +25,7 @@ export const login = async (data: {
   try {
     const payload = { email: data.username, password: data.password };
     const response = await axios.post("auth/login", payload, {
-      withCredentials: false,
+      withCredentials: true, // phải true để backend set cookie
     });
 
     const loginData = response.data as LoginResponse;
@@ -44,16 +49,33 @@ export const login = async (data: {
   }
 };
 
-export const logout = async () => {
+export const logout = async (): Promise<LogoutResponse> => {
   try {
-    {
-      await axios.get("auth/logout", {
-        withCredentials: true,
-      });
+    // Lấy token từ AsyncStorage (nếu backend xác thực bằng JWT)
+    const accessToken = await AsyncStorage.getItem("access_token");
+    if (!accessToken) {
+      // Token không có, coi như đã logout
       await TokenStorage.removeTokens();
+      return { message: "Logout successful (no token found)" };
     }
+
+    // Gọi API logout
+    const res = await axiosInstance.get<LogoutResponse>("auth/logout", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      withCredentials: true, // gửi cookie nếu backend dùng session
+    });
+
+    // Xóa token ở client
+    await TokenStorage.removeTokens();
+
+    console.log("Logout response from backend:", res.data);
+
+    return { message: res.data?.message || "Logout successful" };
   } catch (error: any) {
-    throw error;
+    console.error("Logout failed:", error);
+    // Dù API thất bại, cũng xóa token để tránh bị login nhầm
+    await TokenStorage.removeTokens();
+    return { message: "Logout failed, but tokens removed" };
   }
 };
 
@@ -95,5 +117,23 @@ export const register = async (data: {
       throw error.response.data;
     }
     throw error;
+  }
+};
+
+export const checkLogin = async (): Promise<CheckLoginResponse> => {
+  try {
+    const accessToken = await AsyncStorage.getItem("access_token");
+    console.log("Checking token:", accessToken);
+    if (!accessToken) return { isAuthenticated: false };
+
+    const res = await axiosInstance.get<CheckLoginResponse>("auth/is-login", {
+      withCredentials: true,
+    });
+
+    console.log("Response from backend:", res.data);
+    return { isAuthenticated: res.data?.isAuthenticated === true };
+  } catch (error) {
+    console.error("Check login failed:", error);
+    return { isAuthenticated: false };
   }
 };

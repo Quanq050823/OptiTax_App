@@ -1,6 +1,7 @@
-import { ColorMain } from "@/src/presentation/components/colors";
+import { ColorMain, textColorMain } from "@/src/presentation/components/colors";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { Invoice } from "@/src/types/route";
+import { Entypo } from "@expo/vector-icons";
 import {
   FlatList,
   StyleSheet,
@@ -90,9 +91,39 @@ function InvoiceOutputList({ invoicesData }: invoice) {
               alignItems: "center",
             }}
           >
-            <Text style={[styles.status, { color: statusInfo.color }]}>
+            {/* <Text style={[styles.status, { color: statusInfo.color }]}>
               {statusInfo.text}
-            </Text>
+            </Text> */}
+            <View style={{ flexDirection: "row", gap: 10 }}>
+              <View
+                style={{
+                  alignItems: "center",
+                  borderWidth: 0.5,
+                  borderColor: "#3F4E87",
+                  padding: 5,
+                  borderRadius: 5,
+                  backgroundColor: "#3f4d8724",
+                }}
+              >
+                <Text style={{ fontSize: 10, color: "#2d3681ff" }}>
+                  Đã phát hành <Entypo name="check" size={10} color="black" />
+                </Text>
+              </View>
+              <View
+                style={{
+                  alignItems: "center",
+                  borderWidth: 0.5,
+                  borderColor: ColorMain,
+                  padding: 5,
+                  borderRadius: 5,
+                  backgroundColor: "#4dbf9929",
+                }}
+              >
+                <Text style={{ fontSize: 10, color: textColorMain }}>
+                  Hợp lệ <Entypo name="check" size={10} color={textColorMain} />
+                </Text>
+              </View>
+            </View>
             <Text style={{ fontSize: 18, fontWeight: "600", color: ColorMain }}>
               {total.toLocaleString("vi-VN")} đ
             </Text>

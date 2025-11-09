@@ -51,19 +51,6 @@ function InvoiceInput() {
   const [openListProductSynchronized, setOpenListProductSynchronized] =
     useState(false);
 
-  const fetchListInvoice = async () => {
-    try {
-      const data = await getInvoiceInputList();
-      setInvoices(data.data ?? []);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchListInvoice();
-  }, []);
-
   useEffect(() => {
     let animation: Animated.CompositeAnimation;
     if (loading) {

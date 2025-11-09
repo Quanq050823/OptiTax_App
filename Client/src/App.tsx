@@ -6,9 +6,10 @@ import { BusinessInfo } from "@/src/types/route";
 import { NavigationContainer } from "@react-navigation/native";
 import * as React from "react";
 import { Buffer } from "buffer";
-global.Buffer = Buffer;
-import { View } from "react-native";
+
+import { ActivityIndicator, View } from "react-native";
 import { PaperProvider } from "react-native-paper";
+global.Buffer = Buffer;
 
 // const linking = {
 //   prefixes: ["taxdemo://"],

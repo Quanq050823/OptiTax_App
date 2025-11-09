@@ -1,14 +1,11 @@
+// LoginScreen.tsx
 import HeaderLogin from "@/src/presentation/components/Auth/header";
 import SignOther from "@/src/presentation/components/Auth/header/SignOther";
 import Logo from "@/src/presentation/components/Auth/Logo/Logo";
 import { ColorMain } from "@/src/presentation/components/colors";
-import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
 import { stylesAuth } from "@/src/presentation/screens/Auth/Styles";
 import { useEffect, useState } from "react";
-import { login } from "@/src/services/API/authService";
 import {
-  Alert,
-  ImageBackground,
   KeyboardAvoidingView,
   Platform,
   StatusBar,
@@ -17,102 +14,57 @@ import {
   View,
 } from "react-native";
 import { TextInput } from "react-native-paper";
-import { TokenStorage } from "@/src/utils/tokenStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
+import { useLogin } from "@/src/presentation/Hooks/useLogin";
+import { useCheckLoginOnMount } from "@/src/presentation/Hooks/useCheckLogin";
 
-function LoginScreen({ navigation }: Props) {
+function LoginScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
-    if (!username || !password) {
-      Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thông tin.");
-      return;
-    }
-    setLoading(true);
-    try {
-      const result = await login({ username, password });
-      setLoading(false);
-      navigation.replace("NavigationBusiness");
-      //   if (result?.role === 1) {
-      //   } else if (result?.role === 0) {
-      //     navigation.replace("NavigationAccountant");
-      //   } else {
-      //     Alert.alert(
-      //       "Đăng nhập thành công",
-      //       "Không xác định vai trò người dùng."
-      //     );
-      //   }
-      await AsyncStorage.setItem("username", username);
-    } catch (error: any) {
-      setLoading(false);
-      Alert.alert("Đăng nhập thất bại", error?.message || "Có lỗi xảy ra.");
-    }
-  };
+  const { handleLogin, loading: loginLoading } = useLogin();
+  const { loading: checkLoading } = useCheckLoginOnMount();
 
+  // Load username lưu trước đó
   useEffect(() => {
     const loadUsername = async () => {
-      try {
-        const savedUsername = await AsyncStorage.getItem("username");
-        if (savedUsername) {
-          setUsername(savedUsername); // gán vào state để hiển thị
-        }
-      } catch (e) {
-        console.log("Error loading username", e);
-      }
+      const savedUser = await AsyncStorage.getItem("username");
+      if (savedUser) setUsername(savedUser);
     };
     loadUsername();
   }, []);
+
+  if (checkLoading) {
+    return <LoadingScreen visible={true} />;
+  }
+
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"} // iOS dùng "padding", Android dùng "height"
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
       <View style={{ flex: 1, backgroundColor: ColorMain }}>
         <StatusBar
+          translucent
           backgroundColor="transparent"
           barStyle="light-content"
-          translucent={true}
         />
-        <HeaderLogin name={"Đăng nhập"} />
+        <HeaderLogin name="Đăng nhập" />
 
         <View style={stylesAuth.containerWrapper}>
-          <View
-            style={{
-              position: "absolute",
-              top: 7,
-              left: -20,
-              width: "110%",
-              right: 0,
-              height: 50,
-              backgroundColor: "rgba(152, 43, 43, 0.12)",
-              borderTopLeftRadius: 100,
-              borderTopRightRadius: 100,
-              shadowColor: "#252525ff",
-              shadowOffset: { width: 0, height: -10 },
-              shadowOpacity: 5,
-              shadowRadius: 10,
-              elevation: 10,
-            }}
-          />
-          {/* <ImageBackground
-          style={[stylesAuth.container, { backgroundColor: ColorMain }]}
-          source={require("@/assets/images/themeLogin.jpg")}
-          resizeMode="cover"
-        > */}
           <View style={stylesAuth.wrapLogin}>
             <Logo widthLogo={70} heightLogo={65} />
+
             <View style={{ marginTop: 50, width: "100%" }}>
               <TextInput
                 label="Email hoặc số điện thoại"
                 style={stylesAuth.input}
                 onChangeText={setUsername}
+                value={username}
                 underlineColor={ColorMain}
                 activeUnderlineColor={ColorMain}
-                value={username}
                 textColor="#000"
               />
               <TextInput
@@ -122,7 +74,7 @@ function LoginScreen({ navigation }: Props) {
                 secureTextEntry={!showPassword}
                 right={
                   <TextInput.Icon
-                    icon="eye"
+                    icon={showPassword ? "eye-off" : "eye"}
                     onPress={() => setShowPassword(!showPassword)}
                   />
                 }
@@ -131,45 +83,37 @@ function LoginScreen({ navigation }: Props) {
                 textColor="#000"
               />
 
-              {/* <TouchableOpacity
-                  style={stylesAuth.iconShowPass}
-                  onPress={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <FontAwesome name="eye" size={20} color="#9d9d9d" />
-                  ) : (
-                    <FontAwesome name="eye-slash" size={20} color="#9d9d9d" />
-                  )}
-                </TouchableOpacity> */}
               <TouchableOpacity
-                onPress={handleLogin}
+                onPress={() => handleLogin(username, password)}
                 style={stylesAuth.btnLogin}
-                disabled={loading}
+                disabled={loginLoading}
               >
                 <Text style={stylesAuth.textBtnLogin}>
-                  {loading ? "Loading..." : "Đăng nhập"}
+                  {loginLoading ? "Đang đăng nhập..." : "Đăng nhập"}
                 </Text>
               </TouchableOpacity>
+
               <View style={stylesAuth.actionCase}>
                 <TouchableOpacity style={stylesAuth.FogotPass}>
                   <Text style={stylesAuth.FogotPassTitle}>Quên mật khẩu?</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={stylesAuth.FogotPass}
-                  onPress={() => navigation.navigate("Register")}
+                  onPress={() => console.log("Navigate to Register")}
                 >
                   <Text>
-                    Bạn chưa có tài khoản? &nbsp;
+                    Bạn chưa có tài khoản?{" "}
                     <Text style={stylesAuth.FogotPassTitle}>Đăng ký</Text>
                   </Text>
                 </TouchableOpacity>
               </View>
             </View>
+
             <SignOther />
           </View>
-          {/* </ImageBackground> */}
         </View>
-        <LoadingScreen visible={loading} />
+
+        <LoadingScreen visible={loginLoading} />
       </View>
     </KeyboardAvoidingView>
   );
