@@ -9,13 +9,13 @@ import SearchByName from "@/src/presentation/components/SearchByName";
 import { useData } from "@/src/presentation/Hooks/useDataStore";
 import { getInvoiceInputList } from "@/src/services/API/invoiceService";
 import {
-  BusinessInforAuth,
-  getUserProfile,
+	BusinessInforAuth,
+	getUserProfile,
 } from "@/src/services/API/profileService";
 import {
-  getInvoiceIn,
-  getInvoiceInById,
-  syncInvoiceIn,
+	getInvoiceIn,
+	getInvoiceInById,
+	syncInvoiceIn,
 } from "@/src/services/API/syncInvoiceIn";
 import { InvoiceSummary } from "@/src/types/invoiceIn";
 import { Invoice, Profile, UserProfile } from "@/src/types/route";
@@ -24,109 +24,109 @@ import { AntDesign, FontAwesome5, Fontisto } from "@expo/vector-icons";
 import { log } from "console";
 import { useEffect, useRef, useState } from "react";
 import {
-  Alert,
-  Animated,
-  Easing,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+	Alert,
+	Animated,
+	Easing,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
 } from "react-native";
 
 function InvoiceInput() {
-  const { data } = useData();
+	const { data } = useData();
 
-  const [visible, setVisible] = useState(false);
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [openLogin, setOpenLogin] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [invoiceDataSync, setInvoiceDataSync] = useState<InvoiceSummary[]>([]);
-  const [listInvoiceDataSync, setListInvoiceDataSync] = useState<
-    InvoiceSummary[]
-  >([]);
-  const [syncDataInvoiceIn, setSyncDataInvoiceIn] = useState<syncDataInvoiceIn>(
-    { dateto: "", datefrom: "" }
-  );
+	const [visible, setVisible] = useState(false);
+	const [invoices, setInvoices] = useState<Invoice[]>([]);
+	const [openLogin, setOpenLogin] = useState(false);
+	const [loading, setLoading] = useState(false);
+	const [invoiceDataSync, setInvoiceDataSync] = useState<InvoiceSummary[]>([]);
+	const [listInvoiceDataSync, setListInvoiceDataSync] = useState<
+		InvoiceSummary[]
+	>([]);
+	const [syncDataInvoiceIn, setSyncDataInvoiceIn] = useState<syncDataInvoiceIn>(
+		{ dateto: "", datefrom: "" }
+	);
 
-  const spinValue = useRef(new Animated.Value(0)).current;
-  const [openListProductSynchronized, setOpenListProductSynchronized] =
-    useState(false);
+	const spinValue = useRef(new Animated.Value(0)).current;
+	const [openListProductSynchronized, setOpenListProductSynchronized] =
+		useState(false);
 
-  useEffect(() => {
-    let animation: Animated.CompositeAnimation;
-    if (loading) {
-      animation = Animated.loop(
-        Animated.timing(spinValue, {
-          toValue: 1,
-          duration: 1000, // 1 vòng / giây
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-      );
-      animation.start();
-    } else {
-      spinValue.stopAnimation();
-      spinValue.setValue(0);
-    }
-    return () => {
-      if (animation) animation.stop();
-    };
-  }, [loading]);
+	useEffect(() => {
+		let animation: Animated.CompositeAnimation;
+		if (loading) {
+			animation = Animated.loop(
+				Animated.timing(spinValue, {
+					toValue: 1,
+					duration: 1000, // 1 vòng / giây
+					easing: Easing.linear,
+					useNativeDriver: true,
+				})
+			);
+			animation.start();
+		} else {
+			spinValue.stopAnimation();
+			spinValue.setValue(0);
+		}
+		return () => {
+			if (animation) animation.stop();
+		};
+	}, [loading]);
 
-  const spin = spinValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0deg", "360deg"],
-  });
-  const handleLoadingSynchronized = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setVisible(true);
-    }, 2000);
-  };
+	const spin = spinValue.interpolate({
+		inputRange: [0, 1],
+		outputRange: ["0deg", "360deg"],
+	});
+	const handleLoadingSynchronized = () => {
+		setLoading(true);
+		setTimeout(() => {
+			setLoading(false);
+			setVisible(true);
+		}, 2000);
+	};
 
-  const handleSyncInvoiceIn = async () => {
-    setLoading(true);
-    try {
-      if (!syncDataInvoiceIn) return;
-      const res = await syncInvoiceIn(syncDataInvoiceIn);
-      setListInvoiceDataSync(res.invoices as InvoiceSummary[]);
-      setLoading(false);
-    } catch (err) {
-      setLoading(false);
+	const handleSyncInvoiceIn = async () => {
+		setLoading(true);
+		try {
+			if (!syncDataInvoiceIn) return;
+			const res = await syncInvoiceIn();
+			setListInvoiceDataSync(res.invoices as InvoiceSummary[]);
+			setLoading(false);
+		} catch (err) {
+			setLoading(false);
 
-      Alert.alert("Lỗi lấy dữ liệu!");
-      console.log(err);
-    }
-  };
+			Alert.alert("Lỗi lấy dữ liệu!");
+			console.log(err);
+		}
+	};
 
-  useEffect(() => {
-    const fetchInvoiceSync = async () => {
-      try {
-        const res = await getInvoiceIn();
+	useEffect(() => {
+		const fetchInvoiceSync = async () => {
+			try {
+				const res = await getInvoiceIn();
 
-        setListInvoiceDataSync(res);
-      } catch {
-        console.log("Không có dữ liệu");
-      }
-    };
+				setListInvoiceDataSync(res);
+			} catch {
+				console.log("Không có dữ liệu");
+			}
+		};
 
-    fetchInvoiceSync();
-  }, []);
+		fetchInvoiceSync();
+	}, []);
 
-  return (
-    <View style={{ flex: 1, position: "relative", paddingHorizontal: 10 }}>
-      {/* <HeaderScreen /> */}
-      <View style={styles.searchWrapper}>
-        <SearchByName label="Tìm kiếm nhà cung cấp" />
-        <View style={{ flex: 1, alignItems: "center", paddingRight: 20 }}>
-          <TouchableOpacity>
-            <FontAwesome5 name="calendar-alt" size={24} color={textColorMain} />
-          </TouchableOpacity>
-        </View>
-      </View>
-      <View style={styles.synchronizedWrapper}>
-        {/* <TouchableOpacity
+	return (
+		<View style={{ flex: 1, position: "relative", paddingHorizontal: 10 }}>
+			{/* <HeaderScreen /> */}
+			<View style={styles.searchWrapper}>
+				<SearchByName label="Tìm kiếm nhà cung cấp" />
+				<View style={{ flex: 1, alignItems: "center", paddingRight: 20 }}>
+					<TouchableOpacity>
+						<FontAwesome5 name="calendar-alt" size={24} color={textColorMain} />
+					</TouchableOpacity>
+				</View>
+			</View>
+			<View style={styles.synchronizedWrapper}>
+				{/* <TouchableOpacity
           style={styles.btnSyn}
           onPress={() => setOpenListProductSynchronized(true)}
         >
@@ -135,7 +135,7 @@ function InvoiceInput() {
             <AntDesign name="plus" size={15} color="#fff" />
           </Text>
         </TouchableOpacity> */}
-        {/* <TouchableOpacity
+				{/* <TouchableOpacity
           style={styles.btnSyn}
           onPress={() => setOpenLogin(true)}
         >
@@ -144,70 +144,70 @@ function InvoiceInput() {
             <AntDesign name="plus" size={15} color="#fff" />
           </Text>
         </TouchableOpacity> */}
-        <TouchableOpacity
-          style={styles.btnSyn}
-          onPress={handleLoadingSynchronized}
-        >
-          <Text style={{ color: "#fff", fontSize: 14 }}>
-            {loading ? (
-              <>
-                Đang đồng bộ &nbsp;
-                <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                  <Fontisto name="spinner-refresh" size={13} color="#fff" />
-                </Animated.View>
-              </>
-            ) : (
-              <>
-                Đồng bộ &nbsp;
-                <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                  <Fontisto name="spinner-refresh" size={13} color="#fff" />
-                </Animated.View>
-              </>
-            )}
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <ModalCreateProductsByInvoiceInput
-        setOpenListProductSynchronized={setOpenListProductSynchronized}
-        openListProductSynchronized={openListProductSynchronized}
-        invoicesData={invoices}
-      />
+				<TouchableOpacity
+					style={styles.btnSyn}
+					onPress={handleLoadingSynchronized}
+				>
+					<Text style={{ color: "#fff", fontSize: 14 }}>
+						{loading ? (
+							<>
+								Đang đồng bộ &nbsp;
+								<Animated.View style={{ transform: [{ rotate: spin }] }}>
+									<Fontisto name="spinner-refresh" size={13} color="#fff" />
+								</Animated.View>
+							</>
+						) : (
+							<>
+								Đồng bộ &nbsp;
+								<Animated.View style={{ transform: [{ rotate: spin }] }}>
+									<Fontisto name="spinner-refresh" size={13} color="#fff" />
+								</Animated.View>
+							</>
+						)}
+					</Text>
+				</TouchableOpacity>
+			</View>
+			<ModalCreateProductsByInvoiceInput
+				setOpenListProductSynchronized={setOpenListProductSynchronized}
+				openListProductSynchronized={openListProductSynchronized}
+				invoicesData={invoices}
+			/>
 
-      <InvoiInputList invoicesData={listInvoiceDataSync} />
-      <ModalSynchronized
-        visible={visible}
-        setVisible={setVisible}
-        setSyncDataInvoiceIn={setSyncDataInvoiceIn}
-        onSyncInvoiceIn={handleSyncInvoiceIn}
-        loading={loading}
-        setLoading={setLoading}
-      />
-      <ModalLoginCCT openLogin={openLogin} setOpenLogin={setOpenLogin} />
-    </View>
-  );
+			<InvoiInputList invoicesData={listInvoiceDataSync} />
+			<ModalSynchronized
+				visible={visible}
+				setVisible={setVisible}
+				setSyncDataInvoiceIn={setSyncDataInvoiceIn}
+				onSyncInvoiceIn={handleSyncInvoiceIn}
+				loading={loading}
+				setLoading={setLoading}
+			/>
+			<ModalLoginCCT openLogin={openLogin} setOpenLogin={setOpenLogin} />
+		</View>
+	);
 }
 const styles = StyleSheet.create({
-  searchWrapper: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 50,
-    borderWidth: 1,
-    borderColor: "#d8d7d7ff",
-    marginTop: 20,
-  },
-  synchronizedWrapper: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 15,
-  },
-  btnSyn: {
-    backgroundColor: ColorMain,
-    padding: 10,
-    borderRadius: 10,
-  },
-  rotato: {},
+	searchWrapper: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+		backgroundColor: "#fff",
+		borderRadius: 50,
+		borderWidth: 1,
+		borderColor: "#d8d7d7ff",
+		marginTop: 20,
+	},
+	synchronizedWrapper: {
+		flexDirection: "row",
+		justifyContent: "center",
+		marginTop: 15,
+	},
+	btnSyn: {
+		backgroundColor: ColorMain,
+		padding: 10,
+		borderRadius: 10,
+	},
+	rotato: {},
 });
 
 export default InvoiceInput;
