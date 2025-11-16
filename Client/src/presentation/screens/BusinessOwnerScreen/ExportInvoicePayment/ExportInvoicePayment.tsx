@@ -6,9 +6,13 @@ import { getProductsInventory } from "@/src/services/API/storageService";
 import { Product, RootStackParamList } from "@/src/types/route";
 import { ProductInventory } from "@/src/types/storage";
 import { AntDesign, Entypo, Feather } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RouteProp, useRoute } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { useNavigation } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
+  Alert,
   Dimensions,
   FlatList,
   Image,
@@ -21,13 +25,18 @@ import {
   View,
 } from "react-native";
 import { Searchbar } from "react-native-paper";
+import { logout as apiLogout } from "@/src/services/API/authService";
 
 type ExportInvoicePaymentRoute = RouteProp<
   RootStackParamList,
   "ExportInvoicePayment"
 >;
+type NavProp = StackNavigationProp<RootStackParamList>;
 function ExportInvoicePayment() {
+  const navigate = useNavigation<NavProp>();
+
   const navigation = useAppNavigation();
+
   const route = useRoute<ExportInvoicePaymentRoute>();
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -77,7 +86,21 @@ function ExportInvoicePayment() {
       const data = await getProducts();
       setProducts(data);
     } catch (error) {
-      console.error("Error fetching products:", error);
+      // await AsyncStorage.removeItem("access_token");
+
+      Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại", [
+        {
+          text: "Đăng nhập lại",
+          onPress: () => {
+            // Xử lý điều hướng về màn Login
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "Login" }],
+            });
+          },
+          style: "default", // hoặc "cancel", "destructive"
+        },
+      ]);
     }
   };
 
@@ -90,7 +113,25 @@ function ExportInvoicePayment() {
       const data = await getProductsInventory();
       setProductStorage(data.data);
     } catch (error) {
-      console.error("Error fetching products:", error);
+      // await AsyncStorage.removeItem("access_token");
+
+      Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại", [
+        {
+          text: "Đăng nhập lại",
+          onPress: async () => {
+            // Xử lý điều hướng về màn Login
+            const result = await apiLogout();
+            console.log("Logout result:", result);
+
+            // Chuyển về trang login sau khi logout
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "Login" }],
+            });
+          },
+          style: "default", // hoặc "cancel", "destructive"
+        },
+      ]);
     }
   };
 
@@ -199,7 +240,17 @@ function ExportInvoicePayment() {
             <Text style={styles.detail}>
               Giá: {item.price.toLocaleString()}đ
             </Text>
-            <Text style={styles.detail}>Còn: {item.stock}</Text>
+            <Text style={styles.detail}>
+              Còn: &nbsp;
+              <Text
+                style={{
+                  color: item.stock < 1 ? "#ff3e3eff" : ColorMain,
+                  fontWeight: "600",
+                }}
+              >
+                {item.stock}
+              </Text>
+            </Text>
           </View>
           <View style={{ right: 10, position: "absolute" }}>
             {quantity[item._id] ? (
@@ -228,6 +279,7 @@ function ExportInvoicePayment() {
                     styles.quantityButton,
                     { backgroundColor: ColorMain },
                   ]}
+                  disabled={item.stock < 1 ? true : false}
                   onPress={() => increaseQuantity(item._id)}
                 >
                   <Text style={[styles.quantityButtonText, { color: "#fff" }]}>
@@ -238,10 +290,11 @@ function ExportInvoicePayment() {
             ) : (
               <TouchableOpacity
                 style={{
-                  backgroundColor: ColorMain,
+                  backgroundColor: item.stock < 1 ? "#ccc" : ColorMain,
                   borderRadius: 5,
                   padding: 5,
                 }}
+                disabled={item.stock < 1}
                 onPress={() => increaseQuantity(item._id)} // ấn + lần đầu sẽ tạo quantity = 1
               >
                 <Entypo name="plus" size={17} color="#fff" />
@@ -424,7 +477,7 @@ function ExportInvoicePayment() {
             </View>
             <View style={{ marginTop: 20 }}>
               <Text>
-                Nguyên liệu thay thế: 30ml{" "}
+                Nguyên liệu thay thế: 30ml
                 <Text style={{ fontWeight: "700" }}>Sữa đặt</Text> thành 30ml
                 <Text style={{ fontWeight: "700" }}> Rượu</Text>
               </Text>

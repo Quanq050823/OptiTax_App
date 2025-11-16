@@ -77,7 +77,7 @@ function NaviBottomPay({
         >
           <View style={styles.summaryLeft}>
             <Text style={{ fontWeight: "600" }}>
-              {des ? des : "Tổng các gói đã chọn…"}{" "}
+              {des ? des : "Tổng các gói đã chọn…"}
             </Text>
             {/* Mũi tên hướng lên (tam giác) */}
             <View style={styles.arrowUp} />
@@ -135,8 +135,8 @@ function NaviBottomPay({
                   <Text>
                     {item.qty
                       ? (item.price * item.qty).toLocaleString("vi-VN")
-                      : item.price.toLocaleString("vi-VN")}&nbsp;
-                    VND
+                      : item.price.toLocaleString("vi-VN")}
+                    &nbsp; VND
                   </Text>
                 </View>
               )}

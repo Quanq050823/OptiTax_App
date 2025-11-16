@@ -1,5 +1,6 @@
 import { ColorMain } from "@/src/presentation/components/colors";
-import { AntDesign, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, MaterialIcons, Octicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import {
   Animated,
@@ -11,12 +12,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import ShimmerSweep from "../ShimmerSweep";
 
 type ModalOpen = {
   openLogin: boolean;
   setOpenLogin: React.Dispatch<React.SetStateAction<boolean>>;
 };
 function ModalLoginCCT({ openLogin, setOpenLogin }: ModalOpen) {
+  const [hdrSize, setHdrSize] = useState({ w: 0, h: 0 });
   return (
     <Modal
       animationType="slide"
@@ -46,7 +49,13 @@ function ModalLoginCCT({ openLogin, setOpenLogin }: ModalOpen) {
               placeholderTextColor="#9d9d9d"
             />
             <View
-              style={{ width: "100%", alignItems: "flex-end", marginTop: 10 }}
+              style={{
+                width: "100%",
+                marginTop: 10,
+                flexDirection: "row",
+                justifyContent: "flex-end",
+                paddingHorizontal: 10,
+              }}
             >
               <Text style={{ color: "#4d69cfff", fontWeight: "600" }}>
                 Quên mật khẩu?
@@ -57,10 +66,7 @@ function ModalLoginCCT({ openLogin, setOpenLogin }: ModalOpen) {
                 Đăng nhập
               </Text>
             </TouchableOpacity>
-            <Text style={styles.des}>
-              Bạn phải đăng nhập tài khoản chi cục thuế để có thể lấy được hoá
-              đơn chính xác nhất
-            </Text>
+            <Text style={styles.des}>-- Hoặc --</Text>
           </View>
 
           <AntDesign
@@ -70,6 +76,52 @@ function ModalLoginCCT({ openLogin, setOpenLogin }: ModalOpen) {
             style={{ position: "absolute", right: 20, top: 20 }}
             onPress={() => setOpenLogin(false)}
           />
+          <LinearGradient
+            colors={["#4dbf99ff", "#6A7DB3"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 3 }}
+            style={styles.btnShow}
+            onLayout={(e) => {
+              const { width, height } = e.nativeEvent.layout;
+              setHdrSize({ w: width, h: height }); // 👈 CẬP NHẬT KÍCH THƯỚC
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => {}}
+              style={{
+                flex: 1,
+                alignItems: "center",
+                flexDirection: "row",
+                width: "100%",
+                justifyContent: "center",
+              }}
+            >
+              <Text style={{ color: "#fff", fontWeight: "700" }}>
+                Liên hệ kế toán EON
+              </Text>
+            </TouchableOpacity>
+            <ShimmerSweep
+              sweepDuration={5000}
+              pauseDuration={100}
+              angleDeg={20}
+              intensity={0.9}
+              bandWidth={100}
+              containerWidth={hdrSize.w}
+              containerHeight={hdrSize.h}
+            />
+          </LinearGradient>
+          <TouchableOpacity>
+            <Text
+              style={{
+                color: "#344992ff",
+                fontWeight: "500",
+                marginTop: 20,
+              }}
+            >
+              Xem Demo &nbsp;
+              <Octicons name="video" size={15} color="#344992ff" />
+            </Text>
+          </TouchableOpacity>
           {/* <View style={styles.grabber} /> */}
         </View>
       </View>
@@ -78,6 +130,16 @@ function ModalLoginCCT({ openLogin, setOpenLogin }: ModalOpen) {
 }
 
 const styles = StyleSheet.create({
+  btnShow: {
+    width: "95%",
+    backgroundColor: ColorMain,
+    marginTop: 20,
+    alignSelf: "center",
+    borderRadius: 10,
+    minHeight: 50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   closeButton: {
     backgroundColor: "tomato",
     padding: 10,
@@ -98,7 +160,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 8,
     width: "100%",
-    minHeight: 550,
+    minHeight: 600,
     alignItems: "center",
     paddingVertical: 20,
     position: "relative",

@@ -4,13 +4,10 @@ import InvoiceOutputList from "@/src/presentation/components/List/InvoiceOutputL
 import InvoiInputList from "@/src/presentation/components/List/InvoiInputList";
 import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import ModalCreateProductsByInvoiceOuput from "@/src/presentation/components/Modal/ModalCreateProductsByInvoiceOuput";
-import ModalLoginCCT from "@/src/presentation/components/Modal/ModalEditProduct/ModalLoginCCT";
+import ModalLoginCCT from "@/src/presentation/components/Modal/ModalLoginCCT";
 import ModalSynchronized from "@/src/presentation/components/Modal/ModalSynchronized";
 import SearchByName from "@/src/presentation/components/SearchByName";
-import {
-  getInvoiceList,
-  getInvoiceOutputList,
-} from "@/src/services/API/invoiceService";
+import { getInvoiceOutputList } from "@/src/services/API/invoiceService";
 import { Invoice } from "@/src/types/route";
 import { AntDesign, FontAwesome5, Fontisto } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
@@ -34,7 +31,7 @@ type InvoiceOutputProps = {
 function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
   const [visible, setVisible] = useState(false);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [openLogin, setOpenLogin] = useState(false);
+  const [openLogin, setOpenLogin] = useState(true);
   const [openListProductSynchronized, setOpenListProductSynchronized] =
     useState(false);
   const spinValue = useRef(new Animated.Value(0)).current;
@@ -87,7 +84,7 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
     }, 2000);
   };
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, paddingHorizontal: 10 }}>
       {/* <HeaderScreen /> */}
       <View style={styles.searchWrapper}>
         <SearchByName label="Tìm kiếm mã hoá đơn" />
@@ -137,12 +134,8 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
         invoicesData={invoices}
       />
       <InvoiceOutputList invoicesData={invoices} />
-      <ModalSynchronized visible={visible} setVisible={setVisible} />
-      <ModalLoginCCT
-        visible={openLogin}
-        openLogin={openLogin}
-        setOpenLogin={setOpenLogin}
-      />
+      {/* <ModalSynchronized visible={visible} setVisible={setVisible} /> */}
+      <ModalLoginCCT openLogin={openLogin} setOpenLogin={setOpenLogin} />
     </View>
   );
 }

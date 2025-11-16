@@ -5,4 +5,5 @@ export const iconNavigationColor = "#3F4E87";
 export const textColorMain = "#2d926dff";
 export const colorLightText = "#fff";
 export const colorDarkText = "#000";
+export const textDealineColor = "#3BA99C";
 // export const iconNavigationColor = "#0b2177ff"

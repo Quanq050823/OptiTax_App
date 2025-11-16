@@ -69,7 +69,7 @@ export const DataProvider = ({ children }: DataProviderProps) => {
       console.log(voucherData, "voucher payment");
       setVoucherPayList(voucherData.data);
     } catch (error) {
-      console.error("❌ Error fetchData:", error);
+      return;
     }
   };
 

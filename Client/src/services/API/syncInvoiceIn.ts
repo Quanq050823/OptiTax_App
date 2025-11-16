@@ -86,8 +86,8 @@ export const syncInvoiceIn = async (data: {
     const res = await axiosInstance.post<InvoiceListResponse>(url, data);
 
     Alert.alert(
-      "Kết quả đồng bộ",
-      `HĐ mới: ${res.data.sync}, HĐ đã có: ${res.data.skip},HĐ lỗi: ${res.data.fail}`
+      "Đồng bộ thành công",
+      // `HĐ mới: ${res.data.sync}, HĐ đã có: ${res.data.skip},HĐ lỗi: ${res.data.fail}`
     );
 
     return res.data;

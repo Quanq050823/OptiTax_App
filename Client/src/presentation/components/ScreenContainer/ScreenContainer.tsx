@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  ImageBackground,
-
-  StyleSheet,
-  View,
-  ViewProps,
-} from "react-native";
+import { ImageBackground, StyleSheet, View, ViewProps } from "react-native";
 
 interface ScreenContainerProps extends ViewProps {
   children: React.ReactNode;
@@ -32,7 +26,7 @@ const ScreenContainer = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 10, // ✅ Padding ngang mặc định
+    paddingHorizontal: 0, // ✅ Padding ngang mặc định
   },
 });
 

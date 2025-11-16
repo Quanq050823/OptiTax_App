@@ -2,7 +2,7 @@ import { ColorMain, textColorMain } from "@/src/presentation/components/colors";
 import InvoiInputList from "@/src/presentation/components/List/InvoiInputList";
 import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import ModalCreateProductsByInvoiceInput from "@/src/presentation/components/Modal/ModalCreateProductsByInvoiceInput";
-import ModalLoginCCT from "@/src/presentation/components/Modal/ModalEditProduct/ModalLoginCCT";
+import ModalLoginCCT from "@/src/presentation/components/Modal/ModalLoginCCT";
 
 import ModalSynchronized from "@/src/presentation/components/Modal/ModalSynchronized";
 import SearchByName from "@/src/presentation/components/SearchByName";
@@ -21,6 +21,7 @@ import { InvoiceSummary } from "@/src/types/invoiceIn";
 import { Invoice, Profile, UserProfile } from "@/src/types/route";
 import { syncDataInvoiceIn } from "@/src/types/syncData";
 import { AntDesign, FontAwesome5, Fontisto } from "@expo/vector-icons";
+import { log } from "console";
 import { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -95,6 +96,7 @@ function InvoiceInput() {
       setLoading(false);
 
       Alert.alert("Lỗi lấy dữ liệu!");
+      console.log(err);
     }
   };
 
@@ -113,7 +115,7 @@ function InvoiceInput() {
   }, []);
 
   return (
-    <View style={{ flex: 1, position: "relative" }}>
+    <View style={{ flex: 1, position: "relative", paddingHorizontal: 10 }}>
       {/* <HeaderScreen /> */}
       <View style={styles.searchWrapper}>
         <SearchByName label="Tìm kiếm nhà cung cấp" />
@@ -180,11 +182,7 @@ function InvoiceInput() {
         loading={loading}
         setLoading={setLoading}
       />
-      <ModalLoginCCT
-        visible={openLogin}
-        openLogin={openLogin}
-        setOpenLogin={setOpenLogin}
-      />
+      <ModalLoginCCT openLogin={openLogin} setOpenLogin={setOpenLogin} />
     </View>
   );
 }

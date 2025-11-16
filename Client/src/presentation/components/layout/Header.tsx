@@ -2,7 +2,7 @@ import { ColorMain } from "@/src/presentation/components/colors";
 import NewIngredientButton from "@/src/presentation/components/NewIngredientButton";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { useData } from "@/src/presentation/Hooks/useDataStore";
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import * as React from "react";
 import { LinearGradient } from "expo-linear-gradient";
@@ -40,7 +40,7 @@ function HeaderScreen({ activeTab }: HeaderProps) {
       style={[
         isHome && {
           borderBottomWidth: 0.2,
-          borderColor: ColorMain,
+          borderColor: "#ccccccff",
         },
         {
           shadowColor: ColorMain,
@@ -60,6 +60,12 @@ function HeaderScreen({ activeTab }: HeaderProps) {
       </View> */}
         <View>
           <Text style={[styleHeader.name, !isHome && { color: "#fff" }]}>
+            <FontAwesome
+              name="user-circle-o"
+              size={20}
+              color={isHome ? ColorMain : "#fff"}
+            />
+            &nbsp;
             {data?.businessName}
           </Text>
         </View>
