@@ -24,15 +24,16 @@ export const useLogin = () => {
       const result = await login({ username, password });
       console.log("Login result:", result);
 
-      if (result?.accessToken && result?.refreshToken) {
+      if (result?.accessToken) {
         await AsyncStorage.setItem(ACCESS_TOKEN_KEY, result.accessToken);
-        await AsyncStorage.setItem(REFRESH_TOKEN_KEY, result.refreshToken);
+
+        if (result?.refreshToken) {
+          await AsyncStorage.setItem(REFRESH_TOKEN_KEY, result.refreshToken);
+        }
+
         await AsyncStorage.setItem(USERNAME_KEY, username);
 
-        console.log("Tokens saved:", {
-          access: result.accessToken,
-          refresh: result.refreshToken,
-        });
+        console.log("Tokens saved!");
 
         navigation.reset({
           index: 0,
