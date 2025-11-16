@@ -41,6 +41,7 @@ type RootStackParamList = {
   NewIngredientList: undefined;
   ChooseReportItemScreen: undefined;
   ChartExportScreen: undefined;
+  InventoryManagementScreen: undefined
   PaymentVoucherDetail: {
     voucher: PaymentVoucher;
   };

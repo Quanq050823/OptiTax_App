@@ -42,7 +42,6 @@ function VerifyAuth({ navigation }: Props) {
     } catch (error) {
       console.error("Error fetching profile:", error);
       navigation.replace("Login");
-      
     }
   };
 

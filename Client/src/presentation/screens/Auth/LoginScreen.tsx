@@ -102,7 +102,7 @@ function LoginScreen() {
                   onPress={() => console.log("Navigate to Register")}
                 >
                   <Text>
-                    Bạn chưa có tài khoản?{" "}
+                    Bạn chưa có tài khoản?
                     <Text style={stylesAuth.FogotPassTitle}>Đăng ký</Text>
                   </Text>
                 </TouchableOpacity>

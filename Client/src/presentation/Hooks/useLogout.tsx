@@ -19,7 +19,6 @@ export const useLogout = () => {
         routes: [{ name: "Login" }],
       });
     } catch (error: any) {
-      console.error("Logout failed:", error);
       Alert.alert("Đăng xuất thất bại", error?.message || "Có lỗi xảy ra");
     } finally {
       setLoading(false);

@@ -74,28 +74,12 @@ function HomeScreen(): React.JSX.Element {
       icon: <FontAwesome name="users" size={32} color="#2196F3" />,
       navigate: () => navigate.navigate("CustomerManagerScreen"),
     },
-    {
-      key: "input",
-      label: "Nhập hàng",
-      icon: <FontAwesome name="download" size={32} color="#9C27B0" />,
-      navigate: () => navigate.navigate("InputProductsScreen"),
-    },
-    {
-      key: "output",
-      label: "Xuất hàng",
-      icon: <FontAwesome name="upload" size={32} color="#00BCD4" />,
-    },
+
     // {
     //   key: "expense",
     //   label: "Chi phí",
     //   icon: <FontAwesome name="money" size={32} color="#FF5722" />,
     // },
-    {
-      key: "exportInvoice",
-      label: "Xuất báo cáo",
-      icon: <FontAwesome6 name="file-export" size={24} color="#FF5722" />,
-      navigate: () => navigate.navigate("ReportExportScreen"),
-    },
   ];
 
   const features2 = [
@@ -186,18 +170,6 @@ function HomeScreen(): React.JSX.Element {
       navigate: () => {
         navigate.navigate("PaymentVoucherScreen");
       },
-    },
-    {
-      key: "invoicePay",
-      label: "Xuất hóa đơn",
-      icon: (
-        <MaterialCommunityIcons
-          name="invoice-text-plus"
-          size={32}
-          color="black"
-        />
-      ),
-      navigate: () => navigate.navigate("ExportInvoicePayment"),
     },
   ];
   const accfeatures = [

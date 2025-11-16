@@ -151,7 +151,7 @@ import {
 //                 <View>
 //                   <Text style={{ fontWeight: 800 }}>{acc.name}</Text>
 //                   <Text>
-//                     Vị trí: ({acc.latitude.toFixed(4)},{" "}
+//                     Vị trí: ({acc.latitude.toFixed(4)},
 //                     {acc.longitude.toFixed(4)})
 //                   </Text>
 //                   <View style={{ flexDirection: "row", marginTop: 10 }}>

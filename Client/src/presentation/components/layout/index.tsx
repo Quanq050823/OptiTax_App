@@ -11,7 +11,7 @@ import { TabType } from "@/src/types/route";
 function Layout() {
   const [activeTab, setActiveTab] = useState<TabType>("Trang chủ");
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, padding: 0 }}>
       <StatusBar barStyle={"default"} />
       <HeaderScreen activeTab={activeTab} />
       <ImageBackground

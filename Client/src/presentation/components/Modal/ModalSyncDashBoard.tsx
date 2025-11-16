@@ -1,9 +1,17 @@
 import { ColorMain, textColorMain } from "@/src/presentation/components/colors";
 import InvoiceSyncList from "@/src/presentation/components/List/InvoiceSyncList";
 import InvoiInputList from "@/src/presentation/components/List/InvoiInputList";
-import { InvoiceSummary } from "@/src/types/invoiceIn";
-import { AntDesign, FontAwesome6, MaterialIcons } from "@expo/vector-icons";
 import {
+  getProductsInventory,
+  syncProduct,
+} from "@/src/services/API/storageService";
+import { InvoiceListResponse, InvoiceSummary } from "@/src/types/invoiceIn";
+import { ProductInventory, ProductInventoryList } from "@/src/types/storage";
+import { syncDataInvoiceIn } from "@/src/types/syncData";
+import { AntDesign, FontAwesome6, MaterialIcons } from "@expo/vector-icons";
+import { useEffect, useState } from "react";
+import {
+  FlatList,
   Modal,
   Pressable,
   ScrollView,
@@ -12,12 +20,21 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useAppNavigation } from "../../Hooks/useAppNavigation";
 
 interface ModalSyncDashBoardType {
   visible: boolean;
   setVisible: (visible: boolean) => void;
+  syncDate: syncDataInvoiceIn;
+  dataSyncInvoice: InvoiceListResponse | undefined;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
 }
-
+function formatDate(dateString: string) {
+  if (!dateString) return "";
+  const [year, month, day] = dateString.split("/");
+  return `${day}/${month}/${year}`;
+}
 const mockInvoices: InvoiceSummary[] = [
   {
     _id: "inv001",
@@ -55,9 +72,9 @@ const mockInvoices: InvoiceSummary[] = [
     },
     hdhhdvu: [
       {
-        tenHang: "Phần mềm quản lý bán hàng",
-        soLuong: 1,
-        donGia: 5000000,
+        name: "Phần mềm quản lý bán hàng",
+        quantity: 1,
+        price: 5000000,
         thanhTien: 5000000,
         thueSuat: "10%",
       },
@@ -161,7 +178,43 @@ const mockInvoices: InvoiceSummary[] = [
     updatedAt: "2025-09-11T08:00:00Z",
   },
 ];
-function ModalSyncDashBoard({ visible, setVisible }: ModalSyncDashBoardType) {
+function ModalSyncDashBoard({
+  visible,
+  setVisible,
+  syncDate,
+  dataSyncInvoice,
+  setLoading,
+}: ModalSyncDashBoardType) {
+  const [dataSyncProductStorage, setDataSyncProductStorage] = useState<
+    ProductInventory[]
+  >([]);
+  const navigate = useAppNavigation();
+  const [productStorage, setProductStorage] = useState<ProductInventory[]>([]);
+  useEffect(() => {
+    const syncProductStorage = async () => {
+      try {
+        const resul = await syncProduct();
+        const fetchStorage = await getProductsInventory();
+        setProductStorage(fetchStorage.data);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+  }, []);
+
+  const filteredInvoices = productStorage?.filter((prd) => {
+    const prodDate = new Date(prd.createdAt ?? "");
+    const from = new Date(syncDate.datefrom);
+    const to = new Date(syncDate.dateto);
+
+    return prodDate >= from && prodDate <= to;
+  });
+
+  const handleMoveStorage = () => {
+    setVisible(false);
+    navigate.navigate("NewIngredientList");
+    setLoading(false);
+  };
   return (
     <Modal
       visible={visible}
@@ -173,17 +226,30 @@ function ModalSyncDashBoard({ visible, setVisible }: ModalSyncDashBoardType) {
       <Pressable style={styles.overlay}>
         <View style={styles.modalContent}>
           <TouchableOpacity
-            onPress={() => setVisible(false)}
+            onPress={() => {
+              setVisible(false);
+              setLoading(false);
+            }}
             style={{ position: "absolute", right: 15, top: 15 }}
           >
             <MaterialIcons name="cancel" size={24} color={ColorMain} />
           </TouchableOpacity>
-          {/* <InvoiceSyncList invoicesData={mockInvoices} /> */}
           <View style={styles.labelModal}>
             <Text
-              style={{ fontSize: 17, fontWeight: "600", color: textColorMain }}
+              style={{ fontSize: 19, fontWeight: "600", color: textColorMain }}
             >
               Cập nhật đồng bộ
+            </Text>
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                color: textColorMain,
+                marginTop: 20,
+              }}
+            >
+              {formatDate(syncDate.datefrom) ?? "-"} -
+              {formatDate(syncDate.dateto) ?? "—"}
             </Text>
           </View>
           <View
@@ -194,7 +260,7 @@ function ModalSyncDashBoard({ visible, setVisible }: ModalSyncDashBoardType) {
               borderRadius: 10,
               paddingVertical: 20,
               paddingBottom: 40,
-              shadowColor: "#9d9d9d",
+              shadowColor: "#707070ff",
               shadowOffset: { width: 0, height: 1 },
               shadowOpacity: 0.25,
             }}
@@ -234,7 +300,9 @@ function ModalSyncDashBoard({ visible, setVisible }: ModalSyncDashBoardType) {
                 <Text style={{ fontWeight: "600", color: textColorMain }}>
                   Hoá đơn mới
                 </Text>
-                <Text style={styles.textResultSync}>0</Text>
+                <Text style={styles.textResultSync}>
+                  {dataSyncInvoice?.sync ?? 0}
+                </Text>
               </View>
               <View
                 style={{ alignItems: "center", position: "relative", flex: 1 }}
@@ -251,13 +319,17 @@ function ModalSyncDashBoard({ visible, setVisible }: ModalSyncDashBoardType) {
                 <Text style={{ fontWeight: "600", color: "#23609aff" }}>
                   Hoá đơn đã có
                 </Text>
-                <Text style={styles.textResultSync}>0</Text>
+                <Text style={styles.textResultSync}>
+                  {dataSyncInvoice?.skip ?? 0}
+                </Text>
               </View>
               <View style={{ alignItems: "center", flex: 1 }}>
                 <Text style={{ color: "#cf3030ff", fontWeight: "600" }}>
                   Hoá đơn lỗi
                 </Text>
-                <Text style={styles.textResultSync}>0</Text>
+                <Text style={styles.textResultSync}>
+                  {dataSyncInvoice?.fail ?? 0}
+                </Text>
               </View>
             </View>
           </View>
@@ -267,12 +339,17 @@ function ModalSyncDashBoard({ visible, setVisible }: ModalSyncDashBoardType) {
               backgroundColor: "#fff",
               padding: 10,
               borderRadius: 10,
+              shadowColor: "#707070ff",
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.25,
             }}
           >
             <View
               style={{
                 flexDirection: "row",
                 gap: 10,
+                paddingVertical: 10,
+                minHeight: 60,
               }}
             >
               <AntDesign name="dropbox" size={20} color="#858585ff" />
@@ -282,10 +359,38 @@ function ModalSyncDashBoard({ visible, setVisible }: ModalSyncDashBoardType) {
                 Nguyên liệu từ hoá đơn
               </Text>
             </View>
+            <FlatList
+              data={filteredInvoices}
+              keyExtractor={(item) => item._id}
+              renderItem={({ item }) => (
+                <View
+                  style={{
+                    backgroundColor: "#fff",
+                    marginBottom: 10,
+                    borderRadius: 8,
+                    padding: 10,
+                    shadowColor: "#000",
+                    shadowOpacity: 0.1,
+                    shadowRadius: 3,
+                  }}
+                >
+                  <Text style={{ fontWeight: "600", fontSize: 16 }}>
+                    {item._id} - {item.name}
+                  </Text>
+                  <Text>Ngày lập: {formatDate(item.createdAt)}</Text>
 
-            <View style={{ paddingVertical: 50, alignItems: "center" }}>
+                  {/* <Text>Trạng thái: {item.trangThaiHoaDon}</Text> */}
+                </View>
+              )}
+              ListEmptyComponent={
+                <Text style={{ textAlign: "center", color: "#999" }}>
+                  Không có hoá đơn nào trong khoảng ngày đã chọn
+                </Text>
+              }
+            />
+            {/* <View style={{ paddingVertical: 50, alignItems: "center" }}>
               <Text>Không có sản phẩm nào từ hoá đơn</Text>
-            </View>
+            </View> */}
           </View>
           <View
             style={{
@@ -293,6 +398,7 @@ function ModalSyncDashBoard({ visible, setVisible }: ModalSyncDashBoardType) {
               justifyContent: "space-between",
               gap: 10,
               paddingHorizontal: 10,
+              marginTop: 20,
             }}
           >
             <TouchableOpacity
@@ -304,11 +410,9 @@ function ModalSyncDashBoard({ visible, setVisible }: ModalSyncDashBoardType) {
 
             <TouchableOpacity
               style={styles.btnSaveVoucher}
-              //   onPress={onAddOrEditProductInventory}
+              onPress={handleMoveStorage}
             >
-              <Text style={{ color: "#fff", fontWeight: "600" }}>
-                Lưu và tạo sản phẩm
-              </Text>
+              <Text style={{ color: "#fff", fontWeight: "600" }}>Đến kho</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -326,7 +430,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: "100%",
-    backgroundColor: "#f4f4f4ff",
+    backgroundColor: "#f8f8f8ff",
     borderRadius: 12,
     height: "95%",
     paddingTop: 20,

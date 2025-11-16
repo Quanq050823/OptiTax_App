@@ -12,7 +12,8 @@ import {
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import React, { JSX, useMemo } from "react";
+import LottieView from "lottie-react-native";
+import React, { JSX, useMemo, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -26,6 +27,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
+import ShimmerSweep from "../ShimmerSweep";
 
 interface NavigationBottomProps {
   activeTab: TabType;
@@ -39,6 +41,7 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
   const { width } = Dimensions.get("window");
   const TAB_COUNT = 5;
   const TAB_WIDTH = width / TAB_COUNT;
+  const [hdrSize, setHdrSize] = useState({ w: 0, h: 0 });
 
   const itemNavigate: {
     name: TabType;
@@ -68,7 +71,13 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
       {
         name: "Xuất HĐ",
         icon: (focused) => (
-          <View style={{ position: "relative", width: 24, height: 25 }}>
+          <View
+            style={{
+              position: "relative",
+              width: 24,
+              height: 25,
+            }}
+          >
             <View
               style={{
                 position: "absolute",
@@ -82,7 +91,7 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
                 borderColor: "#fff",
                 justifyContent: "center",
                 alignItems: "center",
-                zIndex: 10,
+                zIndex: 1,
                 shadowColor: "#000",
                 shadowOffset: { width: 0, height: 0 },
                 shadowOpacity: 0.3,
@@ -91,10 +100,11 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
                 borderWidth: 3,
               }}
             >
-              <MaterialCommunityIcons
-                name="invoice-text-plus"
-                size={32}
-                color="#fff"
+              <LottieView
+                source={require("@/assets/animation/export invoice icon.json")}
+                autoPlay
+                loop
+                style={{ width: 50, height: 50 }}
               />
             </View>
           </View>

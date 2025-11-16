@@ -12,9 +12,11 @@ import {
   useIsFocused,
   useNavigation,
 } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -23,8 +25,10 @@ import {
   View,
 } from "react-native";
 import { Avatar } from "react-native-paper";
+type NavProp = StackNavigationProp<RootStackParamList>;
+
 function ProfileBusiness() {
-  const navigate = useNavigation<NavigationProp<RootStackParamList>>();
+  const navigate = useNavigation<NavProp>();
   const [profile, setProfile] = useState<Profile | null>(null);
   const isFocused = useIsFocused();
 
@@ -39,7 +43,16 @@ function ProfileBusiness() {
         phoneNumber: dataBussiness?.phoneNumber,
       });
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại", [
+        {
+          text: "Đăng nhập lại",
+          onPress: () => {
+            // Xử lý điều hướng về màn Login
+            navigate.replace("Login");
+          },
+          style: "default", // hoặc "cancel", "destructive"
+        },
+      ]);
     }
   };
   useEffect(() => {
