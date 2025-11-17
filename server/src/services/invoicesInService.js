@@ -166,13 +166,22 @@ const syncListInvoicesDetailsFromThirdParty = async (userId) => {
 	if (latestInvoice && latestInvoice.ncnhat) {
 		const lastDate = new Date(latestInvoice.ncnhat);
 		finalDateFrom = lastDate.toISOString().split("T")[0];
-	}
+	} else {
+		const now = new Date();
+		const year = now.getFullYear();
+		const month = now.getMonth();
 
-	if (!finalDateFrom) {
-		throw new ApiError(
-			StatusCodes.BAD_REQUEST,
-			"No existing invoices found to determine start date. Please provide datefrom parameter or create initial invoices first."
-		);
+		let startDate;
+		if (owner.tax_filing_frequency === 1) {
+			startDate = new Date(year, month, 1);
+		} else {
+			const quarterStartMonth = Math.floor(month / 3) * 3;
+			startDate = new Date(year, quarterStartMonth, 1);
+		}
+		const yyyy = startDate.getFullYear();
+		const mm = String(startDate.getMonth() + 1).padStart(2, "0");
+		const dd = String(startDate.getDate()).padStart(2, "0");
+		finalDateFrom = `${yyyy}-${mm}-${dd}`;
 	}
 
 	const finalDateTo = new Date().toISOString().split("T")[0];
