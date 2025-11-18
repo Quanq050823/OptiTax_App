@@ -3,6 +3,19 @@
 import * as outputInvoiceService from "../services/outputInvoiceService.js";
 import { StatusCodes } from "http-status-codes";
 
+const create = async (req, res, next) => {
+	try {
+		const userId = req.user.userId;
+		const result = await outputInvoiceService.createOutputInvoice(
+			req.body,
+			userId
+		);
+		res.status(StatusCodes.CREATED).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
 const getById = async (req, res, next) => {
 	try {
 		const id = req.params.id;
@@ -32,4 +45,24 @@ const list = async (req, res, next) => {
 	}
 };
 
-export { getById, list };
+const update = async (req, res, next) => {
+	try {
+		const id = req.params.id;
+		const result = await outputInvoiceService.updateOutputInvoice(id, req.body);
+		res.status(StatusCodes.OK).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
+const remove = async (req, res, next) => {
+	try {
+		const id = req.params.id;
+		const result = await outputInvoiceService.deleteOutputInvoice(id);
+		res.status(StatusCodes.OK).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export { create, getById, list, update, remove };
