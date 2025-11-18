@@ -45,6 +45,29 @@ const createOutputInvoice = async (data, userId) => {
 		);
 
 	const fullAddress = `${owner.address.street}, ${owner.address.ward}, ${owner.address.district}, ${owner.address.city}`;
+	if (data.hdhhdvu && Array.isArray(data.hdhhdvu)) {
+		data.hdhhdvu = data.hdhhdvu.map((item) => {
+			const thtien = parseFloat(item.thtien) || 0;
+			const tchat = parseInt(item.tchat);
+
+			let gtgt = 0;
+			let tncn = 0;
+
+			if (tchat === 1) {
+				gtgt = thtien * 0.01;
+				tncn = thtien * 0.005;
+			} else if (tchat === 2) {
+				gtgt = thtien * 0.05;
+				tncn = thtien * 0.02;
+			}
+
+			return {
+				...item,
+				gtgt: Math.round(gtgt),
+				tncn: Math.round(tncn),
+			};
+		});
+	}
 
 	const invoiceData = {
 		...data,

@@ -22,6 +22,8 @@ const hdhhdvuSchema = new mongoose.Schema(
 		tchat: String,
 		ten: String,
 		thtien: String,
+		gtgt: Number,
+		tncn: Number,
 		sxep: String,
 		ttkhac: [ttkhacSchema],
 	},

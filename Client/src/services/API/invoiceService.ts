@@ -2,40 +2,40 @@ import axiosInstance from "@/src/services/API/axios";
 import { InvoiceListResponse } from "@/src/types/route";
 
 export const getInvoiceInputList = async () => {
-  try {
-    const res = await axiosInstance.get<InvoiceListResponse>("input-invoice");
+	try {
+		const res = await axiosInstance.get<InvoiceListResponse>("input-invoice");
 
-    return res.data;
-  } catch (error: any) {
-    if (error.response) {
-      throw error.response.data;
-    }
-    throw error;
-  }
+		return res.data;
+	} catch (error: any) {
+		if (error.response) {
+			throw error.response.data;
+		}
+		throw error;
+	}
 };
 export const getInvoiceOutputList = async () => {
-  try {
-    const res = await axiosInstance.get<InvoiceListResponse>("output-invoice");
+	try {
+		const res = await axiosInstance.get<InvoiceListResponse>("output-invoices");
 
-    return res.data;
-  } catch (error: any) {
-    if (error.response) {
-      throw error.response.data;
-    }
-    throw error;
-  }
+		return res.data;
+	} catch (error: any) {
+		if (error.response) {
+			throw error.response.data;
+		}
+		throw error;
+	}
 };
 export const getInvoiceOutputById = async (userId: string) => {
-  try {
-    const res = await axiosInstance.get<InvoiceListResponse>(
-      `output-invoice/ ${userId}`
-    );
+	try {
+		const res = await axiosInstance.get<InvoiceListResponse>(
+			`output-invoice/ ${userId}`
+		);
 
-    return res.data;
-  } catch (error: any) {
-    if (error.response) {
-      throw error.response.data;
-    }
-    throw error;
-  }
+		return res.data;
+	} catch (error: any) {
+		if (error.response) {
+			throw error.response.data;
+		}
+		throw error;
+	}
 };

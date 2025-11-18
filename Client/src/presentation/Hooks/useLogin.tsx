@@ -2,7 +2,7 @@
 import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
-import { login } from "@/src/services/API/authService";
+import { login, checkLogin } from "@/src/services/API/authService";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 
 const ACCESS_TOKEN_KEY = "access_token";
@@ -21,18 +21,31 @@ export const useLogin = () => {
 
 		setLoading(true);
 		try {
+			const loginStatus = await checkLogin();
+			console.log("Login status check:", loginStatus);
+
+			if (loginStatus.isAuthenticated) {
+				console.log("User already logged in, navigating to app...");
+				navigation.reset({
+					index: 0,
+					routes: [{ name: "NavigationBusiness" }],
+				});
+				return;
+			}
 			const result = await login({ username, password });
 			console.log("Login result:", result);
-
-			if (result?.accessToken && result?.refreshToken) {
+			if (result?.accessToken) {
 				await AsyncStorage.setItem(ACCESS_TOKEN_KEY, result.accessToken);
-				await AsyncStorage.setItem(REFRESH_TOKEN_KEY, result.refreshToken);
 				await AsyncStorage.setItem(USERNAME_KEY, username);
 
-				console.log("Tokens saved:", {
-					access: result.accessToken,
-					refresh: result.refreshToken,
-				});
+				if (result.refreshToken) {
+					await AsyncStorage.setItem(REFRESH_TOKEN_KEY, result.refreshToken);
+				}
+
+				const successMessage = result.messages;
+				if (successMessage) {
+					Alert.alert("Thành công", successMessage);
+				}
 
 				navigation.reset({
 					index: 0,
@@ -42,7 +55,9 @@ export const useLogin = () => {
 				Alert.alert("Lỗi", "Không nhận được token từ server");
 			}
 		} catch (error: any) {
-			Alert.alert("Đăng nhập thất bại", error?.message || "Có lỗi xảy ra");
+			console.error("Login error:", error);
+			const errorMessage = error?.message || "Có lỗi xảy ra";
+			Alert.alert("Đăng nhập thất bại", errorMessage);
 		} finally {
 			setLoading(false);
 		}
