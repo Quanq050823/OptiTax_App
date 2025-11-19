@@ -1,6 +1,7 @@
-import axios, { axiosInstance } from "./axios";
+import axios from "./axios";
 import { TokenStorage } from "../../utils/tokenStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axiosInstance from "./axios";
 
 export interface LoginResponse {
   accessToken: string;
