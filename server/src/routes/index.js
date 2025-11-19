@@ -31,7 +31,7 @@ export default (app) => {
 	app.use("/api/product", productRoute);
 	app.use("/api/customer", customerRoute);
 
-	app.use("/api/output-invoice", outputInvoiceRoute);
+	app.use("/api/output-invoices", outputInvoiceRoute);
 	app.use("/api/expense-voucher", expenseVoucherRoute);
 	app.use("/api/storage-item", storageItemRoute);
 	app.use("/api/invoices-in", InvoicesInRoute);
