@@ -45,7 +45,7 @@ function InvoiceInput() {
 		InvoiceSummary[]
 	>([]);
 	const [syncDataInvoiceIn, setSyncDataInvoiceIn] = useState<syncDataInvoiceIn>(
-		{ dateto: "", datefrom: "" }
+		{ dateto: "", datefrom: "" }cd 
 	);
 
 	const spinValue = useRef(new Animated.Value(0)).current;

@@ -18,9 +18,11 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { useAppNavigation } from "../../Hooks/useAppNavigation";
+import LoadingScreen from "../Loading/LoadingScreen";
 
 interface ModalSyncDashBoardType {
   visible: boolean;
@@ -28,7 +30,6 @@ interface ModalSyncDashBoardType {
   syncDate: syncDataInvoiceIn;
   dataSyncInvoice: InvoiceListResponse | undefined;
   loading: boolean;
-  setLoading: (loading: boolean) => void;
 }
 function formatDate(dateString: string) {
   if (!dateString) return "";
@@ -183,32 +184,44 @@ function ModalSyncDashBoard({
   setVisible,
   syncDate,
   dataSyncInvoice,
-  setLoading,
 }: ModalSyncDashBoardType) {
   const [dataSyncProductStorage, setDataSyncProductStorage] = useState<
     ProductInventory[]
   >([]);
   const navigate = useAppNavigation();
-  const [productStorage, setProductStorage] = useState<ProductInventory[]>([]);
+  const [loading, setLoading] = useState(false);
+  // const [productStorage, setProductStorage] = useState<ProductInventory[]>([]);
+  const from = new Date(syncDate.datefrom);
+  const to = new Date(syncDate.dateto);
   useEffect(() => {
+    if (!visible) return; // Chỉ sync khi modal được mở
     const syncProductStorage = async () => {
+      setLoading(true);
       try {
         const resul = await syncProduct();
         const fetchStorage = await getProductsInventory();
-        setProductStorage(fetchStorage.data);
+        const unsyncedProducts = fetchStorage.data.filter(
+          (item) => item.syncStatus === false
+        );
+        setDataSyncProductStorage(unsyncedProducts);
       } catch (e) {
         console.log(e);
+      } finally {
+        setLoading(false);
       }
     };
-  }, []);
 
-  const filteredInvoices = productStorage?.filter((prd) => {
-    const prodDate = new Date(prd.createdAt ?? "");
-    const from = new Date(syncDate.datefrom);
-    const to = new Date(syncDate.dateto);
+    syncProductStorage();
+  }, [visible]);
 
-    return prodDate >= from && prodDate <= to;
-  });
+  // const filteredInvoices = dataSyncProductStorage?.filter((prd) => {
+  //   const prodDate = new Date(prd.createdAt ?? "");
+  //   const from = new Date(syncDate.datefrom);
+  //   const to = new Date(syncDate.dateto);
+
+  //   return prodDate >= from && prodDate <= to;
+  // });
+  // console.log(filteredInvoices);
 
   const handleMoveStorage = () => {
     setVisible(false);
@@ -223,200 +236,203 @@ function ModalSyncDashBoard({
       onRequestClose={() => setVisible(false)}
       style={{ zIndex: 100 }}
     >
-      <Pressable style={styles.overlay}>
-        <View style={styles.modalContent}>
-          <TouchableOpacity
-            onPress={() => {
-              setVisible(false);
-              setLoading(false);
-            }}
-            style={{ position: "absolute", right: 15, top: 15 }}
+      <TouchableWithoutFeedback onPress={() => setVisible(false)}>
+        <View style={styles.overlay} />
+      </TouchableWithoutFeedback>
+      {/* <LoadingScreen visible={loading} /> */}
+      <View style={styles.modalContent}>
+        <TouchableOpacity
+          onPress={() => {
+            setVisible(false);
+            setLoading(false);
+          }}
+          style={{ position: "absolute", right: 15, top: 15 }}
+        >
+          <MaterialIcons name="cancel" size={24} color={ColorMain} />
+        </TouchableOpacity>
+        <View style={styles.labelModal}>
+          <Text
+            style={{ fontSize: 19, fontWeight: "600", color: textColorMain }}
           >
-            <MaterialIcons name="cancel" size={24} color={ColorMain} />
-          </TouchableOpacity>
-          <View style={styles.labelModal}>
-            <Text
-              style={{ fontSize: 19, fontWeight: "600", color: textColorMain }}
-            >
-              Cập nhật đồng bộ
-            </Text>
-            <Text
-              style={{
-                fontSize: 12,
-                fontWeight: 600,
-                color: textColorMain,
-                marginTop: 20,
-              }}
-            >
-              {formatDate(syncDate.datefrom) ?? "-"} -
-              {formatDate(syncDate.dateto) ?? "—"}
-            </Text>
-          </View>
+            Cập nhật đồng bộ
+          </Text>
+          <Text
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: textColorMain,
+              marginTop: 20,
+            }}
+          >
+            {formatDate(syncDate.datefrom) ?? "-"} -
+            {formatDate(syncDate.dateto) ?? "—"}
+          </Text>
+        </View>
+        <View
+          style={{
+            marginTop: 20,
+            backgroundColor: "#fff",
+            padding: 10,
+            borderRadius: 10,
+            paddingVertical: 20,
+            paddingBottom: 40,
+            shadowColor: "#707070ff",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.25,
+          }}
+        >
           <View
             style={{
-              marginTop: 20,
-              backgroundColor: "#fff",
-              padding: 10,
-              borderRadius: 10,
-              paddingVertical: 20,
-              paddingBottom: 40,
-              shadowColor: "#707070ff",
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.25,
+              flexDirection: "row",
+              gap: 10,
             }}
           >
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 10,
-              }}
+            <FontAwesome6 name="file-invoice" size={17} color="#858585ff" />
+            <Text
+              style={{ fontSize: 17, fontWeight: "600", color: "#858585ff" }}
             >
-              <FontAwesome6 name="file-invoice" size={17} color="#858585ff" />
-              <Text
-                style={{ fontSize: 17, fontWeight: "600", color: "#858585ff" }}
-              >
-                Hoá đơn mua vào
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginTop: 20,
-              }}
-            >
-              <View
-                style={{ alignItems: "center", position: "relative", flex: 1 }}
-              >
-                <View
-                  style={{
-                    position: "absolute",
-                    height: 30,
-                    borderWidth: 0.3,
-                    borderColor: "#d0d0d0ff",
-                    right: 0,
-                  }}
-                />
-                <Text style={{ fontWeight: "600", color: textColorMain }}>
-                  Hoá đơn mới
-                </Text>
-                <Text style={styles.textResultSync}>
-                  {dataSyncInvoice?.sync ?? 0}
-                </Text>
-              </View>
-              <View
-                style={{ alignItems: "center", position: "relative", flex: 1 }}
-              >
-                <View
-                  style={{
-                    position: "absolute",
-                    height: 30,
-                    borderWidth: 0.3,
-                    borderColor: "#d0d0d0ff",
-                    right: 0,
-                  }}
-                />
-                <Text style={{ fontWeight: "600", color: "#23609aff" }}>
-                  Hoá đơn đã có
-                </Text>
-                <Text style={styles.textResultSync}>
-                  {dataSyncInvoice?.skip ?? 0}
-                </Text>
-              </View>
-              <View style={{ alignItems: "center", flex: 1 }}>
-                <Text style={{ color: "#cf3030ff", fontWeight: "600" }}>
-                  Hoá đơn lỗi
-                </Text>
-                <Text style={styles.textResultSync}>
-                  {dataSyncInvoice?.fail ?? 0}
-                </Text>
-              </View>
-            </View>
-          </View>
-          <View
-            style={{
-              marginTop: 20,
-              backgroundColor: "#fff",
-              padding: 10,
-              borderRadius: 10,
-              shadowColor: "#707070ff",
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.25,
-            }}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 10,
-                paddingVertical: 10,
-                minHeight: 60,
-              }}
-            >
-              <AntDesign name="dropbox" size={20} color="#858585ff" />
-              <Text
-                style={{ fontSize: 17, fontWeight: "600", color: "#858585ff" }}
-              >
-                Nguyên liệu từ hoá đơn
-              </Text>
-            </View>
-            <FlatList
-              data={filteredInvoices}
-              keyExtractor={(item) => item._id}
-              renderItem={({ item }) => (
-                <View
-                  style={{
-                    backgroundColor: "#fff",
-                    marginBottom: 10,
-                    borderRadius: 8,
-                    padding: 10,
-                    shadowColor: "#000",
-                    shadowOpacity: 0.1,
-                    shadowRadius: 3,
-                  }}
-                >
-                  <Text style={{ fontWeight: "600", fontSize: 16 }}>
-                    {item._id} - {item.name}
-                  </Text>
-                  <Text>Ngày lập: {formatDate(item.createdAt)}</Text>
-
-                  {/* <Text>Trạng thái: {item.trangThaiHoaDon}</Text> */}
-                </View>
-              )}
-              ListEmptyComponent={
-                <Text style={{ textAlign: "center", color: "#999" }}>
-                  Không có hoá đơn nào trong khoảng ngày đã chọn
-                </Text>
-              }
-            />
-            {/* <View style={{ paddingVertical: 50, alignItems: "center" }}>
-              <Text>Không có sản phẩm nào từ hoá đơn</Text>
-            </View> */}
+              Hoá đơn mua vào
+            </Text>
           </View>
           <View
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
-              gap: 10,
-              paddingHorizontal: 10,
               marginTop: 20,
             }}
           >
-            <TouchableOpacity
-              style={styles.btnExitModalSync}
-              //   onPress={onAddOrEditProductInventory}
+            <View
+              style={{ alignItems: "center", position: "relative", flex: 1 }}
             >
-              <Text style={{ color: ColorMain, fontWeight: "600" }}>Xong</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.btnSaveVoucher}
-              onPress={handleMoveStorage}
+              <View
+                style={{
+                  position: "absolute",
+                  height: 30,
+                  borderWidth: 0.3,
+                  borderColor: "#d0d0d0ff",
+                  right: 0,
+                }}
+              />
+              <Text style={{ fontWeight: "600", color: textColorMain }}>
+                Hoá đơn mới
+              </Text>
+              <Text style={styles.textResultSync}>
+                {dataSyncInvoice?.sync ?? 0}
+              </Text>
+            </View>
+            <View
+              style={{ alignItems: "center", position: "relative", flex: 1 }}
             >
-              <Text style={{ color: "#fff", fontWeight: "600" }}>Đến kho</Text>
-            </TouchableOpacity>
+              <View
+                style={{
+                  position: "absolute",
+                  height: 30,
+                  borderWidth: 0.3,
+                  borderColor: "#d0d0d0ff",
+                  right: 0,
+                }}
+              />
+              <Text style={{ fontWeight: "600", color: "#23609aff" }}>
+                Hoá đơn đã có
+              </Text>
+              <Text style={styles.textResultSync}>
+                {dataSyncInvoice?.skip ?? 0}
+              </Text>
+            </View>
+            <View style={{ alignItems: "center", flex: 1 }}>
+              <Text style={{ color: "#cf3030ff", fontWeight: "600" }}>
+                Hoá đơn lỗi
+              </Text>
+              <Text style={styles.textResultSync}>
+                {dataSyncInvoice?.fail ?? 0}
+              </Text>
+            </View>
           </View>
         </View>
-      </Pressable>
+        <View
+          style={{
+            marginTop: 20,
+            backgroundColor: "#fff",
+            padding: 10,
+            borderRadius: 10,
+            shadowColor: "#707070ff",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.25,
+            flex: 1,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              gap: 10,
+              paddingVertical: 10,
+              minHeight: 60,
+            }}
+          >
+            <AntDesign name="dropbox" size={20} color="#858585ff" />
+            <Text
+              style={{ fontSize: 17, fontWeight: "600", color: "#858585ff" }}
+            >
+              Nguyên liệu từ hoá đơn
+            </Text>
+          </View>
+          <FlatList
+            data={dataSyncProductStorage}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => (
+              <View
+                style={{
+                  backgroundColor: "#fff",
+                  marginBottom: 10,
+                  borderRadius: 8,
+                  padding: 10,
+                  shadowColor: "#000",
+                  shadowOpacity: 0.1,
+                  shadowRadius: 3,
+                }}
+              >
+                <Text style={{ fontWeight: "600", fontSize: 16 }}>
+                  {item._id} - {item.name}
+                </Text>
+                <Text>Ngày lập: {formatDate(item.createdAt)}</Text>
+              </View>
+            )}
+            ListEmptyComponent={
+              <Text style={{ textAlign: "center", color: "#999" }}>
+                Không có hoá đơn nào trong khoảng ngày đã chọn
+              </Text>
+            }
+            style={{ flex: 1 }}
+            showsVerticalScrollIndicator={true}
+          />
+          {/* <View style={{ paddingVertical: 50, alignItems: "center" }}>
+              <Text>Không có sản phẩm nào từ hoá đơn</Text>
+            </View> */}
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            gap: 10,
+            paddingHorizontal: 10,
+            marginTop: 20,
+          }}
+        >
+          <TouchableOpacity
+            style={styles.btnExitModalSync}
+            //   onPress={onAddOrEditProductInventory}
+          >
+            <Text style={{ color: ColorMain, fontWeight: "600" }}>Xong</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.btnSaveVoucher}
+            onPress={handleMoveStorage}
+          >
+            <Text style={{ color: "#fff", fontWeight: "600" }}>Đến kho</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </Modal>
   );
 }
