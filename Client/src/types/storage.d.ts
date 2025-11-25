@@ -39,8 +39,8 @@ export type NamesUnitsResponse = {
 };
 
 export type UnitsNameProduct = {
-  names: [];
-  units: [];
+  names: string[];
+  units: string[];
 };
 
 export type SyncProductInventory = {

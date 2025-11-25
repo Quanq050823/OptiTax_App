@@ -23,6 +23,8 @@ import {
 } from "react-native";
 import { useAppNavigation } from "../../Hooks/useAppNavigation";
 import LoadingScreen from "../Loading/LoadingScreen";
+import TagItem from "../TagItem";
+import NewIngredientButton from "../NewIngredientButton";
 
 interface ModalSyncDashBoardType {
   visible: boolean;
@@ -379,22 +381,50 @@ function ModalSyncDashBoard({
           <FlatList
             data={dataSyncProductStorage}
             keyExtractor={(item) => item._id}
+            contentContainerStyle={{ padding: 10 }}
             renderItem={({ item }) => (
               <View
                 style={{
                   backgroundColor: "#fff",
-                  marginBottom: 10,
+                  marginBottom: 20,
                   borderRadius: 8,
                   padding: 10,
                   shadowColor: "#000",
-                  shadowOpacity: 0.1,
+                  shadowOpacity: 0.22,
                   shadowRadius: 3,
+                  shadowOffset: { width: 0, height: 0 },
+                  position: "relative",
+                  minHeight: 50,
                 }}
               >
+                <View
+                  style={{
+                    position: "absolute",
+                    top: -10,
+                    right: 5,
+                    flexDirection: "row",
+                    gap: 7,
+                  }}
+                >
+                  <View style={styles.tagNew}>
+                    <Text
+                      style={{ color: "#fff", fontWeight: "500", fontSize: 12 }}
+                    >
+                      Mới
+                    </Text>
+                  </View>
+                  <View style={styles.tagDate}>
+                    <Text
+                      style={{ color: "#fff", fontWeight: "500", fontSize: 12 }}
+                    >
+                      {item.createdAt.split("T")[0]}
+                    </Text>
+                  </View>
+                </View>
                 <Text style={{ fontWeight: "600", fontSize: 16 }}>
-                  {item._id} - {item.name}
+                  {item.name}
                 </Text>
-                <Text>Ngày lập: {formatDate(item.createdAt)}</Text>
+                <Text>Số lượng: {item.stock}</Text>
               </View>
             )}
             ListEmptyComponent={
@@ -403,7 +433,7 @@ function ModalSyncDashBoard({
               </Text>
             }
             style={{ flex: 1 }}
-            showsVerticalScrollIndicator={true}
+            showsVerticalScrollIndicator={false}
           />
           {/* <View style={{ paddingVertical: 50, alignItems: "center" }}>
               <Text>Không có sản phẩm nào từ hoá đơn</Text>
@@ -415,7 +445,7 @@ function ModalSyncDashBoard({
             justifyContent: "space-between",
             gap: 10,
             paddingHorizontal: 10,
-            marginTop: 20,
+            marginVertical: 20,
           }}
         >
           <TouchableOpacity
@@ -430,6 +460,19 @@ function ModalSyncDashBoard({
             onPress={handleMoveStorage}
           >
             <Text style={{ color: "#fff", fontWeight: "600" }}>Đến kho</Text>
+            <View style={styles.notifycation}>
+              <Text
+                style={{
+                  textAlign: "center",
+                  justifyContent: "center",
+                  color: "#fff",
+                  fontSize: 10,
+                  fontWeight: "bold",
+                }}
+              >
+                {dataSyncProductStorage.length}
+              </Text>
+            </View>
           </TouchableOpacity>
         </View>
       </View>
@@ -438,6 +481,18 @@ function ModalSyncDashBoard({
 }
 
 const styles = StyleSheet.create({
+  notifycation: {
+    height: 20,
+    width: 20,
+    borderRadius: 50,
+    backgroundColor: "red",
+    position: "absolute",
+    zIndex: 1,
+    top: -5,
+    right: -5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.4)",
@@ -464,6 +519,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     borderRadius: 10,
     flex: 1,
+    position: "relative",
   },
   labelModal: {
     alignItems: "center",
@@ -475,11 +531,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "transparent",
     padding: 15,
-    marginTop: 20,
     borderRadius: 10,
     flex: 1,
     borderWidth: 0.5,
     borderColor: ColorMain,
+    marginTop: 20,
+  },
+  tagDate: {
+    backgroundColor: ColorMain,
+    paddingHorizontal: 5,
+    borderRadius: 5,
+    paddingVertical: 2,
+  },
+  tagNew: {
+    backgroundColor: "#da3838ff",
+    paddingHorizontal: 5,
+    borderRadius: 5,
+    paddingVertical: 2,
   },
 });
 

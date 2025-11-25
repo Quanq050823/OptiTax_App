@@ -1,5 +1,6 @@
 import axiosInstance from "@/src/services/API/axios";
-import { InvoiceListResponse, Product } from "@/src/types/route";
+import { Product } from "@/src/types/product";
+import { InvoiceListResponse } from "@/src/types/route";
 
 export const getProducts = async (): Promise<Product[]> => {
   try {
@@ -13,17 +14,8 @@ export const getProducts = async (): Promise<Product[]> => {
     throw error;
   }
 };
-export const createProduct = async (products: {
-  name: string;
-  code: string;
-  category: string;
-  unit: string;
-  price: number;
-  description: string;
-  imageURL: string;
-  stock: number;
-  attributes: { key: string; value: string }[];
-}) => {
+export const createProduct = async (products: Product
+) => {
   try {
     const res = await axiosInstance.post("product", products);
 

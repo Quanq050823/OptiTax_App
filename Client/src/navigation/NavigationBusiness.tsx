@@ -59,6 +59,9 @@ import ExportInvoicePayment from "../presentation/screens/BusinessOwnerScreen/Ex
 import PaymentInvoiceScreen from "@/src/presentation/screens/BusinessOwnerScreen/PaymentInvoice/PaymentInvoice";
 import ChooseReportItem from "@/src/presentation/screens/BusinessOwnerScreen/ChooseReportItemScreen/ChooseReportItem";
 import ChartExport from "@/src/presentation/screens/BusinessOwnerScreen/ChartExportSceen";
+import ExportInvoiceDetailScreen from "../presentation/screens/BusinessOwnerScreen/ExportInvoiceDetailScreen/ExportInvoiceDetailScreen";
+import { createProduct } from "../services/API/productService";
+import CreateProductScreen from "../presentation/screens/BusinessOwnerScreen/CreateProduct/CreateProduct";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
@@ -383,6 +386,20 @@ const HomeLayout = () => {
           title: "Doanh thu",
         }}
         component={ChartExport}
+      />
+      <Stack.Screen
+        name="ExportInvoiceDetailScreen"
+        options={{
+          title: "Xác nhận thanh toán",
+        }}
+        component={ExportInvoiceDetailScreen}
+      />
+      <Stack.Screen
+        name="CreateProductScreen"
+        options={{
+          title: "Sản phẩm mới",
+        }}
+        component={CreateProductScreen}
       />
     </Stack.Navigator>
   );

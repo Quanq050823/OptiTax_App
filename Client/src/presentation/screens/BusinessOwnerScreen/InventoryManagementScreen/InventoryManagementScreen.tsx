@@ -14,6 +14,8 @@ import {
 import {
   createProductInventory,
   deleteProductInventory,
+  getListItemStorageNew,
+  getListItemStorageSynced,
   getProductsInventory,
   // getProductsInventoryByKey,
   searchProductsInventory,
@@ -114,20 +116,18 @@ export default function InventoryManagerScreen() {
     imageURL: "",
     stock: 0,
   });
+  console.log(productInventoryNew);
 
   const fetchDataProductInventory = async (append = false) => {
     try {
       setLoading(true);
 
-      const res = await getProductsInventory();
-      console.log(res, "duwx ");
-
+      const res = await getListItemStorageSynced();
+      const productStorageNew = await getListItemStorageNew();
       const syncedProducts = (res.data ?? []).filter(
         (item) => item.syncStatus === true
       );
-      const unsyncedProducts = res.data.filter(
-        (item) => item.syncStatus === false
-      );
+
       // ✅ Lọc thêm theo category
       const category1Products = syncedProducts.filter(
         (item) => item.category === 1
@@ -136,8 +136,8 @@ export default function InventoryManagerScreen() {
         (item) => item.category === 2
       );
       setProductsInventory(category1Products);
-      setToolsList(category2Products); // dụng cụ
-      setProductsInventoryNew(unsyncedProducts);
+      setToolsList(category2Products);
+      setProductsInventoryNew(productStorageNew.data);
     } catch {
       console.log("Lỗi! Chưa có dữ liệu!");
       setProductsInventory([]);
@@ -279,7 +279,9 @@ export default function InventoryManagerScreen() {
         <View style={{ flex: 1, alignItems: "center", width: "80%" }}>
           <Image source={{ uri: item.imageURL }} style={styles.image} />
 
-          <Text style={styles.name}>{item.name}</Text>
+          <Text numberOfLines={2} ellipsizeMode="tail" style={styles.name}>
+            {item.name}
+          </Text>
           {/* <Text style={styles.detail}>Giá: {item.stock.toString()}đ</Text> */}
 
           <Text style={styles.detail}>Số lượng: {item.stock}</Text>
@@ -293,7 +295,7 @@ export default function InventoryManagerScreen() {
                 justifyContent: "center",
                 position: "absolute",
                 flex: 1,
-                backgroundColor: "#2d303648",
+                backgroundColor: "#9fa9be48",
                 inset: 0,
                 alignItems: "center",
               }}
@@ -501,35 +503,24 @@ export default function InventoryManagerScreen() {
         />
       </View> */}
           <>
-            {!isActive ? (
-              <FlatList
-                data={productsInventory}
-                keyExtractor={(item) => item._id}
-                renderItem={renderItem}
-                contentContainerStyle={{
-                  paddingBottom: 80,
-                  paddingHorizontal: 5,
-                  marginTop: 20,
-                }}
-                columnWrapperStyle={{
-                  justifyContent: "space-between",
-                  marginTop: 20,
-                }}
-                numColumns={2}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                    colors={["#FF6B00"]} // màu xoay (Android)
-                    tintColor="#FF6B00" // màu xoay (iOS)
-                    title="Đang tải dữ liệu..."
-                  />
-                }
-              />
-            ) : (
-              <>
+            {loading ? (
+              <LoadingScreen visible={loading} />
+            ) : !isActive ? (
+              productsInventory.length === 0 ? (
+                <View
+                  style={{
+                    marginTop: 40,
+                    alignItems: "center",
+                    flex: 1,
+                  }}
+                >
+                  <Text style={{ fontSize: 16, color: "#777", marginTop: 100 }}>
+                    Không có nguyên liệu nào trong kho
+                  </Text>
+                </View>
+              ) : (
                 <FlatList
-                  data={toolsList}
+                  data={productsInventory}
                   keyExtractor={(item) => item._id}
                   renderItem={renderItem}
                   contentContainerStyle={{
@@ -546,13 +537,44 @@ export default function InventoryManagerScreen() {
                     <RefreshControl
                       refreshing={refreshing}
                       onRefresh={onRefresh}
-                      colors={["#FF6B00"]} // màu xoay (Android)
-                      tintColor="#FF6B00" // màu xoay (iOS)
+                      colors={["#FF6B00"]}
+                      tintColor="#FF6B00"
                       title="Đang tải dữ liệu..."
                     />
                   }
                 />
-              </>
+              )
+            ) : toolsList.length === 0 ? (
+              <View style={{ marginTop: 40, alignItems: "center" }}>
+                <Text style={{ fontSize: 16, color: "#777", marginTop: 100 }}>
+                  Không có dụng cụ nào trong kho
+                </Text>
+              </View>
+            ) : (
+              <FlatList
+                data={toolsList}
+                keyExtractor={(item) => item._id}
+                renderItem={renderItem}
+                contentContainerStyle={{
+                  paddingBottom: 80,
+                  paddingHorizontal: 5,
+                  marginTop: 20,
+                }}
+                columnWrapperStyle={{
+                  justifyContent: "space-between",
+                  marginTop: 20,
+                }}
+                numColumns={2}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    colors={["#FF6B00"]}
+                    tintColor="#FF6B00"
+                    title="Đang tải dữ liệu..."
+                  />
+                }
+              />
             )}
           </>
           <TouchableOpacity
