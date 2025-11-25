@@ -1,5 +1,6 @@
 import { ColorMain, textColorMain } from "@/src/presentation/components/colors";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
+import { ExportInvoiceDetailParams } from "@/src/types/invoiceExport";
 import { Product, RootStackParamList } from "@/src/types/route";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
@@ -11,8 +12,8 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  View,
 } from "react-native";
-import { View } from "react-native";
 
 type NaviBottomPayProps = {
   label: string;
@@ -30,7 +31,9 @@ type NaviBottomPayProps = {
   selectedProduct?: (Product & { quantity: number; total: number })[];
   totalAfterTax: number | null;
   disabled?: boolean;
+  invoiceDetail: ExportInvoiceDetailParams;
 };
+
 function NavigationBottomPayInvoice({
   label,
   screen,
@@ -41,31 +44,12 @@ function NavigationBottomPayInvoice({
   selectedProduct,
   totalAfterTax,
   disabled,
+  invoiceDetail,
 }: NaviBottomPayProps) {
   const [open, setOpen] = useState(false);
 
   const navigate = useAppNavigation();
 
-  //   const goNext = () => {
-  //     setOpen(false);
-  //     navigate.navigate(screen as never);
-  //   };
-  //   console.log(totalPrice, "số tiền");
-
-  // ✅ Disable khi tổng tiền bằng 0
-  const handlePress = () => {
-    if (!params) {
-      Alert.alert("Vui lòng chọn một gói chữ ký số!");
-      return;
-    }
-    if (selectedInvoice !== undefined && !selectedInvoice) {
-      Alert.alert("Thông báo", "Vui lòng chọn một gói!");
-      return;
-    }
-    if (screen) {
-      navigate.navigate(screen, params); // 👈 truyền params khi navigate
-    }
-  };
   const totalPriceSelect =
     selectedProduct?.reduce(
       (sum, item) => sum + item.price * (item.quantity ?? 1),
@@ -73,6 +57,19 @@ function NavigationBottomPayInvoice({
     ) ?? 0;
 
   const isPayDisabled = totalPriceSelect === 0;
+
+  const handlePress = () => {
+    if (!invoiceDetail) {
+      Alert.alert("Thông báo", "Không có dữ liệu hoá đơn!");
+      return;
+    }
+
+    if (screen) {
+      navigate.navigate("ExportInvoiceDetailScreen", {
+        invoiceDetail, // phải gói vào object params
+      });
+    }
+  };
 
   return (
     <View style={styles.wrapper}>
@@ -88,14 +85,13 @@ function NavigationBottomPayInvoice({
             <Text style={{ fontWeight: "600" }}>
               {des ? des : "Chi tiết hoá đơn..."}
             </Text>
-            {/* Mũi tên hướng lên (tam giác) */}
             <View style={styles.arrowUp} />
           </View>
 
           <Text style={styles.totalPrice}>
             {totalAfterTax
               ? totalAfterTax?.toLocaleString("vi-VN")
-              : (totalPriceSelect ?? 0).toLocaleString("vi-VN")}
+              : totalPriceSelect.toLocaleString("vi-VN")}
             VND
           </Text>
         </TouchableOpacity>
@@ -104,7 +100,7 @@ function NavigationBottomPayInvoice({
         <TouchableOpacity
           style={[styles.btnPay, isPayDisabled && { opacity: 0.5 }]}
           onPress={handlePress}
-          disabled={isPayDisabled}
+          disabled={isPayDisabled || disabled}
         >
           <Text style={{ color: "#fff", fontWeight: "600" }}>{label}</Text>
         </TouchableOpacity>
@@ -118,14 +114,12 @@ function NavigationBottomPayInvoice({
         onRequestClose={() => setOpen(false)}
       >
         <View style={styles.modalContainer}>
-          {/* Nền mờ đóng modal */}
           <TouchableOpacity
             style={styles.modalBackdrop}
             activeOpacity={1}
             onPress={() => setOpen(false)}
           />
 
-          {/* Tấm sheet trượt từ dưới lên */}
           <View style={styles.sheet}>
             <View style={styles.grabber} />
             <Text style={styles.sheetTitle}>Các mục đã chọn</Text>
@@ -164,9 +158,10 @@ function NavigationBottomPayInvoice({
               <Text style={styles.sheetTitle}>Chi tiết</Text>
               <Text style={styles.sheetTitle}>Khuyến mãi</Text>
               <Text style={styles.sheetTitle}>Phụ thu</Text>
-              <Text style={styles.sheetTitle}>Tổng tiền trước thueesC</Text>
+              <Text style={styles.sheetTitle}>Tổng tiền trước thuế</Text>
               <Text style={styles.sheetTitle}>Giảm trừ thuế</Text>
             </View>
+
             <View style={styles.wrOtherPay}>
               <Text>Tạm tính</Text>
               <Text
@@ -193,6 +188,7 @@ function NavigationBottomPayInvoice({
                 />
               </View>
             </View>
+
             <View style={styles.wrOtherPay}>
               <Text>Phụ thu</Text>
               <View
@@ -221,7 +217,7 @@ function NavigationBottomPayInvoice({
             </View>
 
             <View style={styles.wrOtherPay}>
-              <Text>Giảm trừ thuế % </Text>
+              <Text>Giảm trừ thuế %</Text>
               <View
                 style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
               >
@@ -233,6 +229,7 @@ function NavigationBottomPayInvoice({
                 />
               </View>
             </View>
+
             <View style={styles.divider} />
 
             <View style={styles.rowBetween}>
@@ -252,7 +249,7 @@ function NavigationBottomPayInvoice({
               <TouchableOpacity
                 style={styles.sheetPay}
                 onPress={handlePress}
-                disabled={isPayDisabled}
+                disabled={isPayDisabled || disabled}
               >
                 <Text style={{ color: "#fff", fontWeight: "700" }}>
                   {label}
@@ -265,6 +262,7 @@ function NavigationBottomPayInvoice({
     </View>
   );
 }
+
 const DROPUP_BG = "#fff";
 const styles = StyleSheet.create({
   wrapper: { position: "absolute", width: "100%", bottom: 0 },
@@ -286,15 +284,12 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     ...Platform.select({ android: { elevation: 16 } }),
   },
-
   summaryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
   summaryLeft: { flexDirection: "row", alignItems: "center" },
-
-  // Tam giác hướng lên
   arrowUp: {
     marginLeft: 8,
     width: 0,
@@ -304,16 +299,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 8,
     borderLeftColor: "transparent",
     borderRightColor: "transparent",
-    borderBottomColor: "#999", // có thể đổi ColorMain nếu thích
+    borderBottomColor: "#999",
   },
-
   totalPrice: {
     fontSize: 20,
     color: ColorMain,
     fontWeight: "700",
     marginTop: 6,
   },
-
   btnPay: {
     marginTop: 12,
     backgroundColor: ColorMain,
@@ -323,8 +316,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 8,
   },
-
-  // Modal + Sheet
   modalContainer: {
     flex: 1,
     justifyContent: "flex-end",

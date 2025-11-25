@@ -103,7 +103,9 @@ function NewIngredientList() {
           <View style={{ flex: 1, alignItems: "center", width: "80%" }}>
             <Image source={{ uri: item.imageURL }} style={styles.image} />
 
-            <Text style={styles.name}>{item.name}</Text>
+            <Text numberOfLines={2} ellipsizeMode="tail" style={styles.name}>
+              {item.name}
+            </Text>
             {/* <Text style={styles.detail}>Giá: {item.stock.toString()}đ</Text> */}
 
             <Text style={styles.detail}>Số lượng: {item.stock}</Text>

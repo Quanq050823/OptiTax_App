@@ -167,3 +167,25 @@ export const assignCategoryForProducts = async (
     Alert.alert("Lỗi", "Không thể cập nhật category. Vui lòng thử lại!");
   }
 };
+
+export const getListItemStorageSynced = async () => {
+  try{
+    const res = await axiosInstance.get<ProductInventoryList>("storage-item/synced")
+    return res.data
+  }catch (error: any) {
+    if (error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }}
+
+  export const getListItemStorageNew = async () => {
+  try{
+    const res = await axiosInstance.get<ProductInventoryList>("storage-item/new-sync")
+    return res.data
+  }catch (error: any) {
+    if (error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }}

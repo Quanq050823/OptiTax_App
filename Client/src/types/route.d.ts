@@ -1,3 +1,5 @@
+import { ExportInvoiceDetailParams } from "./invoiceExport";
+
 type RootStackParamList = {
 	VerifyAuth: undefined;
 	HomeScreen: undefined;
@@ -17,6 +19,7 @@ type RootStackParamList = {
 	PaymentVoucherScreen: undefined;
 	SettingScreen: undefined;
 	ProductManager: { scannedProduct?: any };
+	CreateProductScreen: undefined;
 	Layout: undefined;
 	SearchAccountantScreen: undefined;
 	ChangePasswordScreen: undefined;
@@ -42,6 +45,8 @@ type RootStackParamList = {
 	ChooseReportItemScreen: undefined;
 	ChartExportScreen: undefined;
 	InventoryManagementScreen: undefined;
+  ExportInvoiceDetailScreen: { invoiceDetail: ExportInvoiceDetailParams };
+
 	PaymentVoucherDetail: {
 		voucher: PaymentVoucher;
 	};
@@ -97,6 +102,7 @@ type Product = {
 	category: string;
 	unit: string | null;
 	attributes: any;
+	
 };
 export interface UserProfile {
 	_id: string;

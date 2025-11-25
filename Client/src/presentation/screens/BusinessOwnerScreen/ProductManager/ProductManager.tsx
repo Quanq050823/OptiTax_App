@@ -112,31 +112,6 @@ export default function ProductManagerScreen() {
     fetchData();
   }, []);
 
-  const handleAddProduct = async () => {
-    if (!name || !price || !description || !code || !category) {
-      Alert.alert("Thiếu thông tin", "Vui lòng nhập đầy đủ các trường");
-      return;
-    }
-
-    const created = await createProduct(newProduct);
-    if (created && typeof created === "object" && "name" in created) {
-      Alert.alert(
-        "Thành công",
-        `Đã thêm sản phẩm: ${(created as { name: string }).name}`
-      );
-    } else {
-      Alert.alert("Lỗi", "Không thể lấy thông tin sản phẩm vừa tạo.");
-    }
-    fetchData();
-    setVisible(false);
-    // Reset input
-    setName("");
-    setPrice(0);
-    setStock(0);
-    setImage("");
-    setDescription("");
-  };
-
   const handleShowAction = (code: string) => {
     setShowAction((prev) => (prev === code ? null : code)); // toggle
   };
@@ -309,7 +284,7 @@ export default function ProductManagerScreen() {
           />
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => setVisible(true)}
+            onPress={() => navigate.navigate("CreateProductScreen")}
           >
             <Ionicons name="add" size={28} color="#fff" />
             {/* <Text style={styles.addText}>Thêm sản phẩm</Text> */}
@@ -317,7 +292,6 @@ export default function ProductManagerScreen() {
           <ModalAddProduct
             visible={visible}
             setVisible={setVisible}
-            onAddProduct={handleAddProduct}
             newProduct={newProduct}
             setNewProduct={setNewProduct}
           />

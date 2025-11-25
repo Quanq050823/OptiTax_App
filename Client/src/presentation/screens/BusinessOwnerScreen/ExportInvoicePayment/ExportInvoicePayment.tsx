@@ -26,6 +26,7 @@ import {
 } from "react-native";
 import { Searchbar } from "react-native-paper";
 import { logout as apiLogout } from "@/src/services/API/authService";
+import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 
 type ExportInvoicePaymentRoute = RouteProp<
   RootStackParamList,
@@ -51,21 +52,20 @@ function ExportInvoicePayment() {
   }>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [totalAmount, setTotalAmount] = useState(0);
-
+  const [loading, setLoading] = useState(false);
   const filteredProducts = useMemo(() => {
     if (!searchQuery.trim()) return products;
     return products.filter((item) =>
       item.name?.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [searchQuery, productStorage]);
+  }, [searchQuery, products]);
   useEffect(() => {
     if (route.params?.items) {
       // Gộp thêm sản phẩm đã có
       const newItems = route.params.items;
       const updatedQuantities = { ...quantity };
       newItems.forEach((it) => {
-        updatedQuantities[it._id] =
-          (updatedQuantities[it._id] || 0) + it.quantity;
+        updatedQuantities[it._id] = (updatedQuantities[it._id] || 0) + it.stock;
       });
       setQuantity(updatedQuantities);
     }
@@ -82,11 +82,14 @@ function ExportInvoicePayment() {
     setTotalAmount(total);
   }, [quantity, products]);
   const fetchData = async () => {
+    setLoading(true);
     try {
       const data = await getProducts();
       setProducts(data);
+      setLoading(false);
     } catch (error) {
       // await AsyncStorage.removeItem("access_token");
+      setLoading(false);
 
       Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại", [
         {
@@ -332,6 +335,8 @@ function ExportInvoicePayment() {
   );
   return (
     <View style={{ flex: 1 }}>
+      <LoadingScreen visible={loading} />
+
       <View
         style={{
           marginTop: 20,
