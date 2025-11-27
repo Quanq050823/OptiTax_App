@@ -11,6 +11,7 @@ const StorageItemSchema = new mongoose.Schema(
 		description: { type: String },
 		syncStatus: { type: Boolean, default: false },
 		category: { type: Number, default: 0 }, // 0: chưa set, 1: nguyên liệu,2: hàng hóa
+		tchat: { type: Number, default: 1 },
 		conversionUnit: {
 			from: {
 				itemQuantity: { type: Number },

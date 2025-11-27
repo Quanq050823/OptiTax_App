@@ -19,6 +19,7 @@ const ProductSchema = mongoose.Schema(
 		imageUrl: { type: String },
 		stock: { type: Number, default: 0 },
 		isActive: { type: Boolean, default: true },
+		tchat: { type: Number, default: 2 },
 		materials: [
 			{
 				component: { type: String, required: true },
