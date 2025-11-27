@@ -2,6 +2,7 @@
 
 import OutputInvoice from "../models/OutputInvoice.js";
 import BusinessOwner from "../models/BusinessOwner.js";
+import StorageItem from "../models/StorageItem.js";
 import ApiError from "../utils/ApiError.js";
 import { StatusCodes } from "http-status-codes";
 
@@ -67,6 +68,37 @@ const createOutputInvoice = async (data, userId) => {
 				tncn: Math.round(tncn),
 			};
 		});
+
+		for (const item of data.hdhhdvu) {
+			if (item.ten) {
+				const storageItem = await StorageItem.findOne({
+					name: item.ten,
+					businessOwnerId: owner._id,
+				});
+
+				if (storageItem) {
+					const quantityToDeduct = parseFloat(item.sluong) || 0;
+
+					if (storageItem.stock < quantityToDeduct) {
+						throw new ApiError(
+							StatusCodes.BAD_REQUEST,
+							`Không đủ số lượng tồn kho cho sản phẩm "${storageItem.name}". Tồn kho: ${storageItem.stock}`
+						);
+					}
+
+					storageItem.stock -= quantityToDeduct;
+					await storageItem.save();
+
+					console.log(
+						`Đã khấu trừ ${quantityToDeduct} ${storageItem.unit} từ kho cho sản phẩm "${storageItem.name}". Tồn kho còn: ${storageItem.stock}`
+					);
+				} else {
+					console.warn(
+						`Không tìm thấy sản phẩm trong kho với tên: ${item.ten}`
+					);
+				}
+			}
+		}
 	}
 
 	const invoiceData = {
@@ -75,7 +107,7 @@ const createOutputInvoice = async (data, userId) => {
 		nbmst: owner.taxCode,
 		nbten: owner.businessName,
 		nbdchi: fullAddress,
-		...invoiceCodes, // Auto-generated invoice codes
+		...invoiceCodes,
 		ncnhat: new Date(),
 	};
 
