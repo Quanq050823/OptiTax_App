@@ -12,7 +12,13 @@ type DataSetup = {
   profile: Profile | null;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
-
+type DetailRow = {
+  date: string;
+  soHieu: string;
+  ngayChungTu: string;
+  dienGiai: string;
+  doanhThu: number;
+};
 export async function exportInvoiceOutputS1({
   mode,
   selectedDate,
@@ -60,15 +66,36 @@ export async function exportInvoiceOutputS1({
       alert("Vui lòng chọn thời gian hợp lệ");
       return;
     }
-
+const parseLocalDate = (str: string) => {
+  const [datePart] = str.split("T");
+  const [y, m, d] = datePart.split("-").map(Number);
+  return new Date(y, m - 1, d);
+};
     // --- 1. Lọc hoá đơn ---
     const filtered = invoicesOutput.filter((inv) => {
-      const invDate = new Date(inv.ncnhat);
+      const invDate = parseLocalDate(inv.ncnhat);
       invDate.setHours(0, 0, 0, 0);
       return invDate >= startDate! && invDate <= endDate!;
     });
 
     // --- 2. Gom nhóm theo ngày ---
+    const detailRows: DetailRow[] = [];
+
+filtered.forEach((inv, invIndex) => {
+  const invDate = new Date(inv.ncnhat).toLocaleDateString("vi-VN");
+
+  if (Array.isArray(inv.hdhhdvu)) {
+    inv.hdhhdvu.forEach((item, itemIndex) => {
+      detailRows.push({
+        date: invDate,
+        soHieu: inv.khmshdon ?? "",          // nếu có
+        ngayChungTu: invDate,
+        dienGiai: item.ten ?? "Hàng hóa - dịch vụ",
+        doanhThu: Number(item.thtien ?? 0),
+      });
+    }); 
+  }
+});
     const grouped: Record<string, number> = {};
     filtered.forEach((inv) => {
       const date = new Date(inv.ncnhat).toLocaleDateString("vi-VN");
@@ -80,27 +107,27 @@ export async function exportInvoiceOutputS1({
       }
       grouped[date] = (grouped[date] || 0) + amount;
     });
-    const grandTotal = Object.values(grouped).reduce(
-      (sum, val) => sum + val,
-      0
-    );
+    const grandTotal = detailRows.reduce((s, r) => s + r.doanhThu, 0);
+
 
     // --- 3. Render HTML ---
-    const rows = Object.entries(grouped)
-      .map(([date, total], index) => {
-        return `
-          <tr>
-            <td>${date}</td>
-            <td>${index + 1}</td>
-            <td>${today.toLocaleDateString("vi-VN")}</td>
-            <td>Doanh thu bán hàng ngày ${date}</td>
-            <td>${total.toLocaleString("vi-VN")}</td>
-            <td></td><td></td><td></td><td></td><td></td>
-            <td></td><td></td>
-          </tr>
-        `;
-      })
-      .join("");
+    const rows = detailRows
+  .map((row) => {
+    return `
+      <tr>
+        <td>${row.date}</td>
+        <td>${row.soHieu}</td>
+        <td>${row.ngayChungTu}</td>
+        <td>${row.dienGiai}</td>
+
+        <td>${row.doanhThu.toLocaleString("vi-VN")}</td>
+
+        <td></td><td></td><td></td><td></td><td></td>
+        <td></td><td></td>
+      </tr>
+    `;
+  })
+  .join("");
 
     const html = `
       <style>
