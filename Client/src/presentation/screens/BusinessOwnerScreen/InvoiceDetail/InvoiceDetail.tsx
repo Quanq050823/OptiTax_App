@@ -1,3 +1,4 @@
+import { getLocalDate } from "@/src/presentation/Controller/FomatDate";
 import { InvoiceProduct } from "@/src/types/route";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -107,7 +108,7 @@ const InvoiceDetailScreen = ({ route }: any) => {
               </Text>
               <View style={styles.flexLabel}>
                 <Text style={styles.label}>Mã HĐ:</Text>
-                <Text style={styles.value}>{item.khmshdon}</Text>
+                <Text style={styles.value}>{item.mhdon}</Text>
               </View>
               <View style={styles.flexLabel}>
                 <Text style={styles.label}>Ký hiệu HĐ:</Text>
@@ -119,14 +120,12 @@ const InvoiceDetailScreen = ({ route }: any) => {
               </View>
               <View style={styles.flexLabel}>
                 <Text style={styles.label}>Mẫu HĐ:</Text>
-                <Text style={styles.value}>{item.mhdon}</Text>
+                <Text style={styles.value}>{item.khmshdon}</Text>
               </View>
               <View style={styles.flexLabel}>
                 <Text style={styles.label}>Ngày lập:</Text>
                 <Text style={styles.value}>
-                  {item.ncnhat
-                    ? new Date(item.ncnhat).toLocaleDateString("vi-VN")
-                    : ""}
+                  {item.ncnhat ? getLocalDate(item.ncnhat) : ""}
                 </Text>
               </View>
               <View style={styles.flexLabel}>

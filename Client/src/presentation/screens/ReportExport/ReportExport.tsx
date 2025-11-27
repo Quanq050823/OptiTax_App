@@ -359,8 +359,75 @@ export async function exportFromTemplate(invoiceData: Invoice) {
 
 export default function ReportExport() {
   const navigate = useAppNavigation();
-
-  const [selectedKey, setSelectedKey] = useState<Feature | null>(null);
+  const features: Feature[] = [
+    {
+      key: "InvoiceOuput",
+      label: "Doanh thu bán hàng hoá, dịch vụ",
+      action: () =>
+        exportInvoiceOutputS1({
+          mode,
+          selectedDate,
+          range,
+          invoicesOutput,
+          profile,
+          setLoading,
+        }),
+    },
+    // {
+    //   key: "InvoiceInput",
+    //   label: "Phí vật liệu, dụng cụ, sản phẩm, hàng hoá",
+    //   action: () =>
+    //     exportInvoiceInputS2({
+    //       mode,
+    //       selectedDate,
+    //       range,
+    //       invoiceInputDataSync,
+    //       profile,
+    //       setLoading,
+    //     }),
+    //   exportExcel: () => exportFromTemplate(invoiceData),
+    // },
+    // {
+    //   key: "VoucherOutput",
+    //   label: "Chi phí sản xuất kinh doanh",
+    //   action: () =>
+    //     exportCulateTotalCost({
+    //       mode,
+    //       selectedDate,
+    //       range,
+    //       voucherPayList,
+    //       profile,
+    //       setLoading,
+    //     }),
+    // },
+    // {
+    //   key: "Tax",
+    //   label: "Tình hình thực hiện nghĩa vụ thuế",
+    //   action: () =>
+    //     ExportTaxSubmitS4({
+    //       mode,
+    //       selectedDate,
+    //       range,
+    //       taxList,
+    //       profile,
+    //       setLoading,
+    //       invoicesOutput,
+    //     }),
+    // },
+    // {
+    //   key: "Pay",
+    //   label: "Thanh toán lương lao động",
+    //   // action: handleExportPDF,
+    // },
+    // {
+    //   key: "Cash",
+    //   label: "Quỹ tiền mặt - Báo cáo",
+    //   // action: handleExportPDF,
+    // },
+  ];
+  const [selectedKey, setSelectedKey] = useState<Feature | null>(
+    features.find((f) => f.key === "InvoiceOuput") || null
+  );
   const {
     data: profile,
     invoicesOutput,
@@ -373,7 +440,7 @@ export default function ReportExport() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [selectedKey]);
 
   const [mode, setMode] = useState<"month" | "quarter" | "range">("month");
   const [visible, setVisible] = useState(false);
@@ -397,73 +464,6 @@ export default function ReportExport() {
       {checked && <View style={[styles.radioInner]} />}
     </View>
   );
-
-  const features: Feature[] = [
-    {
-      key: "InvoiceOuput",
-      label: "Doanh thu bán hàng hoá, dịch vụ",
-      action: () =>
-        exportInvoiceOutputS1({
-          mode,
-          selectedDate,
-          range,
-          invoicesOutput,
-          profile,
-          setLoading,
-        }),
-    },
-    {
-      key: "InvoiceInput",
-      label: "Phí vật liệu, dụng cụ, sản phẩm, hàng hoá",
-      action: () =>
-        exportInvoiceInputS2({
-          mode,
-          selectedDate,
-          range,
-          invoiceInputDataSync,
-          profile,
-          setLoading,
-        }),
-      exportExcel: () => exportFromTemplate(invoiceData),
-    },
-    {
-      key: "VoucherOutput",
-      label: "Chi phí sản xuất kinh doanh",
-      action: () =>
-        exportCulateTotalCost({
-          mode,
-          selectedDate,
-          range,
-          voucherPayList,
-          profile,
-          setLoading,
-        }),
-    },
-    {
-      key: "Tax",
-      label: "Tình hình thực hiện nghĩa vụ thuế",
-      action: () =>
-        ExportTaxSubmitS4({
-          mode,
-          selectedDate,
-          range,
-          taxList,
-          profile,
-          setLoading,
-          invoicesOutput,
-        }),
-    },
-    {
-      key: "Pay",
-      label: "Thanh toán lương lao động",
-      // action: handleExportPDF,
-    },
-    {
-      key: "Cash",
-      label: "Quỹ tiền mặt - Báo cáo",
-      // action: handleExportPDF,
-    },
-  ];
 
   useEffect(() => {
     const animationsArray = features.map((_, i) =>
@@ -589,6 +589,20 @@ export default function ReportExport() {
               loading={loading}
               setLoading={setLoading}
             />
+            <View style={{ paddingHorizontal: 20, marginTop: 20 }}>
+              <Text
+                style={{ fontSize: 18, fontWeight: "600", color: "#494949ff" }}
+              >
+                Mẫu báo cáo
+              </Text>
+            </View>
+            <View style={styles.gridContainer}>
+              <FlatList
+                data={features}
+                renderItem={renderItem}
+                numColumns={1}
+              />
+            </View>
             <View
               style={{
                 marginBottom: 20,
@@ -653,13 +667,6 @@ export default function ReportExport() {
                 </Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.gridContainer}>
-              <FlatList
-                data={features}
-                renderItem={renderItem}
-                numColumns={1}
-              />
-            </View>
           </View>
         </PaperProvider>
       </ImageBackground>
@@ -674,7 +681,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "flex-start",
-    flex: 1,
+    paddingHorizontal: 5,
+    marginBottom: 20,
   },
   item: {
     height: 60,

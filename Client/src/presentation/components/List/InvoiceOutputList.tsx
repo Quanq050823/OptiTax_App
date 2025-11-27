@@ -4,40 +4,29 @@ import { Invoice } from "@/src/types/route";
 import { Entypo } from "@expo/vector-icons";
 import {
   FlatList,
+  RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { getLocalDate } from "../../Controller/FomatDate";
+import { useState } from "react";
 
-const invoices: any = [
-  {
-    id: "HD001",
-    date: "2025-08-20",
-    supplier: "Công ty ABC",
-    total: 1500000,
-    status: 1,
-  },
-  {
-    id: "HD002",
-    date: "2025-08-21",
-    supplier: "Nhà cung cấp XYZ",
-    total: 2800000,
-    status: 0,
-  },
-  {
-    id: "HD003",
-    date: "2025-08-22",
-    supplier: "Siêu thị Metro",
-    total: 560000,
-    status: 2,
-  },
-];
 type invoice = {
   invoicesData: Invoice[];
+  fetchData: () => void;
 };
-function InvoiceOutputList({ invoicesData }: invoice) {
+function InvoiceOutputList({ invoicesData, fetchData }: invoice) {
   const navigate = useAppNavigation();
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchData(); // gọi lại API hoặc data
+    setRefreshing(false); // tắt vòng xoay loading
+  };
+
   const getStatusInfo = (status?: number | string | null) => {
     const s = Number(status); // ép string -> number
 
@@ -67,8 +56,8 @@ function InvoiceOutputList({ invoicesData }: invoice) {
     );
 
     const statusInfo = getStatusInfo(item.ttxly ?? 0);
-    console.log(item.ttxly);
     const label = "Hoá đơn bán ra";
+
     return (
       <TouchableOpacity
         onPress={() =>
@@ -79,7 +68,7 @@ function InvoiceOutputList({ invoicesData }: invoice) {
           <View style={styles.headerItem}>
             <Text style={styles.supplier}>{item.nbten}</Text>
             <Text style={{ color: "#4f4f4fff" }}>
-              {item.ncnhat.split("T")[0]}
+              {getLocalDate(item.ncnhat)}
             </Text>
           </View>
           <Text style={styles.id}>Mã HĐ: {item.mhdon}</Text>
@@ -140,6 +129,9 @@ function InvoiceOutputList({ invoicesData }: invoice) {
       renderItem={renderItem}
       contentContainerStyle={styles.container}
       showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
     />
   );
 }
