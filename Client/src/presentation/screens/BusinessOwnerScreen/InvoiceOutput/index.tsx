@@ -7,6 +7,7 @@ import ModalCreateProductsByInvoiceOuput from "@/src/presentation/components/Mod
 import ModalLoginCCT from "@/src/presentation/components/Modal/ModalLoginCCT";
 import ModalSynchronized from "@/src/presentation/components/Modal/ModalSynchronized";
 import SearchByName from "@/src/presentation/components/SearchByName";
+import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { getInvoiceOutputList } from "@/src/services/API/invoiceService";
 import { Invoice } from "@/src/types/route";
 import { AntDesign, FontAwesome5, Fontisto } from "@expo/vector-icons";
@@ -35,7 +36,7 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
   const [openListProductSynchronized, setOpenListProductSynchronized] =
     useState(false);
   const spinValue = useRef(new Animated.Value(0)).current;
-
+  const navigate = useAppNavigation();
   const fetchListInvoice = async () => {
     setLoading(true);
     try {
@@ -95,12 +96,21 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
         </View>
       </View>
       <View style={styles.synchronizedWrapper}>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.btnSyn}
           onPress={() => setOpenListProductSynchronized(true)}
         >
           <Text style={{ color: "#fff", fontSize: 14 }}>
-            Tạo sản phẩm &nbsp;
+            Xuất hóa đơn &nbsp;
+            <AntDesign name="plus" size={15} color="#fff" />
+          </Text>
+        </TouchableOpacity> */}
+        <TouchableOpacity
+          style={styles.btnSyn}
+          onPress={() => navigate.navigate("ExportInvoicePayment")}
+        >
+          <Text style={{ color: "#fff", fontSize: 14 }}>
+            Xuất hóa đơn &nbsp;
             <AntDesign name="plus" size={15} color="#fff" />
           </Text>
         </TouchableOpacity>
@@ -133,7 +143,7 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
         openListProductSynchronized={openListProductSynchronized}
         invoicesData={invoices}
       />
-      <InvoiceOutputList invoicesData={invoices} />
+      <InvoiceOutputList invoicesData={invoices} fetchData={fetchListInvoice} />
       {/* <ModalSynchronized visible={visible} setVisible={setVisible} /> */}
       <ModalLoginCCT openLogin={openLogin} setOpenLogin={setOpenLogin} />
     </View>

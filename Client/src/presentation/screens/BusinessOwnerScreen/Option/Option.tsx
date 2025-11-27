@@ -63,14 +63,13 @@ function Option() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 3 }}
               style={{
-                borderTopLeftRadius: 15,
-                borderBottomRightRadius: 15,
+                borderRadius: 50,
                 alignItems: "center",
                 padding: 5,
                 width: "100%",
                 flexDirection: "row",
-                paddingHorizontal: 20,
-                paddingVertical: 20,
+                paddingHorizontal: 10,
+                paddingVertical: 10,
                 shadowColor: "#00000033",
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.3,
@@ -103,31 +102,6 @@ function Option() {
                 <AntDesign name="setting" size={24} color="#fff" />
               </TouchableOpacity>
             </LinearGradient>
-          </View>
-          <View
-            style={{
-              backgroundColor: "#efefefff",
-              flex: 1,
-              width: "90%",
-              borderRadius: 10,
-              flexDirection: "row",
-              alignItems: "center",
-              paddingHorizontal: 10,
-              paddingVertical: 20,
-              marginBottom: 20,
-              justifyContent: "space-between",
-            }}
-          >
-            <View style={styles.dataDev}>
-              <Text>Thu nhập: </Text>
-              <Text style={{ fontWeight: "600" }}>70,5</Text>
-              <AntDesign name="arrow-up" size={15} color="green" />
-            </View>
-            <View style={styles.dataDev}>
-              <Text>Thu nhập: </Text>
-              <Text style={{ fontWeight: "600" }}>70,5</Text>
-              <AntDesign name="arrow-up" size={15} color="red" />
-            </View>
           </View>
           <View style={styles.wrItem}>
             <TouchableOpacity style={styles.item}>
@@ -194,10 +168,12 @@ const colorText = "#585858ff";
 const styles = StyleSheet.create({
   UserWrapper: {
     marginBottom: 10,
-    paddingVertical: 20,
-    borderRadius: 8,
+    paddingVertical: 10,
+    borderRadius: 20,
     flexDirection: "row",
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
+    backgroundColor: "#fff",
+    marginTop: 10,
   },
   name: {
     fontSize: 20,

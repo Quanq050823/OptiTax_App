@@ -302,7 +302,11 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginHorizontal: 5,
   },
-  wrInfo: { alignItems: "center", marginTop: 40, paddingHorizontal: 20 },
+  wrInfo: {
+    alignItems: "center",
+    marginTop: 40,
+    paddingHorizontal: 20,
+  },
   wrInput: {
     width: "100%",
     justifyContent: "flex-end",

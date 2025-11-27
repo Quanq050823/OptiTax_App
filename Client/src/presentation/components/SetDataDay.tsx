@@ -31,6 +31,7 @@ type SetDataDayProps = {
 
   getQuarter: (month: number) => number;
 };
+
 function SetDataDay({
   mode,
   setMode,
@@ -45,13 +46,13 @@ function SetDataDay({
   loading,
   setLoading,
 }: SetDataDayProps) {
+  console.log(selectedDate, "haha");
 
   return (
     <View
       style={{
         padding: 20,
         alignItems: "center",
-        marginBottom: 20,
       }}
     >
       {/* Selector */}
@@ -143,12 +144,19 @@ function SetDataDay({
         {/* Preview */}
         {selectedDate ? (
           <>
-            {mode === "month" && selectedDate && (
+            {mode === "month" && (
               <TouchableOpacity style={stytes.resultSelectedDate}>
                 <Text>
-                  Đã chọn: Năm {new Date(selectedDate).getFullYear()},
-                  Tháng&nbsp;
-                  {new Date(selectedDate).getMonth() + 1}
+                  Đã chọn: Năm{" "}
+                  {(selectedDate
+                    ? new Date(selectedDate)
+                    : new Date()
+                  ).getFullYear()}
+                  , Tháng&nbsp;
+                  {(selectedDate
+                    ? new Date(selectedDate)
+                    : new Date()
+                  ).getMonth() + 1}
                 </Text>
               </TouchableOpacity>
             )}
@@ -177,7 +185,7 @@ function SetDataDay({
         <AntDesign
           name="calendar"
           size={24}
-          color="black"
+          color="#5f5f5fff"
           onPress={() => setVisible(true)}
         />
       </View>
