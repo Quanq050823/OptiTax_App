@@ -33,6 +33,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import ShimmerSweep from "./ShimmerSweep";
 import { useAppNavigation } from "../Hooks/useAppNavigation";
 import MovingText from "./MovingText";
+import { getTotalTaxes } from "@/src/services/API/taxService";
 
 export default function Analytics() {
   const navigate = useAppNavigation();
@@ -56,6 +57,23 @@ export default function Analytics() {
   >();
 
   const [loading, setLoading] = useState(false);
+  const [totalGTGT, setTotalGTGT] = useState(0);
+  const [totalTNCN, setTotalTNCN] = useState(0);
+  
+  const fetchTotalTaxes = async () => {
+    try {
+      const result = await getTotalTaxes();
+      setTotalGTGT(result.totalGTGT);
+      setTotalTNCN(result.totalTNCN);
+    } catch (error) {
+      console.error("Lỗi khi lấy tổng thuế:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTotalTaxes();
+  }, []);
+
   useEffect(() => {
     // Hiệu ứng khi vào trang
     Animated.parallel([
@@ -109,6 +127,7 @@ export default function Analytics() {
       const resultSyncInvoiceIn = await syncInvoiceIn();
       setDataSyncInvoice(resultSyncInvoiceIn);
       setVisiSync(true);
+      await fetchTotalTaxes(); 
       setLoading(false);
     } catch (e) {
       Alert.alert("Không thể đồng bộ hóa đơn!!");
@@ -190,7 +209,7 @@ export default function Analytics() {
             <View style={[styles.taxCard]}>
               <Text style={styles.taxLabel}>Thuế GTGT</Text>
               <Text style={styles.taxValue}>
-                {isUpdating ? "..." : "1.000.000 đ"}
+                {isUpdating ? "..." : `${totalGTGT.toLocaleString('vi-VN')} đ`}
               </Text>
               <View
                 style={{
@@ -207,7 +226,7 @@ export default function Analytics() {
             <View style={[styles.taxCard]}>
               <Text style={styles.taxLabel}>Thuế TNCN</Text>
               <Text style={styles.taxValue}>
-                {isUpdating ? "..." : "1.402.000 đ"}
+                {isUpdating ? "..." : `${totalTNCN.toLocaleString('vi-VN')} đ`}
               </Text>
               <View
                 style={{
@@ -224,7 +243,7 @@ export default function Analytics() {
             <View style={[styles.taxCard]}>
               <Text style={styles.taxLabel}>TỔNG</Text>
               <Text style={[styles.taxValue, { color: textDealineColor }]}>
-                {isUpdating ? "..." : "2.000.000 đ"}
+                {isUpdating ? "..." : `${(totalGTGT + totalTNCN).toLocaleString('vi-VN')} đ`}
               </Text>
             </View>
           </View>

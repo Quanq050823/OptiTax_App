@@ -73,6 +73,14 @@ const OutputInvoiceSchema = new mongoose.Schema(
 		thtttoan: String,
 		hdhhdvu: [hdhhdvuSchema],
 		qrcode: String,
+		totalGTGT: {
+			type: Number,
+			default: 0,
+		},
+		totalTNCN: {
+			type: Number,
+			default: 0,
+		},
 		businessOwnerId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "BusinessOwner",
