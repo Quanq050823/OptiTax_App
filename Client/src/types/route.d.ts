@@ -1,4 +1,5 @@
 import { ExportInvoiceDetailParams } from "./invoiceExport";
+import { ProductInventory } from "./storage";
 
 type RootStackParamList = {
 	VerifyAuth: undefined;
@@ -45,15 +46,15 @@ type RootStackParamList = {
 	ChooseReportItemScreen: undefined;
 	ChartExportScreen: undefined;
 	InventoryManagementScreen: undefined;
-  ExportInvoiceDetailScreen: { invoiceDetail: ExportInvoiceDetailParams };
+	ExportInvoiceDetailScreen: { invoiceDetail: ExportInvoiceDetailParams };
 
 	PaymentVoucherDetail: {
 		voucher: PaymentVoucher;
 	};
 	PaymentInvoiceScreen: {
-		items: (Product & { quantity: number; total: number })[];
+		items: (ProductInventory & { quantity: number })[];
 	};
-	ExportInvoicePayment: { items?: Product[] } | undefined;
+	ExportInvoicePayment: { items?: ProductInventory[] } | undefined;
 	SelectElectronicInvoice: {
 		digitalSignature: {
 			label: string;
@@ -102,7 +103,6 @@ type Product = {
 	category: string;
 	unit: string | null;
 	attributes: any;
-	
 };
 export interface UserProfile {
 	_id: string;

@@ -211,6 +211,7 @@ const syncStorageItems = async (req, res, next) => {
 						name: item.ten,
 						stock: item.sluong,
 						unit: item.dvtinh,
+						price: item.dgia,
 					};
 					try {
 						const existingItems = await storageItemService.listStorageItems(
