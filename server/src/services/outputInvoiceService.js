@@ -2,6 +2,7 @@
 
 import OutputInvoice from "../models/OutputInvoice.js";
 import BusinessOwner from "../models/BusinessOwner.js";
+import StorageItem from "../models/StorageItem.js";
 import ApiError from "../utils/ApiError.js";
 import { StatusCodes } from "http-status-codes";
 
@@ -45,6 +46,10 @@ const createOutputInvoice = async (data, userId) => {
 		);
 
 	const fullAddress = `${owner.address.street}, ${owner.address.ward}, ${owner.address.district}, ${owner.address.city}`;
+
+	let totalGTGT = 0;
+	let totalTNCN = 0;
+
 	if (data.hdhhdvu && Array.isArray(data.hdhhdvu)) {
 		data.hdhhdvu = data.hdhhdvu.map((item) => {
 			const thtien = parseFloat(item.thtien) || 0;
@@ -61,12 +66,49 @@ const createOutputInvoice = async (data, userId) => {
 				tncn = thtien * 0.02;
 			}
 
+			const roundedGTGT = Math.round(gtgt);
+			const roundedTNCN = Math.round(tncn);
+
+			totalGTGT += roundedGTGT;
+			totalTNCN += roundedTNCN;
+
 			return {
 				...item,
-				gtgt: Math.round(gtgt),
-				tncn: Math.round(tncn),
+				gtgt: roundedGTGT,
+				tncn: roundedTNCN,
 			};
 		});
+
+		for (const item of data.hdhhdvu) {
+			if (item.ten) {
+				const storageItem = await StorageItem.findOne({
+					name: item.ten,
+					businessOwnerId: owner._id,
+				});
+
+				if (storageItem) {
+					const quantityToDeduct = parseFloat(item.sluong) || 0;
+
+					if (storageItem.stock < quantityToDeduct) {
+						throw new ApiError(
+							StatusCodes.BAD_REQUEST,
+							`Không đủ số lượng tồn kho cho sản phẩm "${storageItem.name}". Tồn kho: ${storageItem.stock}`
+						);
+					}
+
+					storageItem.stock -= quantityToDeduct;
+					await storageItem.save();
+
+					console.log(
+						`Đã khấu trừ ${quantityToDeduct} ${storageItem.unit} từ kho cho sản phẩm "${storageItem.name}". Tồn kho còn: ${storageItem.stock}`
+					);
+				} else {
+					console.warn(
+						`Không tìm thấy sản phẩm trong kho với tên: ${item.ten}`
+					);
+				}
+			}
+		}
 	}
 
 	const invoiceData = {
@@ -75,8 +117,10 @@ const createOutputInvoice = async (data, userId) => {
 		nbmst: owner.taxCode,
 		nbten: owner.businessName,
 		nbdchi: fullAddress,
-		...invoiceCodes, // Auto-generated invoice codes
+		...invoiceCodes,
 		ncnhat: new Date(),
+		totalGTGT,
+		totalTNCN,
 	};
 
 	const invoice = new OutputInvoice(invoiceData);
@@ -133,10 +177,44 @@ const deleteOutputInvoice = async (id) => {
 	return invoice;
 };
 
+const getTotalTaxesByBusinessOwner = async (businessOwnerId, filter = {}) => {
+	const matchQuery = {
+		businessOwnerId,
+		...filter,
+	};
+
+	const result = await OutputInvoice.aggregate([
+		{ $match: matchQuery },
+		{
+			$group: {
+				_id: null,
+				totalGTGT: { $sum: "$totalGTGT" },
+				totalTNCN: { $sum: "$totalTNCN" },
+				invoiceCount: { $sum: 1 },
+			},
+		},
+	]);
+
+	if (result.length === 0) {
+		return {
+			totalGTGT: 0,
+			totalTNCN: 0,
+			invoiceCount: 0,
+		};
+	}
+
+	return {
+		totalGTGT: result[0].totalGTGT || 0,
+		totalTNCN: result[0].totalTNCN || 0,
+		invoiceCount: result[0].invoiceCount || 0,
+	};
+};
+
 export {
 	createOutputInvoice,
 	getOutputInvoiceById,
 	listOutputInvoices,
 	updateOutputInvoice,
 	deleteOutputInvoice,
+	getTotalTaxesByBusinessOwner,
 };

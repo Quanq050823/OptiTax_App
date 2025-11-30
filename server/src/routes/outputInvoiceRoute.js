@@ -22,6 +22,13 @@ router.get(
 );
 
 router.get(
+	"/taxes/total",
+	authenticate,
+	authorization(["user", "admin"]),
+	outputInvoiceController.getTotalTaxes
+);
+
+router.get(
 	"/:id",
 	authenticate,
 	authorization(["user", "admin"]),

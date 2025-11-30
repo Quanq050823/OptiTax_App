@@ -43,9 +43,7 @@ export const getInvoiceOutputById = async (userId: string) => {
 
 export const exportInvoiceOutput = async (invoiceData: InvoiceData) => {
 	try {
-		const res = await axiosInstance.post(
-			`output-invoices`,invoiceData
-		);
+		const res = await axiosInstance.post(`output-invoices`, invoiceData);
 
 		return res.data;
 	} catch (error: any) {

@@ -65,4 +65,36 @@ const remove = async (req, res, next) => {
 	}
 };
 
-export { create, getById, list, update, remove };
+const getTotalTaxes = async (req, res, next) => {
+	try {
+		const userId = req.user.userId;
+		const BusinessOwner = (await import("../models/BusinessOwner.js")).default;
+		const owner = await BusinessOwner.findOne({ userId });
+		if (!owner) {
+			return res
+				.status(StatusCodes.NOT_FOUND)
+				.json({ message: "BusinessOwner not found" });
+		}
+
+		const filter = {};
+		if (req.query.startDate || req.query.endDate) {
+			filter.createdAt = {};
+			if (req.query.startDate) {
+				filter.createdAt.$gte = new Date(req.query.startDate);
+			}
+			if (req.query.endDate) {
+				filter.createdAt.$lte = new Date(req.query.endDate);
+			}
+		}
+
+		const result = await outputInvoiceService.getTotalTaxesByBusinessOwner(
+			owner._id,
+			filter
+		);
+		res.status(StatusCodes.OK).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export { create, getById, list, update, remove, getTotalTaxes };
