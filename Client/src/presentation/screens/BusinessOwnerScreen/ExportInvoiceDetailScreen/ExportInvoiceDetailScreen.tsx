@@ -55,7 +55,7 @@ export default function ExportInvoiceDetailScreen({ route }: Props) {
       sluong: String(item.quantity),
       dgia: String(item.price), // nếu Product có price
       thtien: String(item.total),
-      tchat: 1, // bạn tự set hoặc map từ dữ liệu
+      tchat: item.tchat, // bạn tự set hoặc map từ dữ liệu
     }));
   };
   // Destructure các giá trị bên trong để tiện dùng

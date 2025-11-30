@@ -63,6 +63,7 @@ import ExportInvoiceDetailScreen from "../presentation/screens/BusinessOwnerScre
 import { createProduct } from "../services/API/productService";
 import CreateProductScreen from "../presentation/screens/BusinessOwnerScreen/CreateProduct/CreateProduct";
 
+import { logout as apiLogout } from "@/src/services/API/authService";
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
   const { data, setData } = useData(); // lấy data từ context
@@ -82,6 +83,23 @@ const HomeLayout = () => {
       setData({ ...data, ...dataBussiness });
     } catch (error) {
       // Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại!");
+      Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại", [
+        {
+          text: "Đăng nhập lại",
+          onPress: async () => {
+            // Xử lý điều hướng về màn Login
+            const result = await apiLogout();
+            console.log("Logout result:", result);
+
+            // Chuyển về trang login sau khi logout
+            navigate.reset({
+              index: 0,
+              routes: [{ name: "Login" }],
+            });
+          },
+          style: "default", // hoặc "cancel", "destructive"
+        },
+      ]);
     }
   };
   useEffect(() => {

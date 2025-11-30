@@ -282,7 +282,7 @@ function ExportInvoicePayment() {
                     styles.quantityButton,
                     { backgroundColor: ColorMain },
                   ]}
-                  disabled={item.stock < 1 ? true : false}
+                  // disabled={item.stock < 1 ? true : false}
                   onPress={() => increaseQuantity(item._id)}
                 >
                   <Text style={[styles.quantityButtonText, { color: "#fff" }]}>
@@ -297,7 +297,7 @@ function ExportInvoicePayment() {
                   borderRadius: 5,
                   padding: 5,
                 }}
-                disabled={item.stock < 1}
+                // disabled={item.stock < 1}
                 onPress={() => increaseQuantity(item._id)} // ấn + lần đầu sẽ tạo quantity = 1
               >
                 <Entypo name="plus" size={17} color="#fff" />
