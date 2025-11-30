@@ -10,6 +10,7 @@ export interface ProductInventory {
   syncStatus: boolean;
   __v: number;
   category: number;
+  price: number
 }
 
 export interface ProductInventoryList {

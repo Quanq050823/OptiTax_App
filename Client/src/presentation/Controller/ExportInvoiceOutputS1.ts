@@ -211,10 +211,10 @@ const sortedGroups = Object.values(groupedData).sort((a, b) => a.tchat - b.tchat
 
     // 3. Hàng tổng cộng của nhóm (Tổng cộng (1), Tổng cộng (2)...)
     const groupTotalRow = `
-       <tr>
- <td colspan="3"><b>Tổng cộng (Toàn sổ)</b></td>
- <td><b>${grandTotal.amount.toLocaleString("vi-VN")}</b></td>
- <td></td> <td><b>${grandTotal.totalTNCN.toLocaleString("vi-VN")}</b></td>  <td></td>  <td><b>${grandTotal.totalGTGT.toLocaleString("vi-VN")}</b></td>         </tr>
+        <tr>
+            <td colspan="3"><b>Tổng cộng (${group.tchat})</b></td>
+            <td><b>${group.totalAmount.toLocaleString("vi-VN")}</b></td>
+            <td></td> <td><b>${group.totalTNCN.toLocaleString("vi-VN")}</b></td> <td></td> <td><b>${group.totalGTGT.toLocaleString("vi-VN")}</b></td> </tr>
     `;
 
     return groupHeaderRow + detailRows + groupTotalRow;
@@ -289,7 +289,7 @@ const sortedGroups = Object.values(groupedData).sort((a, b) => a.tchat - b.tchat
         
         <tr>
           <td colspan="4">Tổng cộng</td>
-          <td><b>${grandTotal.toLocaleString("vi-VN")}</b></td>
+          <td><b>${grandTotal.amount.toLocaleString("vi-VN")}</b></td>
           <td colspan="6"></td>
         </tr>
       </table>

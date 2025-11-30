@@ -186,12 +186,25 @@ export default function PaymentInvoiceScreen() {
       note: "",
     }
   );
+
+  function parsePrice(price: string | number) {
+    if (typeof price === "number") return price;
+    if (!price) return 0;
+    // loại bỏ dấu chấm và convert thành number
+    const n = Number(price.toString().replace(/\./g, ""));
+    return isNaN(n) ? 0 : n;
+  }
   const [items, setItems] = useState(() =>
-    initialItems.map((item) => ({
-      ...item,
-      quantity: item.quantity || 1,
-      total: item.total || item.price * (item.quantity || 1),
-    }))
+    initialItems.map((item) => {
+      const price = parsePrice(item.price);
+      const quantity = item.quantity || 1;
+      return {
+        ...item,
+        price,
+        quantity,
+        total: item.total || price * quantity,
+      };
+    })
   );
 
   // tax UI state

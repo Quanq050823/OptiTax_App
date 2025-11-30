@@ -39,6 +39,7 @@ function ExportInvoicePayment() {
   const navigation = useAppNavigation();
 
   const route = useRoute<ExportInvoicePaymentRoute>();
+  const [isActive, setIsActive] = useState(false);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -59,6 +60,11 @@ function ExportInvoicePayment() {
       item.name?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [searchQuery, products]);
+  const filteredProductStorage = useMemo(() => {
+    return productStorage.filter(
+      (item) => item.syncStatus === true && item.category === 1
+    );
+  }, [productStorage]);
   useEffect(() => {
     if (route.params?.items) {
       // Gộp thêm sản phẩm đã có
@@ -71,16 +77,17 @@ function ExportInvoicePayment() {
     }
   }, [route.params?.items]);
   useEffect(() => {
-    // Tính tổng tiền dựa vào quantity và products
     let total = 0;
     for (const id in quantity) {
-      const product = products.find((p) => p._id === id);
+      const product =
+        products.find((p) => p._id === id) ||
+        productStorage.find((p) => p._id === id);
       if (product) {
-        total += product.price * quantity[id];
+        total += (product.price || 0) * quantity[id];
       }
     }
     setTotalAmount(total);
-  }, [quantity, products]);
+  }, [quantity, products, productStorage]);
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -198,19 +205,21 @@ function ExportInvoicePayment() {
   };
 
   const handleGoToPayment = () => {
-    // Lọc ra những sản phẩm đã chọn
-    const selectedItems = products
+    const allProducts = [...products, ...productStorage];
+
+    const selectedItems = allProducts
       .filter((p) => quantity[p._id])
       .map((p) => ({
         ...p,
         quantity: quantity[p._id],
-        total: p.price * quantity[p._id],
+        total: (p.price || 0) * quantity[p._id],
       }));
 
     navigation.navigate("PaymentInvoiceScreen", {
       items: selectedItems,
     });
   };
+
   const screenWidth = Dimensions.get("window").width;
   const ITEM_MARGIN = 8;
   const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
@@ -309,30 +318,84 @@ function ExportInvoicePayment() {
       <View style={styles.bottomLine} />
     </TouchableOpacity>
   );
-  const renderItemStorage: ListRenderItem<ProductInventory> = ({ item }) => (
-    <TouchableOpacity key={item._id}>
-      <View
-        style={[
-          styles.card,
-          {
-            width: ITEM_WIDTH - 50,
-            marginHorizontal: ITEM_MARGIN / 2,
-            position: "relative",
-          },
-        ]}
-      >
-        <View style={{ flex: 1, alignItems: "center", width: "80%" }}>
-          <Image source={{ uri: item.imageURL }} style={styles.image} />
+  const renderItemStorage: ListRenderItem<ProductInventory> = ({ item }) => {
+    const qty = quantity[item._id] || 0;
 
-          <Text style={styles.name}>{item.name}</Text>
-          {/* <Text style={styles.detail}>Giá: {item.stock.toString()}đ</Text> */}
+    return (
+      <TouchableOpacity onPress={() => increaseQuantity(item._id)}>
+        <View style={[styles.card, { width: "100%", position: "relative" }]}>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 10,
+            }}
+          >
+            <Image source={{ uri: item.imageURL }} style={styles.image} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.name}>{item.name}</Text>
+              <Text style={styles.detail}>Số lượng: {item.stock}</Text>
+              <Text style={styles.detail}>Giá: {item.price}</Text>
+            </View>
 
-          <Text style={styles.detail}>Số lượng: {item.stock}</Text>
-          <Text style={styles.detail}>Danh mục: {item.unit}</Text>
+            <View style={{ position: "absolute", right: 10 }}>
+              {qty > 0 ? (
+                <View style={styles.quantityContainer}>
+                  <TouchableOpacity
+                    style={styles.quantityButton}
+                    onPress={() => decreaseQuantity(item._id)}
+                  >
+                    <Text style={styles.quantityButtonText}>-</Text>
+                  </TouchableOpacity>
+
+                  <TextInput
+                    style={styles.input}
+                    keyboardType="numeric"
+                    value={qty.toString()}
+                    onChangeText={(val) =>
+                      setQuantity((prev) => ({
+                        ...prev,
+                        [item._id]: Math.max(Number(val) || 0, 0),
+                      }))
+                    }
+                  />
+
+                  <TouchableOpacity
+                    style={[
+                      styles.quantityButton,
+                      { backgroundColor: ColorMain },
+                    ]}
+                    onPress={() => increaseQuantity(item._id)}
+                  >
+                    <Text
+                      style={[styles.quantityButtonText, { color: "#fff" }]}
+                    >
+                      +
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: item.stock < 1 ? "#ccc" : ColorMain,
+                    borderRadius: 5,
+                    padding: 5,
+                  }}
+                  disabled={item.stock < 1}
+                  onPress={() => increaseQuantity(item._id)}
+                >
+                  <Entypo name="plus" size={17} color="#fff" />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+        <View style={styles.bottomLine} />
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <LoadingScreen visible={loading} />
@@ -387,21 +450,74 @@ function ExportInvoicePayment() {
           <AntDesign name="control" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
+      <View
+        style={{ flexDirection: "row", marginTop: 20, backgroundColor: "#fff" }}
+      >
+        <TouchableOpacity
+          style={[
+            {
+              flex: 1,
+              alignItems: "center",
+              flexDirection: "row",
+              justifyContent: "center",
+              paddingVertical: 15,
+            },
+            !isActive && {
+              borderBottomWidth: 3,
+              borderColor: ColorMain,
+            },
+          ]}
+          onPress={() => setIsActive(false)}
+        >
+          <Text>Sản phẩm đã tạo</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            {
+              flex: 1,
+              alignItems: "center",
+              flexDirection: "row",
+              justifyContent: "center",
+              paddingVertical: 15,
+            },
+            isActive && {
+              borderBottomWidth: 3,
+              borderColor: ColorMain,
+            },
+          ]}
+          onPress={() => setIsActive(true)}
+        >
+          <Text>Sản phẩm từ kho</Text>
+        </TouchableOpacity>
+      </View>
 
-      <FlatList
-        data={filteredProducts}
-        keyExtractor={(item) => item._id}
-        renderItem={renderItem}
-        contentContainerStyle={{
-          paddingBottom: 80,
-          marginTop: 20,
-        }}
-        // columnWrapperStyle={{
-        //   justifyContent: "space-between",
-        //   marginTop: 20,
-        // }}
-        numColumns={1}
-      />
+      {!isActive ? (
+        <FlatList
+          data={filteredProducts}
+          keyExtractor={(item) => item._id}
+          renderItem={renderItem}
+          contentContainerStyle={{
+            paddingBottom: 80,
+            marginTop: 10,
+          }}
+          // columnWrapperStyle={{
+          //   justifyContent: "space-between",
+          //   marginTop: 20,
+          // }}
+          numColumns={1}
+        />
+      ) : (
+        <FlatList
+          data={filteredProductStorage}
+          keyExtractor={(item) => item._id}
+          renderItem={renderItemStorage} // dùng renderItemStorage mới
+          contentContainerStyle={{
+            paddingBottom: 80,
+            marginTop: 10,
+          }}
+          numColumns={1}
+        />
+      )}
 
       <View style={styles.wrBottom}>
         <TouchableOpacity
