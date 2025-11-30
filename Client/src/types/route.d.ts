@@ -102,6 +102,7 @@ type Product = {
 	category: string;
 	unit: string | null;
 	attributes: any;
+	tchat: number
 	
 };
 export interface UserProfile {

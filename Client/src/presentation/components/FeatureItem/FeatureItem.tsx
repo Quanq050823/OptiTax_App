@@ -1,4 +1,7 @@
-import { ColorMain } from "@/src/presentation/components/colors";
+import {
+  colorLightText,
+  ColorMain,
+} from "@/src/presentation/components/colors";
 import {
   Dimensions,
   StyleSheet,
@@ -6,10 +9,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useColors } from "../../Hooks/useColor";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 function FeatureItem({ item }: any) {
+  const colors = useColors();
   return (
     <View style={styles.gridItem}>
       <TouchableOpacity
@@ -46,7 +51,9 @@ function FeatureItem({ item }: any) {
           ) : null}
           {item.icon}
         </View>
-        <Text style={styles.label}>{item.label}</Text>
+        <Text style={[styles.label, { color: colors.textLight }]}>
+          {item.label}
+        </Text>
       </TouchableOpacity>
     </View>
   );

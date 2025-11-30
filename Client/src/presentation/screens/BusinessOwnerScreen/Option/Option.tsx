@@ -1,6 +1,8 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
+import { useColors } from "@/src/presentation/Hooks/useColor";
 import { useData } from "@/src/presentation/Hooks/useDataStore";
+import { useTheme } from "@/src/presentation/Hooks/useTheme";
 import {
   BusinessInforAuth,
   getUserProfile,
@@ -10,6 +12,7 @@ import {
   AntDesign,
   Feather,
   FontAwesome6,
+  Ionicons,
   MaterialIcons,
 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -18,6 +21,7 @@ import {
   Image,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
   View,
@@ -29,6 +33,9 @@ function Option() {
   // const { data } = useData();
   const [data, setData] = React.useState({});
   const [profile, setProfile] = React.useState<Profile | null>(null);
+  const [isEnabled, setIsEnabled] = React.useState(false);
+  const { isDark, setIsDark } = useTheme();
+  const colors = useColors();
 
   const fetchProfile = async () => {
     try {
@@ -53,11 +60,13 @@ function Option() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={{
-          backgroundColor: "#e9f2f2db",
+          backgroundColor: isDark ? "#111111ff" : "#e9f2f2db",
         }}
       >
         <View style={{ paddingHorizontal: 10, alignItems: "center" }}>
-          <View style={styles.UserWrapper}>
+          <View
+            style={[styles.UserWrapper, { backgroundColor: colors.textDark }]}
+          >
             <LinearGradient
               colors={[ColorMain, "#5b74b8ff"]}
               start={{ x: 0, y: 0 }}
@@ -103,11 +112,40 @@ function Option() {
               </TouchableOpacity>
             </LinearGradient>
           </View>
-          <View style={styles.wrItem}>
+          <View style={[styles.wrItem, { backgroundColor: colors.textDark }]}>
             <TouchableOpacity style={styles.item}>
               <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <FontAwesome6 name="file-invoice" size={17} color="black" />
-                <Text style={styles.titleItem}>Quản lý hoá đơn</Text>
+                <AntDesign name="shopping" size={17} color={colors.textLight} />
+                <Text style={[styles.titleItem, { color: colors.textLight }]}>
+                  Cửa hàng
+                </Text>
+              </View>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text
+                  style={{
+                    color: "#9d9d9d",
+                    marginRight: 5,
+                  }}
+                >
+                  Cửa hàng EON
+                </Text>
+                <MaterialIcons
+                  name="keyboard-arrow-right"
+                  size={20}
+                  color={colorText}
+                />
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.item}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <FontAwesome6
+                  name="file-invoice"
+                  size={17}
+                  color={colors.textLight}
+                />
+                <Text style={[styles.titleItem, { color: colors.textLight }]}>
+                  Quản lý hoá đơn
+                </Text>
               </View>
               <MaterialIcons
                 name="keyboard-arrow-right"
@@ -120,8 +158,10 @@ function Option() {
               onPress={() => navigate.navigate("ProductManager")}
             >
               <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <AntDesign name="product" size={17} color="black" />
-                <Text style={styles.titleItem}>Quản lý sản phẩm</Text>
+                <AntDesign name="product" size={17} color={colors.textLight} />
+                <Text style={[styles.titleItem, { color: colors.textLight }]}>
+                  Quản lý sản phẩm
+                </Text>
               </View>
 
               <MaterialIcons
@@ -135,8 +175,10 @@ function Option() {
               onPress={() => navigate.navigate("ProductManager")}
             >
               <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Feather name="users" size={17} color="black" />
-                <Text style={styles.titleItem}>Quản lý khách hàng</Text>
+                <Feather name="users" size={17} color={colors.textLight} />
+                <Text style={[styles.titleItem, { color: colors.textLight }]}>
+                  Quản lý khách hàng
+                </Text>
               </View>
 
               <MaterialIcons
@@ -147,8 +189,24 @@ function Option() {
             </TouchableOpacity>
             <TouchableOpacity style={styles.item}>
               <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Feather name="settings" size={17} color="black" />
-                <Text style={styles.titleItem}>Cài đặt</Text>
+                <Ionicons name="moon" size={17} color={colors.textLight} />
+                <Text style={[styles.titleItem, { color: colors.textLight }]}>
+                  Chế độ tối
+                </Text>
+              </View>
+
+              <Switch
+                value={isDark}
+                onValueChange={setIsDark}
+                trackColor={{ false: "#d1d1d1", true: "#3c88acff" }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.item}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Feather name="settings" size={17} color={colors.textLight} />
+                <Text style={[styles.titleItem, { color: colors.textLight }]}>
+                  Cài đặt
+                </Text>
               </View>
 
               <MaterialIcons
