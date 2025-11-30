@@ -28,6 +28,8 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import ShimmerSweep from "../ShimmerSweep";
+import { useColors } from "../../Hooks/useColor";
+import { useTheme } from "../../Hooks/useTheme";
 
 interface NavigationBottomProps {
   activeTab: TabType;
@@ -42,7 +44,9 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
   const TAB_COUNT = 5;
   const TAB_WIDTH = width / TAB_COUNT;
   const [hdrSize, setHdrSize] = useState({ w: 0, h: 0 });
+  const { isDark } = useTheme();
 
+  const colors = useColors();
   const itemNavigate: {
     name: TabType;
     icon: (focused: boolean) => JSX.Element;
@@ -54,7 +58,9 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
           <AntDesign
             name="home"
             size={24}
-            color={focused ? ColorMain : "#676767ff"}
+            color={
+              focused ? ColorMain : isDark ? colors.iconNaviBot : "#676767ff"
+            }
           />
         ),
       },
@@ -64,7 +70,9 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
           <Ionicons
             name="apps-sharp"
             size={24}
-            color={focused ? ColorMain : "#676767ff"}
+            color={
+              focused ? ColorMain : isDark ? colors.iconNaviBot : "#676767ff"
+            }
           />
         ),
       },
@@ -116,7 +124,9 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
           <Ionicons
             name="notifications"
             size={24}
-            color={focused ? ColorMain : "#676767ff"}
+            color={
+              focused ? ColorMain : isDark ? colors.iconNaviBot : "#676767ff"
+            }
           />
         ),
         NewIngredientButton: <NewIngredientButton width={20} quantity={3} />,
@@ -127,12 +137,14 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
           <FontAwesome
             name="user"
             size={24}
-            color={focused ? ColorMain : "#676767ff"}
+            color={
+              focused ? ColorMain : isDark ? colors.iconNaviBot : "#676767ff"
+            }
           />
         ),
       },
     ],
-    []
+    [isDark, colors]
   );
 
   const navigation = useAppNavigation();
@@ -152,7 +164,7 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
   }));
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.textDark }]}>
       <View style={styles.ItemWrapper}>
         {/* Nền di chuyển dưới icon */}
         {/* <Animated.View
@@ -184,7 +196,13 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
               <Text
                 style={[
                   styles.label,
-                  { color: focused ? ColorMain : "#313131ff" },
+                  {
+                    color: focused
+                      ? ColorMain
+                      : isDark
+                      ? colors.iconNaviBot
+                      : "#676767ff",
+                  },
                   focused && styles.focusedLabel,
                   item.name === "Xuất HĐ" && {
                     fontWeight: "700",

@@ -6,9 +6,11 @@ import { BusinessInfo } from "@/src/types/route";
 import { NavigationContainer } from "@react-navigation/native";
 import * as React from "react";
 import { Buffer } from "buffer";
+import { useFonts } from "expo-font";
 
 import { ActivityIndicator, View } from "react-native";
 import { PaperProvider } from "react-native-paper";
+import { ThemeProvider } from "./presentation/Hooks/useTheme";
 global.Buffer = Buffer;
 
 // const linking = {
@@ -25,13 +27,19 @@ global.Buffer = Buffer;
 // };
 
 function App() {
+  const [loaded] = useFonts({
+    Montserrat: require("@/assets/fonts/SpaceMono-Regular.ttf"),
+    // MontserratBold: require("./assets/fonts/Montserrat-Bold.ttf"),
+  });
   return (
     <PaperProvider>
       <DataProvider>
         <UserTypeProvider>
-          <View style={{ flex: 1 }}>
-            <AppNavigation />
-          </View>
+          <ThemeProvider>
+            <View style={{ flex: 1 }}>
+              <AppNavigation />
+            </View>
+          </ThemeProvider>
         </UserTypeProvider>
       </DataProvider>
     </PaperProvider>

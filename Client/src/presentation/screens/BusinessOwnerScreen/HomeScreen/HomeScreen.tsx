@@ -29,6 +29,8 @@ import * as FileSystem from "expo-file-system";
 import * as ImageManipulator from "expo-image-manipulator";
 import ScanInvoice from "@/src/presentation/components/ScanInvoice/ScanInvoice";
 import { LinearGradient } from "expo-linear-gradient";
+import { useTheme } from "@/src/presentation/Hooks/useTheme";
+import { useColors } from "@/src/presentation/Hooks/useColor";
 
 type FileType = {
   uri: string;
@@ -42,7 +44,8 @@ const GOOGLE_CLOUD_VISION_API_KEY = "AIzaSyAkxhcKWHtiwW1aOg8Um6YTU7By1S1PGkM";
 function HomeScreen(): React.JSX.Element {
   const navigate = useAppNavigation();
   const [file, setFile] = React.useState<FileType | null>(null);
-
+  const { isDark, setIsDark } = useTheme();
+  const colors = useColors();
   // const navigate = useAppNavigation(); // Removed duplicate declaration
   const features = [
     {
@@ -301,12 +304,14 @@ function HomeScreen(): React.JSX.Element {
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={{
-          backgroundColor: "#f7f7f7ff",
+          backgroundColor: isDark ? "#111111ff" : "#f7f7f7ff",
           paddingHorizontal: 10,
           paddingVertical: 10,
         }}
       >
-        <View style={styles.container}>
+        <View
+          style={[styles.container, { backgroundColor: colors.background }]}
+        >
           <View
             style={{
               shadowColor: "#000",
@@ -317,7 +322,7 @@ function HomeScreen(): React.JSX.Element {
               borderRadius: 10,
               position: "absolute",
               top: -5,
-              left: -5,
+              left: -2,
               zIndex: 1,
               width: "45%",
             }}
@@ -337,7 +342,7 @@ function HomeScreen(): React.JSX.Element {
                   fontSize: 20,
                   fontWeight: "bold",
                   textAlign: "left",
-                  padding: 10,
+                  padding: 5,
                   color: "#fff",
                 }}
               >
@@ -351,10 +356,12 @@ function HomeScreen(): React.JSX.Element {
             ))}
           </View>
         </View>
-        <View style={styles.container}>
+        <View
+          style={[styles.container, { backgroundColor: colors.background }]}
+        >
           <View
             style={{
-              shadowColor: "#000",
+              shadowColor: isDark ? "#fff" : "#000",
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.3,
               shadowRadius: 2,
@@ -362,7 +369,7 @@ function HomeScreen(): React.JSX.Element {
               borderRadius: 10,
               position: "absolute",
               top: -5,
-              left: -5,
+              left: -2,
               zIndex: 1,
               width: "55%",
             }}
@@ -382,7 +389,7 @@ function HomeScreen(): React.JSX.Element {
                   fontSize: 20,
                   fontWeight: "bold",
                   textAlign: "left",
-                  padding: 10,
+                  padding: 5,
                   color: "#fff",
                 }}
               >
@@ -398,107 +405,6 @@ function HomeScreen(): React.JSX.Element {
             ))}
           </View>
         </View>
-        {/* <ScrollView contentContainerStyle={{ padding: 20 }}>
-          <Button title="Chọn ảnh hóa đơn" onPress={selectImage} />
-
-          {imageUri && (
-            <Image
-              source={{ uri: imageUri }}
-              style={{ width: "100%", height: 300, marginVertical: 10 }}
-              resizeMode="contain"
-            />
-          )}
-
-          {loading && <ActivityIndicator size="large" color="blue" />}
-        </ScrollView>
-        <ScanInvoice
-          imageUri={imageUri}
-          ocrResult={ocrResult}
-          loading={loading}
-          setImageUri={setImageUri}
-          setOcrResult={setOcrResult}
-          setLoading={setLoading}
-        />
-        {file && (
-          <View style={{ marginTop: 12 }}>
-            <Text>Đã chọn: {file.name || file.uri.split("/").pop()}</Text>
-
-            {file.uri && file.type !== "application/pdf" && (
-              <Image
-                source={{ uri: file.uri }}
-                style={{
-                  width: 200,
-                  height: 150,
-                  marginTop: 10,
-                  borderRadius: 8,
-                }}
-              />
-            )}
-          </View>
-        )} */}
-        {/* <View style={styles.container}>
-          <View
-            style={{
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.3,
-              shadowRadius: 2,
-              elevation: 5, // 👈 hoạt động trên Android
-              borderRadius: 10,
-              position: "absolute",
-              top: -5,
-              left: -5,
-              zIndex: 1,
-              width: "55%",
-            }}
-          >
-            <LinearGradient
-              colors={[ColorMain, "#6A7DB3"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 3 }}
-              style={{
-                borderTopLeftRadius: 10,
-                borderBottomRightRadius: 15,
-                alignItems: "center",
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 20,
-                  fontWeight: "bold",
-                  textAlign: "left",
-                  padding: 10,
-                  color: "#fff",
-                }}
-              >
-                Tính năng khác
-              </Text>
-            </LinearGradient>
-          </View>
-          <View style={styles.gridContainer}>
-            {features2.map((item, index) => (
-              <FeatureItem key={index} item={item} />
-            ))}
-          </View>
-        </View>
-        <View style={styles.container}>
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              marginLeft: 10,
-              textAlign: "left",
-              padding: 10,
-            }}
-          >
-            Nhân viên
-          </Text>
-          <View style={styles.gridContainer}>
-            {accfeatures.map((item, index) => (
-              <FeatureItem key={index} item={item} />
-            ))}
-          </View>
-        </View> */}
       </ScrollView>
     </View>
   );
@@ -508,17 +414,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingBlockEnd: 10,
     borderRadius: 10,
-    shadowColor: "#9d9d9d",
+    shadowColor: "#a7a7a7ff",
     shadowOffset: {
       width: 0,
       height: 0,
     },
     shadowOpacity: 0.22,
+    shadowRadius: 8,
     elevation: 3,
     marginBottom: 20,
     marginTop: 10,
-    borderWidth: 0.2,
-    borderColor: ColorMain,
     paddingTop: 40,
   },
   wrTitle: {
