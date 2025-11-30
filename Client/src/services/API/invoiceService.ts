@@ -50,6 +50,8 @@ export const exportInvoiceOutput = async (invoiceData: InvoiceData) => {
 		if (error.response) {
 			throw error.response.data;
 		}
+		console.log(error);
+		
 		throw error;
 	}
 };

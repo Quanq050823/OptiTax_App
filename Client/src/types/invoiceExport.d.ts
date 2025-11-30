@@ -14,20 +14,20 @@ export type ExportInvoiceProduct = Product & {
 };
 
 export interface InvoiceData {
+  mhdon: string,
   nmmst: string;        // Mã số thuế người mua
   nmten: string;        // Tên người mua
   nmdchi: string;       // Địa chỉ người mua
-  tgtttbso: string;     // Tổng tiền thanh toán (số)
+  tgtttbso: number;     // Tổng tiền thanh toán (số)
   tgtttbchu: string;    // Tổng tiền thanh toán (chữ)
   thtttoan: string;     // Hình thức thanh toán: "Tiền mặt", "Chuyển khoản", ...
   hdhhdvu: InvoiceItem[]; // Danh sách hàng hóa dịch vụ
 }
-
 export interface InvoiceItem {
-  ten: string;       // Tên hàng hóa/dịch vụ
-  dvtinh: string;    // Đơn vị tính
-  sluong: string;    // Số lượng
-  dgia: string;      // Đơn giá
-  thtien: string;    // Thành tiền
-  tchat: number;     // Tính chất (1,2,...)
+  ten: string;
+  dvtinh: string;
+  sluong: number;
+  dgia: number;
+  thtien: string;  // một số API VN vẫn yêu cầu string
+  tchat: number;
 }

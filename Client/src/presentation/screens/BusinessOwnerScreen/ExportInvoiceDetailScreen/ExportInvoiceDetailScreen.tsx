@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,22 +7,22 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import { Product, RootStackParamList } from "@/src/types/route";
-import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
+import { MaterialIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useNavigation } from "expo-router";
+import { StackNavigationProp } from "@react-navigation/stack";
+
+import { exportInvoiceOutput } from "@/src/services/API/invoiceService";
+import { ColorMain } from "@/src/presentation/components/colors";
+import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
+import readNumber from "read-vn-number";
 import {
   ExportInvoiceDetailParams,
   ExportInvoiceProduct,
   InvoiceData,
   InvoiceItem,
 } from "@/src/types/invoiceExport";
-import { MaterialIcons } from "@expo/vector-icons";
-import { exportInvoiceOutput } from "@/src/services/API/invoiceService";
-import readNumber from "read-vn-number";
-import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
-import { useNavigation } from "expo-router";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { LinearGradient } from "expo-linear-gradient";
-import { ColorMain } from "@/src/presentation/components/colors";
+import { RootStackParamList } from "@/src/types/route";
 
 type Props = {
   route: {
@@ -30,6 +30,23 @@ type Props = {
       invoiceDetail: ExportInvoiceDetailParams;
     };
   };
+};
+
+// Hàm tạo mã hóa đơn duy nhất
+const generateUniqueInvoiceCode = () => {
+  return `HD${Date.now()}`; // Ví dụ: HD1701234567890
+};
+
+// Chuyển phương thức thanh toán sang code backend
+const getPaymentCode = (method: string) => {
+  switch (method) {
+    case "Tiền mặt":
+      return "TM";
+    case "Chuyển khoản":
+      return "CK";
+    default:
+      return "KHAC";
+  }
 };
 
 export default function ExportInvoiceDetailScreen({ route }: Props) {
@@ -48,35 +65,51 @@ export default function ExportInvoiceDetailScreen({ route }: Props) {
     note: "",
   };
 
+  const { invoiceId, items, total, tax, date, note } = invoiceDetail;
+  const safeTaxPercent = tax ?? 0;
+  const totalAfterTax = total - (total * safeTaxPercent) / 100;
+
+  // Chuyển item sang InvoiceItem đúng type
   const convertItems = (items: ExportInvoiceProduct[]): InvoiceItem[] => {
     return items.map((item) => ({
-      ten: item.name, // hoặc item.ten nếu dữ liệu khác
-      dvtinh: item.unit || "Cái", // tuỳ theo Product bạn có field nào
-      sluong: String(item.quantity),
-      dgia: String(item.price), // nếu Product có price
-      thtien: String(item.total),
-      tchat: item.tchat, // bạn tự set hoặc map từ dữ liệu
+      ten: item.name,
+      dvtinh: item.unit || "Cái",
+      sluong: Number(item.quantity) || 0, // number
+      dgia: Number(item.price) || 0, // number
+      thtien: String(item.total || 0), // string
+      tchat: Number(item.tchat) || 0, // number
     }));
   };
-  // Destructure các giá trị bên trong để tiện dùng
-  const { invoiceId, items, total, tax, date, note } = invoiceDetail;
-  const safeTax = tax ?? 0;
+
+  // Khởi tạo InvoiceData
   const [invoiceData, setInvoiceData] = useState<InvoiceData>({
     nmmst: "",
     nmten: "",
     nmdchi: "",
-    tgtttbso: (total - safeTax).toString().replace(/\D/g, ""),
-    tgtttbchu: readNumber(total - safeTax),
-    thtttoan: paymentMethod,
+    mhdon: generateUniqueInvoiceCode(), // tạo mã hóa đơn mới
+    tgtttbso: Math.round(totalAfterTax),
+    tgtttbchu: readNumber(Math.round(totalAfterTax)),
+    thtttoan: getPaymentCode(paymentMethod),
     hdhhdvu: convertItems(items),
   });
+
+  // Cập nhật invoiceData khi thay đổi paymentMethod
+  useEffect(() => {
+    setInvoiceData((prev) => ({
+      ...prev,
+      thtttoan: getPaymentCode(paymentMethod),
+      tgtttbso: Math.round(totalAfterTax),
+      tgtttbchu: readNumber(Math.round(totalAfterTax)),
+      hdhhdvu: convertItems(items),
+      mhdon: generateUniqueInvoiceCode(), // mỗi lần in tạo mới mã hóa đơn
+    }));
+  }, [paymentMethod, items, totalAfterTax]);
 
   const handleExportInvoice = async () => {
     setLoading(true);
     try {
-      const res = await exportInvoiceOutput(invoiceData);
+      await exportInvoiceOutput(invoiceData);
       setLoading(false);
-
       Alert.alert("Xuất thành công", "", [
         {
           text: "OK",
@@ -84,12 +117,14 @@ export default function ExportInvoiceDetailScreen({ route }: Props) {
         },
       ]);
     } catch (e) {
-      Alert.alert("Xuất k thành công");
+      setLoading(false);
       console.log(e);
+      Alert.alert("Xuất không thành công", JSON.stringify(e));
     }
   };
+
   return (
-    <View style={{ flex: 1, backgroundColor: "#f5f5f5ff" }}>
+    <View style={{ flex: 1, backgroundColor: "#f5f5f5" }}>
       <LoadingScreen visible={loading} />
       <View style={styles.header}>
         <Text style={styles.invoiceId}>Hoá đơn: {invoiceId}</Text>
@@ -113,86 +148,49 @@ export default function ExportInvoiceDetailScreen({ route }: Props) {
           <View style={{ flex: 1 }}>
             <View style={styles.footer}>
               <Text>Phương thức thanh toán</Text>
-
               <View style={styles.wrPTTT}>
-                <TouchableOpacity
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    flex: 1,
-                    gap: 10,
-                    justifyContent: "center",
-                  }}
-                  onPress={() => setPaymentMethod("Tiền mặt")}
-                >
-                  <MaterialIcons
-                    name={
-                      paymentMethod === "Tiền mặt"
-                        ? "radio-button-checked"
-                        : "radio-button-unchecked"
-                    }
-                    size={24}
-                    color="black"
-                  />
-                  <Text>Tiền mặt</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    flex: 1,
-                    gap: 10,
-                    justifyContent: "center",
-                  }}
-                  onPress={() => setPaymentMethod("Chuyển khoản")}
-                >
-                  <MaterialIcons
-                    name={
-                      paymentMethod === "Chuyển khoản"
-                        ? "radio-button-checked"
-                        : "radio-button-unchecked"
-                    }
-                    size={24}
-                    color="black"
-                  />
-                  <Text>Chuyển khoản</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    flex: 1,
-                    gap: 10,
-                    justifyContent: "center",
-                  }}
-                  onPress={() => setPaymentMethod("Khác")}
-                >
-                  <MaterialIcons
-                    name={
-                      paymentMethod === "Khác"
-                        ? "radio-button-checked"
-                        : "radio-button-unchecked"
-                    }
-                    size={24}
-                    color="black"
-                  />
-                  <Text>Khác</Text>
-                </TouchableOpacity>
+                {["Tiền mặt", "Chuyển khoản", "Khác"].map((method) => (
+                  <TouchableOpacity
+                    key={method}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      flex: 1,
+                      gap: 10,
+                      justifyContent: "center",
+                    }}
+                    onPress={() => setPaymentMethod(method as any)}
+                  >
+                    <MaterialIcons
+                      name={
+                        paymentMethod === method
+                          ? "radio-button-checked"
+                          : "radio-button-unchecked"
+                      }
+                      size={24}
+                      color="black"
+                    />
+                    <Text>{method}</Text>
+                  </TouchableOpacity>
+                ))}
               </View>
             </View>
+
             <View style={styles.footer}>
               <View style={styles.summaryRow}>
                 <Text>Tạm tính</Text>
                 <Text>{total.toLocaleString()}đ</Text>
               </View>
               <View style={styles.summaryRow}>
-                <Text>Khấu trừ thuế</Text>
-                <Text>{((total * safeTax) / 100).toLocaleString()}đ</Text>
+                <Text>Khấu trừ thuế ({safeTaxPercent}%)</Text>
+                <Text>
+                  {((total * safeTaxPercent) / 100).toLocaleString()}đ
+                </Text>
               </View>
               <View style={styles.summaryRow}>
                 <Text>Tổng thanh toán</Text>
                 <Text style={{ fontWeight: "700" }}>
-                  {(total - safeTax).toLocaleString()}đ
+                  {totalAfterTax.toLocaleString()}đ
                 </Text>
               </View>
 
@@ -253,19 +251,13 @@ const styles = StyleSheet.create({
   },
   itemName: { fontSize: 16 },
   itemPrice: { fontSize: 16 },
-  footer: {
-    backgroundColor: "#fff",
-    padding: 15,
-    marginTop: 10,
-  },
+  footer: { backgroundColor: "#fff", padding: 15, marginTop: 10 },
   summaryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 4,
   },
-  buttonWrapper: {
-    marginTop: 20,
-  },
+  buttonWrapper: { marginTop: 20 },
   buttonPrimary: {
     paddingVertical: 12,
     borderRadius: 8,

@@ -453,6 +453,7 @@ export default function ReportExport() {
     startDate: undefined,
     endDate: undefined,
   });
+  console.log(range);
 
   const renderRadio = (checked: boolean) => (
     <View
