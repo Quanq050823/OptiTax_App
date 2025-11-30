@@ -5,27 +5,54 @@ import BusinessOwner from "../models/BusinessOwner.js";
 import StorageItem from "../models/StorageItem.js";
 import ApiError from "../utils/ApiError.js";
 import { StatusCodes } from "http-status-codes";
+import crypto from "crypto";
+
+const generateRandomInvoiceNumber = () => {
+	const characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	let result = "";
+	for (let i = 0; i < 7; i++) {
+		result += characters.charAt(Math.floor(Math.random() * characters.length));
+	}
+	return result;
+};
 
 const generateInvoiceNumber = async (businessOwnerId) => {
 	const currentYear = new Date().getFullYear();
 	const yearSuffix = currentYear.toString().slice(-2); // Lấy 2 số cuối năm
-	// Đếm số hóa đơn đã tạo trong năm
-	const startOfYear = new Date(currentYear, 0, 1);
-	const endOfYear = new Date(currentYear, 11, 31, 23, 59, 59);
 
-	const count = await OutputInvoice.countDocuments({
-		businessOwnerId,
-		createdAt: { $gte: startOfYear, $lte: endOfYear },
-	});
+	let isUnique = false;
+	let invoiceCodes;
+	let attempts = 0;
+	const maxAttempts = 10;
 
-	const nextNumber = (count + 1).toString().padStart(7, "0");
+	while (!isUnique && attempts < maxAttempts) {
+		const randomNumber = generateRandomInvoiceNumber();
 
-	return {
-		khmshdon: `1C${yearSuffix}TAA`,
-		khhdon: `AA/${yearSuffix}E`,
-		shdon: nextNumber,
-		mhdon: `01GTKT0/${nextNumber}`,
-	};
+		invoiceCodes = {
+			khmshdon: `1C${yearSuffix}TAA`,
+			khhdon: `AA/${yearSuffix}E`,
+			shdon: randomNumber,
+			mhdon: `01GTKT0/${randomNumber}`,
+		};
+		const existed = await OutputInvoice.findOne({
+			businessOwnerId,
+			mhdon: invoiceCodes.mhdon,
+		});
+
+		if (!existed) {
+			isUnique = true;
+		}
+		attempts++;
+	}
+
+	if (!isUnique) {
+		throw new ApiError(
+			StatusCodes.INTERNAL_SERVER_ERROR,
+			"Lỗi tạo hóa đơn, vui lòng thử lại"
+		);
+	}
+
+	return invoiceCodes;
 };
 
 const createOutputInvoice = async (data, userId) => {
@@ -33,17 +60,8 @@ const createOutputInvoice = async (data, userId) => {
 	if (!owner) {
 		throw new ApiError(StatusCodes.NOT_FOUND, "BusinessOwner not found");
 	}
-	const invoiceCodes = await generateInvoiceNumber(owner._id);
 
-	const existed = await OutputInvoice.findOne({
-		businessOwnerId: owner._id,
-		mhdon: invoiceCodes.mhdon,
-	});
-	if (existed)
-		throw new ApiError(
-			StatusCodes.BAD_REQUEST,
-			"Invoice code (mhdon) already exists for this business owner"
-		);
+	const invoiceCodes = await generateInvoiceNumber(owner._id);
 
 	const fullAddress = `${owner.address.street}, ${owner.address.ward}, ${owner.address.district}, ${owner.address.city}`;
 
