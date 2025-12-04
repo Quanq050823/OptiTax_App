@@ -45,7 +45,7 @@ type RootStackParamList = {
 	ChooseReportItemScreen: undefined;
 	ChartExportScreen: undefined;
 	InventoryManagementScreen: undefined;
-  ExportInvoiceDetailScreen: { invoiceDetail: ExportInvoiceDetailParams };
+	ExportInvoiceDetailScreen: { invoiceDetail: ExportInvoiceDetailParams };
 
 	PaymentVoucherDetail: {
 		voucher: PaymentVoucher;
@@ -102,8 +102,7 @@ type Product = {
 	category: string;
 	unit: string | null;
 	attributes: any;
-	tchat: number
-	
+	tchat: number;
 };
 export interface UserProfile {
 	_id: string;
@@ -130,6 +129,18 @@ export interface BusinessInfo {
 	phoneNumber: string;
 	taxCode: string;
 	businessType: string;
+	tax_filing_frequency?: number; // 1 = quý, 2 = tháng
+}
+
+export interface TaxDeadlineInfo {
+	period: string;
+	deadline: string;
+	daysRemaining: number;
+	isInFilingPeriod: boolean;
+	deadlineDate: string;
+	periodStartDate: string;
+	filingFrequency: number;
+	filingType: "quarterly" | "monthly";
 }
 type FormDataType = {
 	businessName: string;

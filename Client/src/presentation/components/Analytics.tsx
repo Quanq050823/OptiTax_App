@@ -59,6 +59,12 @@ export default function Analytics() {
 	const [loading, setLoading] = useState(false);
 	const [totalGTGT, setTotalGTGT] = useState(0);
 	const [totalTNCN, setTotalTNCN] = useState(0);
+	const [deadlineInfo, setDeadlineInfo] = useState({
+		period: "",
+		deadline: "",
+		daysRemaining: 0,
+		isInFilingPeriod: false,
+	});
 
 	const fetchTotalTaxes = async () => {
 		try {
@@ -70,8 +76,26 @@ export default function Analytics() {
 		}
 	};
 
+	const fetchTaxDeadline = async () => {
+		try {
+			const { getTaxDeadline } = await import(
+				"@/src/services/API/profileService"
+			);
+			const result = await getTaxDeadline();
+			setDeadlineInfo({
+				period: result.period,
+				deadline: result.deadline,
+				daysRemaining: result.daysRemaining,
+				isInFilingPeriod: result.isInFilingPeriod,
+			});
+		} catch (error) {
+			console.error("Lỗi khi lấy thông tin deadline:", error);
+		}
+	};
+
 	useEffect(() => {
 		fetchTotalTaxes();
+		fetchTaxDeadline();
 	}, []);
 
 	useEffect(() => {
@@ -280,52 +304,84 @@ export default function Analytics() {
 							>
 								<EvilIcons name="calendar" size={24} color="black" />
 								<Text style={styles.deadlineLabel}>
-									Hạn nộp tờ khai tháng 10 (Dương lịch)
+									Hạn nộp tờ khai {deadlineInfo.period || "..."} (Dương lịch)
 								</Text>
 							</View>
 							<View style={{ backgroundColor: "#fff", borderRadius: 10 }}>
 								<View style={styles.deadlineCard}>
-									<View style={styles.deadlineLeft}>
-										<Text style={styles.deadlineDate}>20 . 11 . 2025</Text>
-									</View>
-									<View style={styles.deadlineStatusBox}>
-										{/* <AntDesign name="clock-circle" size={14} color="#000" /> */}
+									{!deadlineInfo.isInFilingPeriod ? (
 										<View
 											style={{
-												position: "absolute",
-												height: 20,
-												borderWidth: 0.3,
-												left: -10,
-												borderColor: textDealineColor,
-												top: 7,
+												flex: 1,
+												alignItems: "center",
+												paddingVertical: 20,
 											}}
-										/>
-										{/* <AntDesign
-                  name="clock-circle"
-                  size={15}
-                  color="#696969ff"
-                  style={{
-                    alignSelf: "flex-start",
-                    marginTop: 7,
-                  }}
-                /> */}
-										<Text style={{ alignSelf: "flex-end", marginBottom: 7 }}>
-											Kết thúc sau
-										</Text>
-										<Text style={styles.deadlineStatus}>
+										>
+											<MaterialIcons name="schedule" size={40} color="#999" />
 											<Text
 												style={{
-													fontSize: 30,
-													color: textDealineColor,
+													marginTop: 10,
+													fontSize: 16,
+													color: "#666",
 													fontWeight: "600",
 												}}
 											>
-												7
+												Chưa đến thời gian nộp
 											</Text>
-											ngày
-										</Text>
-									</View>
-
+											<Text
+												style={{ fontSize: 13, color: "#999", marginTop: 5 }}
+											>
+												Hạn nộp:{" "}
+												{deadlineInfo.deadline
+													? deadlineInfo.deadline.replace(/\./g, " . ")
+													: "-- . -- . ----"}
+											</Text>
+										</View>
+									) : (
+										<>
+											<View style={styles.deadlineLeft}>
+												<Text style={styles.deadlineDate}>
+													{deadlineInfo.deadline
+														? deadlineInfo.deadline.replace(/\./g, " . ")
+														: "-- . -- . ----"}
+												</Text>
+											</View>
+											<View style={styles.deadlineStatusBox}>
+												<View
+													style={{
+														position: "absolute",
+														height: 20,
+														borderWidth: 0.3,
+														left: -10,
+														borderColor: textDealineColor,
+														top: 7,
+													}}
+												/>
+												<Text
+													style={{ alignSelf: "flex-end", marginBottom: 7 }}
+												>
+													{deadlineInfo.daysRemaining > 0
+														? "Kết thúc sau"
+														: "Đã quá hạn"}
+												</Text>
+												<Text style={styles.deadlineStatus}>
+													<Text
+														style={{
+															fontSize: 30,
+															color:
+																deadlineInfo.daysRemaining < 0
+																	? "#d9534f"
+																	: textDealineColor,
+															fontWeight: "600",
+														}}
+													>
+														{Math.abs(deadlineInfo.daysRemaining) || "0"}
+													</Text>
+													ngày
+												</Text>
+											</View>
+										</>
+									)}{" "}
 									{/* <TouchableOpacity style={styles.deadlineBtn} activeOpacity={0.8}>
               <Text style={styles.deadlineBtnText}>Xem chi tiết</Text>
             </TouchableOpacity> */}
