@@ -35,6 +35,7 @@ export type RawInvoice = {
   htmlContent?: string | null;
   nbmst?: string;
   khmshdon?: number | string;
+  mhdon: string
   khhdon?: string;
   shdon?: number | string;
   cqt?: string;
@@ -51,7 +52,6 @@ export type RawInvoice = {
   khhdgoc?: any;
   khmshdgoc?: any;
   lhdgoc?: any;
-  mhdon?: string;
   mtdiep?: any;
   mtdtchieu?: string | null;
   nbdchi?: string; // địa chỉ người bán
@@ -154,6 +154,7 @@ export type InvoiceSummary = {
   id?: string;
   kyHieu?: string; // khhdon
   soHoaDon?: number | string;
+  mhdon: string;
   mauSo?: number | string;
   ngayLap?: string;
   ngayKy?: string;

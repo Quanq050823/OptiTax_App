@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import ShimmerSweep from "../ShimmerSweep";
+import { useAppNavigation } from "../../Hooks/useAppNavigation";
 
 type ModalOpen = {
   openLogin: boolean;
@@ -20,6 +21,7 @@ type ModalOpen = {
 };
 function ModalLoginCCT({ openLogin, setOpenLogin }: ModalOpen) {
   const [hdrSize, setHdrSize] = useState({ w: 0, h: 0 });
+  const navigate = useAppNavigation();
   return (
     <Modal
       animationType="slide"
@@ -87,7 +89,10 @@ function ModalLoginCCT({ openLogin, setOpenLogin }: ModalOpen) {
             }}
           >
             <TouchableOpacity
-              onPress={() => {}}
+              onPress={() => {
+                navigate.navigate("SearchAccountantScreen");
+                setOpenLogin(false);
+              }}
               style={{
                 flex: 1,
                 alignItems: "center",

@@ -17,7 +17,7 @@ import {
   getInvoiceInById,
   syncInvoiceIn,
 } from "@/src/services/API/syncInvoiceIn";
-import { InvoiceSummary } from "@/src/types/invoiceIn";
+import { InvoiceSummary, RawInvoice } from "@/src/types/invoiceIn";
 import { Invoice, Profile, UserProfile } from "@/src/types/route";
 import { syncDataInvoiceIn } from "@/src/types/syncData";
 import { AntDesign, FontAwesome5, Fontisto } from "@expo/vector-icons";
@@ -41,9 +41,9 @@ function InvoiceInput() {
   const [openLogin, setOpenLogin] = useState(false);
   const [loading, setLoading] = useState(false);
   const [invoiceDataSync, setInvoiceDataSync] = useState<InvoiceSummary[]>([]);
-  const [listInvoiceDataSync, setListInvoiceDataSync] = useState<
-    InvoiceSummary[]
-  >([]);
+  const [listInvoiceDataSync, setListInvoiceDataSync] = useState<RawInvoice[]>(
+    []
+  );
   const [syncDataInvoiceIn, setSyncDataInvoiceIn] = useState<syncDataInvoiceIn>(
     { dateto: "", datefrom: "" }
   );
@@ -90,7 +90,7 @@ function InvoiceInput() {
     try {
       if (!syncDataInvoiceIn) return;
       const res = await syncInvoiceIn();
-      setListInvoiceDataSync(res.invoices as InvoiceSummary[]);
+      setListInvoiceDataSync(res.invoices as RawInvoice[]);
       setLoading(false);
     } catch (err) {
       setLoading(false);

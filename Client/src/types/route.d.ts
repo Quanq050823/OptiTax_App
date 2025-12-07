@@ -1,4 +1,5 @@
 import { ExportInvoiceDetailParams } from "./invoiceExport";
+import { RawInvoice } from "./invoiceIn";
 
 type RootStackParamList = {
 	VerifyAuth: undefined;
@@ -13,6 +14,7 @@ type RootStackParamList = {
 	LanguagesScreen: undefined;
 	InvoiceScreen: undefined;
 	InvoiceDetailScreen: { item: InvoiceSummary; total: number; label: string };
+	InvoiceDetailScreenInp: {item: RawInvoice; total: number; label: string}
 	InvoiceInputScreen: undefined;
 	InvoiceOutputScreen: undefined;
 	ReceiptVoucherScreen: undefined;

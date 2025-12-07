@@ -236,29 +236,32 @@ const sortedGroups = Object.values(groupedData).sort((a, b) => a.tchat - b.tchat
   .note { margin-top: 8px; font-size: 12px; }
   .footer {
     margin-top: 30px;
-    display: flex;
-    justify-content: space-between;
+      display: flex;
+
     font-size: 13px;
   }
-  .sign { text-align: center; width: 40%; }
+  .sign { text-align: center;
+  margin-left: auto; 
+  width: 200px;  }
 </style>
 
       <div class="header">
-        <b>HỘ KINH DOANH: ${profile?.businessName ?? ""}</b><br/>
+        <b>HỘ, CÁ NHÂN KINH DOANH: ${profile?.businessName ?? ""}</b><br/>
         <b>Địa chỉ: ${profile?.address?.street ?? ""} - ${
       profile?.address?.ward ?? ""
     } - ${profile?.address?.district ?? ""} - ${
       profile?.address?.city ?? ""
     }</b>
+     <b>Mã số thuế: </b>
       </div>
       <div class="right">Mẫu số S1-HKD</div>
       <h2>SỔ CHI TIẾT DOANH THU BÁN HÀNG, DỊCH VỤ</h2>
-      <p style="text-align:center">Tên địa điểm kinh doanh: ${
+      <p style="text-align:center">Địa điểm kinh doanh: ${
         profile?.address.street
       } - ${profile?.address.ward} - ${profile?.address.district} - ${
       profile?.address.city
     }</p>
-      <p style="text-align:center">Năm: ${startDate.getFullYear()}</p>
+      <p style="text-align:center">Kỳ kê khai: </p>
      <table>
   <tr>
     <th colspan="2">Hóa đơn</th>
@@ -293,16 +296,9 @@ const sortedGroups = Object.values(groupedData).sort((a, b) => a.tchat - b.tchat
           <td colspan="6"></td>
         </tr>
       </table>
-      // <div class="note">
-  - Sổ này có … trang, đánh số từ trang 01 đến trang … <br/>
-  - Ngày mở sổ: …
-</div>
-
+  
 <div class="footer">
-  <div class="sign">
-    <b>NGƯỜI LẬP BIỂU</b><br/>
-    (Ký, họ tên)
-  </div>
+  
   <div class="sign">
     Ngày ${today.getDate()} tháng ${
       today.getMonth() + 1
