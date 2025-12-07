@@ -10,7 +10,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useNavigation } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Dimensions,
@@ -35,80 +35,57 @@ type ExportInvoicePaymentRoute = RouteProp<
 type NavProp = StackNavigationProp<RootStackParamList>;
 function ExportInvoicePayment() {
   const navigate = useNavigation<NavProp>();
-
   const navigation = useAppNavigation();
-
   const route = useRoute<ExportInvoicePaymentRoute>();
-  const [isActive, setIsActive] = useState(false);
 
+  const [isActive, setIsActive] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [productStorage, setProductStorage] = useState<ProductInventory[]>([]);
-  const [modalVisible, setModalVisible] = useState(false);
   const [quantity, setQuantity] = useState<{ [key: string]: number }>({});
+  const [modalVisible, setModalVisible] = useState(false);
   const [openModalNotQuantity, setOpenModalNotQuantity] = useState(false);
   const [openProductStorage, setOpenProductStorage] = useState(false);
   const [expandedProducts, setExpandedProducts] = useState<{
     [key: string]: boolean;
   }>({});
   const [searchQuery, setSearchQuery] = useState("");
-  const [totalAmount, setTotalAmount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const filteredProducts = useMemo(() => {
-    if (!searchQuery.trim()) return products;
-    return products.filter((item) =>
-      item.name?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [searchQuery, products]);
-  const filteredProductStorage = useMemo(() => {
-    return productStorage.filter(
-      (item) => item.syncStatus === true && item.category === 1
-    );
-  }, [productStorage]);
-  useEffect(() => {
-    if (route.params?.items) {
-      // Gộp thêm sản phẩm đã có
-      const newItems = route.params.items;
-      const updatedQuantities = { ...quantity };
-      newItems.forEach((it) => {
-        updatedQuantities[it._id] = (updatedQuantities[it._id] || 0) + it.stock;
-      });
-      setQuantity(updatedQuantities);
-    }
-  }, [route.params?.items]);
-  useEffect(() => {
-    let total = 0;
-    for (const id in quantity) {
-      const product =
-        products.find((p) => p._id === id) ||
-        productStorage.find((p) => p._id === id);
-      if (product) {
-        total += (product.price || 0) * quantity[id];
-      }
-    }
-    setTotalAmount(total);
-  }, [quantity, products, productStorage]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  // --- Fetch products ---
   const fetchData = async () => {
     setLoading(true);
     try {
       const data = await getProducts();
       setProducts(data);
-      setLoading(false);
     } catch (error) {
-      // await AsyncStorage.removeItem("access_token");
-      setLoading(false);
-
       Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại", [
         {
           text: "Đăng nhập lại",
-          onPress: () => {
-            // Xử lý điều hướng về màn Login
+          onPress: () =>
             navigation.reset({
               index: 0,
               routes: [{ name: "Login" }],
-            });
+            }),
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchDataStorage = async () => {
+    try {
+      const data = await getProductsInventory();
+      setProductStorage(data.data);
+    } catch (error) {
+      Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại", [
+        {
+          text: "Đăng nhập lại",
+          onPress: async () => {
+            await apiLogout();
+            navigation.reset({ index: 0, routes: [{ name: "Login" }] });
           },
-          style: "default", // hoặc "cancel", "destructive"
         },
       ]);
     }
@@ -116,97 +93,57 @@ function ExportInvoicePayment() {
 
   useEffect(() => {
     fetchData();
+    fetchDataStorage();
   }, []);
 
-  const fetchDataStorage = async () => {
-    try {
-      const data = await getProductsInventory();
-      setProductStorage(data.data);
-    } catch (error) {
-      // await AsyncStorage.removeItem("access_token");
+  // --- Handle quantities ---
+  const increaseQuantity = (id: string) =>
+    setQuantity((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
 
-      Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại", [
-        {
-          text: "Đăng nhập lại",
-          onPress: async () => {
-            // Xử lý điều hướng về màn Login
-            const result = await apiLogout();
-            console.log("Logout result:", result);
-
-            // Chuyển về trang login sau khi logout
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "Login" }],
-            });
-          },
-          style: "default", // hoặc "cancel", "destructive"
-        },
-      ]);
-    }
-  };
-
-  useEffect(() => {
-    fetchDataStorage();
-  }, [openProductStorage]);
-
-  const openModal = (item: Product) => {
-    setSelectedProduct(item);
-    // setQuantity(1);
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-    setSelectedProduct(null);
-    setOpenModalNotQuantity(false);
-  };
-
-  const confirmSelection = () => {
-    console.log("🧾 Đã chọn:", {
-      productId: selectedProduct?._id,
-      name: selectedProduct?.name,
-      quantity,
-    });
-    // bạn có thể xử lý lưu dữ liệu hoặc thêm vào danh sách hóa đơn ở đây
-    closeModal();
-  };
-  const openModalStorage = () => {
-    setOpenModalNotQuantity(false); // đóng modal cũ
-    setOpenProductStorage(true); // mở modal mới
-  };
-  const increaseQuantity = (id: string) => {
-    setQuantity((prev) => ({
-      ...prev,
-      [id]: (prev[id] || 0) + 1,
-    }));
-  };
-  const decreaseQuantity = (id: string) => {
+  const decreaseQuantity = (id: string) =>
     setQuantity((prev) => {
-      const newQty = (prev[id] || 1) - 1;
-      const updated = { ...prev };
-      if (newQty <= 0) {
-        delete updated[id]; // xóa luôn khi về 0
-      } else {
-        updated[id] = newQty;
+      const val = (prev[id] || 1) - 1;
+      if (val <= 0) {
+        const copy = { ...prev };
+        delete copy[id];
+        return copy;
       }
-      return updated;
+      return { ...prev, [id]: val };
     });
-  };
 
   const handleExpand = (id: string) => {
-    setExpandedProducts((prev) => ({
-      ...prev,
-      [id]: !prev[id], // toggle mở/đóng
-    }));
-    setQuantity((prev) => ({
-      ...prev,
-      [id]: prev[id] || 1, // nếu chưa có thì đặt = 1
-    }));
+    setExpandedProducts((prev) => ({ ...prev, [id]: !prev[id] }));
+    setQuantity((prev) => ({ ...prev, [id]: prev[id] || 1 }));
   };
 
+  // --- Filtered products ---
+  const filteredProducts = useMemo(
+    () =>
+      searchQuery.trim()
+        ? products.filter((p) =>
+            p.name?.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        : products,
+    [products, searchQuery]
+  );
+
+  const filteredProductStorage = useMemo(
+    () => productStorage.filter((p) => p.syncStatus && p.category === 1),
+    [productStorage]
+  );
+
+  // --- Total amount ---
+  const totalAmount = useMemo(() => {
+    const allProducts = [...products, ...productStorage];
+    return Object.entries(quantity).reduce((sum, [id, qty]) => {
+      const p = allProducts.find((prod) => prod._id === id);
+      return sum + (p?.price || 0) * qty;
+    }, 0);
+  }, [quantity, products, productStorage]);
+
+  // --- Navigation to payment ---
   const handleGoToPayment = () => {
     const allProducts = [...products, ...productStorage];
-
     const selectedItems = allProducts
       .filter((p) => quantity[p._id])
       .map((p) => ({
@@ -214,192 +151,174 @@ function ExportInvoicePayment() {
         quantity: quantity[p._id],
         total: (p.price || 0) * quantity[p._id],
       }));
-
-    navigation.navigate("PaymentInvoiceScreen", {
-      items: selectedItems,
-    });
+    navigation.navigate("PaymentInvoiceScreen", { items: selectedItems });
   };
 
-  const screenWidth = Dimensions.get("window").width;
-  const ITEM_MARGIN = 8;
-  const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
-
-  const renderItem = ({ item }: any) => (
-    <TouchableOpacity onPress={() => openModal(item)}>
-      <View
-        style={[
-          styles.card,
-          {
-            width: "100%",
-            position: "relative",
-          },
-        ]}
-      >
-        <View
-          style={{
-            flex: 1,
-            alignItems: "center",
-            flexDirection: "row",
-            gap: 10,
-          }}
-        >
-          <Image
-            source={require("@/assets/images/no-image-news.png")}
-            style={styles.image}
-          />
-          <View>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.detail}>
-              Giá: {item.price.toLocaleString()}đ
-            </Text>
-            <Text style={styles.detail}>
-              Còn: &nbsp;
-              <Text
-                style={{
-                  color: item.stock < 1 ? "#ff3e3eff" : ColorMain,
-                  fontWeight: "600",
-                }}
-              >
-                {item.stock}
-              </Text>
-            </Text>
-          </View>
-          <View style={{ right: 10, position: "absolute" }}>
-            {quantity[item._id] ? (
-              <View style={styles.quantityContainer}>
-                <TouchableOpacity
-                  style={styles.quantityButton}
-                  onPress={() => decreaseQuantity(item._id)}
-                >
-                  <Text style={styles.quantityButtonText}>-</Text>
-                </TouchableOpacity>
-
-                <TextInput
-                  style={styles.input}
-                  keyboardType="numeric"
-                  value={quantity[item._id].toString()}
-                  onChangeText={(val) =>
-                    setQuantity((prev) => ({
-                      ...prev,
-                      [item._id]: Math.max(Number(val) || 0, 0),
-                    }))
-                  }
-                />
-
-                <TouchableOpacity
-                  style={[
-                    styles.quantityButton,
-                    { backgroundColor: ColorMain },
-                  ]}
-                  // disabled={item.stock < 1 ? true : false}
-                  onPress={() => increaseQuantity(item._id)}
-                >
-                  <Text style={[styles.quantityButtonText, { color: "#fff" }]}>
-                    +
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <TouchableOpacity
-                style={{
-                  backgroundColor: item.stock < 1 ? "#ccc" : ColorMain,
-                  borderRadius: 5,
-                  padding: 5,
-                }}
-                // disabled={item.stock < 1}
-                onPress={() => increaseQuantity(item._id)} // ấn + lần đầu sẽ tạo quantity = 1
-              >
-                <Entypo name="plus" size={17} color="#fff" />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-      </View>
-      <View style={styles.bottomLine} />
-    </TouchableOpacity>
-  );
-  const renderItemStorage: ListRenderItem<ProductInventory> = ({ item }) => {
-    const qty = quantity[item._id] || 0;
-
-    return (
-      <TouchableOpacity onPress={() => increaseQuantity(item._id)}>
-        <View style={[styles.card, { width: "100%", position: "relative" }]}>
-          <View
-            style={{
-              flex: 1,
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 10,
-            }}
-          >
-            <Image source={{ uri: item.imageURL }} style={styles.image} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.detail}>Số lượng: {item.stock}</Text>
-              <Text style={styles.detail}>Giá: {item.price}</Text>
-            </View>
-
-            <View style={{ position: "absolute", right: 10 }}>
-              {qty > 0 ? (
-                <View style={styles.quantityContainer}>
-                  <TouchableOpacity
-                    style={styles.quantityButton}
-                    onPress={() => decreaseQuantity(item._id)}
+  // --- Render items ---
+  const renderItem = useCallback(
+    ({ item }: { item: Product }) => {
+      const qty = quantity[item._id] || 0;
+      return (
+        <TouchableOpacity onPress={() => setSelectedProduct(item)}>
+          <View style={[styles.card, { width: "100%" }]}>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+            >
+              <Image
+                source={require("@/assets/images/no-image-news.png")}
+                style={styles.image}
+              />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.name}>{item.name}</Text>
+                <Text style={styles.detail}>
+                  Giá: {item.price.toLocaleString()}đ
+                </Text>
+                <Text style={styles.detail}>
+                  Còn:{" "}
+                  <Text
+                    style={{
+                      color: item.stock < 1 ? "#ff3e3eff" : ColorMain,
+                      fontWeight: "600",
+                    }}
                   >
-                    <Text style={styles.quantityButtonText}>-</Text>
-                  </TouchableOpacity>
-
-                  <TextInput
-                    style={styles.input}
-                    keyboardType="numeric"
-                    value={qty.toString()}
-                    onChangeText={(val) =>
-                      setQuantity((prev) => ({
-                        ...prev,
-                        [item._id]: Math.max(Number(val) || 0, 0),
-                      }))
-                    }
-                  />
-
+                    {item.stock}
+                  </Text>
+                </Text>
+              </View>
+              <View style={{ position: "absolute", right: 10 }}>
+                {qty > 0 ? (
+                  <View style={styles.quantityContainer}>
+                    <TouchableOpacity
+                      style={styles.quantityButton}
+                      onPress={() => decreaseQuantity(item._id)}
+                    >
+                      <Text style={styles.quantityButtonText}>-</Text>
+                    </TouchableOpacity>
+                    <TextInput
+                      style={styles.input}
+                      keyboardType="numeric"
+                      value={qty.toString()}
+                      onChangeText={(val) =>
+                        setQuantity((prev) => ({
+                          ...prev,
+                          [item._id]: Math.max(Number(val) || 0, 0),
+                        }))
+                      }
+                    />
+                    <TouchableOpacity
+                      style={[
+                        styles.quantityButton,
+                        { backgroundColor: ColorMain },
+                      ]}
+                      onPress={() => increaseQuantity(item._id)}
+                    >
+                      <Text
+                        style={[styles.quantityButtonText, { color: "#fff" }]}
+                      >
+                        +
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
                   <TouchableOpacity
-                    style={[
-                      styles.quantityButton,
-                      { backgroundColor: ColorMain },
-                    ]}
+                    style={{
+                      backgroundColor: item.stock < 1 ? "#ccc" : ColorMain,
+                      borderRadius: 5,
+                      padding: 5,
+                    }}
+                    disabled={item.stock < 1}
                     onPress={() => increaseQuantity(item._id)}
                   >
-                    <Text
-                      style={[styles.quantityButtonText, { color: "#fff" }]}
-                    >
-                      +
-                    </Text>
+                    <Entypo name="plus" size={17} color="#fff" />
                   </TouchableOpacity>
-                </View>
-              ) : (
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: item.stock < 1 ? "#ccc" : ColorMain,
-                    borderRadius: 5,
-                    padding: 5,
-                  }}
-                  disabled={item.stock < 1}
-                  onPress={() => increaseQuantity(item._id)}
-                >
-                  <Entypo name="plus" size={17} color="#fff" />
-                </TouchableOpacity>
-              )}
+                )}
+              </View>
             </View>
           </View>
-        </View>
-        <View style={styles.bottomLine} />
-      </TouchableOpacity>
-    );
-  };
+          <View style={styles.bottomLine} />
+        </TouchableOpacity>
+      );
+    },
+    [quantity]
+  );
+
+  const renderItemStorage = useCallback(
+    ({ item }: { item: ProductInventory }) => {
+      const qty = quantity[item._id] || 0;
+      return (
+        <TouchableOpacity onPress={() => increaseQuantity(item._id)}>
+          <View style={[styles.card, { width: "100%" }]}>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+            >
+              <Image source={{ uri: item.imageURL }} style={styles.image} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.name}>{item.name}</Text>
+                <Text style={styles.detail}>Số lượng: {item.stock}</Text>
+                <Text style={styles.detail}>Giá: {item.price}</Text>
+              </View>
+              <View style={{ position: "absolute", right: 10 }}>
+                {qty > 0 ? (
+                  <View style={styles.quantityContainer}>
+                    <TouchableOpacity
+                      style={styles.quantityButton}
+                      onPress={() => decreaseQuantity(item._id)}
+                    >
+                      <Text style={styles.quantityButtonText}>-</Text>
+                    </TouchableOpacity>
+                    <TextInput
+                      style={styles.input}
+                      keyboardType="numeric"
+                      value={qty.toString()}
+                      onChangeText={(val) =>
+                        setQuantity((prev) => ({
+                          ...prev,
+                          [item._id]: Math.max(Number(val) || 0, 0),
+                        }))
+                      }
+                    />
+                    <TouchableOpacity
+                      style={[
+                        styles.quantityButton,
+                        { backgroundColor: ColorMain },
+                      ]}
+                      onPress={() => increaseQuantity(item._id)}
+                    >
+                      <Text
+                        style={[styles.quantityButtonText, { color: "#fff" }]}
+                      >
+                        +
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: item.stock < 1 ? "#ccc" : ColorMain,
+                      borderRadius: 5,
+                      padding: 5,
+                    }}
+                    disabled={item.stock < 1}
+                    onPress={() => increaseQuantity(item._id)}
+                  >
+                    <Entypo name="plus" size={17} color="#fff" />
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+          </View>
+          <View style={styles.bottomLine} />
+        </TouchableOpacity>
+      );
+    },
+    [quantity]
+  );
 
   return (
     <View style={{ flex: 1 }}>
       <LoadingScreen visible={loading} />
 
+      {/* Search + Controls */}
       <View
         style={{
           marginTop: 20,
@@ -409,7 +328,6 @@ function ExportInvoicePayment() {
           alignItems: "center",
         }}
       >
-        {/* <SearchByName label="Tìm kiếm nhà cung cấp" /> */}
         <View style={[styles.containerSearch, { width: "70%" }]}>
           <Entypo name="magnifying-glass" size={18} color="#666" />
           <TextInput
@@ -420,52 +338,16 @@ function ExportInvoicePayment() {
             style={styles.inputSearch}
           />
         </View>
-        <TouchableOpacity
-          style={{
-            backgroundColor: "transparent",
-            borderRadius: 10,
-            width: 30,
-            height: 30,
-            alignItems: "center",
-            justifyContent: "center",
-            borderWidth: 1,
-            borderColor: ColorMain,
-          }}
-          // ấn + lần đầu sẽ tạo quantity = 1
-        >
-          <Entypo name="plus" size={17} color={ColorMain} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={{
-            backgroundColor: ColorMain,
-            borderRadius: 10,
-            width: 40,
-            height: 40,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          // ấn + lần đầu sẽ tạo quantity = 1
-        >
-          <AntDesign name="control" size={24} color="#fff" />
-        </TouchableOpacity>
       </View>
+
+      {/* Tabs */}
       <View
         style={{ flexDirection: "row", marginTop: 20, backgroundColor: "#fff" }}
       >
         <TouchableOpacity
           style={[
-            {
-              flex: 1,
-              alignItems: "center",
-              flexDirection: "row",
-              justifyContent: "center",
-              paddingVertical: 15,
-            },
-            !isActive && {
-              borderBottomWidth: 3,
-              borderColor: ColorMain,
-            },
+            { flex: 1, alignItems: "center", paddingVertical: 15 },
+            !isActive && { borderBottomWidth: 3, borderColor: ColorMain },
           ]}
           onPress={() => setIsActive(false)}
         >
@@ -473,17 +355,8 @@ function ExportInvoicePayment() {
         </TouchableOpacity>
         <TouchableOpacity
           style={[
-            {
-              flex: 1,
-              alignItems: "center",
-              flexDirection: "row",
-              justifyContent: "center",
-              paddingVertical: 15,
-            },
-            isActive && {
-              borderBottomWidth: 3,
-              borderColor: ColorMain,
-            },
+            { flex: 1, alignItems: "center", paddingVertical: 15 },
+            isActive && { borderBottomWidth: 3, borderColor: ColorMain },
           ]}
           onPress={() => setIsActive(true)}
         >
@@ -491,34 +364,26 @@ function ExportInvoicePayment() {
         </TouchableOpacity>
       </View>
 
+      {/* FlatList */}
       {!isActive ? (
         <FlatList
           data={filteredProducts}
           keyExtractor={(item) => item._id}
           renderItem={renderItem}
-          contentContainerStyle={{
-            paddingBottom: 80,
-            marginTop: 10,
-          }}
-          // columnWrapperStyle={{
-          //   justifyContent: "space-between",
-          //   marginTop: 20,
-          // }}
+          contentContainerStyle={{ paddingBottom: 80, marginTop: 10 }}
           numColumns={1}
         />
       ) : (
         <FlatList
           data={filteredProductStorage}
           keyExtractor={(item) => item._id}
-          renderItem={renderItemStorage} // dùng renderItemStorage mới
-          contentContainerStyle={{
-            paddingBottom: 80,
-            marginTop: 10,
-          }}
+          renderItem={renderItemStorage}
+          contentContainerStyle={{ paddingBottom: 80, marginTop: 10 }}
           numColumns={1}
         />
       )}
 
+      {/* Bottom bar */}
       <View style={styles.wrBottom}>
         <TouchableOpacity
           style={{
@@ -534,7 +399,9 @@ function ExportInvoicePayment() {
           }}
         >
           <Feather name="shopping-cart" size={24} color="black" />
-          <Text style={{ fontWeight: "600" }}>1</Text>
+          <Text style={{ fontWeight: "600" }}>
+            {Object.keys(quantity).length}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={{
@@ -555,134 +422,6 @@ function ExportInvoicePayment() {
           </Text>
         </TouchableOpacity>
       </View>
-      {/* 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={closeModal}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>
-              {selectedProduct?.name ?? "Chi tiết sản phẩm"}
-            </Text>
-
-            <Text style={{ marginTop: 8 }}>
-              Giá: {selectedProduct?.price?.toLocaleString()}đ
-            </Text>
-
-            <View style={styles.quantityContainer}>
-              <TouchableOpacity
-                style={styles.quantityButton}
-                onPress={() => decreaseQuantity}
-              >
-                <Text style={styles.quantityButtonText}>-</Text>
-              </TouchableOpacity>
-
-              <TextInput
-                style={styles.input}
-                keyboardType="numeric"
-                value={quantity.toString()}
-                onChangeText={(val) =>
-                  setQuantity(Number(val) > 0 ? Number(val) : 1)
-                }
-              />
-
-              <TouchableOpacity
-                style={styles.quantityButton}
-                onPress={increaseQuantity}
-              >
-                <Text style={styles.quantityButtonText}>+</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={{ marginTop: 20 }}>
-              <Text>
-                Nguyên liệu thay thế: 30ml
-                <Text style={{ fontWeight: "700" }}>Sữa đặt</Text> thành 30ml
-                <Text style={{ fontWeight: "700" }}> Rượu</Text>
-              </Text>
-            </View>
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.btn, { backgroundColor: "#ccc" }]}
-                onPress={closeModal}
-              >
-                <Text>Hủy</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.btn, { backgroundColor: "#139797ff" }]}
-                onPress={() => {
-                  setModalVisible(false); // đóng modal cũ
-                  setOpenModalNotQuantity(true);
-                }}
-              >
-                <Text style={{ color: "#fff" }}>Xác nhận</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal> */}
-
-      <Modal
-        animationType="none"
-        transparent={true}
-        visible={openModalNotQuantity}
-        onRequestClose={closeModal}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Hết nguyên liệu</Text>
-            <Text style={[styles.modalTitle, { marginTop: 20, fontSize: 13 }]}>
-              Sữa đặt: hết
-            </Text>
-
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.btn, { backgroundColor: "#ccc" }]}
-                onPress={closeModal}
-              >
-                <Text>Hủy</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.btn, { backgroundColor: "#139797ff" }]}
-                onPress={() => openModalStorage()}
-              >
-                <Text style={{ color: "#fff" }}>Thay thế</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={openProductStorage}
-        onRequestClose={closeModal}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Tất cả nguyên liệu</Text>
-
-            <FlatList
-              data={productStorage}
-              keyExtractor={(item) => item._id}
-              renderItem={renderItemStorage}
-              contentContainerStyle={{
-                paddingBottom: 80,
-                paddingHorizontal: 5,
-                marginTop: 20,
-              }}
-              columnWrapperStyle={{
-                justifyContent: "space-between",
-                marginTop: 20,
-              }}
-              numColumns={2}
-            />
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }

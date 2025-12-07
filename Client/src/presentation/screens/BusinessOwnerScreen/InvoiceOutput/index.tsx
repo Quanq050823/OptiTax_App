@@ -32,7 +32,7 @@ type InvoiceOutputProps = {
 function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
   const [visible, setVisible] = useState(false);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [openLogin, setOpenLogin] = useState(true);
+  const [openLogin, setOpenLogin] = useState(false);
   const [openListProductSynchronized, setOpenListProductSynchronized] =
     useState(false);
   const spinValue = useRef(new Animated.Value(0)).current;

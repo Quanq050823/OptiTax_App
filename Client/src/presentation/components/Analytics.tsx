@@ -34,6 +34,8 @@ import ShimmerSweep from "./ShimmerSweep";
 import { useAppNavigation } from "../Hooks/useAppNavigation";
 import MovingText from "./MovingText";
 import { getTotalTaxes } from "@/src/services/API/taxService";
+import { useTheme } from "../Hooks/useTheme";
+import { useColors } from "../Hooks/useColor";
 
 export default function Analytics() {
   const navigate = useAppNavigation();
@@ -55,18 +57,19 @@ export default function Analytics() {
   const [dataSyncInvoice, setDataSyncInvoice] = useState<
     InvoiceListResponse | undefined
   >();
-
+  const { isDark, setIsDark } = useTheme();
+  const colors = useColors();
   const [loading, setLoading] = useState(false);
   const [totalGTGT, setTotalGTGT] = useState(0);
   const [totalTNCN, setTotalTNCN] = useState(0);
-  
+
   const fetchTotalTaxes = async () => {
     try {
       const result = await getTotalTaxes();
       setTotalGTGT(result.totalGTGT);
       setTotalTNCN(result.totalTNCN);
     } catch (error) {
-      console.error("Lỗi khi lấy tổng thuế:", error);
+      return;
     }
   };
 
@@ -127,7 +130,7 @@ export default function Analytics() {
       const resultSyncInvoiceIn = await syncInvoiceIn();
       setDataSyncInvoice(resultSyncInvoiceIn);
       setVisiSync(true);
-      await fetchTotalTaxes(); 
+      await fetchTotalTaxes();
       setLoading(false);
     } catch (e) {
       Alert.alert("Không thể đồng bộ hóa đơn!!");
@@ -205,11 +208,15 @@ export default function Analytics() {
             marginBottom: 50,
           }}
         >
-          <View style={styles.taxContainer}>
+          <View
+            style={[styles.taxContainer, { backgroundColor: colors.textDark }]}
+          >
             <View style={[styles.taxCard]}>
-              <Text style={styles.taxLabel}>Thuế GTGT</Text>
-              <Text style={styles.taxValue}>
-                {isUpdating ? "..." : `${totalGTGT.toLocaleString('vi-VN')} đ`}
+              <Text style={[styles.taxLabel, { color: colors.textLight }]}>
+                Thuế GTGT
+              </Text>
+              <Text style={[styles.taxValue, { color: colors.textLight }]}>
+                {isUpdating ? "..." : `${totalGTGT.toLocaleString("vi-VN")} đ`}
               </Text>
               <View
                 style={{
@@ -224,9 +231,11 @@ export default function Analytics() {
             </View>
 
             <View style={[styles.taxCard]}>
-              <Text style={styles.taxLabel}>Thuế TNCN</Text>
-              <Text style={styles.taxValue}>
-                {isUpdating ? "..." : `${totalTNCN.toLocaleString('vi-VN')} đ`}
+              <Text style={[styles.taxLabel, { color: colors.textLight }]}>
+                Thuế TNCN
+              </Text>
+              <Text style={[styles.taxValue, { color: colors.textLight }]}>
+                {isUpdating ? "..." : `${totalTNCN.toLocaleString("vi-VN")} đ`}
               </Text>
               <View
                 style={{
@@ -241,9 +250,18 @@ export default function Analytics() {
             </View>
 
             <View style={[styles.taxCard]}>
-              <Text style={styles.taxLabel}>TỔNG</Text>
-              <Text style={[styles.taxValue, { color: textDealineColor }]}>
-                {isUpdating ? "..." : `${(totalGTGT + totalTNCN).toLocaleString('vi-VN')} đ`}
+              <Text style={[styles.taxLabel, { color: colors.textLight }]}>
+                TỔNG
+              </Text>
+              <Text
+                style={[
+                  styles.taxValue,
+                  { color: isDark ? "#fff" : textDealineColor },
+                ]}
+              >
+                {isUpdating
+                  ? "..."
+                  : `${(totalGTGT + totalTNCN).toLocaleString("vi-VN")} đ`}
               </Text>
             </View>
           </View>

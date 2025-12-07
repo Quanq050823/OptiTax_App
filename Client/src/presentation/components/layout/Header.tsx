@@ -17,12 +17,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useColors } from "../../Hooks/useColor";
+import { useTheme } from "../../Hooks/useTheme";
 
 type HeaderProps = {
   activeTab: string;
 };
 function HeaderScreen({ activeTab }: HeaderProps) {
   const navigation = useNavigation();
+  const colors = useColors();
+  const { isDark } = useTheme();
   const route = useRoute();
   const { data } = useData();
   const isHome = activeTab === "Trang chủ";
@@ -32,9 +36,17 @@ function HeaderScreen({ activeTab }: HeaderProps) {
     const scrollY = event.nativeEvent.contentOffset.y;
     setHasShadow(scrollY > 5); // Nếu cuộn xuống hơn 5px thì bật shadow
   };
+  console.log(isDark);
+
   return (
     <LinearGradient
-      colors={isHome ? ["#fff", "#fff"] : [ColorMain, "#6A7DB3"]}
+      colors={
+        isHome
+          ? isDark
+            ? ["#000", "#000"]
+            : ["#fff", "#fff"]
+          : [ColorMain, "#6A7DB3"]
+      }
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 3 }}
       style={[
@@ -59,7 +71,15 @@ function HeaderScreen({ activeTab }: HeaderProps) {
         />
       </View> */}
         <View>
-          <Text style={[styleHeader.name, !isHome && { color: "#fff" }]}>
+          <Text
+            style={[
+              styleHeader.name,
+              isHome
+                ? { color: isDark ? "#fff" : ColorMain } // Home page
+                : { color: "#fff" }, // Other pages
+            ]}
+          >
+            {" "}
             <FontAwesome
               name="user-circle-o"
               size={20}

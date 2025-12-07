@@ -1,6 +1,6 @@
 import { LoginResponse } from "@/src/services/API/authService";
 import axiosInstance from "@/src/services/API/axios";
-import { InvoiceListResponse, InvoiceSummary } from "@/src/types/invoiceIn";
+import { InvoiceListResponse, InvoiceSummary, RawInvoice } from "@/src/types/invoiceIn";
 import axios from "axios";
 import { Alert } from "react-native";
 
@@ -39,7 +39,7 @@ const mapInvoiceToSummary = (item: any): InvoiceSummary => ({
 	loaiHoaDon: item.thdon,
 	maCQT: item.cqt,
 	maTraCuu: item.mhdon,
-
+	mhdon: item.mhdon,
 	nguoiBan: {
 		ten: item.nbten,
 		mst: item.nbmst,
@@ -71,7 +71,7 @@ const mapInvoiceToSummary = (item: any): InvoiceSummary => ({
 
 	// ✅ giữ nguyên danh sách hàng hóa dịch vụ
 	hdhhdvu: item.hdhhdvu,
-
+	createdAt: item.ncnhat,
 	ngayKy: item.nky,
 	trangThaiHoaDon: item.tthaibchu,
 });
@@ -91,9 +91,9 @@ export const syncInvoiceIn = async (): Promise<InvoiceListResponse> => {
 		throw error;
 	}
 };
-export const getInvoiceIn = async (): Promise<InvoiceSummary[]> => {
+export const getInvoiceIn = async (): Promise<RawInvoice[]> => {
 	try {
-		const res = await axiosInstance.get<InvoiceSummary>("invoices-in");
+		const res = await axiosInstance.get<RawInvoice>("invoices-in");
 		const data = Array.isArray(res.data) ? res.data : [];
 		return data.map(mapInvoiceToSummary);
 	} catch (error: any) {

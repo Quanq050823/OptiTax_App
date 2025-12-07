@@ -110,9 +110,9 @@ function CreateProductScreen() {
   const [productStorage, setProductStorage] = useState<ProductInventory[]>([]);
   const [unitsData, setUnitsData] = useState<UnitsNameProduct>();
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [filteredProducts, setFilteredProducts] = useState<ProductInventory[]>(
-    []
-  );
+  const [filteredProductsList, setFilteredProductsList] = useState<
+    ProductInventory[][]
+  >(ingredients.map(() => productStorage));
 
   const [showUnitInput, setShowUnitInput] = useState(false);
   const [newUnit, setNewUnit] = useState("");
@@ -121,23 +121,32 @@ function CreateProductScreen() {
   const [showInput, setShowInput] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   //--------------------Search product storage dropdown--------------------
-
-  const filterProducts = (keyword: string) => {
-    if (!keyword) {
-      setFilteredProducts(productStorage);
-      return;
+  useEffect(() => {
+    if (productStorage.length > 0) {
+      setFilteredProductsList(ingredients.map(() => [...productStorage]));
     }
+  }, [productStorage, ingredients.length]);
+
+  const filterProducts = (index: number, keyword: string) => {
     const filtered = productStorage.filter((p) =>
       p.name.toLowerCase().includes(keyword.toLowerCase())
     );
-    setFilteredProducts(filtered);
+
+    setFilteredProductsList((prev) => {
+      const copy = [...prev];
+      copy[index] = [...filtered]; // clone
+      return copy;
+    });
   };
-
   //--------------------------------------------------------------
-  const addIngredient = useCallback(() => {
-    setIngredients((prev) => [...prev, INITIAL_INGREDIENT]);
-  }, []);
+  const addIngredient = () => {
+    setIngredients((prev) => [
+      ...prev,
+      { material: null, quantity: "", unit: null }, // copy mới
+    ]);
 
+    setFilteredProductsList((prev) => [...prev, productStorage]);
+  };
   const getUnitName = async () => {
     try {
       const res = await getUnitNameProduct();
@@ -255,6 +264,19 @@ function CreateProductScreen() {
     }));
     setNewUnit("");
   }, [newUnit]);
+
+  const isValid =
+    (newProduct.code?.trim() ?? "") !== "" &&
+    (newProduct.name?.trim() ?? "") !== "" &&
+    newProduct.price > 0 &&
+    (newProduct.category?.trim() ?? "") !== "" &&
+    (newProduct.unit?.trim() ?? "") !== "" &&
+    ingredients.every(
+      (i) =>
+        (i.material?.trim() ?? "") !== "" &&
+        (i.quantity?.trim() ?? "") !== "" &&
+        (i.unit?.trim() ?? "") !== ""
+    );
   return (
     <View style={styleModal.modalContent}>
       <ScrollView>
@@ -454,80 +476,65 @@ function CreateProductScreen() {
                 <Text style={styleModal.labelInput}>ĐL </Text>
               </View>
             </View>
-
             {ingredients.map((item, index) => (
-              <>
-                <View
-                  key={index}
-                  style={{
-                    flexDirection: "row",
-                    flex: 1,
-                    gap: 15,
-                    marginBottom: 20,
-                  }}
-                >
-                  <View style={{ flex: 1.2 }}>
-                    <Dropdown
-                      style={styleModal.dropdown}
-                      selectedTextStyle={{ fontSize: 12, color: "#000" }}
-                      data={
-                        productStorage.map((u) => ({
-                          label: u.name,
-                          value: u.name,
-                        })) || []
-                      }
-                      labelField="label"
-                      valueField="value"
-                      placeholder={"Nguyên liệu"}
-                      search
-                      containerStyle={{ width: "90%" }}
-                      searchPlaceholder="Tìm nguyên liệu..."
-                      inputSearchStyle={{
-                        height: 40,
-                        fontSize: 14,
-                        color: "#333",
-                      }}
-                      value={item.material}
-                      placeholderStyle={{ color: "#9d9d9d" }}
-                      onChange={(selectedItem) =>
-                        updateIngredient(index, "material", selectedItem.value)
-                      }
-                      onFocus={async () => {
-                        await getProductStorage(); // load dữ liệu lần đầu
-                        setFilteredProducts(productStorage); // set ban đầu
-                      }}
-                      onChangeText={(text) => filterProducts(text)}
-                    />
-                  </View>
-                  <View style={{ flex: 0.8 }}>
-                    <TextInput
-                      placeholder={"Số lượng"}
-                      style={[styleModal.input]}
-                      placeholderTextColor={"#9d9d9d"}
-                      onChangeText={(text) =>
-                        updateIngredient(index, "quantity", text)
-                      }
-                    />
-                  </View>
-                  <View style={{ flex: 0.7 }}>
-                    <Dropdown
-                      style={styleModal.dropdown}
-                      data={donVi}
-                      labelField="label"
-                      valueField="value"
-                      placeholder={"kg"}
-                      containerStyle={{
-                        width: "50%",
-                        marginLeft: -100,
-                      }}
-                      placeholderStyle={{ color: "#9d9d9d" }}
-                      onChange={(item) =>
-                        updateIngredient(index, "unit", item.value)
-                      }
-                    />
-                  </View>
+              <View
+                key={index}
+                style={{
+                  flexDirection: "row",
+                  flex: 1,
+                  gap: 15,
+                  marginBottom: 20,
+                }}
+              >
+                {/* Dropdown nguyên liệu */}
+                <View style={{ flex: 1.2 }}>
+                  <Dropdown
+                    style={styleModal.dropdown}
+                    data={
+                      filteredProductsList[index]?.map((u) => ({
+                        label: u.name,
+                        value: u._id, // 🔥 ID duy nhất
+                      })) ?? []
+                    }
+                    labelField="label"
+                    valueField="value"
+                    placeholder="Nguyên liệu"
+                    value={item.material} // material = id
+                    search
+                    onChange={(selected) => {
+                      updateIngredient(index, "material", selected.value);
+                    }}
+                  />
                 </View>
-              </>
+
+                {/* Số lượng */}
+                <View style={{ flex: 0.8 }}>
+                  <TextInput
+                    placeholder="Số lượng"
+                    style={[styleModal.input]}
+                    placeholderTextColor="#9d9d9d"
+                    value={item.quantity}
+                    onChangeText={(text) =>
+                      updateIngredient(index, "quantity", text)
+                    }
+                  />
+                </View>
+
+                {/* Đơn vị */}
+                <View style={{ flex: 0.7 }}>
+                  <Dropdown
+                    style={styleModal.dropdown}
+                    data={donVi}
+                    labelField="label"
+                    valueField="value"
+                    placeholder="kg"
+                    value={item.unit}
+                    containerStyle={{ width: "50%", marginLeft: -100 }}
+                    placeholderStyle={{ color: "#9d9d9d" }}
+                    onChange={(u) => updateIngredient(index, "unit", u.value)}
+                  />
+                </View>
+              </View>
             ))}
             <TouchableOpacity
               style={{
@@ -604,8 +611,12 @@ function CreateProductScreen() {
             style={{ width: "100%", alignItems: "flex-end", marginTop: 20 }}
           >
             <TouchableOpacity
+              disabled={!isValid}
               onPress={handleAddProduct}
-              style={styleModal.AddButton}
+              style={[
+                styleModal.AddButton,
+                { opacity: isValid ? 1 : 0.4 }, // mờ khi disable
+              ]}
             >
               <Text style={styleModal.AddText}>Thêm</Text>
             </TouchableOpacity>

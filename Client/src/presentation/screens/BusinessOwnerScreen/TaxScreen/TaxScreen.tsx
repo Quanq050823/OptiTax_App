@@ -118,7 +118,7 @@ function TaxScreen() {
       setDataTaxGet(data.data);
       setFilteredList(data.data);
     } catch (err) {
-      console.error("❌ Lỗi khi lấy danh sách phiếu thuế:", err);
+      return;
     } finally {
       setLoadingFetch(false);
     }

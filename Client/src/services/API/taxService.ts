@@ -49,10 +49,8 @@ export const getTotalTaxes = async (
 		return res.data;
 	} catch (error: any) {
 		if (error.response) {
-			console.error("❌ Lỗi lấy tổng thuế:", error.response.data);
 			throw error.response.data;
 		}
-		console.error("❌ Lỗi khác:", error);
 		throw error;
 	}
 };

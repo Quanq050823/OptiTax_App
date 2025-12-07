@@ -24,10 +24,10 @@ function EmployeesScreen() {
       <View style={styles.container}>
         <View style={styles.row}>
           <Text style={styles.code}>{item.code}</Text>
-          <Text style={styles.amount}>{item.a.toLocaleString()} ₫</Text>
+          <Text style={styles.amount}>{item.address} ₫</Text>
         </View>
 
-        <Text style={styles.description}>{item.description}</Text>
+        <Text style={styles.description}>{item.note}</Text>
         <Text style={styles.date}>
           {new Date(item.hireDate).toLocaleDateString("vi-VN")}
         </Text>
