@@ -22,6 +22,13 @@ router.get(
 );
 
 router.get(
+	"/tax-deadline",
+	authenticate,
+	authorization(["user", "admin"]),
+	businessOwnerController.getTaxDeadline
+);
+
+router.get(
 	"/:userId",
 	authenticate,
 	authorization(["admin"]),

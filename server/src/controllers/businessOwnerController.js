@@ -46,6 +46,16 @@ const remove = async (req, res, next) => {
 	}
 };
 
+const getTaxDeadline = async (req, res, next) => {
+	try {
+		const userId = req.user.userId;
+		const result = await businessOwnerService.getTaxDeadlineInfo(userId);
+		res.status(StatusCodes.OK).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
 const list = async (req, res, next) => {
 	try {
 		const { page, limit, sortBy, sortOrder, ...filter } = req.query;
@@ -65,4 +75,4 @@ const list = async (req, res, next) => {
 	}
 };
 
-export { create, getByUserId, update, remove, list };
+export { create, getByUserId, update, remove, list, getTaxDeadline };
