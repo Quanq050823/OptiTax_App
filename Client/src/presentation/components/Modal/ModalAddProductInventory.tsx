@@ -88,7 +88,7 @@ function ModalAddProductInventory({
         const res = await getProductsInventoryById(idProduct);
         setNewProductInvenEdit(res);
       } catch (error) {
-        console.error("Lỗi lấy dữ liệu sản phẩm:", error);
+        return;
       }
     };
 

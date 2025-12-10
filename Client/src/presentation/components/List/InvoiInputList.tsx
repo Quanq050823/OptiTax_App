@@ -1,6 +1,6 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
-import { InvoiceSummary } from "@/src/types/invoiceIn";
+import { InvoiceSummary, RawInvoice } from "@/src/types/invoiceIn";
 import { Invoice } from "@/src/types/route";
 import {
   FlatList,
@@ -34,9 +34,11 @@ const invoices: any = [
   },
 ];
 type invoice = {
-  invoicesData: InvoiceSummary[];
+  invoicesData: RawInvoice[];
 };
 function InvoiInputList({ invoicesData }: invoice) {
+  console.log(invoicesData);
+
   const navigate = useAppNavigation();
   const getStatusInfo = (status: number) => {
     switch (status) {
@@ -51,7 +53,7 @@ function InvoiInputList({ invoicesData }: invoice) {
     }
   };
 
-  const renderItem = ({ item }: { item: InvoiceSummary }) => {
+  const renderItem = ({ item }: { item: RawInvoice }) => {
     const total = item.tien?.tong || 0;
     // const { text, color } = getStatusInfo(item.status);
 
@@ -60,7 +62,7 @@ function InvoiInputList({ invoicesData }: invoice) {
     return (
       <TouchableOpacity
         onPress={() =>
-          navigate.navigate("InvoiceDetailScreen", { item, total, label })
+          navigate.navigate("InvoiceDetailScreenInp", { item, total, label })
         }
       >
         <View style={styles.card}>
@@ -93,7 +95,9 @@ function InvoiInputList({ invoicesData }: invoice) {
   return (
     <FlatList
       data={invoicesData}
-      keyExtractor={(item) => item.soHoaDon ? item.soHoaDon : Math.random().toString()}
+      keyExtractor={(item) =>
+        item.soHoaDon ? item.soHoaDon : Math.random().toString()
+      }
       renderItem={renderItem}
       contentContainerStyle={styles.container}
     />

@@ -19,6 +19,7 @@ import * as Location from "expo-location";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { ActivityIndicator } from "react-native-paper";
 import TaxEON from "@/src/presentation/components/TagEON";
+import { LinearGradient } from "expo-linear-gradient";
 
 const mockAccountants = [
   {
@@ -47,6 +48,28 @@ const mockAccountants = [
   },
 ];
 
+const ratingAcc = () => {
+  return (
+    <LinearGradient
+      colors={["#c1c426ff", "#f0ee76ff"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 3 }}
+      style={{
+        alignItems: "center",
+        flexDirection: "row",
+        paddingHorizontal: 5,
+        borderRadius: 5,
+        position: "absolute",
+        alignSelf: "center",
+        bottom: 0,
+      }}
+    >
+      <Text style={{ color: "#fff", fontSize: 10, fontWeight: "600" }}>
+        4.5/5
+      </Text>
+    </LinearGradient>
+  );
+};
 function SearchAccountantScreen() {
   const [filteredList, setFilteredList] = useState(mockAccountants);
 
@@ -89,11 +112,19 @@ function SearchAccountantScreen() {
                     gap: 10,
                   }}
                 >
-                  <View style={{ flex: 1, paddingHorizontal: 5 }}>
-                    <Image
-                      source={require("@/assets/images/boy.png")}
-                      style={{ width: 60, height: 60 }}
-                    />
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                    }}
+                  >
+                    <View style={{ position: "relative" }}>
+                      <Image
+                        source={require("@/assets/images/boy.png")}
+                        style={{ width: 60, height: 60 }}
+                      />
+                      {ratingAcc()}
+                    </View>
                   </View>
                   <View style={{ flex: 3, gap: 5 }}>
                     <View style={{ flexDirection: "row", gap: 7 }}>
