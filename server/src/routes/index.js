@@ -16,6 +16,7 @@ import taxSubmissionRoute from "./taxSubmissionRoute.js";
 import employeeRoute from "./employeeRoute.js";
 import payslipRoute from "./payslipRoute.js";
 import invoiceSyncRoute from "./invoiceSyncRoute.js";
+import easyInvoiceRoute from "./easyInvoiceRoute.js";
 import { errorHandlingMiddleware } from "./../middlewares/errorHandlingMiddleware.js";
 import authenticate from "../middlewares/jwtMiddlewares.js";
 
@@ -43,6 +44,7 @@ export default (app) => {
 	app.use("/api/employees", employeeRoute);
 	app.use("/api/payslip", payslipRoute);
 	app.use("/api/invoice-sync", invoiceSyncRoute);
+	app.use("/api/easyinvoice", easyInvoiceRoute);
 
 	app.use(errorHandlingMiddleware);
 };
