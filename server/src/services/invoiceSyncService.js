@@ -43,12 +43,24 @@ async function getCaptchaImage(sessionId, username, password) {
 		await page.type(SELECTORS.username, String(username));
 		await page.type(SELECTORS.password, String(password));
 
-		const captchaImg = await page.waitForSelector(
-			'img[alt="captcha"][class*="Captcha__Image"]',
-			{
-				timeout: 10000,
+		await page.waitForSelector('img[alt="captcha"][class*="Captcha__Image"]', {
+			timeout: 10000,
+		});
+
+		try {
+			const refreshButton = await page.$(
+				'button[aria-label*="reload"], span[aria-label*="reload"], button[title*="Tạo lại"], span[class*="reload"]'
+			);
+			if (refreshButton) {
+				await refreshButton.click();
+				await new Promise((resolve) => setTimeout(resolve, 1500));
 			}
+		} catch (error) {}
+
+		const captchaImgs = await page.$$(
+			'img[alt="captcha"][class*="Captcha__Image"]'
 		);
+		const captchaImg = captchaImgs[captchaImgs.length - 1];
 
 		await page.waitForFunction(
 			(img) => {
