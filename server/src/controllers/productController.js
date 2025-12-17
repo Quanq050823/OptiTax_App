@@ -1,6 +1,7 @@
 "use strict";
 
 import * as productService from "../services/productService.js";
+import * as storageItemService from "../services/storageItemService.js";
 import { StatusCodes } from "http-status-codes";
 import Product from "../models/Product.js";
 import BusinessOwner from "../models/BusinessOwner.js";
@@ -12,6 +13,26 @@ const create = async (req, res, next) => {
 		const owner = await BusinessOwner.findOne({ userId });
 		if (!owner)
 			return res.status(404).json({ message: "BusinessOwner not found" });
+		if (req.body.materials && Array.isArray(req.body.materials)) {
+			const storageItems = await storageItemService.listStorageItems(
+				owner._id,
+				{},
+				{ limit: 1000 }
+			);
+			const validUnits = [
+				...new Set(storageItems.data.map((item) => item.unit)),
+			];
+			for (const material of req.body.materials) {
+				if (material.unit && !validUnits.includes(material.unit)) {
+					return res.status(StatusCodes.BAD_REQUEST).json({
+						message: `Invalid unit '${material.unit}' for material '${
+							material.component
+						}'. Valid units: ${validUnits.join(", ")}`,
+					});
+				}
+			}
+		}
+
 		let productData = { ...req.body, ownerId: owner._id };
 		if (!productData.code || productData.code.trim() === "") {
 			// Generate code: first letters of each word in name
