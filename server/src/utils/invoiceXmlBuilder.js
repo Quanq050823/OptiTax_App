@@ -1,15 +1,5 @@
 "use strict";
 
-/**
- * Invoice XML Builder for EasyInvoice API
- * Generates XML structure for invoice creation
- */
-
-/**
- * Build product XML
- * @param {Object} product - Product data
- * @returns {string} Product XML string
- */
 const buildProductXml = (product) => {
 	return `
 		<Product>
@@ -39,11 +29,6 @@ const buildProductXml = (product) => {
 		</Product>`;
 };
 
-/**
- * Build invoice XML data
- * @param {Object} invoice - Invoice data object
- * @returns {string} Complete XML string for invoice
- */
 export const buildInvoiceXml = (invoice) => {
 	const productsXml = invoice.products
 		.map((product) => buildProductXml(product))
@@ -153,11 +138,6 @@ export const buildInvoiceXml = (invoice) => {
 </Invoices>`;
 };
 
-/**
- * Build multiple invoices XML data
- * @param {Array<Object>} invoices - Array of invoice data objects
- * @returns {string} Complete XML string for multiple invoices
- */
 export const buildMultipleInvoicesXml = (invoices) => {
 	const invElements = invoices
 		.map((invoice) => {
@@ -220,14 +200,6 @@ export const buildMultipleInvoicesXml = (invoices) => {
 </Invoices>`;
 };
 
-/**
- * Convert number to Vietnamese words
- * Simple implementation - should use a proper library in production
- * @param {number} amount - Amount to convert
- * @returns {string} Amount in Vietnamese words
- */
 export const numberToVietnameseWords = (amount) => {
-	// This is a placeholder - implement or use vn-num2words library
-	// For now, return a formatted string
 	return `${amount.toLocaleString("vi-VN")} đồng chẵn`;
 };

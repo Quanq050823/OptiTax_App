@@ -5,6 +5,7 @@ import * as easyInvoiceService from "../services/easyInvoiceService.js";
 import ApiError from "../utils/ApiError.js";
 import { getBusinessOwnerByUserId } from "../services/businessOwnerService.js";
 import { buildInvoiceXML } from "../utils/xmlBuilder.js";
+import { processInvoiceData } from "../utils/invoiceHelper.js";
 
 export const getInvoiceByArisingDateRange = async (req, res, next) => {
 	try {
@@ -61,6 +62,7 @@ export const importInvoice = async (req, res, next) => {
 
 		// Support both XmlData (backward compatible) and invoiceData (dynamic)
 		if (!XmlData && invoiceData) {
+			invoiceData = processInvoiceData(invoiceData);
 			XmlData = buildInvoiceXML(invoiceData);
 			console.log("Generated XML from invoiceData:", XmlData);
 		}
@@ -110,7 +112,9 @@ export const importInvoice = async (req, res, next) => {
 			easyInvoicePassword,
 			easyInvoiceSerial
 		);
-		res.status(StatusCodes.OK).json({ success: true, data: result });
+		res
+			.status(StatusCodes.OK)
+			.json({ success: true, data: result, invoiceData });
 	} catch (error) {
 		next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
 	}
@@ -120,8 +124,8 @@ export const importAndIssueInvoice = async (req, res, next) => {
 	try {
 		let { XmlData, invoiceData } = req.body;
 
-		// Support both XmlData (backward compatible) and invoiceData (dynamic)
 		if (!XmlData && invoiceData) {
+			invoiceData = processInvoiceData(invoiceData);
 			XmlData = buildInvoiceXML(invoiceData);
 			console.log("Generated XML from invoiceData:", XmlData);
 		}
@@ -171,7 +175,9 @@ export const importAndIssueInvoice = async (req, res, next) => {
 			easyInvoicePassword,
 			easyInvoiceSerial
 		);
-		res.status(StatusCodes.OK).json({ success: true, data: result });
+		res
+			.status(StatusCodes.OK)
+			.json({ success: true, data: result, invoiceData });
 	} catch (error) {
 		next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
 	}
