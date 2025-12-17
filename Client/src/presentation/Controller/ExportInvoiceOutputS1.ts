@@ -105,19 +105,16 @@ const parseLocalDate = (str: string) => {
     invDate.setHours(0, 0, 0, 0);
     return invDate >= startDate! && invDate <= endDate!;
 }); 
-const getTaxRates = (tchat: number) => {
-    // Đây là các tỷ lệ giả định theo Thông tư 40/2021/TT-BTC:
-    // 1: Phân phối, cung cấp hàng hóa (GTGT 1%, TNCN 0.5%)
-    // 2: Dịch vụ, xây dựng (GTGT 5%, TNCN 2%)
-    // 3: Sản xuất, vận tải (GTGT 3%, TNCN 1.5%)
-    // 4: Hoạt động khác (GTGT 2%, TNCN 1%)
-    switch (tchat) {
-        case 1: return { gtgt: 0.01, tncn: 0.005, title: "1. Ngành nghề: Phân phối, cung cấp hàng hóa" };
-        case 2: return { gtgt: 0.05, tncn: 0.02, title: "2. Ngành nghề: Dịch vụ, xây dựng" };
-        case 3: return { gtgt: 0.03, tncn: 0.015, title: "3. Ngành nghề: Sản xuất, vận tải" };
-        default: return { gtgt: 0.02, tncn: 0.01, title: "4. Ngành nghề: Hoạt động khác" };
-    }
-};
+function getTaxRate(tchat: number) {
+  switch (tchat) {
+    case 1:
+      return { tncnRate: 0.005, gtgtRate: 0.01 };
+    case 2:
+      return { tncnRate: 0.02, gtgtRate: 0.05 };
+    default:
+      return { tncnRate: 0, gtgtRate: 0 };
+  }
+}
     // --- 2. Gom nhóm theo ngày ---
     const detailRows: DetailRow[] = [];
 const mapColumns = (tchat: number, amount: number) => {
@@ -134,91 +131,122 @@ const mapColumns = (tchat: number, amount: number) => {
   return cols;
 };
 
-const groupedData: Record<number, GroupedRow> = {};
+const groupedData: Record<number, {
+  tchat: number;
+  groupTitle: string;
+  totalAmount: number;
+  totalTNCN: number;
+  totalGTGT: number;
+  details: {
+    day: string;
+    soHieuList: string[];
+    dienGiaiList: string[];
+    amount: number;
+    tncn: number;
+    gtgt: number;
+    taxRateTNCN: number;
+    taxRateGTGT: number;
+  }[];
+}> = {};
 let grandTotal = {
     amount: 0,
     totalTNCN: 0,
     totalGTGT: 0,
 };
-filtered.forEach((inv) => {
-    const invDateStr = new Date(inv.ncnhat).toLocaleDateString("vi-VN");
+filtered.forEach(inv => {
+  const day = new Date(inv.ncnhat).toLocaleDateString("vi-VN");
 
-    if (Array.isArray(inv.hdhhdvu)) {
-        inv.hdhhdvu.forEach((item) => {
-            const amount = Number(item.thtien ?? 0);
-            const tchat = Number(item.tchat ?? 0);
-            if (tchat === 0) return; // Bỏ qua nếu không có tính chất
+  inv.hdhhdvu?.forEach(item => {
+    const amount = Number(item.thtien ?? 0);
+    const tchat = Number(item.tchat ?? 0);
+    if (tchat === 0) return;
 
-            const taxInfo = getTaxRates(tchat);
-            const taxAmountTNCN = amount * taxInfo.tncn;
-            const taxAmountGTGT = amount * taxInfo.gtgt;
+    const { tncnRate, gtgtRate } = getTaxRate(tchat);
 
-            if (!groupedData[tchat]) {
-                groupedData[tchat] = {
-                    tchat: tchat,
-                    groupTitle: taxInfo.title,
-                    totalAmount: 0,
-                    totalTNCN: 0,
-                    totalGTGT: 0,
-                    details: [],
-                };
-            }
-
-            groupedData[tchat].details.push({
-                date: invDateStr,
-                soHieu: inv.khmshdon ?? "",
-                dienGiai: item.ten ?? "Hàng hóa - dịch vụ",
-                doanhThu: amount,
-                taxRateTNCN: taxInfo.tncn * 100, // Hiển thị dưới dạng %
-                taxAmountTNCN: taxAmountTNCN,
-                taxRateGTGT: taxInfo.gtgt * 100, // Hiển thị dưới dạng %
-                taxAmountGTGT: taxAmountGTGT,
-            });
-
-            // Cộng tổng cho nhóm
-            groupedData[tchat].totalAmount += amount;
-            groupedData[tchat].totalTNCN += taxAmountTNCN;
-            groupedData[tchat].totalGTGT += taxAmountGTGT;
-            
-            // Cộng tổng toàn bộ
-            grandTotal.amount += amount;
-            grandTotal.totalTNCN += taxAmountTNCN;
-            grandTotal.totalGTGT += taxAmountGTGT;
-        });
+    if (!groupedData[tchat]) {
+      groupedData[tchat] = {
+        tchat,
+        groupTitle:
+          tchat === 1
+            ? "1. Ngành nghề: Phân phối, cung cấp hàng hóa"
+            : tchat === 2
+            ? "2. Ngành nghề: Dịch vụ, xây dựng"
+            : "3. Nhóm khác",
+        totalAmount: 0,
+        totalTNCN: 0,
+        totalGTGT: 0,
+        details: [],
+      };
     }
+
+    groupedData[tchat].details.push({
+      day,
+      soHieuList: [inv.khmshdon],
+      dienGiaiList: [item.ten || ""],
+      amount,
+      tncn: amount * tncnRate,
+      gtgt: amount * gtgtRate,
+      taxRateTNCN: tncnRate * 100,
+      taxRateGTGT: gtgtRate * 100,
+    });
+
+    groupedData[tchat].totalAmount += amount;
+    groupedData[tchat].totalTNCN += amount * tncnRate;
+    groupedData[tchat].totalGTGT += amount * gtgtRate;
+
+    grandTotal.amount += amount;
+    grandTotal.totalTNCN += amount * tncnRate;
+    grandTotal.totalGTGT += amount * gtgtRate;
+  });
 });
 
 const sortedGroups = Object.values(groupedData).sort((a, b) => a.tchat - b.tchat);
 
     // --- 3. Render HTML ---
- const rows = sortedGroups.map((group) => {
-    // 1. Hàng tiêu đề nhóm (ví dụ: "1. Ngành nghề: Phân phối, cung cấp hàng hóa")
+const rows = Object.values(groupedData)
+  .sort((a, b) => a.tchat - b.tchat)
+  .map(group => {
     const groupHeaderRow = `
-        <tr>
-            <td colspan="3" style="text-align: left;"><b>${group.groupTitle}</b></td>
-            <td></td>
-            <td colspan="4"></td>
-        </tr>
+      <tr>
+        <td colspan="3" style="text-align:left;"><b>${group.groupTitle}</b></td>
+        <td></td>
+        <td colspan="4"></td>
+      </tr>
     `;
 
-    // 2. Các hàng chi tiết sản phẩm/dịch vụ trong nhóm
-    const detailRows = group.details.map(row => {
+    const detailRows = group.details
+      .map(d => {
         return `
-            <tr>
-                <td>${row.soHieu}</td> <td>${row.date}</td> <td style="text-align: left;">${row.dienGiai}</td> <td>${row.doanhThu.toLocaleString("vi-VN")}</td> <td>${row.taxRateTNCN}%</td> <td>${row.taxAmountTNCN.toLocaleString("vi-VN")}</td> <td>${row.taxRateGTGT}%</td> <td>${row.taxAmountGTGT.toLocaleString("vi-VN")}</td> </tr>
-        `;
-    }).join("");
+          <tr>
+            <td>${d.soHieuList.join("<br/>")}</td>
+            <td>${d.day}</td>
+            <td>${d.dienGiaiList.join("<br/>")}</td>
+            <td>${d.amount.toLocaleString("vi-VN")}</td>
 
-    // 3. Hàng tổng cộng của nhóm (Tổng cộng (1), Tổng cộng (2)...)
+            <td>${d.taxRateTNCN}%</td>
+            <td>${d.tncn.toLocaleString("vi-VN")}</td>
+
+            <td>${d.taxRateGTGT}%</td>
+            <td>${d.gtgt.toLocaleString("vi-VN")}</td>
+          </tr>
+        `;
+      })
+      .join("");
+
     const groupTotalRow = `
-        <tr>
-            <td colspan="3"><b>Tổng cộng (${group.tchat})</b></td>
-            <td><b>${group.totalAmount.toLocaleString("vi-VN")}</b></td>
-            <td></td> <td><b>${group.totalTNCN.toLocaleString("vi-VN")}</b></td> <td></td> <td><b>${group.totalGTGT.toLocaleString("vi-VN")}</b></td> </tr>
+      <tr>
+        <td colspan="3"><b>Tổng cộng (${group.tchat})</b></td>
+        <td><b>${group.totalAmount.toLocaleString("vi-VN")}</b></td>
+        <td></td>
+        <td><b>${group.totalTNCN.toLocaleString("vi-VN")}</b></td>
+        <td></td>
+        <td><b>${group.totalGTGT.toLocaleString("vi-VN")}</b></td>
+      </tr>
     `;
 
     return groupHeaderRow + detailRows + groupTotalRow;
-}).join("");
+  })
+  .join("");
 
     const html = `
       <style>
@@ -278,23 +306,17 @@ const sortedGroups = Object.values(groupedData).sort((a, b) => a.tchat - b.tchat
     <th>Thuế suất</th>
     <th>Thuế phải nộp</th>
   </tr>
-  <tr>
-    <td>A</td>
-    <td>B</td>
-    <td>C</td>
-    <td>1</td>
-    <td>2</td>
-    <td>3</td>
-    <td>4</td>
-    <td>5</td>
-  </tr>
+  
         ${rows}
         
         <tr>
-          <td colspan="4">Tổng cộng</td>
-          <td><b>${grandTotal.amount.toLocaleString("vi-VN")}</b></td>
-          <td colspan="6"></td>
-        </tr>
+    <td colspan="3" style="text-align:center;"><b>Tổng cộng tất cả</b></td>
+    <td><b>${grandTotal.amount.toLocaleString("vi-VN")}</b></td>
+    <td></td>
+    <td><b>${grandTotal.totalTNCN.toLocaleString("vi-VN")}</b></td>
+    <td></td>
+    <td><b>${grandTotal.totalGTGT.toLocaleString("vi-VN")}</b></td>
+  </tr>
       </table>
   
 <div class="footer">

@@ -18,13 +18,13 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 // context.tsx
 interface DataContextType {
-  data: Profile | null;
+  data?: Profile;
+  setData: React.Dispatch<React.SetStateAction<Profile | undefined>>;
   invoicesInput: Invoice[];
   invoicesOutput: Invoice[];
   taxList: TaxItem[];
   invoiceInputDataSync: InvoiceSummary[];
   voucherPayList: PaymentVoucher[];
-  setData: React.Dispatch<React.SetStateAction<Profile | null>>;
   setInvoicesInput: React.Dispatch<React.SetStateAction<Invoice[]>>;
   setInvoicesOutput: React.Dispatch<React.SetStateAction<Invoice[]>>;
   fetchData: () => Promise<void>;
@@ -35,7 +35,7 @@ interface DataProviderProps {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 export const DataProvider = ({ children }: DataProviderProps) => {
-  const [data, setData] = useState<Profile | null>(null);
+  const [data, setData] = useState<Profile | undefined>();
   const [invoicesInput, setInvoicesInput] = useState<Invoice[]>([]);
   const [invoicesOutput, setInvoicesOutput] = useState<Invoice[]>([]);
   const [invoiceInputDataSync, setInvoiceInputDataSync] = useState<
@@ -52,6 +52,8 @@ export const DataProvider = ({ children }: DataProviderProps) => {
         businessName: business?.businessName,
         address: business?.address,
         phoneNumber: business?.phoneNumber,
+        taxCode: business?.taxCode,
+        password: business?.password,
       });
 
       const invoiceInSync = await getInvoiceIn();

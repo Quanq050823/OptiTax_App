@@ -65,6 +65,7 @@ import CreateProductScreen from "../presentation/screens/BusinessOwnerScreen/Cre
 
 import { logout as apiLogout } from "@/src/services/API/authService";
 import InvoiceDetailScreenInp from "../presentation/screens/InvoiceDetailScreenInp/InvoiceDetailScreenInp";
+import EditProductScreen from "../presentation/screens/BusinessOwnerScreen/EditProduct/EditProduct";
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
   const { data, setData } = useData(); // lấy data từ context
@@ -426,6 +427,13 @@ const HomeLayout = () => {
           title: "Chi tiết hóa đơn",
         }}
         component={InvoiceDetailScreenInp}
+      />
+      <Stack.Screen
+        name="EditProductScreen"
+        options={{
+          title: "Chỉnh sửa sản phẩm",
+        }}
+        component={EditProductScreen}
       />
     </Stack.Navigator>
   );

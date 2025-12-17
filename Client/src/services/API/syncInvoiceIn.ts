@@ -1,6 +1,6 @@
 import { LoginResponse } from "@/src/services/API/authService";
 import axiosInstance from "@/src/services/API/axios";
-import { InvoiceListResponse, InvoiceSummary, RawInvoice } from "@/src/types/invoiceIn";
+import { CapchaInfo, FormGetCapcha, InvoiceListResponse, InvoiceSummary, InvoiceSyncResponse, RawInvoice } from "@/src/types/invoiceIn";
 import axios from "axios";
 import { Alert } from "react-native";
 
@@ -23,7 +23,6 @@ export const loginCCT = async (data: {
 		);
 
 		const loginData = response.data;
-		console.log(loginData, "Login data");
 
 		return loginData;
 	} catch (error: any) {
@@ -116,4 +115,46 @@ export const getInvoiceInById = async (
 		}
 		throw error;
 	}
+};
+
+
+export const getCapcha = async (username: string, password: string): Promise<CapchaInfo> => {
+	try{
+		
+		const res = await axiosInstance.post<CapchaInfo>(`invoice-sync/captcha`, {username, password})
+
+		return res.data
+	}catch (error: any) {
+		if (error.response) {
+			throw error.response.data;
+		}
+		throw error;
+	}
+}	
+
+export const verifyCapchaInput = async (
+  sessionId: string,
+  captcha: string,
+  invoiceType: string
+): Promise<InvoiceSyncResponse> => {
+  try {
+    const res = await axiosInstance.post<InvoiceSyncResponse>(
+      "invoice-sync/login",
+      {
+        sessionId,
+        captcha,
+        invoiceType,
+      }
+    );
+
+    console.log("VERIFY SUCCESS:", res.data);
+    return res.data;
+  } catch (error: any) {
+    console.log("VERIFY ERROR FULL:", error);
+    console.log("VERIFY ERROR RESPONSE:", error?.response?.data);
+    console.log("VERIFY ERROR STATUS:", error?.response?.status);
+
+    // ✅ LUÔN throw error gốc
+    throw error;
+  }
 };
