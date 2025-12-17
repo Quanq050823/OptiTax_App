@@ -19,29 +19,16 @@ const getStorageItemById = async (id, businessOwnerId) => {
 };
 
 const listStorageItems = async (businessOwnerId, filter = {}, options = {}) => {
-	const {
-		page = 1,
-		limit = 10,
-		sortBy = "createdAt",
-		sortOrder = -1,
-	} = options;
-	const skip = (page - 1) * limit;
-	const query = StorageItem.find({ businessOwnerId, ...filter })
-		.sort({ [sortBy]: sortOrder })
-		.skip(skip)
-		.limit(limit);
-	const [results, total] = await Promise.all([
+	const { sortBy = "createdAt", sortOrder = -1 } = options;
+	const query = StorageItem.find({ businessOwnerId, ...filter }).sort({
+		[sortBy]: sortOrder,
+	});
+	const [results] = await Promise.all([
 		query.exec(),
 		StorageItem.countDocuments({ businessOwnerId, ...filter }),
 	]);
 	return {
 		data: results,
-		pagination: {
-			page,
-			limit,
-			total,
-			pages: Math.ceil(total / limit),
-		},
 	};
 };
 
