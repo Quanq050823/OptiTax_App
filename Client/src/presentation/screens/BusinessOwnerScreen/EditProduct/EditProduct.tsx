@@ -19,14 +19,18 @@ import {
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { InvoiceProduct } from "@/src/types/route";
-import { createProduct } from "@/src/services/API/productService";
+import {
+  createProduct,
+  getProductsById,
+  updateProduct,
+} from "@/src/services/API/productService";
 import { materials, Product } from "@/src/types/product";
 import { ProductInventory, UnitsNameProduct } from "@/src/types/storage";
 import {
   getProductsInventory,
   getUnitNameProduct,
 } from "@/src/services/API/storageService";
-import ModalConversUnit from "@/src/presentation/components/Modal/ModalConversUnit";
+import { useRoute } from "@react-navigation/native";
 
 type Ingredient = {
   material: string | null;
@@ -92,7 +96,9 @@ const INITIAL_INGREDIENT: Ingredient = {
   unit: null,
 };
 
-function CreateProductScreen() {
+function EditProductScreen() {
+  const route = useRoute();
+  const { id } = route.params as { id: string };
   const [ingredients, setIngredients] = useState<Ingredient[]>([
     INITIAL_INGREDIENT,
   ]);
@@ -108,20 +114,35 @@ function CreateProductScreen() {
     stock: 0,
     materials: [],
   });
+  const [productGet, SetProductGet] = useState<Product>();
   const [productStorage, setProductStorage] = useState<ProductInventory[]>([]);
   const [unitsData, setUnitsData] = useState<UnitsNameProduct>();
   const [searchKeyword, setSearchKeyword] = useState("");
   const [filteredProductsList, setFilteredProductsList] = useState<
     ProductInventory[][]
   >(ingredients.map(() => productStorage));
-  const [openModalConvers, setOpenModalConvers] = useState(false);
-  const [idProductStorage, setIdProductStorage] = useState("");
+
   const [showUnitInput, setShowUnitInput] = useState(false);
   const [newUnit, setNewUnit] = useState("");
 
   const [value, setValue] = useState<string | null>(null);
   const [showInput, setShowInput] = useState(false);
   const [newCategory, setNewCategory] = useState("");
+
+  const fetchProductById = useCallback(async () => {
+    try {
+      const res = await getProductsById(id);
+      SetProductGet(res);
+      setValue(res.category);
+    } catch {
+      Alert.alert("Sản phẩm không tồn tại");
+    }
+  }, [id]);
+
+  useEffect(() => {
+    fetchProductById();
+  }, [id]);
+
   //--------------------Search product storage dropdown--------------------
   useEffect(() => {
     if (productStorage.length > 0) {
@@ -230,7 +251,7 @@ function CreateProductScreen() {
     setNewProduct((prev) => ({ ...prev, category: newItem.value }));
   }, [newCategory]);
 
-  const handleAddProduct = useCallback(async () => {
+  const handleSaveProduct = useCallback(async () => {
     if (
       !newProduct.name ||
       !newProduct.price ||
@@ -249,7 +270,7 @@ function CreateProductScreen() {
     }));
 
     const productToCreate = { ...newProduct, materials: materialsList };
-    const created = await createProduct(productToCreate);
+    const created = await updateProduct(id, productToCreate);
 
     if (created && typeof created === "object" && "name" in created) {
       Alert.alert("Thành công", `Đã thêm sản phẩm: ${created.name}`);
@@ -279,13 +300,6 @@ function CreateProductScreen() {
         (i.quantity?.trim() ?? "") !== "" &&
         (i.unit?.trim() ?? "") !== ""
     );
-  const handleOpenConversUnit = useCallback((id: string) => {
-    setOpenModalConvers(true);
-    setIdProductStorage(id);
-  }, []);
-  const handleRemoveIngredient = (removeIndex: number) => {
-    setIngredients((prev) => prev.filter((_, index) => index !== removeIndex));
-  };
   return (
     <View style={styleModal.modalContent}>
       <ScrollView>
@@ -306,6 +320,7 @@ function CreateProductScreen() {
                 onChangeText={(text) =>
                   setNewProduct({ ...newProduct, code: text })
                 }
+                defaultValue={productGet?.code ?? ""}
               />
             </View>
             <View style={{ marginTop: 20 }}>
@@ -317,6 +332,7 @@ function CreateProductScreen() {
                 onChangeText={(text) =>
                   setNewProduct({ ...newProduct, name: text })
                 }
+                defaultValue={productGet?.name}
               />
             </View>
             <View style={{ marginTop: 20, flex: 1 }}>
@@ -329,6 +345,7 @@ function CreateProductScreen() {
                 onChangeText={(text) =>
                   setNewProduct({ ...newProduct, price: Number(text) })
                 }
+                defaultValue={productGet?.price.toString()}
               />
             </View>
             <View style={{ flexDirection: "row", gap: 30 }}>
@@ -342,8 +359,8 @@ function CreateProductScreen() {
                   ]}
                   labelField="label"
                   valueField="value"
-                  placeholder="-- Chọn danh mục --"
-                  value={value}
+                  placeholder={productGet?.category}
+                  value={value} // nếu null -> thành ""
                   onChange={(item) => {
                     if (item.value === "__add__") {
                       // Xử lý logic mở input hoặc modal thêm danh mục
@@ -414,7 +431,7 @@ function CreateProductScreen() {
                   ]}
                   labelField="label"
                   valueField="value"
-                  placeholder="--Phần, kg --"
+                  placeholder={productGet?.unit ?? ""}
                   value={newUnit}
                   onChange={(item) => {
                     if (item.value === "__add__") {
@@ -485,130 +502,66 @@ function CreateProductScreen() {
                 <Text style={styleModal.labelInput}>ĐL </Text>
               </View>
             </View>
-            {ingredients.map((item, index) => {
-              const disableConvert = !item.material;
-
-              return (
-                <>
-                  <TouchableOpacity
-                    style={{ flexDirection: "row", justifyContent: "flex-end" }}
-                    onPress={() => handleRemoveIngredient(index)}
-                  >
-                    <Text style={{ color: "red", fontWeight: "500" }}>Xóa</Text>
-                  </TouchableOpacity>
-                  <View
-                    key={index}
-                    style={{
-                      flexDirection: "row",
-                      flex: 1,
-                      gap: 15,
-                      marginBottom: 20,
-                      marginTop: 10,
+            {ingredients.map((item, index) => (
+              <View
+                key={index}
+                style={{
+                  flexDirection: "row",
+                  flex: 1,
+                  gap: 15,
+                  marginBottom: 20,
+                }}
+              >
+                {/* Dropdown nguyên liệu */}
+                <View style={{ flex: 1.2 }}>
+                  <Dropdown
+                    style={styleModal.dropdown}
+                    data={
+                      filteredProductsList[index]?.map((u) => ({
+                        label: u.name,
+                        value: u._id, // 🔥 ID duy nhất
+                      })) ?? []
+                    }
+                    labelField="label"
+                    valueField="value"
+                    placeholder="Nguyên liệu"
+                    value={item.material} // material = id
+                    search
+                    onChange={(selected) => {
+                      updateIngredient(index, "material", selected.value);
                     }}
-                  >
-                    {/* Dropdown nguyên liệu */}
-                    <View style={{ flex: 1.2 }}>
-                      <Dropdown
-                        style={styleModal.dropdown}
-                        data={
-                          filteredProductsList[index]?.map((u) => ({
-                            label: u.name,
-                            value: u._id, // 🔥 ID duy nhất
-                          })) ?? []
-                        }
-                        labelField="label"
-                        valueField="value"
-                        placeholder="Nguyên liệu"
-                        value={item.material} // material = id
-                        search
-                        onChange={(selected) => {
-                          updateIngredient(index, "material", selected.value);
-                          setIdProductStorage(selected.value); //id
-                        }}
-                      />
-                    </View>
+                  />
+                </View>
 
-                    {/* Số lượng */}
-                    <View style={{ flex: 0.8 }}>
-                      <TextInput
-                        placeholder="Số lượng"
-                        style={[styleModal.input]}
-                        placeholderTextColor="#9d9d9d"
-                        value={item.quantity}
-                        onChangeText={(text) =>
-                          updateIngredient(index, "quantity", text)
-                        }
-                      />
-                    </View>
+                {/* Số lượng */}
+                <View style={{ flex: 0.8 }}>
+                  <TextInput
+                    placeholder="Số lượng"
+                    style={[styleModal.input]}
+                    placeholderTextColor="#9d9d9d"
+                    value={item.quantity}
+                    onChangeText={(text) =>
+                      updateIngredient(index, "quantity", text)
+                    }
+                  />
+                </View>
 
-                    {/* Đơn vị */}
-                    <View style={{ flex: 0.7 }}>
-                      <Dropdown
-                        style={styleModal.dropdown}
-                        data={[
-                          {
-                            label: "+ Quy đổi định lượng",
-                            value: "__add__",
-                            disable: disableConvert,
-                          }, // item cố định ở đầu
-                          ...donVi,
-                        ]}
-                        renderItem={(item) => {
-                          const isAdd = item.value === "__add__";
-                          return (
-                            <Text
-                              style={{
-                                padding: 12,
-                                color: isAdd
-                                  ? disableConvert
-                                    ? "#c0c0c0" // 👈 mờ khi chưa có material
-                                    : "#007bff" // 👈 xanh khi cho phép
-                                  : "#000",
-                                fontWeight:
-                                  item.value === "__add__" ? "600" : "400",
-                              }}
-                            >
-                              {item.label}
-                            </Text>
-                          );
-                        }}
-                        labelField="label"
-                        valueField="value"
-                        placeholder="kg"
-                        value={item.unit}
-                        containerStyle={{ width: "50%", marginLeft: -100 }}
-                        placeholderStyle={{ color: "#9d9d9d" }}
-                        onChange={(u) => {
-                          if (u.value === "__add__") {
-                            if (disableConvert) return;
-
-                            setOpenModalConvers(true);
-                            return; // ❌ KHÔNG set value
-                          }
-
-                          updateIngredient(index, "unit", u.value);
-                        }}
-                      />
-
-                      <TouchableOpacity
-                        disabled={disableConvert}
-                        onPress={() => setOpenModalConvers(true)}
-                      >
-                        <Text
-                          style={{
-                            marginTop: 6,
-                            color: disableConvert ? "#c0c0c0" : "#007bff",
-                            fontWeight: "600",
-                          }}
-                        >
-                          + Quy đổi ĐL
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </>
-              );
-            })}
+                {/* Đơn vị */}
+                <View style={{ flex: 0.7 }}>
+                  <Dropdown
+                    style={styleModal.dropdown}
+                    data={donVi}
+                    labelField="label"
+                    valueField="value"
+                    placeholder="kg"
+                    value={item.unit}
+                    containerStyle={{ width: "50%", marginLeft: -100 }}
+                    placeholderStyle={{ color: "#9d9d9d" }}
+                    onChange={(u) => updateIngredient(index, "unit", u.value)}
+                  />
+                </View>
+              </View>
+            ))}
             <TouchableOpacity
               style={{
                 marginTop: 0,
@@ -685,7 +638,7 @@ function CreateProductScreen() {
           >
             <TouchableOpacity
               disabled={!isValid}
-              onPress={handleAddProduct}
+              onPress={handleSaveProduct}
               style={[
                 styleModal.AddButton,
                 { opacity: isValid ? 1 : 0.4 }, // mờ khi disable
@@ -694,11 +647,6 @@ function CreateProductScreen() {
               <Text style={styleModal.AddText}>Thêm</Text>
             </TouchableOpacity>
           </View>
-          <ModalConversUnit
-            visible={openModalConvers}
-            id={idProductStorage}
-            setVisible={setOpenModalConvers}
-          />
         </KeyboardAwareScrollView>
       </ScrollView>
     </View>
@@ -798,4 +746,4 @@ const styleModal = StyleSheet.create({
   },
 });
 
-export default CreateProductScreen;
+export default EditProductScreen;

@@ -173,8 +173,8 @@ function ExportInvoicePayment() {
                 <Text style={styles.detail}>
                   Giá: {item.price.toLocaleString()}đ
                 </Text>
-                <Text style={styles.detail}>
-                  Còn:{" "}
+                {/* <Text style={styles.detail}>
+                  Còn:
                   <Text
                     style={{
                       color: item.stock < 1 ? "#ff3e3eff" : ColorMain,
@@ -183,7 +183,7 @@ function ExportInvoicePayment() {
                   >
                     {item.stock}
                   </Text>
-                </Text>
+                </Text> */}
               </View>
               <View style={{ position: "absolute", right: 10 }}>
                 {qty > 0 ? (
@@ -222,11 +222,11 @@ function ExportInvoicePayment() {
                 ) : (
                   <TouchableOpacity
                     style={{
-                      backgroundColor: item.stock < 1 ? "#ccc" : ColorMain,
+                      backgroundColor: ColorMain,
                       borderRadius: 5,
                       padding: 5,
                     }}
-                    disabled={item.stock < 1}
+                    // disabled={item.stock < 0}
                     onPress={() => increaseQuantity(item._id)}
                   >
                     <Entypo name="plus" size={17} color="#fff" />

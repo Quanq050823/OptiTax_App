@@ -18,12 +18,15 @@ import {
   Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
+  SimpleLineIcons,
 } from "@expo/vector-icons";
 import { CommonActions, RouteProp, useRoute } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
+  Animated,
   Dimensions,
+  Easing,
   FlatList,
   Image,
   StyleSheet,
@@ -67,6 +70,7 @@ export default function ProductManagerScreen() {
   const screenWidth = Dimensions.get("window").width;
   const ITEM_MARGIN = 8;
   const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
+  const slideAnim = useRef(new Animated.Value(0)).current;
 
   const [newProduct, setNewProduct] = useState<NewProduct>({
     name: "",
@@ -114,6 +118,23 @@ export default function ProductManagerScreen() {
 
   const handleShowAction = (code: string) => {
     setShowAction((prev) => (prev === code ? null : code)); // toggle
+    if (showAction === code) {
+      // Đóng
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 350, // 👈 chậm hơn
+        easing: Easing.out(Easing.ease), // 👈 mượt
+        useNativeDriver: true,
+      }).start(() => setShowAction(null));
+    } else {
+      setShowAction(code);
+      Animated.timing(slideAnim, {
+        toValue: 1,
+        duration: 350, // 👈 chậm hơn
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }).start();
+    }
   };
 
   const handleDeleteProduct = async (id: string) => {
@@ -145,28 +166,111 @@ export default function ProductManagerScreen() {
   };
 
   const handleOpenModalEditProduct = (id: string) => {
-    setShowEditProduct((prev) => (prev === id ? null : id));
-    setIdEditProduct(id);
+    // setShowEditProduct((prev) => (prev === id ? null : id));
+    // setIdEditProduct(id);
+    navigate.navigate("EditProductScreen", { id });
   };
   const renderItem = ({ item }: any) => (
-    <TouchableOpacity onPress={() => handleShowAction(item.code)}>
+    <View>
       <View
         style={[
           styles.card,
           {
-            width: ITEM_WIDTH,
-            marginHorizontal: ITEM_MARGIN / 2,
             position: "relative",
           },
         ]}
       >
-        <View style={{ flex: 1, alignItems: "center", width: "80%" }}>
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+            width: "100%",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
           <Image source={{ uri: item.imageUrl }} style={styles.image} />
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.detail}>Giá: {item.price.toLocaleString()}đ</Text>
-          <Text style={styles.detail}>Số lượng: {item.stock}</Text>
+          <View
+            style={{
+              alignContent: "flex-start",
+              flex: showAction === item.code ? 2 : 4,
+              paddingHorizontal: 10,
+            }}
+          >
+            <Text style={styles.name}>{item.name}</Text>
+            <Text style={styles.detail}>
+              Giá: {item.price.toLocaleString()}đ
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={{
+              flex: 0.5,
+              flexDirection: "row",
+              justifyContent: "center",
+            }}
+            onPress={() => handleShowAction(item.code)}
+          >
+            {showAction === item.code ? (
+              <SimpleLineIcons name="close" size={24} color="black" />
+            ) : (
+              <SimpleLineIcons
+                name="arrow-right-circle"
+                size={24}
+                color="black"
+              />
+            )}
+          </TouchableOpacity>
+          {showAction === item.code && (
+            <Animated.View
+              style={{
+                flexDirection: "row",
+                flex: 2,
+                height: "100%",
+                transform: [
+                  {
+                    translateX: slideAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [100, 0], // 👈 trượt từ phải vào
+                    }),
+                  },
+                ],
+                opacity: slideAnim,
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+
+                  height: "100%",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onPress={() => handleOpenModalEditProduct(item._id)}
+              >
+                <Text style={{ textAlign: "center", color: "#0f7aacff" }}>
+                  Sửa
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onPress={() => handleDeleteProduct(item._id)}
+              >
+                <Text style={{ textAlign: "center", color: "#c21212ff" }}>
+                  Xóa
+                </Text>
+              </TouchableOpacity>
+            </Animated.View>
+          )}
+          {/* <Text style={styles.detail}>Số lượng: {item.stock}</Text> */}
         </View>
-        {showAction === item.code && (
+        {/* {showAction === item.code && (
           <>
             <View
               style={{
@@ -200,9 +304,9 @@ export default function ProductManagerScreen() {
               }}
             ></View>
           </>
-        )}
+        )} */}
       </View>
-    </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -276,11 +380,11 @@ export default function ProductManagerScreen() {
               paddingHorizontal: 5,
               marginTop: 20,
             }}
-            columnWrapperStyle={{
-              justifyContent: "space-between",
-              marginTop: 20,
-            }}
-            numColumns={2}
+            // columnWrapperStyle={{
+            //   justifyContent: "space-between",
+            //   marginTop: 20,
+            // }}
+            numColumns={1}
           />
           <TouchableOpacity
             style={styles.addButton}
@@ -334,12 +438,11 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#fff",
-    paddingVertical: 12,
+    paddingVertical: 10,
     marginBottom: 12,
     borderRadius: 8,
-    alignItems: "center",
-    minHeight: 200,
-
+    minHeight: 100,
+    paddingHorizontal: 10,
     // Shadow
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -351,11 +454,11 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 6,
+    flex: 1,
   },
   name: {
     fontSize: 16,
     fontWeight: "bold",
-    textAlign: "center",
   },
   detail: {
     fontSize: 14,

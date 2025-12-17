@@ -198,3 +198,69 @@ export type InvoiceListResponse = {
   skip: number;
   fail: number;
 };
+
+export type FormGetCapcha = {
+  username: string,
+  password: string
+}
+
+export type CapchaInfo = {
+  success: boolean,
+  sessionId: string,
+  captchaImage: string
+}
+
+
+export interface InvoiceSyncResponse {
+  success: boolean;
+  message: string;
+  invoices: {
+    datas: Invoice[];
+    total: number;
+    state: any;
+    time: number;
+  };
+}
+
+export interface Invoice {
+  id: string;
+
+  // 🔹 Thông tin hóa đơn
+  shdon: number;              // Số hóa đơn
+  khhdon: string;             // Ký hiệu hóa đơn
+  khmshdon: number;           // Mẫu số
+  thdon: string;              // Tên loại hóa đơn
+  tlhdon: string;             // Loại hóa đơn
+  tchat: number;              // Tính chất (1: bình thường, 3: điều chỉnh, ...)
+
+  // 🔹 Thời gian
+  tdlap: string;              // Ngày lập (ISO)
+  ntạo?: string;
+  ncma?: string;
+
+  // 🔹 Người bán
+  nbmst: string;              // MST người bán
+  nbten: string;              // Tên người bán
+  nbdchi?: string;            // Địa chỉ người bán
+
+  // 🔹 Người mua
+  nmmst?: string;             // MST người mua
+  nmten?: string;             // Tên người mua
+  nmdchi?: string;            // Địa chỉ người mua
+
+  // 🔹 Giá trị tiền
+  tgtttbso: number;           // Tổng tiền thanh toán
+  tgtcthue?: number;          // Tổng tiền trước thuế
+  tgtthue?: number;           // Tổng tiền thuế
+
+  // 🔹 Thuế suất
+  thttltsuat?: InvoiceTax[];
+
+  // 🔹 Trạng thái
+  tthai: number;              // Trạng thái hóa đơn
+}
+export interface InvoiceTax {
+  tsuat: string;   // "10%", "8%", ...
+  thtien: number;  // Tiền chưa thuế
+  tthue: number;   // Tiền thuế
+}

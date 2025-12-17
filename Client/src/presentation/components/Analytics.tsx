@@ -55,6 +55,7 @@ export default function Analytics() {
   const [dataSyncInvoice, setDataSyncInvoice] = useState<
     InvoiceListResponse | undefined
   >();
+  const [capchaCode, setCapchacode] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [totalGTGT, setTotalGTGT] = useState(0);
@@ -89,7 +90,7 @@ export default function Analytics() {
         isInFilingPeriod: result.isInFilingPeriod,
       });
     } catch (error) {
-      console.error("Lỗi khi lấy thông tin deadline:", error);
+      return;
     }
   };
 
@@ -160,7 +161,6 @@ export default function Analytics() {
     }
     setLoading(false);
   };
-  console.log(dataSyncInvoice, "hihihihi");
 
   const syncDataInvoiceInWithProductStorage = async () => {
     setLoading(true);
@@ -191,14 +191,16 @@ export default function Analytics() {
         dataSyncInvoice={dataSyncInvoice}
         loading={loading}
       />
-      <ModalSynchronized
+      {/* <ModalSynchronized
+        setCapchacode={setCapchacode}
+        capchaCode={capchaCode}
         loading={loading}
         setLoading={setLoading}
         onSyncInvoiceIn={syncDataInvoiceInWithProductStorage}
         setSyncDataInvoiceIn={setSyncDataInvoiceIn}
         visible={modalSyncDate}
         setVisible={setModalSyncDate}
-      />
+      /> */}
       <View style={{ width: "100%", position: "relative", flex: 1 }}>
         {/* Nút đồng bộ */}
         <LinearGradient

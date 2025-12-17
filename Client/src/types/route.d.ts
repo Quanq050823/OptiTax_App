@@ -22,6 +22,7 @@ type RootStackParamList = {
 	SettingScreen: undefined;
 	ProductManager: { scannedProduct?: any };
 	CreateProductScreen: undefined;
+	EditProductScreen: {id: string}
 	Layout: undefined;
 	SearchAccountantScreen: undefined;
 	ChangePasswordScreen: undefined;
@@ -117,12 +118,15 @@ export interface UserProfile {
 	userType: number;
 	createDate: string;
 	__v: number;
+
 }
 
 export interface Profile extends UserProfile {
 	businessName?: string;
 	address?: any;
 	phoneNumber?: string;
+	taxCode: string,
+	password: string
 }
 
 export interface BusinessInfo {
@@ -130,6 +134,7 @@ export interface BusinessInfo {
 	address: Address;
 	phoneNumber: string;
 	taxCode: string;
+	password: string
 	businessType: string;
 	tax_filing_frequency?: number; // 1 = quý, 2 = tháng
 }

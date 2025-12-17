@@ -40,9 +40,9 @@ export const deleteProduct = async (id: string) => {
   }
 };
 
-export const getProductsById = async (id: string) => {
+export const getProductsById = async (id: string): Promise<Product> => {
   try {
-    const res = await axiosInstance.get(`product/${id}`);
+    const res = await axiosInstance.get<Product>(`product/${id}`);
 
     return res.data;
   } catch (error: any) {

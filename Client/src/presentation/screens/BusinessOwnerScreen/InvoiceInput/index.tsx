@@ -13,11 +13,13 @@ import {
   getUserProfile,
 } from "@/src/services/API/profileService";
 import {
+  getCapcha,
   getInvoiceIn,
   getInvoiceInById,
   syncInvoiceIn,
+  verifyCapchaInput,
 } from "@/src/services/API/syncInvoiceIn";
-import { InvoiceSummary, RawInvoice } from "@/src/types/invoiceIn";
+import { CapchaInfo, InvoiceSummary, RawInvoice } from "@/src/types/invoiceIn";
 import { Invoice, Profile, UserProfile } from "@/src/types/route";
 import { syncDataInvoiceIn } from "@/src/types/syncData";
 import { AntDesign, FontAwesome5, Fontisto } from "@expo/vector-icons";
@@ -32,6 +34,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { tr } from "react-native-paper-dates";
 
 function InvoiceInput() {
   const { data } = useData();
@@ -44,6 +47,9 @@ function InvoiceInput() {
   const [listInvoiceDataSync, setListInvoiceDataSync] = useState<RawInvoice[]>(
     []
   );
+  const [dataVerifyCapcha, setDataVerifyCapcha] = useState<
+    CapchaInfo | undefined
+  >(undefined);
   const [syncDataInvoiceIn, setSyncDataInvoiceIn] = useState<syncDataInvoiceIn>(
     { dateto: "", datefrom: "" }
   );
@@ -51,6 +57,7 @@ function InvoiceInput() {
   const spinValue = useRef(new Animated.Value(0)).current;
   const [openListProductSynchronized, setOpenListProductSynchronized] =
     useState(false);
+  const [capchaCode, setCapchacode] = useState("");
 
   useEffect(() => {
     let animation: Animated.CompositeAnimation;
@@ -85,18 +92,57 @@ function InvoiceInput() {
     }, 2000);
   };
 
-  const handleSyncInvoiceIn = async () => {
+  const handleGetCapcha = async () => {
     setLoading(true);
+
     try {
-      if (!syncDataInvoiceIn) return;
-      const res = await syncInvoiceIn();
-      setListInvoiceDataSync(res.invoices as RawInvoice[]);
+      if (!data?.taxCode || !data?.password) {
+        Alert.alert("Không có thông tin đăng nhập");
+        throw new Error("Thiếu mã số thuế hoặc mật khẩu");
+      }
+
+      const res = await getCapcha(data.taxCode, data.password);
+
+      setDataVerifyCapcha(res);
+      setVisible(true);
       setLoading(false);
     } catch (err) {
-      setLoading(false);
-
       Alert.alert("Lỗi lấy dữ liệu!");
-      console.log(err);
+    } finally {
+      setLoading(false); // 👈 luôn chạy
+    }
+  };
+  console.log(dataVerifyCapcha?.sessionId, "session");
+
+  const handleVerifyCapchaSync = async () => {
+    setLoading(true);
+    try {
+      if (!dataVerifyCapcha?.sessionId || !capchaCode) {
+        Alert.alert("Sai captcha hoặc sessionId");
+        return;
+      }
+
+      const res = await verifyCapchaInput(
+        dataVerifyCapcha.sessionId,
+        capchaCode,
+        "input"
+      );
+
+      console.log("VERIFY CAPTCHA RES:", res);
+
+      const total = res?.invoices?.datas?.length ?? 0;
+      Alert.alert(`Số hóa đơn: ${total}`);
+      setCapchacode("");
+    } catch (err: any) {
+      console.log("HANDLE VERIFY ERROR:", err);
+      console.log("MESSAGE:", err?.response?.data?.message);
+
+      Alert.alert(
+        "Lỗi",
+        err?.response?.data?.message ?? "Xác thực captcha thất bại"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -148,10 +194,7 @@ function InvoiceInput() {
             <AntDesign name="plus" size={15} color="#fff" />
           </Text>
         </TouchableOpacity> */}
-        <TouchableOpacity
-          style={styles.btnSyn}
-          onPress={handleLoadingSynchronized}
-        >
+        <TouchableOpacity style={styles.btnSyn} onPress={handleGetCapcha}>
           <Text style={{ color: "#fff", fontSize: 14 }}>
             {loading ? (
               <>
@@ -179,10 +222,13 @@ function InvoiceInput() {
 
       <InvoiInputList invoicesData={listInvoiceDataSync} />
       <ModalSynchronized
+        sourceImg={dataVerifyCapcha?.captchaImage}
         visible={visible}
+        setCapchacode={setCapchacode}
+        capchaCode={capchaCode}
         setVisible={setVisible}
         setSyncDataInvoiceIn={setSyncDataInvoiceIn}
-        onSyncInvoiceIn={handleSyncInvoiceIn}
+        onSyncInvoiceIn={handleVerifyCapchaSync}
         loading={loading}
         setLoading={setLoading}
       />
