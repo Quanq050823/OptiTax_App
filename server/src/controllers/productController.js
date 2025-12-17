@@ -19,9 +19,37 @@ const create = async (req, res, next) => {
 				{},
 				{ limit: 1000 }
 			);
-			const validUnits = [
-				...new Set(storageItems.data.map((item) => item.unit)),
-			];
+			const validUnitsSet = new Set();
+
+			storageItems.data.forEach((item) => {
+				if (item.unit) {
+					validUnitsSet.add(item.unit);
+				}
+				if (
+					item.conversionUnit &&
+					item.conversionUnit.to &&
+					Array.isArray(item.conversionUnit.to)
+				) {
+					item.conversionUnit.to.forEach((conversion) => {
+						if (conversion.itemName) {
+							validUnitsSet.add(conversion.itemName);
+						}
+					});
+				}
+				if (item.unitConversions && Array.isArray(item.unitConversions)) {
+					item.unitConversions.forEach((conversion) => {
+						if (conversion.to && Array.isArray(conversion.to)) {
+							conversion.to.forEach((subUnit) => {
+								if (subUnit.itemName) {
+									validUnitsSet.add(subUnit.itemName);
+								}
+							});
+						}
+					});
+				}
+			});
+
+			const validUnits = Array.from(validUnitsSet);
 			for (const material of req.body.materials) {
 				if (material.unit && !validUnits.includes(material.unit)) {
 					return res.status(StatusCodes.BAD_REQUEST).json({
