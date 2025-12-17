@@ -45,7 +45,8 @@ const config = {
 		connectRedirectPath: process.env.GOOGLE_CONNECT_REDIRECT_PATH,
 	},
 	easyInvoice: {
-		apiUrl: process.env.EASYINVOICE_API_URL || "https://api.easyinvoice.vn",
+		apiUrl:
+			process.env.EASYINVOICE_API_URL || "http://075094013025.softdreams.vn",
 		username: process.env.EASYINVOICE_USERNAME,
 		password: process.env.EASYINVOICE_PASSWORD,
 	},

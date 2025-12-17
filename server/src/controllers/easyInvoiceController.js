@@ -2,318 +2,225 @@
 
 import { StatusCodes } from "http-status-codes";
 import * as easyInvoiceService from "../services/easyInvoiceService.js";
-import BusinessOwner from "../models/BusinessOwner.js";
 import ApiError from "../utils/ApiError.js";
 import { getBusinessOwnerByUserId } from "../services/businessOwnerService.js";
+import { buildInvoiceXML } from "../utils/xmlBuilder.js";
 
-/**
- * Create draft invoice (Tạo hóa đơn bản nháp)
- */
-export const createDraftInvoiceController = async (req, res, next) => {
+export const getInvoiceByArisingDateRange = async (req, res, next) => {
 	try {
-		const { xmlData, pattern, serial } = req.body;
-
-		if (!xmlData) {
-			throw new ApiError(StatusCodes.BAD_REQUEST, "XmlData is required");
-		}
-
-		// Get business owner to retrieve tax code
+		const { FromDate, ToDate } = req.body;
 		const userId = req.user.userId;
-		const businessOwner = await getBusinessOwnerByUserId(userId);
-		if (!businessOwner) {
+		const owner = await getBusinessOwnerByUserId(userId);
+		if (!owner) {
 			return res
 				.status(StatusCodes.NOT_FOUND)
 				.json({ message: "Business owner profile not found" });
 		}
 
-		if (!businessOwner.taxCode) {
-			throw new ApiError(
-				StatusCodes.BAD_REQUEST,
-				"Tax code not found for this business"
-			);
+		if (
+			!owner.easyInvoiceInfo ||
+			typeof owner.easyInvoiceInfo !== "object" ||
+			Object.keys(owner.easyInvoiceInfo).length === 0
+		) {
+			return res.status(StatusCodes.BAD_REQUEST).json({
+				message: "EasyInvoice configuration not found for this business owner",
+			});
 		}
 
-		const result = await easyInvoiceService.createDraftInvoice(
-			xmlData,
-			pattern,
-			serial,
-			businessOwner.taxCode
-		);
+		const easyInvoiceAccount = owner.easyInvoiceInfo.account;
+		const easyInvoicePassword = owner.easyInvoiceInfo.password;
+		const easyInvoiceSerial = owner.easyInvoiceInfo.mst;
 
-		res.status(StatusCodes.CREATED).json({
-			success: true,
-			message: "Draft invoice created successfully",
-			data: {
-				pattern: result.Data.Pattern,
-				serial: result.Data.Serial,
-				ikeys: result.Data.Ikeys,
-				invoices: result.Data.Invoices,
-			},
-		});
+		if (!easyInvoiceAccount || !easyInvoicePassword || !easyInvoiceSerial) {
+			return res.status(StatusCodes.BAD_REQUEST).json({
+				message: "Missing required EasyInvoice credentials",
+				details: {
+					hasAccount: !!easyInvoiceAccount,
+					hasPassword: !!easyInvoicePassword,
+					hasSerial: !!easyInvoiceSerial,
+				},
+			});
+		}
+
+		const result = await easyInvoiceService.getInvoiceByArisingDateRange(
+			FromDate,
+			ToDate,
+			easyInvoiceAccount,
+			easyInvoicePassword,
+			easyInvoiceSerial
+		);
+		res.status(StatusCodes.OK).json({ success: true, data: result });
 	} catch (error) {
-		next(error);
+		next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
 	}
 };
 
-/**
- * Import invoice to EasyInvoice
- */
-export const importInvoiceController = async (req, res, next) => {
+export const importInvoice = async (req, res, next) => {
 	try {
-		const { businessOwnerId, invoiceData } = req.body;
+		let { XmlData, invoiceData } = req.body;
 
-		// Get business owner to retrieve tax code
-		const businessOwner = await BusinessOwner.findById(businessOwnerId);
-		if (!businessOwner) {
-			throw new ApiError(StatusCodes.NOT_FOUND, "Business owner not found");
+		// Support both XmlData (backward compatible) and invoiceData (dynamic)
+		if (!XmlData && invoiceData) {
+			XmlData = buildInvoiceXML(invoiceData);
+			console.log("Generated XML from invoiceData:", XmlData);
 		}
 
-		if (!businessOwner.taxCode) {
-			throw new ApiError(
-				StatusCodes.BAD_REQUEST,
-				"Tax code not found for this business"
-			);
+		if (!XmlData) {
+			return res.status(StatusCodes.BAD_REQUEST).json({
+				message: "Either XmlData or invoiceData is required",
+			});
+		}
+
+		const userId = req.user.userId;
+		const owner = await getBusinessOwnerByUserId(userId);
+		if (!owner) {
+			return res
+				.status(StatusCodes.NOT_FOUND)
+				.json({ message: "Business owner profile not found" });
+		}
+
+		if (
+			!owner.easyInvoiceInfo ||
+			typeof owner.easyInvoiceInfo !== "object" ||
+			Object.keys(owner.easyInvoiceInfo).length === 0
+		) {
+			return res.status(StatusCodes.BAD_REQUEST).json({
+				message: "EasyInvoice configuration not found for this business owner",
+			});
+		}
+
+		const easyInvoiceAccount = owner.easyInvoiceInfo.account;
+		const easyInvoicePassword = owner.easyInvoiceInfo.password;
+		const easyInvoiceSerial = owner.easyInvoiceInfo.mst;
+
+		if (!easyInvoiceAccount || !easyInvoicePassword || !easyInvoiceSerial) {
+			return res.status(StatusCodes.BAD_REQUEST).json({
+				message: "Missing required EasyInvoice credentials",
+				details: {
+					hasAccount: !!easyInvoiceAccount,
+					hasPassword: !!easyInvoicePassword,
+					hasSerial: !!easyInvoiceSerial,
+				},
+			});
 		}
 
 		const result = await easyInvoiceService.importInvoice(
-			invoiceData,
-			businessOwner.taxCode
+			XmlData,
+			easyInvoiceAccount,
+			easyInvoicePassword,
+			easyInvoiceSerial
 		);
-
-		res.status(StatusCodes.OK).json({
-			success: true,
-			message: "Invoice imported successfully",
-			data: result.Data,
-		});
+		res.status(StatusCodes.OK).json({ success: true, data: result });
 	} catch (error) {
-		next(error);
+		next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
 	}
 };
 
-/**
- * Get invoice by key
- */
-export const getInvoiceByKeyController = async (req, res, next) => {
+export const importAndIssueInvoice = async (req, res, next) => {
 	try {
-		const { businessOwnerId, invoiceKey } = req.query;
+		let { XmlData, invoiceData } = req.body;
 
-		const businessOwner = await BusinessOwner.findById(businessOwnerId);
-		if (!businessOwner) {
-			throw new ApiError(StatusCodes.NOT_FOUND, "Business owner not found");
+		// Support both XmlData (backward compatible) and invoiceData (dynamic)
+		if (!XmlData && invoiceData) {
+			XmlData = buildInvoiceXML(invoiceData);
+			console.log("Generated XML from invoiceData:", XmlData);
 		}
 
-		const result = await easyInvoiceService.getInvoiceByKey(
-			invoiceKey,
-			businessOwner.taxCode
-		);
+		if (!XmlData) {
+			return res.status(StatusCodes.BAD_REQUEST).json({
+				message: "Either XmlData or invoiceData is required",
+			});
+		}
 
-		res.status(StatusCodes.OK).json({
-			success: true,
-			data: result.Data,
-		});
+		const userId = req.user.userId;
+		const owner = await getBusinessOwnerByUserId(userId);
+		if (!owner) {
+			return res
+				.status(StatusCodes.NOT_FOUND)
+				.json({ message: "Business owner profile not found" });
+		}
+
+		if (
+			!owner.easyInvoiceInfo ||
+			typeof owner.easyInvoiceInfo !== "object" ||
+			Object.keys(owner.easyInvoiceInfo).length === 0
+		) {
+			return res.status(StatusCodes.BAD_REQUEST).json({
+				message: "EasyInvoice configuration not found for this business owner",
+			});
+		}
+
+		const easyInvoiceAccount = owner.easyInvoiceInfo.account;
+		const easyInvoicePassword = owner.easyInvoiceInfo.password;
+		const easyInvoiceSerial = owner.easyInvoiceInfo.mst;
+
+		if (!easyInvoiceAccount || !easyInvoicePassword || !easyInvoiceSerial) {
+			return res.status(StatusCodes.BAD_REQUEST).json({
+				message: "Missing required EasyInvoice credentials",
+				details: {
+					hasAccount: !!easyInvoiceAccount,
+					hasPassword: !!easyInvoicePassword,
+					hasSerial: !!easyInvoiceSerial,
+				},
+			});
+		}
+
+		const result = await easyInvoiceService.ImportAndIssueInvoice(
+			XmlData,
+			easyInvoiceAccount,
+			easyInvoicePassword,
+			easyInvoiceSerial
+		);
+		res.status(StatusCodes.OK).json({ success: true, data: result });
 	} catch (error) {
-		next(error);
+		next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
 	}
 };
 
-/**
- * Get invoice list
- */
-export const getInvoiceListController = async (req, res, next) => {
+export const cancelInvoice = async (req, res, next) => {
 	try {
-		const { businessOwnerId, fromDate, toDate, status } = req.query;
-
-		const businessOwner = await BusinessOwner.findById(businessOwnerId);
-		if (!businessOwner) {
-			throw new ApiError(StatusCodes.NOT_FOUND, "Business owner not found");
+		const { Ikey } = req.body;
+		const userId = req.user.userId;
+		const owner = await getBusinessOwnerByUserId(userId);
+		if (!owner) {
+			return res
+				.status(StatusCodes.NOT_FOUND)
+				.json({ message: "Business owner profile not found" });
 		}
 
-		const params = {
-			fromDate,
-			toDate,
-			status,
-		};
-
-		const result = await easyInvoiceService.getInvoiceList(
-			params,
-			businessOwner.taxCode
-		);
-
-		res.status(StatusCodes.OK).json({
-			success: true,
-			data: result.Data,
-		});
-	} catch (error) {
-		next(error);
-	}
-};
-
-/**
- * Cancel invoice
- */
-export const cancelInvoiceController = async (req, res, next) => {
-	try {
-		const { businessOwnerId, invoiceKey, reason } = req.body;
-
-		const businessOwner = await BusinessOwner.findById(businessOwnerId);
-		if (!businessOwner) {
-			throw new ApiError(StatusCodes.NOT_FOUND, "Business owner not found");
+		if (
+			!owner.easyInvoiceInfo ||
+			typeof owner.easyInvoiceInfo !== "object" ||
+			Object.keys(owner.easyInvoiceInfo).length === 0
+		) {
+			return res.status(StatusCodes.BAD_REQUEST).json({
+				message: "EasyInvoice configuration not found for this business owner",
+			});
 		}
 
-		if (!reason) {
-			throw new ApiError(
-				StatusCodes.BAD_REQUEST,
-				"Cancellation reason is required"
-			);
+		const easyInvoiceAccount = owner.easyInvoiceInfo.account;
+		const easyInvoicePassword = owner.easyInvoiceInfo.password;
+		const easyInvoiceSerial = owner.easyInvoiceInfo.mst;
+
+		if (!easyInvoiceAccount || !easyInvoicePassword || !easyInvoiceSerial) {
+			return res.status(StatusCodes.BAD_REQUEST).json({
+				message: "Missing required EasyInvoice credentials",
+				details: {
+					hasAccount: !!easyInvoiceAccount,
+					hasPassword: !!easyInvoicePassword,
+					hasSerial: !!easyInvoiceSerial,
+				},
+			});
 		}
 
 		const result = await easyInvoiceService.cancelInvoice(
-			invoiceKey,
-			reason,
-			businessOwner.taxCode
+			Ikey,
+			easyInvoiceAccount,
+			easyInvoicePassword,
+			easyInvoiceSerial
 		);
-
-		res.status(StatusCodes.OK).json({
-			success: true,
-			message: "Invoice cancelled successfully",
-			data: result.Data,
-		});
+		res.status(StatusCodes.OK).json({ success: true, data: result });
 	} catch (error) {
-		next(error);
-	}
-};
-
-/**
- * Replace invoice
- */
-export const replaceInvoiceController = async (req, res, next) => {
-	try {
-		const { businessOwnerId, originalInvoiceKey, newInvoiceData } = req.body;
-
-		const businessOwner = await BusinessOwner.findById(businessOwnerId);
-		if (!businessOwner) {
-			throw new ApiError(StatusCodes.NOT_FOUND, "Business owner not found");
-		}
-
-		const result = await easyInvoiceService.replaceInvoice(
-			originalInvoiceKey,
-			newInvoiceData,
-			businessOwner.taxCode
-		);
-
-		res.status(StatusCodes.OK).json({
-			success: true,
-			message: "Invoice replaced successfully",
-			data: result.Data,
-		});
-	} catch (error) {
-		next(error);
-	}
-};
-
-/**
- * Adjust invoice
- */
-export const adjustInvoiceController = async (req, res, next) => {
-	try {
-		const { businessOwnerId, originalInvoiceKey, adjustmentData } = req.body;
-
-		const businessOwner = await BusinessOwner.findById(businessOwnerId);
-		if (!businessOwner) {
-			throw new ApiError(StatusCodes.NOT_FOUND, "Business owner not found");
-		}
-
-		const result = await easyInvoiceService.adjustInvoice(
-			originalInvoiceKey,
-			adjustmentData,
-			businessOwner.taxCode
-		);
-
-		res.status(StatusCodes.OK).json({
-			success: true,
-			message: "Invoice adjusted successfully",
-			data: result.Data,
-		});
-	} catch (error) {
-		next(error);
-	}
-};
-
-/**
- * Get invoice PDF
- */
-export const getInvoicePdfController = async (req, res, next) => {
-	try {
-		const { businessOwnerId, invoiceKey } = req.query;
-
-		const businessOwner = await BusinessOwner.findById(businessOwnerId);
-		if (!businessOwner) {
-			throw new ApiError(StatusCodes.NOT_FOUND, "Business owner not found");
-		}
-
-		const result = await easyInvoiceService.getInvoicePdf(
-			invoiceKey,
-			businessOwner.taxCode
-		);
-
-		res.status(StatusCodes.OK).json({
-			success: true,
-			data: result.Data,
-		});
-	} catch (error) {
-		next(error);
-	}
-};
-
-/**
- * Sync invoice with tax authority
- */
-export const syncInvoiceController = async (req, res, next) => {
-	try {
-		const { businessOwnerId, invoiceKey } = req.body;
-
-		const businessOwner = await BusinessOwner.findById(businessOwnerId);
-		if (!businessOwner) {
-			throw new ApiError(StatusCodes.NOT_FOUND, "Business owner not found");
-		}
-
-		const result = await easyInvoiceService.syncInvoiceWithTax(
-			invoiceKey,
-			businessOwner.taxCode
-		);
-
-		res.status(StatusCodes.OK).json({
-			success: true,
-			message: "Invoice synced successfully",
-			data: result.Data,
-		});
-	} catch (error) {
-		next(error);
-	}
-};
-
-/**
- * Check invoice status
- */
-export const checkInvoiceStatusController = async (req, res, next) => {
-	try {
-		const { businessOwnerId, invoiceKey } = req.query;
-
-		const businessOwner = await BusinessOwner.findById(businessOwnerId);
-		if (!businessOwner) {
-			throw new ApiError(StatusCodes.NOT_FOUND, "Business owner not found");
-		}
-
-		const result = await easyInvoiceService.checkInvoiceStatus(
-			invoiceKey,
-			businessOwner.taxCode
-		);
-
-		res.status(StatusCodes.OK).json({
-			success: true,
-			data: result.Data,
-		});
-	} catch (error) {
-		next(error);
+		next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
 	}
 };

@@ -48,6 +48,12 @@ const BusinessOwnerSchema = mongoose.Schema(
 		],
 		verificationDate: { type: Date },
 		notes: { type: String },
+		easyInvoiceInfo: {
+			account: { type: String },
+			password: { type: String },
+			mst: { type: String },
+			serial: { type: String },
+		},
 	},
 	{ timestamps: true }
 );
