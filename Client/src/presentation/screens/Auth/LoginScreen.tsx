@@ -18,12 +18,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import { useLogin } from "@/src/presentation/Hooks/useLogin";
 import { useCheckLoginOnMount } from "@/src/presentation/Hooks/useCheckLogin";
+import { useAppNavigation } from "../../Hooks/useAppNavigation";
 
 function LoginScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
+  const navigate = useAppNavigation();
   const { handleLogin, loading: loginLoading } = useLogin();
   const { loading: checkLoading } = useCheckLoginOnMount();
 
@@ -99,7 +100,7 @@ function LoginScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={stylesAuth.FogotPass}
-                  onPress={() => console.log("Navigate to Register")}
+                  onPress={() => navigate.navigate("Register")}
                 >
                   <Text>
                     Bạn chưa có tài khoản?
