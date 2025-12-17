@@ -21,7 +21,6 @@ import { LinearGradient } from "expo-linear-gradient";
 type ModalOpen = {
   visible: boolean;
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  setSyncDataInvoiceIn: React.Dispatch<React.SetStateAction<syncDataInvoiceIn>>;
   onSyncInvoiceIn: () => Promise<void>;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -32,7 +31,6 @@ type ModalOpen = {
 function ModalSynchronized({
   visible,
   setVisible,
-  setSyncDataInvoiceIn,
   onSyncInvoiceIn,
   loading,
   setLoading,

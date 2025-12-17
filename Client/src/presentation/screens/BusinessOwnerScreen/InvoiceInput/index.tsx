@@ -112,7 +112,6 @@ function InvoiceInput() {
       setLoading(false); // 👈 luôn chạy
     }
   };
-  console.log(dataVerifyCapcha?.sessionId, "session");
 
   const handleVerifyCapchaSync = async () => {
     setLoading(true);
@@ -227,7 +226,6 @@ function InvoiceInput() {
         setCapchacode={setCapchacode}
         capchaCode={capchaCode}
         setVisible={setVisible}
-        setSyncDataInvoiceIn={setSyncDataInvoiceIn}
         onSyncInvoiceIn={handleVerifyCapchaSync}
         loading={loading}
         setLoading={setLoading}

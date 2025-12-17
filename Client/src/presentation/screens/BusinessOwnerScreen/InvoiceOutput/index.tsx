@@ -1,3 +1,4 @@
+import CaptchaView from "@/src/presentation/components/CaptchaView";
 import { ColorMain } from "@/src/presentation/components/colors";
 import HeaderScreen from "@/src/presentation/components/layout/Header";
 import InvoiceOutputList from "@/src/presentation/components/List/InvoiceOutputList";
@@ -8,7 +9,10 @@ import ModalLoginCCT from "@/src/presentation/components/Modal/ModalLoginCCT";
 import ModalSynchronized from "@/src/presentation/components/Modal/ModalSynchronized";
 import SearchByName from "@/src/presentation/components/SearchByName";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
+import { useData } from "@/src/presentation/Hooks/useDataStore";
 import { getInvoiceOutputList } from "@/src/services/API/invoiceService";
+import { getCapcha, verifyCapchaInput } from "@/src/services/API/syncInvoiceIn";
+import { CapchaInfo } from "@/src/types/invoiceIn";
 import { Invoice } from "@/src/types/route";
 import { AntDesign, FontAwesome5, Fontisto } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
@@ -26,15 +30,21 @@ import { tr } from "react-native-paper-dates";
 
 type InvoiceOutputProps = {
   loading: boolean;
-  setLoading: (loading: boolean) => void;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
+  const { data } = useData();
   const [visible, setVisible] = useState(false);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [openLogin, setOpenLogin] = useState(false);
   const [openListProductSynchronized, setOpenListProductSynchronized] =
     useState(false);
+  const [dataVerifyCapcha, setDataVerifyCapcha] = useState<
+    CapchaInfo | undefined
+  >(undefined);
+  const [capchaCode, setCapchacode] = useState("");
+
   const spinValue = useRef(new Animated.Value(0)).current;
   const navigate = useAppNavigation();
   const fetchListInvoice = async () => {
@@ -84,6 +94,57 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
       setOpenLogin(true);
     }, 2000);
   };
+
+  const handleGetCapcha = async () => {
+    setLoading(true);
+
+    try {
+      if (!data?.taxCode || !data?.password) {
+        Alert.alert("Không có thông tin đăng nhập");
+        throw new Error("Thiếu mã số thuế hoặc mật khẩu");
+      }
+
+      const res = await getCapcha(data.taxCode, data.password);
+
+      setDataVerifyCapcha(res);
+      setVisible(true);
+      setLoading(false);
+    } catch (err) {
+      Alert.alert("Lỗi lấy dữ liệu!");
+    } finally {
+      setLoading(false); // 👈 luôn chạy
+    }
+  };
+
+  const handleVerifyCapchaSync = async () => {
+    setLoading(true);
+    try {
+      if (!dataVerifyCapcha?.sessionId || !capchaCode) {
+        Alert.alert("Sai captcha hoặc sessionId");
+        return;
+      }
+
+      const res = await verifyCapchaInput(
+        dataVerifyCapcha.sessionId,
+        capchaCode,
+        "output"
+      );
+
+      const total = res?.invoices?.datas?.length ?? 0;
+      Alert.alert(`Số hóa đơn: ${total}`);
+      setCapchacode("");
+    } catch (err: any) {
+      console.log("HANDLE VERIFY ERROR:", err);
+      console.log("MESSAGE:", err?.response?.data?.message);
+
+      Alert.alert(
+        "Lỗi",
+        err?.response?.data?.message ?? "Xác thực captcha thất bại"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <View style={{ flex: 1, paddingHorizontal: 10 }}>
       {/* <HeaderScreen /> */}
@@ -114,10 +175,7 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
             <AntDesign name="plus" size={15} color="#fff" />
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.btnSyn}
-          onPress={handleLoadingSynchronized}
-        >
+        <TouchableOpacity style={styles.btnSyn} onPress={handleGetCapcha}>
           <Text style={{ color: "#fff", fontSize: 14 }}>
             {loading ? (
               <>
@@ -146,6 +204,16 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
       <InvoiceOutputList invoicesData={invoices} fetchData={fetchListInvoice} />
       {/* <ModalSynchronized visible={visible} setVisible={setVisible} /> */}
       <ModalLoginCCT openLogin={openLogin} setOpenLogin={setOpenLogin} />
+      <ModalSynchronized
+        sourceImg={dataVerifyCapcha?.captchaImage}
+        visible={visible}
+        setCapchacode={setCapchacode}
+        capchaCode={capchaCode}
+        setVisible={setVisible}
+        onSyncInvoiceIn={handleVerifyCapchaSync}
+        loading={loading}
+        setLoading={setLoading}
+      />
     </View>
   );
 }
