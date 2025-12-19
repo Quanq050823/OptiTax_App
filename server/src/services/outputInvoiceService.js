@@ -1,11 +1,11 @@
 "use strict";
 
-import OutputInvoice from "../models/OutputInvoice.js";
+import { StatusCodes } from "http-status-codes";
 import BusinessOwner from "../models/BusinessOwner.js";
+import OutputInvoice from "../models/OutputInvoice.js";
+import Product from "../models/Product.js";
 import StorageItem from "../models/StorageItem.js";
 import ApiError from "../utils/ApiError.js";
-import { StatusCodes } from "http-status-codes";
-import crypto from "crypto";
 
 const generateRandomInvoiceNumber = () => {
 	const characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -55,6 +55,108 @@ const generateInvoiceNumber = async (businessOwnerId) => {
 	return invoiceCodes;
 };
 
+const convertUnit = (quantity, fromUnit, toUnit, storageItem) => {
+	if (fromUnit === toUnit) return quantity;
+	if (
+		storageItem.conversionUnit &&
+		storageItem.conversionUnit.to &&
+		Array.isArray(storageItem.conversionUnit.to)
+	) {
+		const baseUnit = storageItem.unit;
+		if (toUnit === baseUnit) {
+			const fromConversion = storageItem.conversionUnit.to.find(
+				(c) => c.itemName === fromUnit
+			);
+			if (fromConversion) {
+				return quantity / fromConversion.itemQuantity;
+			}
+		}
+		if (fromUnit === baseUnit) {
+			const toConversion = storageItem.conversionUnit.to.find(
+				(c) => c.itemName === toUnit
+			);
+			if (toConversion) {
+				return quantity * toConversion.itemQuantity;
+			}
+		}
+
+		const fromConv = storageItem.conversionUnit.to.find(
+			(c) => c.itemName === fromUnit
+		);
+		const toConv = storageItem.conversionUnit.to.find(
+			(c) => c.itemName === toUnit
+		);
+		if (fromConv && toConv) {
+			const baseQuantity = quantity / fromConv.itemQuantity;
+			return baseQuantity * toConv.itemQuantity;
+		}
+	}
+
+	if (storageItem.unitConversions && storageItem.unitConversions.length > 0) {
+		for (const conversion of storageItem.unitConversions) {
+			if (conversion.to && Array.isArray(conversion.to)) {
+				const toConversion = conversion.to.find((t) => t.itemName === fromUnit);
+
+				if (toConversion && storageItem.unit === toUnit) {
+					return quantity / toConversion.itemQuantity;
+				}
+
+				if (
+					storageItem.unit === fromUnit &&
+					conversion.to.find((t) => t.itemName === toUnit)
+				) {
+					const targetConversion = conversion.to.find(
+						(t) => t.itemName === toUnit
+					);
+					return quantity * targetConversion.itemQuantity;
+				}
+			}
+		}
+	}
+
+	throw new ApiError(
+		StatusCodes.BAD_REQUEST,
+		`Không tìm thấy quy đổi đơn vị từ ${fromUnit} sang ${toUnit} cho "${storageItem.name}"`
+	);
+};
+
+const deductMaterialsFromStorage = async (materials, ownerId) => {
+	for (const material of materials) {
+		const storageItem = await StorageItem.findOne({
+			name: material.component,
+			businessOwnerId: ownerId,
+		});
+
+		if (!storageItem) {
+			throw new ApiError(
+				StatusCodes.NOT_FOUND,
+				`Không tìm thấy nguyên liệu "${material.component}" trong kho`
+			);
+		}
+
+		let quantityToDeduct = parseFloat(material.quantity) || 0;
+
+		if (material.unit !== storageItem.unit) {
+			quantityToDeduct = convertUnit(
+				quantityToDeduct,
+				material.unit,
+				storageItem.unit,
+				storageItem
+			);
+		}
+
+		if (storageItem.stock < quantityToDeduct) {
+			throw new ApiError(
+				StatusCodes.BAD_REQUEST,
+				`Không đủ số lượng tồn kho cho nguyên liệu "${storageItem.name}". Cần: ${quantityToDeduct} ${storageItem.unit}, Tồn kho: ${storageItem.stock} ${storageItem.unit}`
+			);
+		}
+
+		storageItem.stock -= quantityToDeduct;
+		await storageItem.save();
+	}
+};
+
 const createOutputInvoice = async (data, userId) => {
 	const owner = await BusinessOwner.findOne({ userId });
 	if (!owner) {
@@ -99,31 +201,47 @@ const createOutputInvoice = async (data, userId) => {
 
 		for (const item of data.hdhhdvu) {
 			if (item.ten) {
-				const storageItem = await StorageItem.findOne({
+				const product = await Product.findOne({
 					name: item.ten,
-					businessOwnerId: owner._id,
+					ownerId: owner._id,
 				});
 
-				if (storageItem) {
-					const quantityToDeduct = parseFloat(item.sluong) || 0;
+				if (product && product.materials && product.materials.length > 0) {
+					const quantitySold = parseFloat(item.sluong) || 0;
+					const materialsNeeded = product.materials.map((m) => ({
+						component: m.component,
+						quantity: parseFloat(m.quantity) * quantitySold,
+						unit: m.unit,
+					}));
 
-					if (storageItem.stock < quantityToDeduct) {
-						throw new ApiError(
-							StatusCodes.BAD_REQUEST,
-							`Không đủ số lượng tồn kho cho sản phẩm "${storageItem.name}". Tồn kho: ${storageItem.stock}`
+					await deductMaterialsFromStorage(materialsNeeded, owner._id);
+				} else {
+					const storageItem = await StorageItem.findOne({
+						name: item.ten,
+						businessOwnerId: owner._id,
+					});
+
+					if (storageItem) {
+						const quantityToDeduct = parseFloat(item.sluong) || 0;
+
+						if (storageItem.stock < quantityToDeduct) {
+							throw new ApiError(
+								StatusCodes.BAD_REQUEST,
+								`Không đủ số lượng tồn kho cho sản phẩm "${storageItem.name}". Tồn kho: ${storageItem.stock}`
+							);
+						}
+
+						storageItem.stock -= quantityToDeduct;
+						await storageItem.save();
+
+						console.log(
+							`Đã khấu trừ ${quantityToDeduct} ${storageItem.unit} từ kho cho sản phẩm "${storageItem.name}". Tồn kho còn: ${storageItem.stock}`
+						);
+					} else {
+						console.warn(
+							`Không tìm thấy sản phẩm trong kho với tên: ${item.ten}`
 						);
 					}
-
-					storageItem.stock -= quantityToDeduct;
-					await storageItem.save();
-
-					console.log(
-						`Đã khấu trừ ${quantityToDeduct} ${storageItem.unit} từ kho cho sản phẩm "${storageItem.name}". Tồn kho còn: ${storageItem.stock}`
-					);
-				} else {
-					console.warn(
-						`Không tìm thấy sản phẩm trong kho với tên: ${item.ten}`
-					);
 				}
 			}
 		}
@@ -153,29 +271,13 @@ const getOutputInvoiceById = async (id) => {
 };
 
 const listOutputInvoices = async (filter = {}, options = {}) => {
-	const {
-		page = 1,
-		limit = 10,
-		sortBy = "createdAt",
-		sortOrder = -1,
-	} = options;
-	const skip = (page - 1) * limit;
-	const query = OutputInvoice.find(filter)
+	const { sortBy = "createdAt", sortOrder = -1 } = options;
+	const results = await OutputInvoice.find(filter)
 		.sort({ [sortBy]: sortOrder })
-		.skip(skip)
-		.limit(limit);
-	const [results, total] = await Promise.all([
-		query.exec(),
-		OutputInvoice.countDocuments(filter),
-	]);
+		.exec();
 	return {
 		data: results,
-		pagination: {
-			page,
-			limit,
-			total,
-			pages: Math.ceil(total / limit),
-		},
+		total: results.length,
 	};
 };
 
@@ -230,9 +332,9 @@ const getTotalTaxesByBusinessOwner = async (businessOwnerId, filter = {}) => {
 
 export {
 	createOutputInvoice,
+	deleteOutputInvoice,
 	getOutputInvoiceById,
+	getTotalTaxesByBusinessOwner,
 	listOutputInvoices,
 	updateOutputInvoice,
-	deleteOutputInvoice,
-	getTotalTaxesByBusinessOwner,
 };

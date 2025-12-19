@@ -2,6 +2,7 @@ import {
 	getCaptchaImage as getCaptchaService,
 	loginWithCaptcha,
 } from "../services/invoiceSyncService.js";
+import { createOutputInvoice } from "../services/outputInvoiceService.js";
 
 export const getCaptchaImage = async (req, res) => {
 	try {
@@ -68,6 +69,64 @@ export const loginWithCredentials = async (req, res) => {
 			startDate,
 			invoiceType
 		);
+
+		if (result.success && invoiceType === "output") {
+			const savedInvoices = [];
+			const failedInvoices = [];
+
+			// Kiểm tra userId từ request (cần middleware auth)
+			const userId = req.user?.userId;
+			if (!userId) {
+				console.warn("Không tìm thấy userId, bỏ qua việc lưu hóa đơn vào DB");
+				return res.status(200).json(result);
+			}
+
+			// Kiểm tra nếu có invoices data
+			if (
+				!result.invoices ||
+				!result.invoices.datas ||
+				!Array.isArray(result.invoices.datas)
+			) {
+				console.warn("Không có dữ liệu hóa đơn hoặc dữ liệu không hợp lệ");
+				return res.status(200).json(result);
+			}
+
+			for (const gdtInvoice of result.invoices.datas) {
+				try {
+					const savedInvoice = await createOutputInvoice(gdtInvoice, userId);
+					savedInvoices.push({
+						id: savedInvoice._id,
+						shdon: savedInvoice.shdon,
+						mhdon: savedInvoice.mhdon,
+					});
+					console.log(
+						`Đã lưu hóa đơn ${gdtInvoice.shdon} vào DB với ID: ${savedInvoice._id}`
+					);
+				} catch (error) {
+					console.error(
+						`Lỗi khi lưu hóa đơn ${gdtInvoice.shdon}:`,
+						error.message
+					);
+					console.error(error);
+					failedInvoices.push({
+						invoice: gdtInvoice.shdon || "Unknown",
+						error: error.message,
+					});
+				}
+			}
+
+			// Trả về kết quả bao gồm thông tin về việc lưu DB
+			return res.status(200).json({
+				...result,
+				saved: {
+					total: result.invoices.datas.length,
+					success: savedInvoices.length,
+					failed: failedInvoices.length,
+					savedInvoices,
+					failedInvoices,
+				},
+			});
+		}
 
 		return res.status(200).json(result);
 	} catch (error) {

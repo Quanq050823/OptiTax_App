@@ -171,22 +171,22 @@ const remove = async (req, res, next) => {
 const namesAndUnits = async (req, res, next) => {
 	try {
 		const userId = req.user.userId;
-		console.log("User ID:", userId);
 		const owner = await getBusinessOwnerByUserId(userId);
-		console.log("Business Owner:", owner);
+
 		if (!owner) {
 			return res
 				.status(StatusCodes.NOT_FOUND)
 				.json({ message: "Business owner profile not found" });
 		}
+
 		const items = await storageItemService.listStorageItems(
 			owner._id,
 			{},
 			{ limit: 1000 }
 		);
-		console.log("Owner ID:", owner._id);
 		const names = items.data.map((item) => item.name);
-		const units = items.data.map((item) => item.unit);
+		const units = [...new Set(items.data.map((item) => item.unit))];
+
 		res.status(StatusCodes.OK).json({ names, units });
 	} catch (err) {
 		next(err);
