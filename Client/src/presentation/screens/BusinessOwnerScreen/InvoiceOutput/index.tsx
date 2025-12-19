@@ -51,7 +51,7 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
     setLoading(true);
     try {
       const data = await getInvoiceOutputList();
-      setInvoices(data.data ?? []);
+      setInvoices(data.data);
       setLoading(false);
     } catch (error) {
       Alert.alert("Không tìm thấy dữ liệu hoá đơn");
@@ -131,7 +131,20 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
       );
 
       const total = res?.invoices?.datas?.length ?? 0;
-      Alert.alert(`Số hóa đơn: ${total}`);
+      Alert.alert(
+        "Thông báo",
+        `Số hóa đơn: ${total}`,
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              setVisible(false);
+              fetchListInvoice(); // 👈 gọi hàm tại đây
+            },
+          },
+        ],
+        { cancelable: false }
+      );
       setCapchacode("");
     } catch (err: any) {
       console.log("HANDLE VERIFY ERROR:", err);

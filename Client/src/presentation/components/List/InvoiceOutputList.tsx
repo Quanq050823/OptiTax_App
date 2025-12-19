@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { getLocalDate } from "../../Controller/FomatDate";
 import { useState } from "react";
+import { InvoiceSummary, RawInvoice } from "@/src/types/invoiceIn";
 
 type invoice = {
   invoicesData: Invoice[];
@@ -42,12 +43,10 @@ function InvoiceOutputList({ invoicesData, fetchData }: invoice) {
   const totalInvoice = (invoice: Invoice) => {
     return invoice.hdhhdvu.reduce((sum, p) => sum + Number(p.thtien), 0);
   };
-
   const totals = invoicesData.map((inv) => ({
     id: inv._id,
     total: totalInvoice(inv),
   }));
-
   const renderItem = ({ item }: { item: Invoice }) => {
     // const { text, color } = getStatusInfo(item.status);
     const total = item.hdhhdvu.reduce(

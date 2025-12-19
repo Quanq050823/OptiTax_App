@@ -102,6 +102,19 @@ export const getInvoiceIn = async (): Promise<RawInvoice[]> => {
 		throw error;
 	}
 };
+
+export const getInvoiceOut = async (): Promise<RawInvoice[]> => {
+	try {
+		const res = await axiosInstance.get<RawInvoice>("output-invoices");
+		const data = Array.isArray(res.data) ? res.data : [];
+		return data.map(mapInvoiceToSummary);
+	} catch (error: any) {
+		if (error.response) {
+			throw error.response.data;
+		}
+		throw error;
+	}
+};
 export const getInvoiceInById = async (
 	id: string
 ): Promise<InvoiceSummary[]> => {
