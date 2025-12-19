@@ -1,4 +1,4 @@
-import { ColorMain } from "@/src/presentation/components/colors";
+import { ColorMain, textColorMain } from "@/src/presentation/components/colors";
 import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
 import InvoiceInput from "@/src/presentation/screens/BusinessOwnerScreen/InvoiceInput";
@@ -17,7 +17,7 @@ function Invoice() {
           style={[
             styles.cateItem,
             !isActive && {
-              borderBottomWidth: 3,
+              borderBottomWidth: 1,
               borderColor: ColorMain,
             },
           ]}
@@ -26,7 +26,7 @@ function Invoice() {
           <Text
             style={[
               styles.textCate,
-              !isActive && { color: ColorMain, fontWeight: "700" },
+              !isActive && { color: textColorMain, fontWeight: "700" },
             ]}
           >
             Hoá đơn nhập vào
@@ -36,7 +36,7 @@ function Invoice() {
           style={[
             styles.cateItem,
             isActive && {
-              borderBottomWidth: 3,
+              borderBottomWidth: 1,
               borderColor: ColorMain,
             },
           ]}

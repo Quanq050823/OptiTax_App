@@ -31,6 +31,7 @@ function InvoiceOutputList({ invoicesData, fetchData }: invoice) {
 	const getStatusInfo = (status?: number | string | null) => {
 		const s = Number(status); // ép string -> number
 
+
 		switch (s) {
 			case 1:
 				return { text: "Nháp", color: "red" };

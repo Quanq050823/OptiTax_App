@@ -103,7 +103,7 @@ function ModalAddCategoryByProductStorage({
                 placeholderStyle={styles.placeholder}
                 itemTextStyle={{ color: "#333" }}
               />
-              <Dropdown
+              {/* <Dropdown
                 style={styles.dropdown}
                 data={BUSINESS_TYPES}
                 labelField="label" // 👈 key hiển thị
@@ -120,7 +120,7 @@ function ModalAddCategoryByProductStorage({
                 selectedTextStyle={styles.selectedText}
                 placeholderStyle={styles.placeholder}
                 itemTextStyle={{ color: "#333" }}
-              />
+              /> */}
             </View>
             <View
               style={{
@@ -136,12 +136,12 @@ function ModalAddCategoryByProductStorage({
                   {
                     backgroundColor: "transparent",
                     borderWidth: 0.5,
-                    borderColor: ColorMain,
+                    borderColor: "red",
                   },
                 ]}
                 onPress={() => setVisible(false)}
               >
-                <Text style={{ color: ColorMain, fontWeight: "600" }}>Hủy</Text>
+                <Text style={{ color: "red", fontWeight: "600" }}>Hủy</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.btnSyn}

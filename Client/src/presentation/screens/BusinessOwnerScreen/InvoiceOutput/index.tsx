@@ -12,8 +12,8 @@ import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { useData } from "@/src/presentation/Hooks/useDataStore";
 import { getInvoiceOutputList } from "@/src/services/API/invoiceService";
 import { getCapcha, verifyCapchaInput } from "@/src/services/API/syncInvoiceIn";
-import { CapchaInfo } from "@/src/types/invoiceIn";
-import { Invoice } from "@/src/types/route";
+import { CapchaInfo, InvoiceListResponse } from "@/src/types/invoiceIn";
+import { Invoice, InvoiceItemExtra } from "@/src/types/route";
 import { AntDesign, FontAwesome5, Fontisto } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
 import {

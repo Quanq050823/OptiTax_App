@@ -328,7 +328,7 @@ function ExportInvoicePayment() {
           alignItems: "center",
         }}
       >
-        <View style={[styles.containerSearch, { width: "70%" }]}>
+        <View style={[styles.containerSearch, { width: "100%" }]}>
           <Entypo name="magnifying-glass" size={18} color="#666" />
           <TextInput
             placeholder="Tìm kiếm sản phẩm"
