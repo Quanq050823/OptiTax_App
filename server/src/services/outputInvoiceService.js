@@ -271,29 +271,13 @@ const getOutputInvoiceById = async (id) => {
 };
 
 const listOutputInvoices = async (filter = {}, options = {}) => {
-	const {
-		page = 1,
-		limit = 10,
-		sortBy = "createdAt",
-		sortOrder = -1,
-	} = options;
-	const skip = (page - 1) * limit;
-	const query = OutputInvoice.find(filter)
+	const { sortBy = "createdAt", sortOrder = -1 } = options;
+	const results = await OutputInvoice.find(filter)
 		.sort({ [sortBy]: sortOrder })
-		.skip(skip)
-		.limit(limit);
-	const [results, total] = await Promise.all([
-		query.exec(),
-		OutputInvoice.countDocuments(filter),
-	]);
+		.exec();
 	return {
 		data: results,
-		pagination: {
-			page,
-			limit,
-			total,
-			pages: Math.ceil(total / limit),
-		},
+		total: results.length,
 	};
 };
 

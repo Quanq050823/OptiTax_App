@@ -3,173 +3,173 @@ import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { Invoice } from "@/src/types/route";
 import { Entypo } from "@expo/vector-icons";
 import {
-  FlatList,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+	FlatList,
+	RefreshControl,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
 } from "react-native";
 import { getLocalDate } from "../../Controller/FomatDate";
 import { useState } from "react";
 import { InvoiceSummary, RawInvoice } from "@/src/types/invoiceIn";
 
 type invoice = {
-  invoicesData: Invoice[];
-  fetchData: () => void;
+	invoicesData: Invoice[];
+	fetchData: () => void;
 };
 function InvoiceOutputList({ invoicesData, fetchData }: invoice) {
-  const navigate = useAppNavigation();
-  const [refreshing, setRefreshing] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchData(); // gọi lại API hoặc data
-    setRefreshing(false); // tắt vòng xoay loading
-  };
+	const navigate = useAppNavigation();
+	const [refreshing, setRefreshing] = useState(false);
+	const [loading, setLoading] = useState(false);
+	const onRefresh = () => {
+		setRefreshing(true);
+		fetchData(); // gọi lại API hoặc data
+		setRefreshing(false); // tắt vòng xoay loading
+	};
 
-  const getStatusInfo = (status?: number | string | null) => {
-    const s = Number(status); // ép string -> number
+	const getStatusInfo = (status?: number | string | null) => {
+		const s = Number(status); // ép string -> number
 
-    switch (s) {
-      case 1:
-        return { text: "Nháp", color: "red" };
-      case 8:
-        return { text: "Đã cấp mã", color: "green" };
-      default:
-        return { text: "Không xác định", color: "gray" };
-    }
-  };
-  const totalInvoice = (invoice: Invoice) => {
-    return invoice.hdhhdvu.reduce((sum, p) => sum + Number(p.thtien), 0);
-  };
-  const totals = invoicesData.map((inv) => ({
-    id: inv._id,
-    total: totalInvoice(inv),
-  }));
-  const renderItem = ({ item }: { item: Invoice }) => {
-    // const { text, color } = getStatusInfo(item.status);
-    const total = item.hdhhdvu.reduce(
-      (sum, p) => sum + Number(p.thtien || 0),
-      0
-    );
+		switch (s) {
+			case 1:
+				return { text: "Nháp", color: "red" };
+			case 8:
+				return { text: "Đã cấp mã", color: "green" };
+			default:
+				return { text: "Không xác định", color: "gray" };
+		}
+	};
+	const totalInvoice = (invoice: Invoice) => {
+		return invoice.hdhhdvu?.reduce((sum, p) => sum + Number(p.thtien), 0) ?? 0;
+	};
 
-    const statusInfo = getStatusInfo(item.ttxly ?? 0);
-    const label = "Hoá đơn bán ra";
+	const totals = invoicesData.map((inv) => ({
+		id: inv._id,
+		total: totalInvoice(inv),
+	}));
 
-    return (
-      <TouchableOpacity
-        onPress={() =>
-          navigate.navigate("InvoiceDetailScreen", { item, total, label })
-        }
-      >
-        <View style={styles.card}>
-          <View style={styles.headerItem}>
-            <Text style={styles.supplier}>{item.nbten}</Text>
-            <Text style={{ color: "#4f4f4fff" }}>
-              {getLocalDate(item.ncnhat)}
-            </Text>
-          </View>
-          <Text style={styles.id}>Mã HĐ: {item.mhdon}</Text>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginTop: 10,
-              alignItems: "center",
-            }}
-          >
-            {/* <Text style={[styles.status, { color: statusInfo.color }]}>
+	const renderItem = ({ item }: { item: Invoice }) => {
+		// const { text, color } = getStatusInfo(item.status);
+		const total = Number(item.tgtttbso);
+		const formattedTotal = total.toLocaleString("vi-VN");
+
+		const statusInfo = getStatusInfo(item.ttxly ?? 0);
+		const label = "Hoá đơn bán ra";
+
+		return (
+			<TouchableOpacity
+				onPress={() =>
+					navigate.navigate("InvoiceDetailScreen", { item, total, label })
+				}
+			>
+				<View style={styles.card}>
+					<View style={styles.headerItem}>
+						<Text style={styles.supplier}>{item.nbten}</Text>
+						<Text style={{ color: "#4f4f4fff" }}>
+							{getLocalDate(item.ncnhat)}
+						</Text>
+					</View>
+					<Text style={styles.id}>Mã HĐ: {item.mhdon}</Text>
+					<View
+						style={{
+							flexDirection: "row",
+							justifyContent: "space-between",
+							marginTop: 10,
+							alignItems: "center",
+						}}
+					>
+						{/* <Text style={[styles.status, { color: statusInfo.color }]}>
               {statusInfo.text}
             </Text> */}
-            <View style={{ flexDirection: "row", gap: 10 }}>
-              <View
-                style={{
-                  alignItems: "center",
-                  borderWidth: 0.5,
-                  borderColor: "#3F4E87",
-                  padding: 5,
-                  borderRadius: 5,
-                  backgroundColor: "#3f4d8724",
-                }}
-              >
-                <Text style={{ fontSize: 10, color: "#2d3681ff" }}>
-                  Đã phát hành <Entypo name="check" size={10} color="black" />
-                </Text>
-              </View>
-              <View
-                style={{
-                  alignItems: "center",
-                  borderWidth: 0.5,
-                  borderColor: ColorMain,
-                  padding: 5,
-                  borderRadius: 5,
-                  backgroundColor: "#4dbf9929",
-                }}
-              >
-                <Text style={{ fontSize: 10, color: textColorMain }}>
-                  Hợp lệ <Entypo name="check" size={10} color={textColorMain} />
-                </Text>
-              </View>
-            </View>
-            <Text style={{ fontSize: 18, fontWeight: "600", color: ColorMain }}>
-              {total.toLocaleString("vi-VN")} đ
-            </Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  };
+						<View style={{ flexDirection: "row", gap: 10 }}>
+							<View
+								style={{
+									alignItems: "center",
+									borderWidth: 0.5,
+									borderColor: "#3F4E87",
+									padding: 5,
+									borderRadius: 5,
+									backgroundColor: "#3f4d8724",
+								}}
+							>
+								<Text style={{ fontSize: 10, color: "#2d3681ff" }}>
+									Đã phát hành <Entypo name="check" size={10} color="black" />
+								</Text>
+							</View>
+							<View
+								style={{
+									alignItems: "center",
+									borderWidth: 0.5,
+									borderColor: ColorMain,
+									padding: 5,
+									borderRadius: 5,
+									backgroundColor: "#4dbf9929",
+								}}
+							>
+								<Text style={{ fontSize: 10, color: textColorMain }}>
+									Hợp lệ <Entypo name="check" size={10} color={textColorMain} />
+								</Text>
+							</View>
+						</View>
+						<Text style={{ fontSize: 18, fontWeight: "600", color: ColorMain }}>
+							{formattedTotal} đ
+						</Text>
+					</View>
+				</View>
+			</TouchableOpacity>
+		);
+	};
 
-  return (
-    <FlatList
-      data={invoicesData}
-      keyExtractor={(item) => item._id}
-      renderItem={renderItem}
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    />
-  );
+	return (
+		<FlatList
+			data={invoicesData}
+			keyExtractor={(item) => item._id}
+			renderItem={renderItem}
+			contentContainerStyle={styles.container}
+			showsVerticalScrollIndicator={false}
+			refreshControl={
+				<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+			}
+		/>
+	);
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginTop: 20,
-  },
-  card: {
-    backgroundColor: "#fff",
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 5,
-    elevation: 2, // bóng trên Android
-    shadowColor: "#000", // bóng trên iOS
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    borderWidth: 1,
-    borderColor: "#d3d3d3ff",
-  },
-  headerItem: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  id: {
-    fontSize: 13,
-    marginBottom: 5,
-    marginTop: 5,
-  },
-  status: {
-    fontStyle: "italic",
-    color: "#3b5998",
-    fontWeight: "600",
-  },
-  supplier: {
-    fontSize: 17,
-    fontWeight: "700",
-    width: "70%",
-  },
+	container: {
+		marginTop: 20,
+	},
+	card: {
+		backgroundColor: "#fff",
+		padding: 15,
+		marginBottom: 10,
+		borderRadius: 5,
+		elevation: 2, // bóng trên Android
+		shadowColor: "#000", // bóng trên iOS
+		shadowOpacity: 0.1,
+		shadowRadius: 5,
+		borderWidth: 1,
+		borderColor: "#d3d3d3ff",
+	},
+	headerItem: {
+		width: "100%",
+		flexDirection: "row",
+		justifyContent: "space-between",
+	},
+	id: {
+		fontSize: 13,
+		marginBottom: 5,
+		marginTop: 5,
+	},
+	status: {
+		fontStyle: "italic",
+		color: "#3b5998",
+		fontWeight: "600",
+	},
+	supplier: {
+		fontSize: 17,
+		fontWeight: "700",
+		width: "70%",
+	},
 });
 export default InvoiceOutputList;
