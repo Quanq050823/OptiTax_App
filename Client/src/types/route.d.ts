@@ -205,7 +205,7 @@ export interface Invoice {
 	nmdchi: string;
 	thtttoan: string;
 	dvtte: string;
-	hdhhdvu: InvoiceProduct[];
+  hdhhdvu?: InvoiceProduct[] | null;
 	ttxly?: number | null;
 	tgtttbso: number;
 }

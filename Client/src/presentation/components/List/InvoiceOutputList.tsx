@@ -41,18 +41,14 @@ function InvoiceOutputList({ invoicesData, fetchData }: invoice) {
     }
   };
   const totalInvoice = (invoice: Invoice) => {
-    return invoice.hdhhdvu.reduce((sum, p) => sum + Number(p.thtien), 0);
+    return (
+      invoice.hdhhdvu?.reduce((sum, p) => sum + Number(p?.thtien || 0), 0) ?? 0
+    );
   };
-  const totals = invoicesData.map((inv) => ({
-    id: inv._id,
-    total: totalInvoice(inv),
-  }));
+
   const renderItem = ({ item }: { item: Invoice }) => {
     // const { text, color } = getStatusInfo(item.status);
-    const total = item.hdhhdvu.reduce(
-      (sum, p) => sum + Number(p.thtien || 0),
-      0
-    );
+    const total = totalInvoice(item);
 
     const statusInfo = getStatusInfo(item.ttxly ?? 0);
     const label = "Hoá đơn bán ra";
