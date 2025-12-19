@@ -73,7 +73,7 @@ export default function Analytics() {
       setTotalGTGT(result.totalGTGT);
       setTotalTNCN(result.totalTNCN);
     } catch (error) {
-      console.error("Lỗi khi lấy tổng thuế:", error);
+      return;
     }
   };
 

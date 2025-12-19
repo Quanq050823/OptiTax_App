@@ -155,12 +155,16 @@ const InvoiceDetailScreenInp = ({ route }: any) => {
               <View style={styles.line}></View>
               <View style={[styles.flexLabel, { marginTop: 20 }]}>
                 <Text style={styles.label}>Tên người mua:</Text>
-                <Text style={styles.value}>{item.nguoiMua.ten}</Text>
+                <Text style={styles.value}>
+                  {item.nguoiMua.ten || item.nmtnmua}
+                </Text>
               </View>
 
               <View style={[styles.flexLabel]}>
                 <Text style={styles.label}>Mã số thuế:</Text>
-                <Text style={styles.value}>{item.nguoiMua.mst}</Text>
+                <Text style={styles.value}>
+                  {item.nguoiMua.mst || item.nmmst}
+                </Text>
               </View>
               <View style={[styles.flexLabel]}>
                 <Text style={styles.label}>Địa chỉ:</Text>
