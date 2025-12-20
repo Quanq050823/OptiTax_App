@@ -79,6 +79,22 @@ const updateUnitConversion = async (id, conversionData, businessOwnerId) => {
 	return item;
 };
 
+const getStorageItemIdByName = async (name, businessOwnerId) => {
+	const item = await StorageItem.findOne({ name, businessOwnerId }).select(
+		"_id"
+	);
+	if (!item)
+		throw new ApiError(StatusCodes.NOT_FOUND, "Storage item not found");
+	return item;
+};
+
+const getStorageItemByIdFromBody = async (id, businessOwnerId) => {
+	const item = await StorageItem.findOne({ _id: id, businessOwnerId });
+	if (!item)
+		throw new ApiError(StatusCodes.NOT_FOUND, "Storage item not found");
+	return item;
+};
+
 export {
 	createStorageItem,
 	getStorageItemById,
@@ -87,4 +103,6 @@ export {
 	deleteStorageItem,
 	generateTypeItems,
 	updateUnitConversion,
+	getStorageItemIdByName,
+	getStorageItemByIdFromBody,
 };

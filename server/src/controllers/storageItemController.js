@@ -362,6 +362,56 @@ const updateUnitConversion = async (req, res, next) => {
 	}
 };
 
+const getIdByName = async (req, res, next) => {
+	try {
+		const userId = req.user.userId;
+		const owner = await getBusinessOwnerByUserId(userId);
+		if (!owner) {
+			return res
+				.status(StatusCodes.NOT_FOUND)
+				.json({ message: "Business owner profile not found" });
+		}
+		const { name } = req.body;
+		if (!name) {
+			return res
+				.status(StatusCodes.BAD_REQUEST)
+				.json({ message: "Name parameter is required" });
+		}
+		const result = await storageItemService.getStorageItemIdByName(
+			name,
+			owner._id
+		);
+		res.status(StatusCodes.OK).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
+const getByIdFromBody = async (req, res, next) => {
+	try {
+		const userId = req.user.userId;
+		const owner = await getBusinessOwnerByUserId(userId);
+		if (!owner) {
+			return res
+				.status(StatusCodes.NOT_FOUND)
+				.json({ message: "Business owner profile not found" });
+		}
+		const { id } = req.params;
+		if (!id) {
+			return res
+				.status(StatusCodes.BAD_REQUEST)
+				.json({ message: "ID parameter is required" });
+		}
+		const result = await storageItemService.getStorageItemByIdFromBody(
+			id,
+			owner._id
+		);
+		res.status(StatusCodes.OK).json(result);
+	} catch (err) {
+		next(err);
+	}
+};
+
 export {
 	create,
 	getById,
@@ -374,4 +424,6 @@ export {
 	syncStorageItems,
 	genTypeItem,
 	updateUnitConversion,
+	getIdByName,
+	getByIdFromBody,
 };

@@ -35,6 +35,18 @@ router.get(
 	authorization(["user", "admin"]),
 	storageItemController.namesAndUnits
 );
+router.post(
+	"/id-by-name",
+	authenticate,
+	authorization(["user", "admin"]),
+	storageItemController.getIdByName
+);
+router.get(
+	"/get-by-id/:id",
+	authenticate,
+	authorization(["user", "admin"]),
+	storageItemController.getByIdFromBody
+);
 router.get(
 	"/:id",
 	authenticate,
