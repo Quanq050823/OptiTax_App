@@ -79,7 +79,6 @@ function HeaderScreen({ activeTab }: HeaderProps) {
                 : { color: "#fff" }, // Other pages
             ]}
           >
-            {" "}
             <FontAwesome
               name="user-circle-o"
               size={20}

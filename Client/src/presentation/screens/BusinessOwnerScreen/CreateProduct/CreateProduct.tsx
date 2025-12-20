@@ -44,8 +44,8 @@ const donVi = [
     value: "gram",
   },
   {
-    label: "kg",
-    value: "kg",
+    label: "Kg",
+    value: "Kg",
   },
   {
     label: "Phần",
@@ -230,13 +230,18 @@ function CreateProductScreen() {
     setNewProduct((prev) => ({ ...prev, category: newItem.value }));
   }, [newCategory]);
 
+  const isIngredientsValid = ingredients.every(
+    (i) =>
+      (i.material?.trim() ?? "") !== "" &&
+      (i.quantity?.trim() ?? "") !== "" &&
+      (i.unit?.trim() ?? "") !== ""
+  );
   const handleAddProduct = useCallback(async () => {
     if (
       !newProduct.name ||
       !newProduct.price ||
-      !newProduct.description ||
-      !newProduct.code ||
-      !newProduct.category
+      !newProduct.unit ||
+      !isIngredientsValid
     ) {
       Alert.alert("Thiếu thông tin", "Vui lòng nhập đầy đủ các trường");
       return;
@@ -268,10 +273,9 @@ function CreateProductScreen() {
   }, [newUnit]);
 
   const isValid =
-    (newProduct.code?.trim() ?? "") !== "" &&
     (newProduct.name?.trim() ?? "") !== "" &&
     newProduct.price > 0 &&
-    (newProduct.category?.trim() ?? "") !== "" &&
+    // (newProduct.category?.trim() ?? "") !== "" &&
     (newProduct.unit?.trim() ?? "") !== "" &&
     ingredients.every(
       (i) =>
@@ -309,7 +313,9 @@ function CreateProductScreen() {
               />
             </View>
             <View style={{ marginTop: 20 }}>
-              <Text style={styleModal.labelInput}>Tên </Text>
+              <Text style={styleModal.labelInput}>
+                Tên <Text style={{ color: "red" }}>*</Text>
+              </Text>
               <TextInput
                 placeholder={"Nhập tên sản phẩm"}
                 style={styleModal.input}
@@ -320,7 +326,9 @@ function CreateProductScreen() {
               />
             </View>
             <View style={{ marginTop: 20, flex: 1 }}>
-              <Text style={styleModal.labelInput}>Giá tiền (VND)</Text>
+              <Text style={styleModal.labelInput}>
+                Giá tiền (VND) <Text style={{ color: "red" }}>*</Text>
+              </Text>
               <TextInput
                 placeholder={"Nhập giá sản phẩm"}
                 style={styleModal.input}
@@ -332,7 +340,7 @@ function CreateProductScreen() {
               />
             </View>
             <View style={{ flexDirection: "row", gap: 30 }}>
-              <View style={{ marginTop: 20, flex: 1.5 }}>
+              {/* <View style={{ marginTop: 20, flex: 1.5 }}>
                 <Text style={styleModal.labelInput}>Danh mục </Text>
                 <Dropdown
                   style={styleModal.dropdown}
@@ -398,9 +406,11 @@ function CreateProductScreen() {
                     return <Text style={{ padding: 12 }}>{item.label}</Text>;
                   }}
                 />
-              </View>
+              </View> */}
               <View style={{ marginTop: 20, flex: 1 }}>
-                <Text style={styleModal.labelInput}>Đơn vị tính</Text>
+                <Text style={styleModal.labelInput}>
+                  Đơn vị tính <Text style={{ color: "red" }}>*</Text>
+                </Text>
                 <Dropdown
                   style={styleModal.dropdown}
                   onFocus={() => {
@@ -476,13 +486,19 @@ function CreateProductScreen() {
           <View style={[styleModal.wrAddField, { paddingTop: 20 }]}>
             <View style={{ flexDirection: "row", flex: 1, gap: 15 }}>
               <View style={{ flex: 1.2 }}>
-                <Text style={styleModal.labelInput}>Thành phần </Text>
+                <Text style={styleModal.labelInput}>
+                  Thành phần <Text style={{ color: "red" }}>*</Text>
+                </Text>
               </View>
               <View style={{ flex: 0.8 }}>
-                <Text style={styleModal.labelInput}>Số lượng </Text>
+                <Text style={styleModal.labelInput}>
+                  Số lượng <Text style={{ color: "red" }}>*</Text>
+                </Text>
               </View>
               <View style={{ flex: 0.5 }}>
-                <Text style={styleModal.labelInput}>ĐL </Text>
+                <Text style={styleModal.labelInput}>
+                  ĐL <Text style={{ color: "red" }}>*</Text>
+                </Text>
               </View>
             </View>
             {ingredients.map((item, index) => {
@@ -623,7 +639,7 @@ function CreateProductScreen() {
                 &nbsp;Thêm nguyên liệu
               </Text>
             </TouchableOpacity>
-            <View>
+            {/* <View>
               <View
                 style={{
                   flexDirection: "row",
@@ -642,9 +658,9 @@ function CreateProductScreen() {
                   <Text style={{ color: "#ffffff" }}>Lưu</Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </View> */}
           </View>
-          <View style={[styleModal.wrAddField, { paddingTop: 20 }]}>
+          {/* <View style={[styleModal.wrAddField, { paddingTop: 20 }]}>
             <Text style={styleModal.labelInput}>Định nghĩa sản phẩm </Text>
 
             <Dropdown
@@ -665,7 +681,7 @@ function CreateProductScreen() {
               placeholderStyle={{ color: "#9d9d9d" }}
               onChange={(item) => {}}
             />
-          </View>
+          </View> */}
           <View style={[styleModal.wrAddField, { paddingTop: 20 }]}>
             <View>
               <Text style={styleModal.labelInput}>Mô tả </Text>

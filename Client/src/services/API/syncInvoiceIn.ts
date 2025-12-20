@@ -148,7 +148,8 @@ export const getCapcha = async (username: string, password: string): Promise<Cap
 export const verifyCapchaInput = async (
   sessionId: string,
   captcha: string,
-  invoiceType: string
+  invoiceType: string,
+  startDate: Date
 ): Promise<InvoiceSyncResponse> => {
   try {
     const res = await axiosInstance.post<InvoiceSyncResponse>(
@@ -157,6 +158,7 @@ export const verifyCapchaInput = async (
         sessionId,
         captcha,
         invoiceType,
+		startDate,
       }
     );
 
