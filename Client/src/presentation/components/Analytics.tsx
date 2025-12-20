@@ -232,47 +232,58 @@ export default function Analytics() {
           }}
         >
           <View style={styles.taxContainer}>
-            <View style={[styles.taxCard]}>
-              <Text style={styles.taxLabel}>Thuế GTGT</Text>
-              <Text style={styles.taxValue}>
-                {isUpdating ? "..." : `${totalGTGT.toLocaleString("vi-VN")} đ`}
-              </Text>
-              <View
-                style={{
-                  position: "absolute",
-                  height: 25,
-                  borderWidth: 0.3,
-                  right: -8,
-                  borderColor: "#dadadaff",
-                  top: 22,
-                }}
-              />
-            </View>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <View style={[styles.taxCard]}>
+                <Text style={styles.taxLabel}>Thuế GTGT</Text>
+                <Text style={styles.taxValue}>
+                  {isUpdating
+                    ? "..."
+                    : `${totalGTGT.toLocaleString("vi-VN")} đ`}
+                </Text>
+                <View
+                  style={{
+                    position: "absolute",
+                    height: 25,
+                    borderWidth: 0.3,
+                    right: -8,
+                    borderColor: "#dadadaff",
+                    top: 22,
+                  }}
+                />
+              </View>
 
-            <View style={[styles.taxCard]}>
-              <Text style={styles.taxLabel}>Thuế TNCN</Text>
-              <Text style={styles.taxValue}>
-                {isUpdating ? "..." : `${totalTNCN.toLocaleString("vi-VN")} đ`}
-              </Text>
-              <View
-                style={{
-                  position: "absolute",
-                  height: 25,
-                  borderWidth: 0.3,
-                  right: -8,
-                  borderColor: "#dadadaff",
-                  top: 22,
-                }}
-              />
-            </View>
+              <View style={[styles.taxCard]}>
+                <Text style={styles.taxLabel}>Thuế TNCN</Text>
+                <Text style={styles.taxValue}>
+                  {isUpdating
+                    ? "..."
+                    : `${totalTNCN.toLocaleString("vi-VN")} đ`}
+                </Text>
+                <View
+                  style={{
+                    position: "absolute",
+                    height: 25,
+                    borderWidth: 0.3,
+                    right: -8,
+                    borderColor: "#dadadaff",
+                    top: 22,
+                  }}
+                />
+              </View>
 
-            <View style={[styles.taxCard]}>
-              <Text style={styles.taxLabel}>TỔNG</Text>
-              <Text style={[styles.taxValue, { color: textDealineColor }]}>
-                {isUpdating
-                  ? "..."
-                  : `${(totalGTGT + totalTNCN).toLocaleString("vi-VN")} đ`}
-              </Text>
+              <View style={[styles.taxCard]}>
+                <Text style={styles.taxLabel}>TỔNG</Text>
+                <Text style={[styles.taxValue, { color: textDealineColor }]}>
+                  {isUpdating
+                    ? "..."
+                    : `${(totalGTGT + totalTNCN).toLocaleString("vi-VN")} đ`}
+                </Text>
+              </View>
+            </View>
+            <View style={{ alignItems: "center" }}>
+              <Text>Tháng 12</Text>
             </View>
           </View>
         </View>
@@ -501,8 +512,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   taxContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     width: "100%",
     position: "absolute",
     backgroundColor: "#fff",

@@ -6,6 +6,7 @@ import InvoiInputList from "@/src/presentation/components/List/InvoiInputList";
 import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import ModalCreateProductsByInvoiceOuput from "@/src/presentation/components/Modal/ModalCreateProductsByInvoiceOuput";
 import ModalLoginCCT from "@/src/presentation/components/Modal/ModalLoginCCT";
+import ModalSetDateSync from "@/src/presentation/components/Modal/ModalSetDateSync";
 import ModalSynchronized from "@/src/presentation/components/Modal/ModalSynchronized";
 import SearchByName from "@/src/presentation/components/SearchByName";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
@@ -14,7 +15,8 @@ import { getInvoiceOutputList } from "@/src/services/API/invoiceService";
 import { getCapcha, verifyCapchaInput } from "@/src/services/API/syncInvoiceIn";
 import { CapchaInfo, InvoiceListResponse } from "@/src/types/invoiceIn";
 import { Invoice, InvoiceItemExtra } from "@/src/types/route";
-import { AntDesign, FontAwesome5, Fontisto } from "@expo/vector-icons";
+import { AntDesign, Entypo, FontAwesome5, Fontisto } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -40,6 +42,9 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
   const [openLogin, setOpenLogin] = useState(false);
   const [openListProductSynchronized, setOpenListProductSynchronized] =
     useState(false);
+  const [selectDateCpn, setSelecDateCpn] = useState(false);
+
+  const [openModalDate, setOpenModalDate] = useState(false);
   const [dataVerifyCapcha, setDataVerifyCapcha] = useState<
     CapchaInfo | undefined
   >(undefined);
@@ -97,22 +102,18 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
 
   const handleGetCapcha = async () => {
     setLoading(true);
-
     try {
       if (!data?.taxCode || !data?.password) {
         Alert.alert("Không có thông tin đăng nhập");
-        throw new Error("Thiếu mã số thuế hoặc mật khẩu");
+        return;
       }
 
       const res = await getCapcha(data.taxCode, data.password);
-
       setDataVerifyCapcha(res);
-      setVisible(true);
-      setLoading(false);
     } catch (err) {
-      Alert.alert("Lỗi lấy dữ liệu!");
+      Alert.alert("Lỗi lấy captcha!");
     } finally {
-      setLoading(false); // 👈 luôn chạy
+      setLoading(false);
     }
   };
 
@@ -139,6 +140,7 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
             text: "OK",
             onPress: () => {
               setVisible(false);
+              setSelecDateCpn(false);
               fetchListInvoice(); // 👈 gọi hàm tại đây
             },
           },
@@ -179,34 +181,52 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
             <AntDesign name="plus" size={15} color="#fff" />
           </Text>
         </TouchableOpacity> */}
-        <TouchableOpacity
-          style={styles.btnSyn}
-          onPress={() => navigate.navigate("ExportInvoicePayment")}
+        <LinearGradient
+          colors={[ColorMain, "#6A7DB3"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 3 }}
+          style={{ borderRadius: 5 }}
         >
-          <Text style={{ color: "#fff", fontSize: 14 }}>
-            Xuất hóa đơn &nbsp;
-            <AntDesign name="plus" size={15} color="#fff" />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.btnSyn} onPress={handleGetCapcha}>
-          <Text style={{ color: "#fff", fontSize: 14 }}>
-            {loading ? (
-              <>
-                Đang đồng bộ &nbsp;
-                <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                  <Fontisto name="spinner-refresh" size={13} color="#fff" />
-                </Animated.View>
-              </>
-            ) : (
-              <>
-                Đồng bộ &nbsp;
-                <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                  <Fontisto name="spinner-refresh" size={13} color="#fff" />
-                </Animated.View>
-              </>
-            )}
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.btnSyn}
+            onPress={() => navigate.navigate("ExportInvoicePayment")}
+          >
+            <Text style={{ color: "#fff", fontSize: 14 }}>
+              Xuất hóa đơn &nbsp;
+              <AntDesign name="plus" size={15} color="#fff" />
+            </Text>
+          </TouchableOpacity>
+        </LinearGradient>
+
+        <LinearGradient
+          colors={[ColorMain, "#6A7DB3"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 3 }}
+          style={{ borderRadius: 5 }}
+        >
+          <TouchableOpacity
+            style={styles.btnSyn}
+            onPress={() => setVisible(true)}
+          >
+            <Text style={{ color: "#fff", fontSize: 14 }}>
+              {loading ? (
+                <>
+                  Đang đồng bộ &nbsp;
+                  <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                    <Entypo name="arrow-bold-down" size={13} color="#fff" />
+                  </Animated.View>
+                </>
+              ) : (
+                <>
+                  Đồng bộ &nbsp;
+                  <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                    <Entypo name="arrow-bold-down" size={13} color="#fff" />
+                  </Animated.View>
+                </>
+              )}
+            </Text>
+          </TouchableOpacity>
+        </LinearGradient>
       </View>
 
       <ModalCreateProductsByInvoiceOuput
@@ -223,10 +243,14 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
         setCapchacode={setCapchacode}
         capchaCode={capchaCode}
         setVisible={setVisible}
-        onSyncInvoiceIn={handleVerifyCapchaSync}
+        onSyncInvoiceOut={handleVerifyCapchaSync}
+        onGetCaptcha={handleGetCapcha}
         loading={loading}
         setLoading={setLoading}
+        setSelecDateCpn={setSelecDateCpn}
+        selectDateCpn={selectDateCpn}
       />
+      <ModalSetDateSync visible={openModalDate} setVisible={setOpenModalDate} />
     </View>
   );
 }
@@ -247,7 +271,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   btnSyn: {
-    backgroundColor: ColorMain,
+    backgroundColor: "transparent",
     padding: 10,
     borderRadius: 10,
   },
