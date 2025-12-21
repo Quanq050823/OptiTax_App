@@ -170,7 +170,7 @@ export default function PaymentInvoiceScreen() {
   const route = useRoute<PaymentRoute>();
   const navigation = useAppNavigation();
   const { items: initialItems } = route.params as {
-    items: (Product & { quantity: number; total: number })[];
+    items: (Product & { quantity: number; total: number; vatRate: number })[];
   };
   // local UI state
   const [isSelecting, setIsSelecting] = useState(false);

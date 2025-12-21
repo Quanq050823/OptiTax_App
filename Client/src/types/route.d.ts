@@ -106,6 +106,7 @@ type Product = {
 	unit: string | null;
 	attributes: any;
 	tchat: number;
+	vatRate: number
 };
 export interface UserProfile {
 	_id: string;

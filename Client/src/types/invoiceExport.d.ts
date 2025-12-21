@@ -31,3 +31,24 @@ export interface InvoiceItem {
   thtien: string;  // một số API VN vẫn yêu cầu string
   tchat: number;
 }
+
+export type EaseInvoiceProduct = {
+  name: string;
+  unit: string;
+  quantity: number;
+  price: number;
+  vatRate: number;
+};
+export interface InvoiceCCT{
+  customerName?: string;
+  customerAddress: string;
+  customerTaxCode?: string;
+  paymentMethod: string;
+  products: EaseInvoiceProduct[];
+}
+
+
+
+export interface CreateInvoiceRequest {
+  invoiceData: InvoiceCCT;
+}
