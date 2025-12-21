@@ -12,17 +12,25 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "expo-router";
 import { StackNavigationProp } from "@react-navigation/stack";
 
-import { exportInvoiceOutput } from "@/src/services/API/invoiceService";
+import {
+  exportInvoiceOutput,
+  exportInvoiceOutputEaseInvoice,
+} from "@/src/services/API/invoiceService";
 import { ColorMain } from "@/src/presentation/components/colors";
 import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import readNumber from "read-vn-number";
 import {
+  CreateInvoiceRequest,
+  EaseInvoiceProduct,
   ExportInvoiceDetailParams,
   ExportInvoiceProduct,
+  InvoiceCCT,
   InvoiceData,
   InvoiceItem,
 } from "@/src/types/invoiceExport";
 import { RootStackParamList } from "@/src/types/route";
+import { useData } from "@/src/presentation/Hooks/useDataStore";
+import { it } from "react-native-paper-dates";
 
 type Props = {
   route: {
@@ -48,9 +56,20 @@ const getPaymentCode = (method: string) => {
       return "KHAC";
   }
 };
+const VALID_VAT_RATES = [-5, -3, -2, -1, 0, 5, 8, 10] as const;
+const normalizeVatRate = (vatRate: unknown): number => {
+  const rate = Number(vatRate);
 
+  if (!VALID_VAT_RATES.includes(rate as any)) {
+    console.warn("VATRate không hợp lệ, set về 0:", vatRate);
+    return 0; // fallback an toàn
+  }
+
+  return rate;
+};
 export default function ExportInvoiceDetailScreen({ route }: Props) {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const { data } = useData();
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<
     "Tiền mặt" | "Chuyển khoản" | "Khác"
@@ -64,6 +83,30 @@ export default function ExportInvoiceDetailScreen({ route }: Props) {
     date: new Date().toISOString(),
     note: "",
   };
+  const mapToEaseInvoiceProducts = (
+    items: ExportInvoiceProduct[]
+  ): EaseInvoiceProduct[] => {
+    return items.map((item) => ({
+      name: item.name,
+      unit: item.unit || "Cái",
+      quantity: Number(item.quantity),
+      price: Number(item.price),
+      vatRate: [-5, -3, -2, -1, 0, 5, 8, 10].includes(Number(item.vatRate))
+        ? Number(item.vatRate)
+        : 0,
+    }));
+  };
+  const invoiceExportCCT: CreateInvoiceRequest = {
+    invoiceData: {
+      customerName: data?.businessName,
+      customerAddress: data?.address,
+      customerTaxCode: data?.taxCode,
+      paymentMethod: getPaymentCode(paymentMethod),
+      products: mapToEaseInvoiceProducts(invoiceDetail.items),
+    },
+  };
+
+  console.log(invoiceExportCCT.invoiceData.products, "invoice");
 
   const { invoiceId, items, total, tax, date, note } = invoiceDetail;
   const safeTaxPercent = tax ?? 0;
@@ -78,6 +121,9 @@ export default function ExportInvoiceDetailScreen({ route }: Props) {
       dgia: Number(item.price) || 0, // number
       thtien: String(item.total || 0), // string
       tchat: Number(item.tchat) || 0, // number
+      vatRate: [-5, -3, -2, -1, 0, 5, 8, 10].includes(Number(item.vatRate))
+        ? Number(item.vatRate)
+        : 0,
     }));
   };
 
@@ -109,6 +155,19 @@ export default function ExportInvoiceDetailScreen({ route }: Props) {
     setLoading(true);
     try {
       await exportInvoiceOutput(invoiceData);
+
+      // const hasInvalidVat = invoiceDetail.items.some(
+      //   (i) => !VALID_VAT_RATES.includes(Number(i.vatRate) as any)
+      // );
+
+      // if (hasInvalidVat) {
+      //   Alert.alert(
+      //     "Lỗi thuế suất",
+      //     "Có sản phẩm có thuế suất không hợp lệ (chỉ chấp nhận -5, -3, -2, -1, 0, 5, 8, 10)"
+      //   );
+      //   return;
+      // }
+      await exportInvoiceOutputEaseInvoice(invoiceExportCCT);
       setLoading(false);
       Alert.alert("Xuất thành công", "", [
         {

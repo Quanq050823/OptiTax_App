@@ -141,6 +141,10 @@ function ExportInvoicePayment() {
     }, 0);
   }, [quantity, products, productStorage]);
 
+  const vatRate = (tchat: number, price: number) => {
+    if (tchat === 1) return price * 0.5;
+    else if (tchat === 2) return price * 2.5;
+  };
   // --- Navigation to payment ---
   const handleGoToPayment = () => {
     const allProducts = [...products, ...productStorage];
@@ -150,6 +154,7 @@ function ExportInvoicePayment() {
         ...p,
         quantity: quantity[p._id],
         total: (p.price || 0) * quantity[p._id],
+        vatRate: vatRate(p.tchat, p.price),
       }));
     navigation.navigate("PaymentInvoiceScreen", { items: selectedItems });
   };

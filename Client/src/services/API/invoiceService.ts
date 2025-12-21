@@ -1,5 +1,5 @@
 import axiosInstance from "@/src/services/API/axios";
-import { InvoiceData } from "@/src/types/invoiceExport";
+import { CreateInvoiceRequest, InvoiceCCT, InvoiceData } from "@/src/types/invoiceExport";
 import { InvoiceListResponse } from "@/src/types/route";
 
 export const getInvoiceInputList = async () => {
@@ -44,6 +44,22 @@ export const getInvoiceOutputById = async (userId: string) => {
 export const exportInvoiceOutput = async (invoiceData: InvoiceData) => {
 	try {
 		const res = await axiosInstance.post(`output-invoices`, invoiceData);
+
+		return res.data;
+	} catch (error: any) {
+		if (error.response) {
+			throw error.response.data;
+		}
+		console.log(error);
+		
+		throw error;
+	}
+};
+
+
+export const exportInvoiceOutputEaseInvoice = async (invoiceData: CreateInvoiceRequest) => {
+	try {
+		const res = await axiosInstance.post(`easyinvoice/import-and-issue-invoice`, invoiceData);
 
 		return res.data;
 	} catch (error: any) {
