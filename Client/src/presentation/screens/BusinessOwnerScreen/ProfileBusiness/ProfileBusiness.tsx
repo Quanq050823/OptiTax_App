@@ -5,7 +5,13 @@ import {
   getUserProfile,
 } from "@/src/services/API/profileService";
 import { Profile, RootStackParamList, UserProfile } from "@/src/types/route";
-import { Entypo, Feather, FontAwesome } from "@expo/vector-icons";
+import {
+  Entypo,
+  Feather,
+  FontAwesome,
+  Fontisto,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import {
   NavigationProp,
@@ -82,7 +88,7 @@ function ProfileBusiness() {
                   <Feather name="edit" size={15} color="#fff" />
                 </View>
               </TouchableOpacity>
-              <View style={{ marginTop: 20, width: "100%" }}>
+              <View style={styles.wrField}>
                 <View style={styles.wrInput}>
                   <Text style={styles.labelInput}>Tên</Text>
                   <TextInput
@@ -109,6 +115,15 @@ function ProfileBusiness() {
                   />
                 </View>
               </View>
+              <TouchableOpacity
+                style={styles.btnChangePass}
+                onPress={() => navigate.navigate("ChangePasswordScreen")}
+              >
+                <Text style={{ color: "#fff", fontWeight: "500" }}>
+                  Thay đổi mật khẩu
+                </Text>
+                <MaterialIcons name="password" size={17} color="#fff" />
+              </TouchableOpacity>
               {/* <Text
                 style={{
                   fontSize: 24,
@@ -141,92 +156,6 @@ function ProfileBusiness() {
                   <AntDesign name="edit" size={15} color="black" />
                 </Text>
               </TouchableOpacity> */}
-            </View>
-            <View style={{ flex: 1, width: "100%", marginTop: 20 }}>
-              {/* <View style={{ marginTop: 10 }}>
-                  <Label style={styles.label}>Tên đăng nhập </Label>
-                  <TextInput
-                    placeholder=""
-                    style={[
-                      styles.input,
-                      styles.borderInput,
-                      { color: "#494949ff", backgroundColor: "#edededff" },
-                    ]}
-                    defaultValue={profile.email}
-                    editable={false}
-                  />
-                </View>
-              <View style={{ marginTop: 10 }}>
-                  <Label style={styles.label}>Tên chủ hộ </Label>
-                  <TextInput
-                    placeholder=""
-                    style={[styles.input, styles.borderInput]}
-                    defaultValue={profile.name}
-                  />
-                </View> */}
-              <TouchableOpacity
-                style={[styles.rolesWrapper, { alignItems: "center" }]}
-                onPress={() => navigate.navigate("EditProfileBussinessStore")}
-              >
-                <Text
-                  style={[
-                    styles.label,
-                    { color: "#fff", fontSize: 17, fontWeight: "700" },
-                  ]}
-                >
-                  {profile.businessName}
-                </Text>
-                <Text style={[styles.label, { color: "#fff", fontSize: 13 }]}>
-                  <Entypo name="location-pin" size={15} color="#fff" />
-                  {profile.address.street},{profile.address.ward},
-                  {profile.address.district}
-                  {profile.address.city}
-                </Text>
-                <Text style={[styles.label, { color: "#fff", fontSize: 13 }]}>
-                  <FontAwesome name="phone" size={13} color="#fff" />
-                  &nbsp;
-                  {profile.phoneNumber}
-                </Text>
-              </TouchableOpacity>
-              {/* <View style={{ marginTop: 20 }}>
-                <Te style={styles.label}>Tên hộ kinh doanh</Te>
-                <View
-                  style={{
-                    position: "relative",
-                    alignItems: "center",
-                    flexDirection: "row",
-                    height: 50,
-                    width: "100%",
-                  }}
-                >
-                  <TextInput
-                    placeholder=""
-                    style={[
-                      styles.input,
-                      styles.borderInput,
-                      { marginBottom: 0 },
-                    ]}
-                    defaultValue={profile.businessName}
-                    editable={false}
-                    // onPress={() => navigate.navigate("AboutScreen")}
-                  />
-                  <AntDesign
-                    name="arrowright"
-                    size={24}
-                    color="black"
-                    style={{ position: "absolute", right: 10 }}
-                  />
-                </View>
-              </View>
-              <View style={{ marginTop: 20 }}>
-                <Label style={styles.label}>Số điện thoại </Label>
-                <TextInput
-                  placeholder=""
-                  style={[styles.input, styles.borderInput]}
-                  defaultValue="0987654321"
-                />
-              </View>
-              <PinInputWithFaceID /> */}
             </View>
           </>
         ) : (
@@ -305,14 +234,40 @@ const styles = StyleSheet.create({
   wrInfo: {
     alignItems: "center",
     marginTop: 40,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
   },
   wrInput: {
     width: "100%",
     justifyContent: "flex-end",
     alignItems: "flex-start",
-    marginTop: 30,
+    marginBottom: 30,
   },
-  labelInput: { marginBottom: 5, fontWeight: "500" },
+  labelInput: { marginBottom: 5, fontWeight: "500", color: "#868686ff" },
+  wrField: {
+    marginTop: 30,
+    width: "100%",
+    paddingHorizontal: 15,
+    paddingVertical: 20,
+    borderRadius: 15,
+    borderColor: "#bdbdbdff",
+    shadowColor: "#9d9d9d",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    backgroundColor: "#fff",
+  },
+  btnChangePass: {
+    padding: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 30,
+    backgroundColor: "#246192ff",
+    shadowColor: "#9d9d9d",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    borderRadius: 5,
+    gap: 7,
+  },
 });
 export default ProfileBusiness;

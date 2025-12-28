@@ -1,5 +1,5 @@
 import CaptchaView from "@/src/presentation/components/CaptchaView";
-import { ColorMain } from "@/src/presentation/components/colors";
+import { ColorMain, textColorMain } from "@/src/presentation/components/colors";
 import HeaderScreen from "@/src/presentation/components/layout/Header";
 import InvoiceOutputList from "@/src/presentation/components/List/InvoiceOutputList";
 import InvoiInputList from "@/src/presentation/components/List/InvoiInputList";
@@ -9,13 +9,20 @@ import ModalLoginCCT from "@/src/presentation/components/Modal/ModalLoginCCT";
 import ModalSetDateSync from "@/src/presentation/components/Modal/ModalSetDateSync";
 import ModalSynchronized from "@/src/presentation/components/Modal/ModalSynchronized";
 import SearchByName from "@/src/presentation/components/SearchByName";
+import { getLocalDate } from "@/src/presentation/Controller/FomatDate";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { useData } from "@/src/presentation/Hooks/useDataStore";
 import { getInvoiceOutputList } from "@/src/services/API/invoiceService";
 import { getCapcha, verifyCapchaInput } from "@/src/services/API/syncInvoiceIn";
 import { CapchaInfo, InvoiceListResponse } from "@/src/types/invoiceIn";
 import { Invoice, InvoiceItemExtra } from "@/src/types/route";
-import { AntDesign, Entypo, FontAwesome5, Fontisto } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Entypo,
+  FontAwesome5,
+  Fontisto,
+  Ionicons,
+} from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -28,7 +35,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { tr } from "react-native-paper-dates";
+import { DatePickerInput, DatePickerModal, tr } from "react-native-paper-dates";
 
 type InvoiceOutputProps = {
   loading: boolean;
@@ -43,13 +50,17 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
   const [openListProductSynchronized, setOpenListProductSynchronized] =
     useState(false);
   const [selectDateCpn, setSelecDateCpn] = useState(false);
-
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [openSelectedDate, setOpenSelectedDate] = useState(false);
   const [openModalDate, setOpenModalDate] = useState(false);
+  const [startDateFil, setStartDateFil] = useState<Date | undefined>();
+  const [endDateFil, setEndDateFil] = useState<Date | undefined>();
   const [dataVerifyCapcha, setDataVerifyCapcha] = useState<
     CapchaInfo | undefined
   >(undefined);
   const [capchaCode, setCapchacode] = useState("");
-
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
   const spinValue = useRef(new Animated.Value(0)).current;
   const navigate = useAppNavigation();
   const fetchListInvoice = async () => {
@@ -160,16 +171,49 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
       setLoading(false);
     }
   };
+
+  const normalizeEndDate = (date: Date) => {
+    const d = new Date(date);
+    d.setHours(23, 59, 59, 999);
+    return d;
+  };
+
+  const filteredInvoices = invoices.filter((inv) => {
+    if (!startDateFil || !endDateFil) return true;
+
+    const invoiceDate = new Date(inv.ncnhat); // ✅ DATE THẬT
+
+    return (
+      invoiceDate >= startDateFil && invoiceDate <= normalizeEndDate(endDateFil)
+    );
+  });
+  const clearDateFilter = () => {
+    setStartDateFil(undefined);
+    setEndDateFil(undefined);
+  };
   return (
     <View style={{ flex: 1, paddingHorizontal: 10 }}>
       {/* <HeaderScreen /> */}
+      <DatePickerModal
+        locale="vi"
+        mode="range"
+        visible={openSelectedDate}
+        startDate={startDateFil}
+        endDate={endDateFil}
+        onDismiss={() => setOpenSelectedDate(false)}
+        onConfirm={({ startDate, endDate }) => {
+          setOpenSelectedDate(false);
+          setStartDateFil(startDate);
+          setEndDateFil(endDate);
+        }}
+      />
       <View style={styles.searchWrapper}>
         <SearchByName label="Tìm kiếm mã hoá đơn" />
-        <View style={{ flex: 1, alignItems: "center", paddingRight: 20 }}>
+        {/* <View style={{ flex: 1, alignItems: "center", paddingRight: 20 }}>
           <TouchableOpacity>
             <FontAwesome5 name="calendar-alt" size={24} color={ColorMain} />
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
       <View style={styles.synchronizedWrapper}>
         {/* <TouchableOpacity
@@ -181,7 +225,7 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
             <AntDesign name="plus" size={15} color="#fff" />
           </Text>
         </TouchableOpacity> */}
-        <LinearGradient
+        {/* <LinearGradient
           colors={[ColorMain, "#6A7DB3"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 3 }}
@@ -192,11 +236,11 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
             onPress={() => navigate.navigate("ExportInvoicePayment")}
           >
             <Text style={{ color: "#fff", fontSize: 14 }}>
-              Xuất hóa đơn &nbsp;
+              Xuất HĐ &nbsp;
               <AntDesign name="plus" size={15} color="#fff" />
             </Text>
           </TouchableOpacity>
-        </LinearGradient>
+        </LinearGradient> */}
 
         <LinearGradient
           colors={[ColorMain, "#6A7DB3"]}
@@ -227,14 +271,51 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
             </Text>
           </TouchableOpacity>
         </LinearGradient>
-      </View>
+        <TouchableOpacity
+          style={[
+            styles.btnSyn,
+            {
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 5,
+              borderWidth: 0.5,
+              borderColor: textColorMain,
+              borderRadius: 5,
+            },
+          ]}
+          onPress={() => {
+            if (!startDateFil || !endDateFil) {
+              setOpenSelectedDate(true);
+            }
+          }}
+        >
+          <Text style={{ color: textColorMain, fontWeight: "500" }}>
+            {startDateFil && endDateFil
+              ? `${startDateFil.toLocaleDateString()} - ${endDateFil.toLocaleDateString()}`
+              : "Tất cả"}
+          </Text>
 
+          {startDateFil && endDateFil ? (
+            <Ionicons
+              name="close"
+              size={16}
+              color={textColorMain}
+              onPress={clearDateFilter} // 🔥 xoá filter
+            />
+          ) : (
+            <Ionicons name="options" size={15} color={textColorMain} />
+          )}
+        </TouchableOpacity>
+      </View>
       <ModalCreateProductsByInvoiceOuput
         setOpenListProductSynchronized={setOpenListProductSynchronized}
         openListProductSynchronized={openListProductSynchronized}
         invoicesData={invoices}
       />
-      <InvoiceOutputList invoicesData={invoices} fetchData={fetchListInvoice} />
+      <InvoiceOutputList
+        invoicesData={filteredInvoices}
+        fetchData={fetchListInvoice}
+      />
       {/* <ModalSynchronized visible={visible} setVisible={setVisible} /> */}
       <ModalLoginCCT openLogin={openLogin} setOpenLogin={setOpenLogin} />
       <ModalSynchronized
@@ -249,6 +330,9 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
         setLoading={setLoading}
         setSelecDateCpn={setSelecDateCpn}
         selectDateCpn={selectDateCpn}
+        startDate={startDate}
+        setStartDate={setStartDate}
+        endDate={endDate}
       />
       <ModalSetDateSync visible={openModalDate} setVisible={setOpenModalDate} />
     </View>
@@ -267,8 +351,9 @@ const styles = StyleSheet.create({
   },
   synchronizedWrapper: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     marginTop: 15,
+    gap: 50,
   },
   btnSyn: {
     backgroundColor: "transparent",

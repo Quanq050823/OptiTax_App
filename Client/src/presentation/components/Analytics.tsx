@@ -34,7 +34,9 @@ import ShimmerSweep from "./ShimmerSweep";
 import { useAppNavigation } from "../Hooks/useAppNavigation";
 import MovingText from "./MovingText";
 import { getTotalTaxes } from "@/src/services/API/taxService";
-
+import Svg, { Path, Text as SvgText } from "react-native-svg";
+import { ControllerTaxDeclarationExportTax04CNKD } from "../Controller/taxDeclaration/exportTax04CNKD";
+import ButtonToKhai from "./ButtonToKhai";
 export default function Analytics() {
   const navigate = useAppNavigation();
   const [visiSync, setVisiSync] = useState(false);
@@ -228,13 +230,48 @@ export default function Analytics() {
             position: "relative",
             paddingHorizontal: 10,
             alignItems: "center",
-            marginBottom: 50,
           }}
         >
           <View style={styles.taxContainer}>
             <View
               style={{ flexDirection: "row", justifyContent: "space-between" }}
             >
+              <LinearGradient
+                colors={["#4dbf99ff", "#3858b1ff"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 3 }}
+                style={[
+                  {
+                    position: "absolute",
+                    top: -30,
+                    left: 30,
+                    right: 30,
+                    paddingVertical: 7,
+
+                    borderBottomRightRadius: 100,
+                    borderBottomLeftRadius: 100,
+                    alignSelf: "center",
+                  },
+                ]}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text style={{ color: "#fff", fontWeight: "500" }}>
+                    Tất cả (2025)
+                  </Text>
+                  <MaterialIcons
+                    name="keyboard-arrow-right"
+                    size={17}
+                    color="#fff"
+                  />
+                </View>
+              </LinearGradient>
+
               <View style={[styles.taxCard]}>
                 <Text style={styles.taxLabel}>Thuế GTGT</Text>
                 <Text style={styles.taxValue}>
@@ -282,198 +319,193 @@ export default function Analytics() {
                 </Text>
               </View>
             </View>
-            <View style={{ alignItems: "center" }}>
-              <Text>Tháng 12</Text>
-            </View>
           </View>
         </View>
-        <View style={{ paddingHorizontal: 10 }}>
-          <View style={{ position: "relative" }}>
-            <LinearGradient
-              onLayout={(e) => {
-                const { width, height } = e.nativeEvent.layout;
-                setHdrSize({ w: width, h: height }); // 👈 CẬP NHẬT KÍCH THƯỚC
-              }}
-              colors={["#5be6b7ff", "#6A7DB3"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 3 }}
-              style={{
-                padding: 5,
-                borderRadius: 10,
-                shadowColor: "#a1a1a1ff",
-                shadowOffset: { width: 0, height: 0 },
-                shadowOpacity: 0.25,
-                marginTop: 20,
-                overflow: "hidden",
-                position: "relative",
-              }}
-            >
-              <View
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View
+            style={{ paddingHorizontal: 10, marginTop: 30, paddingBottom: 150 }}
+          >
+            <View style={{ position: "relative" }}>
+              <LinearGradient
+                onLayout={(e) => {
+                  const { width, height } = e.nativeEvent.layout;
+                  setHdrSize({ w: width, h: height }); // 👈 CẬP NHẬT KÍCH THƯỚC
+                }}
+                colors={["#5be6b7ff", "#6A7DB3"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 3 }}
                 style={{
                   padding: 5,
-                  flexDirection: "row",
-                  alignItems: "center",
+                  borderRadius: 10,
+                  shadowColor: "#a1a1a1ff",
+                  shadowOffset: { width: 0, height: 0 },
+                  shadowOpacity: 0.25,
+                  marginTop: 20,
+                  overflow: "hidden",
+                  position: "relative",
                 }}
               >
-                <EvilIcons name="calendar" size={24} color="black" />
-                <Text style={styles.deadlineLabel}>
-                  Hạn nộp tờ khai {deadlineInfo.period || "..."} (Dương lịch)
-                </Text>
-              </View>
-              <View style={{ backgroundColor: "#fff", borderRadius: 10 }}>
-                <View style={styles.deadlineCard}>
-                  {!deadlineInfo.isInFilingPeriod ? (
-                    <View
-                      style={{
-                        flex: 1,
-                        alignItems: "center",
-                        paddingVertical: 20,
-                      }}
-                    >
-                      <MaterialIcons name="schedule" size={40} color="#999" />
-                      <Text
+                <View
+                  style={{
+                    padding: 5,
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <EvilIcons name="calendar" size={24} color="black" />
+                  <Text style={styles.deadlineLabel}>
+                    Hạn nộp tờ khai {deadlineInfo.period || "..."} (Dương lịch)
+                  </Text>
+                </View>
+                <View style={{ backgroundColor: "#fff", borderRadius: 10 }}>
+                  <View style={styles.deadlineCard}>
+                    {!deadlineInfo.isInFilingPeriod ? (
+                      <View
                         style={{
-                          marginTop: 10,
-                          fontSize: 16,
-                          color: "#666",
-                          fontWeight: "600",
+                          flex: 1,
+                          alignItems: "center",
+                          paddingVertical: 20,
                         }}
                       >
-                        Chưa đến thời gian nộp
-                      </Text>
-                      <Text
-                        style={{ fontSize: 13, color: "#999", marginTop: 5 }}
-                      >
-                        Hạn nộp:
-                        {deadlineInfo.deadline
-                          ? deadlineInfo.deadline.replace(/\./g, " . ")
-                          : "-- . -- . ----"}
-                      </Text>
-                    </View>
-                  ) : (
-                    <>
-                      <View style={styles.deadlineLeft}>
-                        <Text style={styles.deadlineDate}>
+                        <MaterialIcons name="schedule" size={40} color="#999" />
+                        <Text
+                          style={{
+                            marginTop: 10,
+                            fontSize: 16,
+                            color: "#666",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Chưa đến thời gian nộp
+                        </Text>
+                        <Text
+                          style={{ fontSize: 13, color: "#999", marginTop: 5 }}
+                        >
+                          Hạn nộp:
                           {deadlineInfo.deadline
                             ? deadlineInfo.deadline.replace(/\./g, " . ")
                             : "-- . -- . ----"}
                         </Text>
                       </View>
-                      <View style={styles.deadlineStatusBox}>
-                        <View
-                          style={{
-                            position: "absolute",
-                            height: 20,
-                            borderWidth: 0.3,
-                            left: -10,
-                            borderColor: textDealineColor,
-                            top: 7,
-                          }}
-                        />
-                        <Text
-                          style={{ alignSelf: "flex-end", marginBottom: 7 }}
-                        >
-                          {deadlineInfo.daysRemaining > 0
-                            ? "Kết thúc sau"
-                            : "Đã quá hạn"}
-                        </Text>
-                        <Text style={styles.deadlineStatus}>
-                          <Text
-                            style={{
-                              fontSize: 30,
-                              color:
-                                deadlineInfo.daysRemaining < 0
-                                  ? "#d9534f"
-                                  : textDealineColor,
-                              fontWeight: "600",
-                            }}
-                          >
-                            {Math.abs(deadlineInfo.daysRemaining) || "0"}
+                    ) : (
+                      <>
+                        <View style={styles.deadlineLeft}>
+                          <Text style={styles.deadlineDate}>
+                            {deadlineInfo.deadline
+                              ? deadlineInfo.deadline.replace(/\./g, " . ")
+                              : "-- . -- . ----"}
                           </Text>
-                          ngày
-                        </Text>
-                      </View>
-                    </>
-                  )}
-                  {/* <TouchableOpacity style={styles.deadlineBtn} activeOpacity={0.8}>
+                        </View>
+                        <View style={styles.deadlineStatusBox}>
+                          <View
+                            style={{
+                              position: "absolute",
+                              height: 20,
+                              borderWidth: 0.3,
+                              left: -10,
+                              borderColor: textDealineColor,
+                              top: 7,
+                            }}
+                          />
+                          <Text
+                            style={{ alignSelf: "flex-end", marginBottom: 7 }}
+                          >
+                            {deadlineInfo.daysRemaining > 0
+                              ? "Kết thúc sau"
+                              : "Đã quá hạn"}
+                          </Text>
+                          <Text style={styles.deadlineStatus}>
+                            <Text
+                              style={{
+                                fontSize: 30,
+                                color:
+                                  deadlineInfo.daysRemaining < 0
+                                    ? "#d9534f"
+                                    : textDealineColor,
+                                fontWeight: "600",
+                              }}
+                            >
+                              {Math.abs(deadlineInfo.daysRemaining) || "0"}
+                            </Text>
+                            ngày
+                          </Text>
+                        </View>
+                      </>
+                    )}
+                    {/* <TouchableOpacity style={styles.deadlineBtn} activeOpacity={0.8}>
               <Text style={styles.deadlineBtnText}>Xem chi tiết</Text>
             </TouchableOpacity> */}
-                </View>
-                <View
-                  style={{
-                    width: "80%",
-                    borderTopWidth: 0.5,
-                    alignSelf: "center",
-                    borderStyle: "dashed",
-                  }}
-                />
-                <TouchableOpacity style={styles.detalDealine}>
-                  <Text style={{ color: "#555555ff" }}>Xem chi tiết</Text>
-                  <MaterialIcons
-                    name="keyboard-double-arrow-right"
-                    size={16}
-                    color="#555555ff"
+                  </View>
+                  <View
+                    style={{
+                      width: "80%",
+                      borderTopWidth: 0.5,
+                      alignSelf: "center",
+                      borderStyle: "dashed",
+                    }}
                   />
-                </TouchableOpacity>
-              </View>
-              <ShimmerSweep
-                sweepDuration={5000}
-                pauseDuration={200}
-                angleDeg={20}
-                intensity={0.7}
-                bandWidth={60}
-                containerWidth={hdrSize.w}
-                containerHeight={hdrSize.h}
-              />
+                  <TouchableOpacity style={styles.detalDealine}>
+                    <Text style={{ color: "#555555ff" }}>Xem chi tiết</Text>
+                    <MaterialIcons
+                      name="keyboard-double-arrow-right"
+                      size={16}
+                      color="#555555ff"
+                    />
+                  </TouchableOpacity>
+                </View>
+                <ShimmerSweep
+                  sweepDuration={5000}
+                  pauseDuration={200}
+                  angleDeg={20}
+                  intensity={0.7}
+                  bandWidth={60}
+                  containerWidth={hdrSize.w}
+                  containerHeight={hdrSize.h}
+                />
+              </LinearGradient>
+            </View>
+            <LinearGradient
+              colors={["#4dbf99ff", "#6A7DB3"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 3 }}
+              style={styles.btnShow}
+            >
+              <ButtonToKhai />
+            </LinearGradient>
+            <LinearGradient
+              colors={["#FF9966", "#FF5E62"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 3 }}
+              style={styles.btnShow}
+            >
+              <TouchableOpacity
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  flex: 1,
+                  width: "100%",
+                  justifyContent: "center",
+                }}
+                onPress={() => navigate.navigate("ReportExportScreen")}
+              >
+                <Text
+                  style={{
+                    color: "#fff",
+                    fontWeight: "600",
+                    fontSize: 15,
+                  }}
+                >
+                  Xuất báo cáo &nbsp;
+                </Text>
+                <MaterialCommunityIcons
+                  name="invoice-text-arrow-right"
+                  size={20}
+                  color="#fff"
+                />
+              </TouchableOpacity>
             </LinearGradient>
           </View>
-          <LinearGradient
-            colors={["#4dbf99ff", "#6A7DB3"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 3 }}
-            style={styles.btnShow}
-          >
-            <TouchableOpacity>
-              <Text style={{ color: "#fff", fontWeight: "600", fontSize: 15 }}>
-                Tờ khai 04 / CNKD &nbsp;
-                <AntDesign name="folder-open" size={17} color="#fff" />
-              </Text>
-            </TouchableOpacity>
-          </LinearGradient>
-          <LinearGradient
-            colors={["#FF9966", "#FF5E62"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 3 }}
-            style={styles.btnShow}
-          >
-            <TouchableOpacity
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                flex: 1,
-                width: "100%",
-                justifyContent: "center",
-              }}
-              onPress={() => navigate.navigate("ReportExportScreen")}
-            >
-              <Text
-                style={{
-                  color: "#fff",
-                  fontWeight: "600",
-                  fontSize: 15,
-                }}
-              >
-                Xuất báo cáo &nbsp;
-              </Text>
-              <MaterialCommunityIcons
-                name="invoice-text-arrow-right"
-                size={20}
-                color="#fff"
-              />
-            </TouchableOpacity>
-          </LinearGradient>
-        </View>
-
+        </ScrollView>
         {/* Line Chart */}
       </View>
     </View>
@@ -523,6 +555,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.25,
     shadowRadius: 5,
+    overflow: "visible",
+    paddingTop: 30,
   },
   taxCard: {
     flex: 1,
@@ -633,5 +667,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
+  },
+  notchMask: {
+    position: "absolute",
+    bottom: -10, // sát đáy card
+    left: 0,
+    right: 0,
+    height: 30,
+    alignItems: "center",
+    pointerEvents: "none",
   },
 });

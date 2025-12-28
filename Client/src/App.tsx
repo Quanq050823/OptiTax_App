@@ -11,6 +11,7 @@ import { useFonts } from "expo-font";
 import { ActivityIndicator, View } from "react-native";
 import { PaperProvider } from "react-native-paper";
 import { ThemeProvider } from "./presentation/Hooks/useTheme";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 global.Buffer = Buffer;
 
 // const linking = {
@@ -32,17 +33,19 @@ function App() {
     // MontserratBold: require("./assets/fonts/Montserrat-Bold.ttf"),
   });
   return (
-    <PaperProvider>
-      <DataProvider>
-        <UserTypeProvider>
-          <ThemeProvider>
-            <View style={{ flex: 1 }}>
-              <AppNavigation />
-            </View>
-          </ThemeProvider>
-        </UserTypeProvider>
-      </DataProvider>
-    </PaperProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PaperProvider>
+        <DataProvider>
+          <UserTypeProvider>
+            <ThemeProvider>
+              <View style={{ flex: 1 }}>
+                <AppNavigation />
+              </View>
+            </ThemeProvider>
+          </UserTypeProvider>
+        </DataProvider>
+      </PaperProvider>
+    </GestureHandlerRootView>
   );
 }
 

@@ -57,20 +57,26 @@ function HomeScreen(): React.JSX.Element {
         navigate.navigate("SearchAccountantScreen");
       },
     },
-    {
-      key: "report",
-      label: "Báo cáo",
-      icon: <FontAwesome name="bar-chart" size={32} color="#FF9800" />,
-      navigate: () => {
-        navigate.navigate("ChooseReportItemScreen");
-      },
-    },
+    // {
+    //   key: "report",
+    //   label: "Báo cáo",
+    //   icon: <FontAwesome name="bar-chart" size={32} color="#FF9800" />,
+    //   navigate: () => {
+    //     navigate.navigate("ChooseReportItemScreen");
+    //   },
+    // },
     // {
     //   key: "capture invoices",
     //   label: "Quét hoá đơn",
-    //   icon: <AntDesign name="scan1" size={24} color="black" />,
+    //   icon: <AntDesign name="scan" size={24} color="black" />,
     //   navigate: () => openCamera(setImageUri),
     // },
+    {
+      key: "storage",
+      label: "Kho",
+      icon: <FontAwesome5 name="box-open" size={24} color="#616161ff" />,
+      navigate: () => navigate.navigate("InventoryManagementScreen"),
+    },
     {
       key: "customers",
       label: "Khách hàng",

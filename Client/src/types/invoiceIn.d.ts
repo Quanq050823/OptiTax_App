@@ -49,7 +49,8 @@ export type RawInvoice = {
   id?: string;
   idtbao?: string | null;
   khdon?: any;
-  khhdgoc?: any;
+  khhdgoc?: any;  ngayLap?: string;
+
   khmshdgoc?: any;
   lhdgoc?: any;
   mtdiep?: any;

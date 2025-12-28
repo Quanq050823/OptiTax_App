@@ -70,93 +70,93 @@ export type Product = {
   sotienckhau?: number;
 };
 
-const invoiceData: Invoice = {
-  soHoaDon: 37974,
-  kyHieu: "C25TSD",
-  ngayLap: "2025-09-05",
-  nguoiBan: {
-    ten: "CÔNG TY CỔ PHẦN ĐẦU TƯ CÔNG NGHỆ VÀ THƯƠNG MẠI SOFTDREAMS",
-    mst: "0105987432",
-  },
-  nguoiMua: { ten: "Huỳnh Thị Minh Lý", mst: "0310711010" },
-  loaiHoaDon: "Hóa đơn giá trị gia tăng",
-  tienTruocThue: 2300000,
-  thueGTGT: 0,
-  tongThanhToan: 2300000,
-  ghiChu: "Thuế suất KCT (không chịu thuế)",
-  products: [
-    {
-      idhdon: "e8fa8ab3-1d96-49e7-9446-54303406edef",
-      id: "e8291a30-ef75-4c07-88dd-dd7fafbbbc31",
-      stt: 1,
-      ten: "PHẦN MỀM HÓA ĐƠN ĐIỆN TỬ 3000 HÓA ĐƠN - GOLD GIA HẠN",
-      sluong: 1,
-      dvtinh: "Gói",
-      dgia: 2300000,
-      thtien: 2300000,
-      tsuat: 0,
-      ltsuat: "KCT",
-      tthue: 0,
-      sotienckhau: 0,
-    },
-    {
-      idhdon: "e8fa8ab3-1d96-49e7-9446-54303406edec",
-      id: "e8291a30-ef75-4c07-88dd-dd7fafbbbc32",
-      stt: 1,
-      ten: "PHẦN MỀM HÓA ĐƠN ĐIỆN TỬ 3000 HÓA ĐƠN - GOLD GIA HẠN",
-      sluong: 1,
-      dvtinh: "Gói",
-      dgia: 2300000,
-      thtien: 2300000,
-      tsuat: 0,
-      ltsuat: "KCT",
-      tthue: 0,
-      sotienckhau: 0,
-    },
-    {
-      idhdon: "123",
-      id: "22",
-      stt: 1,
-      ten: "Kem dâu",
-      sluong: 1,
-      dvtinh: "Gói",
-      dgia: 2300000,
-      thtien: 2300000,
-      tsuat: 0,
-      ltsuat: "KCT",
-      tthue: 0,
-      sotienckhau: 0,
-    },
-    {
-      idhdon: "12",
-      id: "23",
-      stt: 1,
-      ten: "Kem dâu",
-      sluong: 1,
-      dvtinh: "Gói",
-      dgia: 2300000,
-      thtien: 2300000,
-      tsuat: 0,
-      ltsuat: "KCT",
-      tthue: 0,
-      sotienckhau: 0,
-    },
-    {
-      idhdon: "23",
-      id: "24",
-      stt: 1,
-      ten: "Kem dâu",
-      sluong: 1,
-      dvtinh: "Gói",
-      dgia: 2300000,
-      thtien: 2300000,
-      tsuat: 0,
-      ltsuat: "KCT",
-      tthue: 0,
-      sotienckhau: 0,
-    },
-  ],
-};
+//
+//   soHoaDon: 37974,
+//   kyHieu: "C25TSD",
+//   ngayLap: "2025-09-05",
+//   nguoiBan: {
+//     ten: "CÔNG TY CỔ PHẦN ĐẦU TƯ CÔNG NGHỆ VÀ THƯƠNG MẠI SOFTDREAMS",
+//     mst: "0105987432",
+//   },
+//   nguoiMua: { ten: "Huỳnh Thị Minh Lý", mst: "0310711010" },
+//   loaiHoaDon: "Hóa đơn giá trị gia tăng",
+//   tienTruocThue: 2300000,
+//   thueGTGT: 0,
+//   tongThanhToan: 2300000,
+//   ghiChu: "Thuế suất KCT (không chịu thuế)",
+//   products: [
+//     {
+//       idhdon: "e8fa8ab3-1d96-49e7-9446-54303406edef",
+//       id: "e8291a30-ef75-4c07-88dd-dd7fafbbbc31",
+//       stt: 1,
+//       ten: "PHẦN MỀM HÓA ĐƠN ĐIỆN TỬ 3000 HÓA ĐƠN - GOLD GIA HẠN",
+//       sluong: 1,
+//       dvtinh: "Gói",
+//       dgia: 2300000,
+//       thtien: 2300000,
+//       tsuat: 0,
+//       ltsuat: "KCT",
+//       tthue: 0,
+//       sotienckhau: 0,
+//     },
+//     {
+//       idhdon: "e8fa8ab3-1d96-49e7-9446-54303406edec",
+//       id: "e8291a30-ef75-4c07-88dd-dd7fafbbbc32",
+//       stt: 1,
+//       ten: "PHẦN MỀM HÓA ĐƠN ĐIỆN TỬ 3000 HÓA ĐƠN - GOLD GIA HẠN",
+//       sluong: 1,
+//       dvtinh: "Gói",
+//       dgia: 2300000,
+//       thtien: 2300000,
+//       tsuat: 0,
+//       ltsuat: "KCT",
+//       tthue: 0,
+//       sotienckhau: 0,
+//     },
+//     {
+//       idhdon: "123",
+//       id: "22",
+//       stt: 1,
+//       ten: "Kem dâu",
+//       sluong: 1,
+//       dvtinh: "Gói",
+//       dgia: 2300000,
+//       thtien: 2300000,
+//       tsuat: 0,
+//       ltsuat: "KCT",
+//       tthue: 0,
+//       sotienckhau: 0,
+//     },
+//     {
+//       idhdon: "12",
+//       id: "23",
+//       stt: 1,
+//       ten: "Kem dâu",
+//       sluong: 1,
+//       dvtinh: "Gói",
+//       dgia: 2300000,
+//       thtien: 2300000,
+//       tsuat: 0,
+//       ltsuat: "KCT",
+//       tthue: 0,
+//       sotienckhau: 0,
+//     },
+//     {
+//       idhdon: "23",
+//       id: "24",
+//       stt: 1,
+//       ten: "Kem dâu",
+//       sluong: 1,
+//       dvtinh: "Gói",
+//       dgia: 2300000,
+//       thtien: 2300000,
+//       tsuat: 0,
+//       ltsuat: "KCT",
+//       tthue: 0,
+//       sotienckhau: 0,
+//     },
+//   ],
+// };
 
 type ProductRow = Product & {
   soHoaDon: number;
@@ -359,75 +359,9 @@ export async function exportFromTemplate(invoiceData: Invoice) {
 
 export default function ReportExport() {
   const navigate = useAppNavigation();
-  const features: Feature[] = [
-    {
-      key: "InvoiceOuput",
-      label: "Doanh thu bán hàng hoá, dịch vụ",
-      action: () =>
-        exportInvoiceOutputS1({
-          mode,
-          selectedDate,
-          range,
-          invoicesOutput,
-          profile,
-          setLoading,
-        }),
-    },
-    // {
-    //   key: "InvoiceInput",
-    //   label: "Phí vật liệu, dụng cụ, sản phẩm, hàng hoá",
-    //   action: () =>
-    //     exportInvoiceInputS2({
-    //       mode,
-    //       selectedDate,
-    //       range,
-    //       invoiceInputDataSync,
-    //       profile,
-    //       setLoading,
-    //     }),
-    //   exportExcel: () => exportFromTemplate(invoiceData),
-    // },
-    // {
-    //   key: "VoucherOutput",
-    //   label: "Chi phí sản xuất kinh doanh",
-    //   action: () =>
-    //     exportCulateTotalCost({
-    //       mode,
-    //       selectedDate,
-    //       range,
-    //       voucherPayList,
-    //       profile,
-    //       setLoading,
-    //     }),
-    // },
-    // {
-    //   key: "Tax",
-    //   label: "Tình hình thực hiện nghĩa vụ thuế",
-    //   action: () =>
-    //     ExportTaxSubmitS4({
-    //       mode,
-    //       selectedDate,
-    //       range,
-    //       taxList,
-    //       profile,
-    //       setLoading,
-    //       invoicesOutput,
-    //     }),
-    // },
-    // {
-    //   key: "Pay",
-    //   label: "Thanh toán lương lao động",
-    //   // action: handleExportPDF,
-    // },
-    // {
-    //   key: "Cash",
-    //   label: "Quỹ tiền mặt - Báo cáo",
-    //   // action: handleExportPDF,
-    // },
-  ];
-  const [selectedKey, setSelectedKey] = useState<Feature | null>(
-    features.find((f) => f.key === "InvoiceOuput") || null
-  );
+  // const [selectedKey, setSelectedKey] = useState<Feature | null>(
+  //   features.find((f) => f.key === "InvoiceOuput") || null
+  // );
   const {
     data: profile,
     invoicesOutput,
@@ -440,7 +374,7 @@ export default function ReportExport() {
 
   useEffect(() => {
     fetchData();
-  }, [selectedKey]);
+  }, []);
 
   const [mode, setMode] = useState<"month" | "quarter" | "range">("month");
   const [visible, setVisible] = useState(false);
@@ -453,7 +387,72 @@ export default function ReportExport() {
     startDate: undefined,
     endDate: undefined,
   });
-  console.log(range);
+  // const features: Feature[] = [
+  //   {
+  //     key: "InvoiceOuput",
+  //     label: "Doanh thu bán hàng hoá, dịch vụ",
+  //     action: () =>
+  //       exportInvoiceOutputS1({
+  //         mode,
+  //         selectedDate,
+  //         range,
+  //         invoicesOutput,
+  //         profile,
+  //         setLoading,
+  //       }),
+  //   },
+  //   // {
+  //   //   key: "InvoiceInput",
+  //   //   label: "Phí vật liệu, dụng cụ, sản phẩm, hàng hoá",
+  //   //   action: () =>
+  //   //     exportInvoiceInputS2({
+  //   //       mode,
+  //   //       selectedDate,
+  //   //       range,
+  //   //       invoiceInputDataSync,
+  //   //       profile,
+  //   //       setLoading,
+  //   //     }),
+  //   //   exportExcel: () => exportFromTemplate(invoiceData),
+  //   // },
+  //   // {
+  //   //   key: "VoucherOutput",
+  //   //   label: "Chi phí sản xuất kinh doanh",
+  //   //   action: () =>
+  //   //     exportCulateTotalCost({
+  //   //       mode,
+  //   //       selectedDate,
+  //   //       range,
+  //   //       voucherPayList,
+  //   //       profile,
+  //   //       setLoading,
+  //   //     }),
+  //   // },
+  //   // {
+  //   //   key: "Tax",
+  //   //   label: "Tình hình thực hiện nghĩa vụ thuế",
+  //   //   action: () =>
+  //   //     ExportTaxSubmitS4({
+  //   //       mode,
+  //   //       selectedDate,
+  //   //       range,
+  //   //       taxList,
+  //   //       profile,
+  //   //       setLoading,
+  //   //       invoicesOutput,
+  //   //     }),
+  //   // },
+  //   // {
+  //   //   key: "Pay",
+  //   //   label: "Thanh toán lương lao động",
+  //   //   // action: handleExportPDF,
+  //   // },
+  //   // {
+  //   //   key: "Cash",
+  //   //   label: "Quỹ tiền mặt - Báo cáo",
+  //   //   // action: handleExportPDF,
+  //   // },
+  // ];
 
   const renderRadio = (checked: boolean) => (
     <View
@@ -466,25 +465,25 @@ export default function ReportExport() {
     </View>
   );
 
-  useEffect(() => {
-    const animationsArray = features.map((_, i) =>
-      Animated.parallel([
-        Animated.timing(animations[i], {
-          toValue: 0,
-          duration: 400,
-          delay: i * 150, // lần lượt
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacities[i], {
-          toValue: 1,
-          duration: 1000,
-          delay: i * 150,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    Animated.stagger(100, animationsArray).start();
-  }, []);
+  // useEffect(() => {
+  //   const animationsArray = features.map((_, i) =>
+  //     Animated.parallel([
+  //       Animated.timing(animations[i], {
+  //         toValue: 0,
+  //         duration: 400,
+  //         delay: i * 150, // lần lượt
+  //         useNativeDriver: true,
+  //       }),
+  //       Animated.timing(opacities[i], {
+  //         toValue: 1,
+  //         duration: 1000,
+  //         delay: i * 150,
+  //         useNativeDriver: true,
+  //       }),
+  //     ])
+  //   );
+  //   Animated.stagger(100, animationsArray).start();
+  // }, []);
 
   const onDismiss = () => setVisible(false);
   const onConfirmSingle = (params: { date: CalendarDate }) => {
@@ -515,54 +514,54 @@ export default function ReportExport() {
     return 4;
   };
 
-  const animations = useRef(features.map(() => new Animated.Value(50))).current; // bắt đầu ở Y=50 (dịch xuống)
-  const opacities = useRef(features.map(() => new Animated.Value(0))).current;
+  // const animations = useRef(features.map(() => new Animated.Value(50))).current; // bắt đầu ở Y=50 (dịch xuống)
+  // const opacities = useRef(features.map(() => new Animated.Value(0))).current;
 
-  const renderItem = ({ item, index }: { item: Feature; index: number }) => {
-    const isSelected = selectedKey?.key === item.key;
+  // const renderItem = ({ item, index }: { item: Feature; index: number }) => {
+  //   const isSelected = selectedKey?.key === item.key;
 
-    return (
-      <Animated.View
-        style={{
-          transform: [{ translateY: animations[index] }],
-          opacity: opacities[index],
-          flex: 1,
-          position: "relative",
-        }}
-      >
-        <TouchableOpacity
-          style={[
-            styles.item,
-            {
-              backgroundColor: isSelected ? ColorMain : "#fff",
-              position: "relative",
-            },
-          ]}
-          onPress={() => setSelectedKey(item)}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              flex: 1,
-              width: "100%",
-              justifyContent: "center",
-            }}
-          >
-            {renderRadio(isSelected)}
-            <Text
-              style={{
-                color: isSelected ? "#fff" : "#000",
-                fontWeight: "700",
-              }}
-            >
-              {item.label}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      </Animated.View>
-    );
-  };
+  //   return (
+  //     <Animated.View
+  //       style={{
+  //         // transform: [{ translateY: animations[index] }],
+  //         // opacity: opacities[index],
+  //         flex: 1,
+  //         position: "relative",
+  //       }}
+  //     >
+  //       <TouchableOpacity
+  //         style={[
+  //           styles.item,
+  //           {
+  //             backgroundColor: isSelected ? ColorMain : "#fff",
+  //             position: "relative",
+  //           },
+  //         ]}
+  //         onPress={() => setSelectedKey(item)}
+  //       >
+  //         <View
+  //           style={{
+  //             flexDirection: "row",
+  //             alignItems: "center",
+  //             flex: 1,
+  //             width: "100%",
+  //             justifyContent: "center",
+  //           }}
+  //         >
+  //           {renderRadio(isSelected)}
+  //           <Text
+  //             style={{
+  //               color: isSelected ? "#fff" : "#000",
+  //               fontWeight: "700",
+  //             }}
+  //           >
+  //             {item.label}
+  //           </Text>
+  //         </View>
+  //       </TouchableOpacity>
+  //     </Animated.View>
+  //   );
+  // };
   return (
     <>
       <ImageBackground
@@ -593,17 +592,15 @@ export default function ReportExport() {
             <View style={{ paddingHorizontal: 20, marginTop: 20 }}>
               <Text
                 style={{ fontSize: 18, fontWeight: "600", color: "#494949ff" }}
-              >
-                Mẫu báo cáo
-              </Text>
+              ></Text>
             </View>
-            <View style={styles.gridContainer}>
+            {/* <View style={styles.gridContainer}>
               <FlatList
                 data={features}
                 renderItem={renderItem}
                 numColumns={1}
               />
-            </View>
+            </View> */}
             <View
               style={{
                 marginBottom: 20,
@@ -623,11 +620,14 @@ export default function ReportExport() {
                 //   handleExportPDF();
                 // }}
                 onPress={() => {
-                  if (!selectedKey) {
-                    Alert.alert("Thông báo", "Vui lòng chọn một mục để xuất");
-                    return;
-                  }
-                  selectedKey.action?.();
+                  exportInvoiceOutputS1({
+                    mode,
+                    selectedDate,
+                    range,
+                    invoicesOutput,
+                    profile,
+                    setLoading,
+                  });
                 }}
                 style={[
                   styles.btnExportExcel,
@@ -645,13 +645,16 @@ export default function ReportExport() {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => {
-                  if (!selectedKey) {
-                    alert("Vui lòng chọn chức năng");
-                    return;
-                  }
-                  selectedKey.exportExcel?.(); // 👉 Gọi đúng function đã gắn
-                }}
+                onPress={() =>
+                  exportInvoiceOutputS1({
+                    mode,
+                    selectedDate,
+                    range,
+                    invoicesOutput,
+                    profile,
+                    setLoading,
+                  })
+                }
                 style={[
                   styles.btnExportExcel,
                   { borderWidth: 0.5, borderColor: "#0e7237ff" },

@@ -17,7 +17,7 @@ import { PaymentVoucher, VoucherPaymentResponse } from "@/src/types/voucher";
 import { createContext, useContext, useEffect, useState } from "react";
 
 // context.tsx
-interface DataContextType {
+export interface DataContextType {
   data?: Profile;
   setData: React.Dispatch<React.SetStateAction<Profile | undefined>>;
   invoicesInput: Invoice[];
@@ -54,6 +54,7 @@ export const DataProvider = ({ children }: DataProviderProps) => {
         phoneNumber: business?.phoneNumber,
         taxCode: business?.taxCode,
         password: business?.password,
+        businessType: business.businessType,
       });
 
       const invoiceInSync = await getInvoiceIn();
@@ -68,7 +69,6 @@ export const DataProvider = ({ children }: DataProviderProps) => {
       setTaxList(dataTax.data);
 
       const voucherData: VoucherPaymentResponse = await getVoucherPayment();
-      console.log(voucherData, "voucher payment");
       setVoucherPayList(voucherData.data);
     } catch (error) {
       return;

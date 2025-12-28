@@ -15,6 +15,7 @@ import {
 } from "@/src/types/route";
 import {
   AntDesign,
+  Feather,
   Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
@@ -35,6 +36,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Swipeable } from "react-native-gesture-handler";
 import { Searchbar } from "react-native-paper";
 type NewProduct = {
   name: string;
@@ -66,7 +68,8 @@ export default function ProductManagerScreen() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-
+  const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
+  const [openId, setOpenId] = useState<string | null>(null);
   const screenWidth = Dimensions.get("window").width;
   const ITEM_MARGIN = 8;
   const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
@@ -170,107 +173,147 @@ export default function ProductManagerScreen() {
     // setIdEditProduct(id);
     navigate.navigate("EditProductScreen", { id });
   };
-  const renderItem = ({ item }: any) => (
-    <View>
-      <View
-        style={[
-          styles.card,
-          {
-            position: "relative",
-          },
-        ]}
+  const renderRightActions = (item: Product) => (
+    <View style={styles.rightActionContainer}>
+      <TouchableOpacity
+        style={[styles.actionBtn, { backgroundColor: "#0f7aacff" }]}
+        onPress={() => handleOpenModalEditProduct(item._id)}
       >
+        <Text style={styles.actionText}>Sửa</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.actionBtn, { backgroundColor: "#c21212ff" }]}
+        onPress={() => handleDeleteProduct(item._id)}
+      >
+        <Text style={styles.actionText}>Xóa</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderItem = ({ item }: any) => (
+    <Swipeable
+      renderRightActions={() => renderRightActions(item)}
+      overshootRight={false}
+      ref={(ref) => {
+        if (ref) swipeableRefs.current.set(item._id, ref);
+      }}
+      onSwipeableOpen={() => setOpenId(item._id)}
+      onSwipeableClose={() => setOpenId(null)}
+    >
+      <View>
         <View
-          style={{
-            flex: 1,
-            alignItems: "center",
-            width: "100%",
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
+          style={[
+            styles.card,
+            {
+              position: "relative",
+            },
+          ]}
         >
-          <Image source={{ uri: item.imageUrl }} style={styles.image} />
           <View
             style={{
-              alignContent: "flex-start",
-              flex: showAction === item.code ? 2 : 4,
-              paddingHorizontal: 10,
-            }}
-          >
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.detail}>
-              Giá: {item.price.toLocaleString()}đ
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={{
-              flex: 0.5,
+              flex: 1,
+              alignItems: "center",
+              width: "100%",
               flexDirection: "row",
-              justifyContent: "center",
+              justifyContent: "space-between",
             }}
-            onPress={() => handleShowAction(item.code)}
           >
-            {showAction === item.code ? (
-              <SimpleLineIcons name="close" size={24} color="black" />
-            ) : (
-              <SimpleLineIcons
-                name="arrow-right-circle"
-                size={24}
-                color="black"
-              />
-            )}
-          </TouchableOpacity>
-          {showAction === item.code && (
-            <Animated.View
+            <Image source={{ uri: item.imageUrl }} style={styles.image} />
+            <View
               style={{
-                flexDirection: "row",
-                flex: 2,
-                height: "100%",
-                transform: [
-                  {
-                    translateX: slideAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [100, 0], // 👈 trượt từ phải vào
-                    }),
-                  },
-                ],
-                opacity: slideAnim,
+                alignContent: "flex-start",
+                flex: showAction === item.code ? 2 : 4,
+                paddingHorizontal: 10,
               }}
             >
-              <TouchableOpacity
-                style={{
-                  flex: 1,
+              <Text style={styles.name}>{item.name}</Text>
+              <Text style={styles.detail}>
+                Giá: {item.price.toLocaleString()}đ
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={{
+                flex: 0.5,
+                flexDirection: "row",
+                justifyContent: "center",
+              }}
+              onPress={() => {
+                const current = swipeableRefs.current.get(item._id);
 
+                // 🔁 Toggle open / close
+                if (openId === item._id) {
+                  current?.close();
+                } else {
+                  // ❌ đóng cái khác
+                  if (openId) {
+                    swipeableRefs.current.get(openId)?.close();
+                  }
+                  current?.openRight();
+                }
+              }}
+            >
+              {showAction === item.code ? (
+                <MaterialIcons
+                  name="keyboard-double-arrow-right"
+                  size={24}
+                  color="black"
+                />
+              ) : (
+                <AntDesign name="edit" size={20} color="#6e6e6eff" />
+              )}
+            </TouchableOpacity>
+            {showAction === item.code && (
+              <Animated.View
+                style={{
+                  flexDirection: "row",
+                  flex: 2,
                   height: "100%",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  transform: [
+                    {
+                      translateX: slideAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [100, 0], // 👈 trượt từ phải vào
+                      }),
+                    },
+                  ],
+                  opacity: slideAnim,
                 }}
-                onPress={() => handleOpenModalEditProduct(item._id)}
               >
-                <Text style={{ textAlign: "center", color: "#0f7aacff" }}>
-                  Sửa
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  flex: 1,
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
 
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-                onPress={() => handleDeleteProduct(item._id)}
-              >
-                <Text style={{ textAlign: "center", color: "#c21212ff" }}>
-                  Xóa
-                </Text>
-              </TouchableOpacity>
-            </Animated.View>
-          )}
-          {/* <Text style={styles.detail}>Số lượng: {item.stock}</Text> */}
-        </View>
-        {/* {showAction === item.code && (
+                    height: "100%",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  onPress={() => handleOpenModalEditProduct(item._id)}
+                >
+                  <Text style={{ textAlign: "center", color: "#0f7aacff" }}>
+                    Sửa
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  onPress={() => handleDeleteProduct(item._id)}
+                >
+                  <Text style={{ textAlign: "center", color: "#c21212ff" }}>
+                    Xóa
+                  </Text>
+                </TouchableOpacity>
+              </Animated.View>
+            )}
+            {/* <Text style={styles.detail}>Số lượng: {item.stock}</Text> */}
+          </View>
+          {/* {showAction === item.code && (
           <>
             <View
               style={{
@@ -305,8 +348,9 @@ export default function ProductManagerScreen() {
             ></View>
           </>
         )} */}
+        </View>
       </View>
-    </View>
+    </Swipeable>
   );
 
   return (
@@ -374,18 +418,10 @@ export default function ProductManagerScreen() {
             data={products}
             keyExtractor={(item) => item._id}
             renderItem={renderItem}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingBottom: 80,
-              paddingHorizontal: 5,
-              marginTop: 20,
-            }}
-            // columnWrapperStyle={{
-            //   justifyContent: "space-between",
-            //   marginTop: 20,
-            // }}
-            numColumns={1}
+            ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+            contentContainerStyle={{ paddingBottom: 80, paddingHorizontal: 5 }}
           />
+
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => navigate.navigate("CreateProductScreen")}
@@ -439,15 +475,9 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
     paddingVertical: 10,
-    marginBottom: 12,
     borderRadius: 8,
     minHeight: 100,
     paddingHorizontal: 10,
-    // Shadow
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
     elevation: 2,
   },
   image: {
@@ -493,5 +523,20 @@ const styles = StyleSheet.create({
     shadowColor: ColorMain,
     shadowOpacity: 0.22,
     shadowOffset: { width: 0, height: 1 },
+  },
+  rightActionContainer: {
+    width: 160,
+    flexDirection: "row",
+  },
+
+  actionBtn: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  actionText: {
+    color: "#fff",
+    fontWeight: "600",
   },
 });
