@@ -1,6 +1,5 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
-import { Label } from "@react-navigation/elements";
 import {
   StyleSheet,
   Text,
@@ -21,21 +20,21 @@ function ChangePasswordScreen() {
         }}
       >
         <View>
-          <Label style={styles.label}>Mật khẩu cũ</Label>
+          <Text style={styles.label}>Mật khẩu cũ</Text>
           <TextInput
             style={styles.inputOldPass}
             placeholder="Nhập mật khẩu cũ"
           ></TextInput>
         </View>
         <View style={{ marginTop: 10 }}>
-          <Label style={styles.label}>Mật khẩu mới</Label>
+          <Text style={styles.label}>Mật khẩu mới</Text>
           <TextInput
             style={styles.inputOldPass}
             placeholder="Nhập mật khẩu mới"
           ></TextInput>
         </View>
         <View style={{ marginTop: 10 }}>
-          <Label style={styles.label}>Xác nhận mật khẩu mới</Label>
+          <Text style={styles.label}>Xác nhận mật khẩu mới</Text>
           <TextInput
             style={styles.inputOldPass}
             placeholder="Xác nhận mật khẩu mới"

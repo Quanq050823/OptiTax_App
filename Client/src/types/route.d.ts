@@ -128,6 +128,7 @@ export interface Profile extends UserProfile {
 	phoneNumber?: string;
 	taxCode: string,
 	password: string
+	businessType: string
 }
 
 export interface BusinessInfo {
@@ -138,6 +139,7 @@ export interface BusinessInfo {
 	password: string
 	businessType: string;
 	tax_filing_frequency?: number; // 1 = quý, 2 = tháng
+	businessType?: string
 }
 
 export interface TaxDeadlineInfo {
