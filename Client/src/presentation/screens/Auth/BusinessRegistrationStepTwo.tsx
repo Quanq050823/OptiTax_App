@@ -1,21 +1,15 @@
 import Logo from "@/src/presentation/components/Auth/Logo/Logo";
 import Province from "@/src/presentation/components/Auth/Province/Province";
-import SelectImage from "@/src/presentation/components/Auth/SelectImage/SelectImage";
 import SelectIndustry from "@/src/presentation/components/Auth/SelectIndustry/SelectIndustry";
 import { ColorMain } from "@/src/presentation/components/colors";
 import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { stylesAuth } from "@/src/presentation/screens/Auth/Styles";
 import {
-	BusinessInforAuth,
-	CreateBusinessAuth,
+	CreateBusinessAuth
 } from "@/src/services/API/profileService";
 import { FormDataType, Props } from "@/src/types/route";
-import { TokenStorage } from "@/src/utils/tokenStorage";
-import { Label } from "@react-navigation/elements";
-import { CommonActions } from "@react-navigation/native";
-import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
 	ActivityIndicator,
 	Alert,
@@ -27,7 +21,6 @@ import {
 	View,
 } from "react-native";
 import { TextInput } from "react-native-paper";
-import { DatePickerInput } from "react-native-paper-dates";
 
 function BusinessRegistrationStepTwo({ navigation }: Props) {
 	const navigate = useAppNavigation();
@@ -263,26 +256,6 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
 									<TouchableOpacity
 										style={[
 											stylesBST.radioOption,
-											formData.tax_filing_frequency === 2 &&
-												stylesBST.radioOptionSelected,
-										]}
-										onPress={() =>
-											setFormData((prev) => ({
-												...prev,
-												tax_filing_frequency: 2,
-											}))
-										}
-									>
-										<View style={stylesBST.radioCircle}>
-											{formData.tax_filing_frequency === 2 && (
-												<View style={stylesBST.selectedRb} />
-											)}
-										</View>
-										<Text style={stylesBST.radioText}>Nộp theo tháng</Text>
-									</TouchableOpacity>
-									<TouchableOpacity
-										style={[
-											stylesBST.radioOption,
 											formData.tax_filing_frequency === 1 &&
 												stylesBST.radioOptionSelected,
 										]}
@@ -295,6 +268,26 @@ function BusinessRegistrationStepTwo({ navigation }: Props) {
 									>
 										<View style={stylesBST.radioCircle}>
 											{formData.tax_filing_frequency === 1 && (
+												<View style={stylesBST.selectedRb} />
+											)}
+										</View>
+										<Text style={stylesBST.radioText}>Nộp theo tháng</Text>
+									</TouchableOpacity>
+									<TouchableOpacity
+										style={[
+											stylesBST.radioOption,
+											formData.tax_filing_frequency === 2 &&
+												stylesBST.radioOptionSelected,
+										]}
+										onPress={() =>
+											setFormData((prev) => ({
+												...prev,
+												tax_filing_frequency: 2,
+											}))
+										}
+									>
+										<View style={stylesBST.radioCircle}>
+											{formData.tax_filing_frequency === 2 && (
 												<View style={stylesBST.selectedRb} />
 											)}
 										</View>
