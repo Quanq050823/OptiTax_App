@@ -49,7 +49,7 @@ type RootStackParamList = {
 	ChartExportScreen: undefined;
 	InventoryManagementScreen: undefined;
 	ExportInvoiceDetailScreen: { invoiceDetail: ExportInvoiceDetailParams };
-
+	FilterDateTotalTaxScreen: undefined,
 	PaymentVoucherDetail: {
 		voucher: PaymentVoucher;
 	};
