@@ -35,7 +35,6 @@ import { useAppNavigation } from "../Hooks/useAppNavigation";
 import MovingText from "./MovingText";
 import { getTotalTaxes } from "@/src/services/API/taxService";
 import Svg, { Path, Text as SvgText } from "react-native-svg";
-import { ControllerTaxDeclarationExportTax04CNKD } from "../Controller/taxDeclaration/exportTax04CNKD";
 import ButtonToKhai from "./ButtonToKhai";
 export default function Analytics() {
   const navigate = useAppNavigation();
@@ -254,12 +253,13 @@ export default function Analytics() {
                   },
                 ]}
               >
-                <View
+                <TouchableOpacity
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
+                  onPress={() => navigate.navigate("FilterDateTotalTaxScreen")}
                 >
                   <Text style={{ color: "#fff", fontWeight: "500" }}>
                     Tất cả (2025)
@@ -269,7 +269,7 @@ export default function Analytics() {
                     size={17}
                     color="#fff"
                   />
-                </View>
+                </TouchableOpacity>
               </LinearGradient>
 
               <View style={[styles.taxCard]}>
