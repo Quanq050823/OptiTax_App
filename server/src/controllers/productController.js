@@ -53,9 +53,7 @@ const create = async (req, res, next) => {
 			for (const material of req.body.materials) {
 				if (material.unit && !validUnits.includes(material.unit)) {
 					return res.status(StatusCodes.BAD_REQUEST).json({
-						message: `Invalid unit '${material.unit}' for material '${
-							material.component
-						}'. Valid units: ${validUnits.join(", ")}`,
+						message: `Định lượng '${material.unit}' Cần phải chuyển đổi đơn vị để thống nhất với sản phẩm`,
 					});
 				}
 			}

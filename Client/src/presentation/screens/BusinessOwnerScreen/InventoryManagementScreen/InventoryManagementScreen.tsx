@@ -7,37 +7,37 @@ import NewIngredientButton from "@/src/presentation/components/NewIngredientButt
 import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import {
-  createProduct,
-  deleteProduct,
-  getProducts,
+	createProduct,
+	deleteProduct,
+	getProducts,
 } from "@/src/services/API/productService";
 import {
-  createProductInventory,
-  deleteProductInventory,
-  getListItemStorageNew,
-  getListItemStorageSynced,
-  getProductsInventory,
-  // getProductsInventoryByKey,
-  searchProductsInventory,
-  syncProduct,
-  updateProductInventory,
+	createProductInventory,
+	deleteProductInventory,
+	getListItemStorageNew,
+	getListItemStorageSynced,
+	getProductsInventory,
+	// getProductsInventoryByKey,
+	searchProductsInventory,
+	syncProduct,
+	updateProductInventory,
 } from "@/src/services/API/storageService";
 import {
-  InvoiceListResponse,
-  Product,
-  RootStackParamList,
+	InvoiceListResponse,
+	Product,
+	RootStackParamList,
 } from "@/src/types/route";
 import {
-  NewProductInventory,
-  ProductInventory,
-  ProductInventoryList,
+	NewProductInventory,
+	ProductInventory,
+	ProductInventoryList,
 } from "@/src/types/storage";
 import {
-  AntDesign,
-  Entypo,
-  Ionicons,
-  MaterialCommunityIcons,
-  MaterialIcons,
+	AntDesign,
+	Entypo,
+	Ionicons,
+	MaterialCommunityIcons,
+	MaterialIcons,
 } from "@expo/vector-icons";
 import { CommonActions, RouteProp, useRoute } from "@react-navigation/native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -53,33 +53,34 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+
 } from "react-native";
 import { RefreshControl, Swipeable } from "react-native-gesture-handler";
 import { ActivityIndicator, Searchbar } from "react-native-paper";
 type NewProduct = {
-  name: string;
-  code: string;
-  category: string;
-  unit: string;
-  price: number;
-  description: string;
-  imageUrl: string;
-  stock: number;
-  attributes: { key: string; value: string }[];
+	name: string;
+	code: string;
+	category: string;
+	unit: string;
+	price: number;
+	description: string;
+	imageUrl: string;
+	stock: number;
+	attributes: { key: string; value: string }[];
 };
 
 const productData = [
-  {
-    _id: 1,
-    name: "Đường bà Tú",
-    code: "ĐT",
-    category: "Ăn uống",
-    unit: "kg",
-    price: "12000",
-    imageUrl: "https://example.com/images/tshirt001.jpg",
-    stock: 10,
-    isActive: true,
-  },
+	{
+		_id: 1,
+		name: "Đường bà Tú",
+		code: "ĐT",
+		category: "Ăn uống",
+		unit: "kg",
+		price: "12000",
+		imageUrl: "https://example.com/images/tshirt001.jpg",
+		stock: 10,
+		isActive: true,
+	},
 ];
 
 export default function InventoryManagerScreen() {
@@ -122,140 +123,142 @@ export default function InventoryManagerScreen() {
   });
   console.log(productInventoryNew);
 
-  const fetchDataProductInventory = async (append = false) => {
-    try {
-      setLoading(true);
+	const fetchDataProductInventory = async (append = false) => {
+		try {
+			setLoading(true);
 
-      const res = await getListItemStorageSynced();
-      const productStorageNew = await getListItemStorageNew();
-      const syncedProducts = (res.data ?? []).filter(
-        (item) => item.syncStatus === true
-      );
+			const res = await getListItemStorageSynced();
+			const productStorageNew = await getListItemStorageNew();
+			const syncedProducts = (res.data ?? []).filter(
+				(item) => item.syncStatus === true
+			);
 
-      // ✅ Lọc thêm theo category
-      const category1Products = syncedProducts.filter(
-        (item) => item.category === 1
-      );
-      const category2Products = syncedProducts.filter(
-        (item) => item.category === 2
-      );
-      setProductsInventory(category1Products);
-      setToolsList(category2Products);
-      setProductsInventoryNew(productStorageNew.data);
-    } catch {
-      console.log("Lỗi! Chưa có dữ liệu!");
-      setProductsInventory([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-  useEffect(() => {
-    fetchDataProductInventory();
-  }, []);
+			// ✅ Lọc thêm theo category
+			const category1Products = syncedProducts.filter(
+				(item) => item.category === 1
+			);
+			const category2Products = syncedProducts.filter(
+				(item) => item.category === 2
+			);
+			setProductsInventory(category1Products);
+			setToolsList(category2Products);
+			setProductsInventoryNew(productStorageNew.data);
+		} catch {
+			console.log("Lỗi! Chưa có dữ liệu!");
+			setProductsInventory([]);
+		} finally {
+			setLoading(false);
+		}
+	};
+	useEffect(() => {
+		fetchDataProductInventory();
+	}, []);
 
-  console.log(productInventoryNew.length);
+	console.log(productInventoryNew.length);
 
-  useEffect(() => {
-    if (productScan) {
-      setVisible(true);
-      // Có thể set luôn các field mặc định từ productScan
-      // setName(productScan.name || "");
-      // setCode(productScan._id?.toString() || "");
-      // setCategory(
-      //   typeof productScan.category === "object"
-      //     ? Object.values(productScan.category).join(", ")
-      //     : productScan.category || ""
-      // );
-      // setDescription(productScan.description);
-    }
-  }, [productScan]);
+	useEffect(() => {
+		if (productScan) {
+			setVisible(true);
+			// Có thể set luôn các field mặc định từ productScan
+			// setName(productScan.name || "");
+			// setCode(productScan._id?.toString() || "");
+			// setCategory(
+			//   typeof productScan.category === "object"
+			//     ? Object.values(productScan.category).join(", ")
+			//     : productScan.category || ""
+			// );
+			// setDescription(productScan.description);
+		}
+	}, [productScan]);
 
-  const handleCreateProductInventory = async (
-    newProduct: NewProductInventory
-  ) => {
-    try {
-      await createProductInventory(newProduct);
-      Alert.alert("Thành công", "Đã tạo nguyên liệu mới");
-      setVisible(false);
-      fetchDataProductInventory();
-    } catch {
-      Alert.alert("Lỗi", "Vui lòng kiểm tra các trường nguyên liệu");
-    }
-  };
+	const handleCreateProductInventory = async (
+		newProduct: NewProductInventory
+	) => {
+		try {
+			await createProductInventory(newProduct);
+			Alert.alert("Thành công", "Đã tạo nguyên liệu mới");
+			setVisible(false);
+			fetchDataProductInventory();
+		} catch (error: any) {
+			const errorMessage =
+				error?.message || "Vui lòng kiểm tra các trường nguyên liệu";
+			Alert.alert("Lỗi", errorMessage);
+		}
+	};
 
-  const handleShowAction = (_id: string) => {
-    setShowAction((prev) => (prev === _id ? null : _id)); // toggle
-  };
+	const handleShowAction = (_id: string) => {
+		setShowAction((prev) => (prev === _id ? null : _id)); // toggle
+	};
 
-  const handleDeleteProductInventory = async (id: string) => {
-    Alert.alert(
-      "Xác nhận xoá",
-      "Bạn có chắc muốn xoá sản phẩm này không?",
-      [
-        {
-          text: "Hủy",
-          style: "cancel",
-        },
-        {
-          text: "Xoá",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteProductInventory(id);
-              fetchDataProductInventory();
-              Alert.alert("Thành công", "Nguyên liệu đã được xoá");
-            } catch (error) {
-              console.error("Error deleting product:", error);
-              Alert.alert("Lỗi", "Không thể xoá nguyên liệu");
-            }
-          },
-        },
-      ],
-      { cancelable: true }
-    );
-  };
-  // useEffect(() => {
-  //   const fetchNamesUnits = async () => {
-  //     try {
-  //       const res = await searchProductsInventory(searchQuery);
-  //       setProductsInventory(res.data);
-  //     } catch (err) {
-  //       console.error("Lỗi lấy names/units:", err);
-  //     }
-  //   };
+	const handleDeleteProductInventory = async (id: string) => {
+		Alert.alert(
+			"Xác nhận xoá",
+			"Bạn có chắc muốn xoá sản phẩm này không?",
+			[
+				{
+					text: "Hủy",
+					style: "cancel",
+				},
+				{
+					text: "Xoá",
+					style: "destructive",
+					onPress: async () => {
+						try {
+							await deleteProductInventory(id);
+							fetchDataProductInventory();
+							Alert.alert("Thành công", "Nguyên liệu đã được xoá");
+						} catch (error) {
+							console.error("Error deleting product:", error);
+							Alert.alert("Lỗi", "Không thể xoá nguyên liệu");
+						}
+					},
+				},
+			],
+			{ cancelable: true }
+		);
+	};
+	// useEffect(() => {
+	//   const fetchNamesUnits = async () => {
+	//     try {
+	//       const res = await searchProductsInventory(searchQuery);
+	//       setProductsInventory(res.data);
+	//     } catch (err) {
+	//       console.error("Lỗi lấy names/units:", err);
+	//     }
+	//   };
 
-  //   fetchNamesUnits();
-  // }, [searchQuery]);
-  const handleOpenModalEditProduct = (_id: string) => {
-    setShowEditProduct((prev) => (prev === _id ? null : _id));
-    setIdEditProduct(_id);
-    setVisibleEdit(true);
-  };
+	//   fetchNamesUnits();
+	// }, [searchQuery]);
+	const handleOpenModalEditProduct = (_id: string) => {
+		setShowEditProduct((prev) => (prev === _id ? null : _id));
+		setIdEditProduct(_id);
+		setVisibleEdit(true);
+	};
 
-  const handleUpdateProductInventory = async (
-    id: string,
-    updatedFields: any
-  ) => {
-    // // Kiểm tra các trường bắt buộc
-    // if (
-    //   !updatedFields.name ||
-    //   !updatedFields.price ||
-    //   !updatedFields.stock ||
-    //   !updatedFields.imageURL ||
-    //   !updatedFields.unit
-    // ) {
-    //   Alert.alert("Thiếu thông tin", "Vui lòng nhập đầy đủ các trường");
-    //   return;
-    // }
+	const handleUpdateProductInventory = async (
+		id: string,
+		updatedFields: any
+	) => {
+		// // Kiểm tra các trường bắt buộc
+		// if (
+		//   !updatedFields.name ||
+		//   !updatedFields.price ||
+		//   !updatedFields.stock ||
+		//   !updatedFields.imageURL ||
+		//   !updatedFields.unit
+		// ) {
+		//   Alert.alert("Thiếu thông tin", "Vui lòng nhập đầy đủ các trường");
+		//   return;
+		// }
 
-    // Tạo object chứa các trường cần cập nhật
-    const productData = {
-      name: updatedFields.name,
-      unit: updatedFields.unit,
-      price: Number(updatedFields.price),
-      imageURL: updatedFields.imageURL,
-      stock: Number(updatedFields.stock),
-    };
+		// Tạo object chứa các trường cần cập nhật
+		const productData = {
+			name: updatedFields.name,
+			unit: updatedFields.unit,
+			price: Number(updatedFields.price),
+			imageURL: updatedFields.imageURL,
+			stock: Number(updatedFields.stock),
+		};
 
     try {
       const res = await updateProductInventory(id, productData); // đổi sang hàm update có id
@@ -448,153 +451,153 @@ export default function InventoryManagerScreen() {
     </Swipeable>
   );
 
-  const handleSyncProductFromInvoiceIn = async () => {
-    try {
-      await syncProduct();
-      fetchDataProductInventory();
-    } catch (err) {
-      console.error("Lỗi lấy names/units:", err);
-    }
-  };
+	const handleSyncProductFromInvoiceIn = async () => {
+		try {
+			await syncProduct();
+			fetchDataProductInventory();
+		} catch (err) {
+			console.error("Lỗi lấy names/units:", err);
+		}
+	};
 
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await fetchDataProductInventory();
-    setRefreshing(false);
-  }, []);
-  const handleLoadMore = async () => {
-    if (!loadingMore) {
-      await fetchDataProductInventory(true);
-    }
-  };
-  return (
-    <View style={styles.container}>
-      <View style={styles.cateWrapper}>
-        <TouchableOpacity
-          style={[
-            styles.cateItem,
-            !isActive && {
-              borderBottomWidth: 3,
-              borderColor: ColorMain,
-            },
-          ]}
-          onPress={() => setIsActive(false)}
-        >
-          <Text
-            style={[
-              styles.textCate,
-              !isActive && { color: ColorMain, fontWeight: "700" },
-            ]}
-          >
-            Nguyên liệu
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.cateItem,
-            isActive && {
-              borderBottomWidth: 3,
-              borderColor: ColorMain,
-            },
-          ]}
-          onPress={() => setIsActive(true)}
-        >
-          <Text
-            style={[
-              styles.textCate,
-              isActive && { color: ColorMain, fontWeight: "700" },
-            ]}
-          >
-            Dụng cụ
-          </Text>
-        </TouchableOpacity>
-      </View>
-      {loading ? (
-        <LoadingScreen visible={loading} />
-      ) : productsInventory ? (
-        <>
-          {/* <Text style={styles.header}>Quản lý sản phẩm</Text> */}
-          <View
-            style={{
-              paddingHorizontal: 10,
-              paddingTop: 10,
-              paddingBottom: 20,
-              shadowColor: "#9d9d9d",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.22,
-              backgroundColor: "transparent",
-            }}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                backgroundColor: "#fff",
-                shadowColor: ColorMain,
-                shadowOpacity: 0.22,
-                shadowOffset: { width: 0, height: 1 },
-                borderRadius: 50,
-                width: "100%",
-              }}
-            >
-              <Searchbar
-                placeholder="Tìm kiếm sản phẩm"
-                onChangeText={setSearchQuery}
-                value={searchQuery}
-                icon="magnify"
-                style={{
-                  backgroundColor: "transparent",
-                  width: "70%",
-                }}
-                iconColor={ColorMain}
-                placeholderTextColor={ColorMain}
-              />
-              <TouchableOpacity
-                style={{
-                  width: 60,
-                  height: 40,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: 8,
-                }}
-                onPress={() => navigate.navigate("ScanBarcodeProductScreen")}
-              >
-                <MaterialCommunityIcons
-                  name="barcode-scan"
-                  size={24}
-                  color="black"
-                />
-              </TouchableOpacity>
-            </View>
-            <View
-              style={{
-                width: "100%",
-                alignItems: "flex-end",
-                flexDirection: "row",
-                justifyContent: "space-between",
-              }}
-            >
-              <TouchableOpacity
-                style={styles.btnSyn}
-                onPress={handleSyncProductFromInvoiceIn}
-              >
-                <Text style={{ color: "#fff" }}>Đồng bộ </Text>
-                <Entypo name="arrow-bold-down" size={17} color="#fff" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.btnSyn}
-                onPress={() => navigate.navigate("NewIngredientList")}
-              >
-                <Text style={{ color: "#fff" }}>Nguyên liệu mới </Text>
-                <Entypo name="new-message" size={17} color="#fff" />
-                {productInventoryNew.length > 0 && (
-                  <NewIngredientButton quantity={productInventoryNew.length} />
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
-          {/* <View style={{ padding: 10 }}>
+	const onRefresh = useCallback(async () => {
+		setRefreshing(true);
+		await fetchDataProductInventory();
+		setRefreshing(false);
+	}, []);
+	const handleLoadMore = async () => {
+		if (!loadingMore) {
+			await fetchDataProductInventory(true);
+		}
+	};
+	return (
+		<View style={styles.container}>
+			<View style={styles.cateWrapper}>
+				<TouchableOpacity
+					style={[
+						styles.cateItem,
+						!isActive && {
+							borderBottomWidth: 3,
+							borderColor: ColorMain,
+						},
+					]}
+					onPress={() => setIsActive(false)}
+				>
+					<Text
+						style={[
+							styles.textCate,
+							!isActive && { color: ColorMain, fontWeight: "700" },
+						]}
+					>
+						Nguyên liệu
+					</Text>
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={[
+						styles.cateItem,
+						isActive && {
+							borderBottomWidth: 3,
+							borderColor: ColorMain,
+						},
+					]}
+					onPress={() => setIsActive(true)}
+				>
+					<Text
+						style={[
+							styles.textCate,
+							isActive && { color: ColorMain, fontWeight: "700" },
+						]}
+					>
+						Dụng cụ
+					</Text>
+				</TouchableOpacity>
+			</View>
+			{loading ? (
+				<LoadingScreen visible={loading} />
+			) : productsInventory ? (
+				<>
+					{/* <Text style={styles.header}>Quản lý sản phẩm</Text> */}
+					<View
+						style={{
+							paddingHorizontal: 10,
+							paddingTop: 10,
+							paddingBottom: 20,
+							shadowColor: "#9d9d9d",
+							shadowOffset: { width: 0, height: 2 },
+							shadowOpacity: 0.22,
+							backgroundColor: "transparent",
+						}}
+					>
+						<View
+							style={{
+								flexDirection: "row",
+								justifyContent: "space-between",
+								alignItems: "center",
+								backgroundColor: "#fff",
+								shadowColor: ColorMain,
+								shadowOpacity: 0.22,
+								shadowOffset: { width: 0, height: 1 },
+								borderRadius: 50,
+								width: "100%",
+							}}
+						>
+							<Searchbar
+								placeholder="Tìm kiếm sản phẩm"
+								onChangeText={setSearchQuery}
+								value={searchQuery}
+								icon="magnify"
+								style={{
+									backgroundColor: "transparent",
+									width: "70%",
+								}}
+								iconColor={ColorMain}
+								placeholderTextColor={ColorMain}
+							/>
+							<TouchableOpacity
+								style={{
+									width: 60,
+									height: 40,
+									alignItems: "center",
+									justifyContent: "center",
+									borderRadius: 8,
+								}}
+								onPress={() => navigate.navigate("ScanBarcodeProductScreen")}
+							>
+								<MaterialCommunityIcons
+									name="barcode-scan"
+									size={24}
+									color="black"
+								/>
+							</TouchableOpacity>
+						</View>
+						<View
+							style={{
+								width: "100%",
+								alignItems: "flex-end",
+								flexDirection: "row",
+								justifyContent: "space-between",
+							}}
+						>
+							<TouchableOpacity
+								style={styles.btnSyn}
+								onPress={handleSyncProductFromInvoiceIn}
+							>
+								<Text style={{ color: "#fff" }}>Đồng bộ </Text>
+								<Entypo name="arrow-bold-down" size={17} color="#fff" />
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={styles.btnSyn}
+								onPress={() => navigate.navigate("NewIngredientList")}
+							>
+								<Text style={{ color: "#fff" }}>Nguyên liệu mới </Text>
+								<Entypo name="new-message" size={17} color="#fff" />
+								{productInventoryNew.length > 0 && (
+									<NewIngredientButton quantity={productInventoryNew.length} />
+								)}
+							</TouchableOpacity>
+						</View>
+					</View>
+					{/* <View style={{ padding: 10 }}>
         <TextInput
           placeholder="Tìm sản phẩm..."
           style={styles.searchInput}

@@ -14,7 +14,7 @@ type RootStackParamList = {
 	LanguagesScreen: undefined;
 	InvoiceScreen: undefined;
 	InvoiceDetailScreen: { item: Invoice; total: number; label: string };
-	InvoiceDetailScreenInp: {item: RawInvoice; total: number; label: string}
+	InvoiceDetailScreenInp: { item: RawInvoice; total: number; label: string };
 	InvoiceInputScreen: undefined;
 	InvoiceOutputScreen: undefined;
 	ReceiptVoucherScreen: undefined;
@@ -22,7 +22,7 @@ type RootStackParamList = {
 	SettingScreen: undefined;
 	ProductManager: { scannedProduct?: any };
 	CreateProductScreen: undefined;
-	EditProductScreen: {id: string}
+	EditProductScreen: { id: string };
 	Layout: undefined;
 	SearchAccountantScreen: undefined;
 	ChangePasswordScreen: undefined;
@@ -106,7 +106,7 @@ type Product = {
 	unit: string | null;
 	attributes: any;
 	tchat: number;
-	vatRate: number
+	vatRate: number;
 };
 export interface UserProfile {
 	_id: string;
@@ -119,16 +119,15 @@ export interface UserProfile {
 	userType: number;
 	createDate: string;
 	__v: number;
-
 }
 
 export interface Profile extends UserProfile {
 	businessName?: string;
 	address?: any;
 	phoneNumber?: string;
-	taxCode: string,
-	password: string
-	businessType: string
+	taxCode: string;
+	password: string;
+	businessType: string;
 }
 
 export interface BusinessInfo {
@@ -136,10 +135,10 @@ export interface BusinessInfo {
 	address: Address;
 	phoneNumber: string;
 	taxCode: string;
-	password: string
+	password: string;
 	businessType: string;
 	tax_filing_frequency?: number; // 1 = quý, 2 = tháng
-	businessType?: string
+	businessType?: string;
 }
 
 export interface TaxDeadlineInfo {
@@ -160,6 +159,8 @@ type FormDataType = {
 	address: Address;
 	phoneNumber: string;
 	industry: string;
+	password?: string;
+	tax_filing_frequency?: number;
 };
 
 export interface InvoiceItemExtra {
@@ -208,7 +209,7 @@ export interface Invoice {
 	nmdchi: string;
 	thtttoan: string;
 	dvtte: string;
-  hdhhdvu?: InvoiceProduct[] | null;
+	hdhhdvu?: InvoiceProduct[] | null;
 	ttxly?: number | null;
 	tgtttbso: number;
 }

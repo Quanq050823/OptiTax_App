@@ -92,28 +92,7 @@ const convertUnit = (quantity, fromUnit, toUnit, storageItem) => {
 		}
 	}
 
-	if (storageItem.unitConversions && storageItem.unitConversions.length > 0) {
-		for (const conversion of storageItem.unitConversions) {
-			if (conversion.to && Array.isArray(conversion.to)) {
-				const toConversion = conversion.to.find((t) => t.itemName === fromUnit);
-
-				if (toConversion && storageItem.unit === toUnit) {
-					return quantity / toConversion.itemQuantity;
-				}
-
-				if (
-					storageItem.unit === fromUnit &&
-					conversion.to.find((t) => t.itemName === toUnit)
-				) {
-					const targetConversion = conversion.to.find(
-						(t) => t.itemName === toUnit
-					);
-					return quantity * targetConversion.itemQuantity;
-				}
-			}
-		}
-	}
-
+	// Không còn hỗ trợ unitConversions - DB chỉ có conversionUnit
 	throw new ApiError(
 		StatusCodes.BAD_REQUEST,
 		`Không tìm thấy quy đổi đơn vị từ ${fromUnit} sang ${toUnit} cho "${storageItem.name}"`
@@ -122,10 +101,21 @@ const convertUnit = (quantity, fromUnit, toUnit, storageItem) => {
 
 const deductMaterialsFromStorage = async (materials, ownerId) => {
 	for (const material of materials) {
-		const storageItem = await StorageItem.findOne({
-			name: material.component,
-			businessOwnerId: ownerId,
-		});
+		let storageItem;
+
+		if (material.component && material.component.match(/^[0-9a-fA-F]{24}$/)) {
+			storageItem = await StorageItem.findOne({
+				_id: material.component,
+				businessOwnerId: ownerId,
+			});
+		}
+
+		if (!storageItem) {
+			storageItem = await StorageItem.findOne({
+				name: material.component,
+				businessOwnerId: ownerId,
+			});
+		}
 
 		if (!storageItem) {
 			throw new ApiError(
