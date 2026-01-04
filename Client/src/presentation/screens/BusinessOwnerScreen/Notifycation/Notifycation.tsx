@@ -55,18 +55,28 @@ function NotificationCard({ item }: { item: NotificationItem }) {
     <Card
       style={{
         margin: 8,
-        backgroundColor: "#44799c11",
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0,
-        elevation: 2,
+        elevation: 0,
+      }}
+      contentStyle={{
+        backgroundColor: item.isRead ? "#f0f0f0" : "#ffffff",
+        borderRadius: 5,
       }}
     >
       <Card.Title
         title={item.title}
         subtitle={item.time}
-        titleStyle={{ color: "#000", fontSize: 18, fontWeight: "bold" }}
-        subtitleStyle={{ color: "#838383ff", fontSize: 14 }}
+        titleStyle={{
+          color: "#000",
+          fontSize: 18,
+          fontWeight: "bold",
+        }}
+        subtitleStyle={{
+          color: "#838383ff",
+          fontSize: 14,
+        }}
       />
       <Card.Content>
         <Text style={{ color: "#000" }}>{item.description}</Text>

@@ -63,6 +63,7 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
   const [endDate, setEndDate] = useState<Date | undefined>();
   const spinValue = useRef(new Animated.Value(0)).current;
   const navigate = useAppNavigation();
+
   const fetchListInvoice = async () => {
     setLoading(true);
     try {
@@ -75,34 +76,39 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
     }
   };
 
+  const spinAnimation = () => {
+    spinValue.setValue(0);
+    Animated.timing(spinValue, {
+      toValue: 1,
+      duration: 1000,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start(({ finished }) => {
+      if (finished && loading) {
+        spinAnimation();
+      }
+    });
+  };
+
+  const spin = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
+  });
+
   useEffect(() => {
     fetchListInvoice();
   }, []);
 
   useEffect(() => {
-    let animation: Animated.CompositeAnimation;
     if (loading) {
-      animation = Animated.loop(
-        Animated.timing(spinValue, {
-          toValue: 1,
-          duration: 1000, // 1 vòng / giây
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-      );
-      animation.start();
+      spinAnimation();
     } else {
-      spinValue.stopAnimation();
-      spinValue.setValue(0);
+      spinValue.stopAnimation(() => {
+        spinValue.setValue(0);
+      });
     }
-    return () => {
-      if (animation) animation.stop();
-    };
   }, [loading]);
-  const spin = spinValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0deg", "360deg"],
-  });
+
   const handleLoadingSynchronized = () => {
     setLoading(true);
     setTimeout(() => {
@@ -351,9 +357,8 @@ const styles = StyleSheet.create({
   },
   synchronizedWrapper: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-evenly",
     marginTop: 15,
-    gap: 50,
   },
   btnSyn: {
     backgroundColor: "transparent",

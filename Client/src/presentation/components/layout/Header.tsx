@@ -111,8 +111,8 @@ function HeaderScreen({ activeTab }: HeaderProps) {
 }
 const styleHeader = StyleSheet.create({
   container: {
-    height: Platform.OS === "ios" ? 100 : 80,
-    paddingTop: Platform.OS === "ios" ? 50 : 10,
+    height: Platform.OS === "ios" ? 100 : 60,
+    paddingTop: Platform.OS === "ios" ? 50 : 0,
     width: "100%",
     flexDirection: "row",
     alignItems: "center",

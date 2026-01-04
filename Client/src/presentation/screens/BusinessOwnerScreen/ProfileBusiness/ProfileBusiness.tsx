@@ -3,6 +3,7 @@ import { ColorMain } from "@/src/presentation/components/colors";
 import {
   BusinessInforAuth,
   getUserProfile,
+  UpdateUserProfile,
 } from "@/src/services/API/profileService";
 import { Profile, RootStackParamList, UserProfile } from "@/src/types/route";
 import {
@@ -32,12 +33,18 @@ import {
 } from "react-native";
 import { Avatar } from "react-native-paper";
 type NavProp = StackNavigationProp<RootStackParamList>;
+type UpdateProfilePayload = Pick<UserProfile, "_id" | "name" | "email">;
 
 function ProfileBusiness() {
   const navigate = useNavigation<NavProp>();
   const [profile, setProfile] = useState<Profile | null>(null);
   const isFocused = useIsFocused();
-
+  const [loading, setLoading] = useState<boolean>(false);
+  const [newProfile, setNewProfile] = useState<UpdateProfilePayload>({
+    _id: "",
+    name: "",
+    email: "",
+  });
   const fetchProfile = async () => {
     try {
       const data: UserProfile = await getUserProfile();
@@ -47,6 +54,12 @@ function ProfileBusiness() {
         businessName: dataBussiness?.businessName,
         address: dataBussiness?.address,
         phoneNumber: dataBussiness?.phoneNumber,
+      });
+
+      setNewProfile({
+        _id: data._id,
+        name: data.name,
+        email: data.email,
       });
     } catch (error) {
       Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại", [
@@ -66,6 +79,24 @@ function ProfileBusiness() {
       fetchProfile();
     }
   }, [isFocused]);
+
+  const handleSaveProfile = async () => {
+    if (!newProfile.name || !newProfile.email) {
+      Alert.alert("Lỗi", "Tên và email không được để trống");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await UpdateUserProfile(newProfile); // ✅ CHỈ 3 FIELD
+      Alert.alert("Thành công", "Cập nhật hồ sơ thành công");
+      navigate.goBack();
+    } catch (error) {
+      Alert.alert("Lỗi", "Cập nhật hồ sơ thất bại, vui lòng thử lại");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -94,7 +125,10 @@ function ProfileBusiness() {
                   <TextInput
                     placeholder="Tên"
                     style={styles.input}
-                    defaultValue={profile.name}
+                    value={newProfile.name}
+                    onChangeText={(text) =>
+                      setNewProfile((prev) => ({ ...prev, name: text }))
+                    }
                   />
                 </View>
                 <View style={styles.wrInput}>
@@ -102,7 +136,10 @@ function ProfileBusiness() {
                   <TextInput
                     placeholder="Tên"
                     style={styles.input}
-                    defaultValue={profile.email}
+                    value={newProfile.email}
+                    onChangeText={(text) =>
+                      setNewProfile((prev) => ({ ...prev, email: text }))
+                    }
                   />
                 </View>
 
@@ -111,7 +148,8 @@ function ProfileBusiness() {
                   <TextInput
                     placeholder="Tên"
                     style={styles.input}
-                    defaultValue="0987654321"
+                    value={profile.phoneNumber ?? ""}
+                    editable={false}
                   />
                 </View>
               </View>
@@ -124,38 +162,28 @@ function ProfileBusiness() {
                 </Text>
                 <MaterialIcons name="password" size={17} color="#fff" />
               </TouchableOpacity>
-              {/* <Text
-                style={{
-                  fontSize: 24,
-                  color: "#494949",
-                  marginTop: 10,
-                  fontWeight: "600",
-                }}
+              <LinearGradient
+                colors={["#4dbf99ff", "#6A7DB3"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 3 }}
+                style={styles.btnShow}
               >
-                {profile.name}
-              </Text>
-              <Text style={styles.textPosition}>{profile.email}</Text>
-
-              <Text style={styles.textPosition}>
-                {profile.userType === 1 ? "Hộ kinh doanh" : "Kế toán viên"}
-              </Text>
-
-              <TouchableOpacity
-                style={{
-                  backgroundColor: "#ecececff",
-                  padding: 5,
-                  marginTop: 15,
-                  borderRadius: 5,
-                  borderWidth: 1,
-                  borderColor: "#9d9d9d",
-                }}
-                onPress={() => navigate.navigate("EditProfileScreen")}
-              >
-                <Text>
-                  Chỉnh sửa thông tin
-                  <AntDesign name="edit" size={15} color="black" />
-                </Text>
-              </TouchableOpacity> */}
+                <TouchableOpacity
+                  style={[
+                    styles.btnChangePass,
+                    {
+                      backgroundColor: "transparent",
+                      shadowColor: "transparent",
+                      marginTop: 0,
+                    },
+                  ]}
+                  onPress={handleSaveProfile}
+                >
+                  <Text style={{ color: "#fff", fontWeight: "500" }}>
+                    Lưu hồ sơ
+                  </Text>
+                </TouchableOpacity>
+              </LinearGradient>
             </View>
           </>
         ) : (
@@ -196,41 +224,13 @@ const styles = StyleSheet.create({
     borderColor: "#afafafff",
     borderRadius: 10,
   },
-  borderInput: {
-    borderWidth: 1,
-    borderColor: "#d5d5d5ff",
-    borderRadius: 10,
-  },
+
   textPosition: {
     fontSize: 15,
     marginTop: 20,
     color: "#494949",
   },
-  changePassWrapper: {
-    width: "90%",
-    height: 50,
-    position: "absolute",
-    bottom: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "center",
-    borderRadius: 10,
-    backgroundColor: ColorMain,
-  },
-  rolesWrapper: {
-    backgroundColor: ColorMain,
-    paddingHorizontal: 10,
-    paddingVertical: 20,
-    borderRadius: 10,
-    flex: 1,
-    marginTop: 20,
-    shadowColor: ColorMain,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 3,
-    elevation: 5,
-    marginHorizontal: 5,
-  },
+
   wrInfo: {
     alignItems: "center",
     marginTop: 40,
@@ -255,6 +255,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 5,
     backgroundColor: "#fff",
+    elevation: 7,
   },
   btnChangePass: {
     padding: 10,
@@ -268,6 +269,16 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     borderRadius: 5,
     gap: 7,
+  },
+  btnShow: {
+    width: "95%",
+    backgroundColor: ColorMain,
+    marginTop: 30,
+    alignSelf: "center",
+    borderRadius: 10,
+    minHeight: 50,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 export default ProfileBusiness;

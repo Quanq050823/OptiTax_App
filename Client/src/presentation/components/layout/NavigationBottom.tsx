@@ -20,6 +20,7 @@ import {
   TouchableOpacity,
   View,
   Dimensions,
+  Platform,
 } from "react-native";
 import { he } from "react-native-paper-dates";
 import Animated, {
@@ -231,7 +232,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderRadius: 30,
     position: "absolute",
-    bottom: 0,
+    bottom: Platform.OS === "ios" ? 0 : -10,
     alignSelf: "center",
   },
   ItemWrapper: {
