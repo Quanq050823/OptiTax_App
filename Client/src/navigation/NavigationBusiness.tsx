@@ -67,6 +67,7 @@ import { logout as apiLogout } from "@/src/services/API/authService";
 import EditProductScreen from "../presentation/screens/BusinessOwnerScreen/EditProduct/EditProduct";
 import InvoiceDetailScreenInp from "../presentation/screens/BusinessOwnerScreen/InvoiceDetailScreenInp/InvoiceDetailScreenInp";
 import FilterDateTotalTaxScreen from "../presentation/screens/BusinessOwnerScreen/FilterDateTotalTaxScreen/FilterDateTotalTaxScreen";
+import StoreScreen from "@/src/presentation/screens/BusinessOwnerScreen/StoreScreen/StoreScreen";
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
   const { data, setData } = useData(); // lấy data từ context
@@ -442,6 +443,13 @@ const HomeLayout = () => {
           title: "Chọn ngày hiển thị",
         }}
         component={FilterDateTotalTaxScreen}
+      />
+      <Stack.Screen
+        name="StoreScreen"
+        options={{
+          title: "Cửa hàng",
+        }}
+        component={StoreScreen}
       />
     </Stack.Navigator>
   );

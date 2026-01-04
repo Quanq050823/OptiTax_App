@@ -95,8 +95,10 @@ function InvoiInputList({ invoicesData }: invoice) {
   return (
     <FlatList
       data={invoicesData}
-      keyExtractor={(item) =>
-        item.soHoaDon ? item.soHoaDon : Math.random().toString()
+      keyExtractor={(item, index) =>
+        `${item.soHoaDon ?? "NA"}_${item.ngayKy ?? "NA"}_${
+          item.mstNguoiBan ?? index
+        }`
       }
       renderItem={renderItem}
       contentContainerStyle={styles.container}

@@ -113,7 +113,10 @@ function Option() {
             </LinearGradient>
           </View>
           <View style={[styles.wrItem, { backgroundColor: colors.textDark }]}>
-            <TouchableOpacity style={styles.item}>
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => navigate.navigate("StoreScreen")}
+            >
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <AntDesign name="shopping" size={17} color={colors.textLight} />
                 <Text style={[styles.titleItem, { color: colors.textLight }]}>

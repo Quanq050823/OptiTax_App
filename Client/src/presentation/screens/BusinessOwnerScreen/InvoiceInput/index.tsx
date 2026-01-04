@@ -46,6 +46,7 @@ import { DatePickerModal, tr } from "react-native-paper-dates";
 
 function InvoiceInput() {
   const { data } = useData();
+  const [selectDateCpn, setSelecDateCpn] = useState(false);
 
   const [visible, setVisible] = useState(false);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -72,25 +73,28 @@ function InvoiceInput() {
     useState(false);
   const [capchaCode, setCapchacode] = useState("");
 
+  const spinAnimation = () => {
+    spinValue.setValue(0);
+    Animated.timing(spinValue, {
+      toValue: 1,
+      duration: 1000,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }).start(({ finished }) => {
+      if (finished && loading) {
+        spinAnimation();
+      }
+    });
+  };
+
   useEffect(() => {
-    let animation: Animated.CompositeAnimation;
     if (loading) {
-      animation = Animated.loop(
-        Animated.timing(spinValue, {
-          toValue: 1,
-          duration: 1000, // 1 vòng / giây
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-      );
-      animation.start();
+      spinAnimation();
     } else {
-      spinValue.stopAnimation();
-      spinValue.setValue(0);
+      spinValue.stopAnimation(() => {
+        spinValue.setValue(0);
+      });
     }
-    return () => {
-      if (animation) animation.stop();
-    };
   }, [loading]);
 
   const spin = spinValue.interpolate({
@@ -327,6 +331,9 @@ function InvoiceInput() {
         onSyncInvoiceIn={handleVerifyCapchaSync}
         loading={loading}
         setLoading={setLoading}
+        onGetCaptcha={handleGetCapcha}
+        setSelecDateCpn={setSelecDateCpn}
+        selectDateCpn={selectDateCpn}
       />
       <ModalLoginCCT openLogin={openLogin} setOpenLogin={setOpenLogin} />
     </View>
@@ -345,9 +352,8 @@ const styles = StyleSheet.create({
   },
   synchronizedWrapper: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-evenly",
     marginTop: 15,
-    gap: 50,
   },
   btnSyn: {
     padding: 10,

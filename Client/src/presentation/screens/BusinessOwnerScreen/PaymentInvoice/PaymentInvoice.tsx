@@ -230,7 +230,7 @@ export default function PaymentInvoiceScreen() {
   useEffect(() => {
     setInvoiceDetail((prev) => ({
       ...prev,
-      items: initialItems,
+      items: items,
       total: totalAfterTax ?? totalPrice,
       tax: selectedTax ?? 0,
       note: description,

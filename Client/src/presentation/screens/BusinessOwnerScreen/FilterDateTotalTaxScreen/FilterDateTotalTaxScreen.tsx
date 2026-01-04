@@ -88,7 +88,7 @@ function FilterDateTotalTaxScreen() {
 
             return (
               <TouchableOpacity
-                key={index}
+                key={item.key}
                 onPress={() => {
                   setSelected(index);
 

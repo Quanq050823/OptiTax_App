@@ -31,6 +31,7 @@ import {
 import { RootStackParamList } from "@/src/types/route";
 import { useData } from "@/src/presentation/Hooks/useDataStore";
 import { it } from "react-native-paper-dates";
+import { formatAddress } from "@/src/presentation/Controller/FormatAddress";
 
 type Props = {
   route: {
@@ -99,7 +100,7 @@ export default function ExportInvoiceDetailScreen({ route }: Props) {
   const invoiceExportCCT: CreateInvoiceRequest = {
     invoiceData: {
       customerName: data?.businessName,
-      customerAddress: data?.address,
+      customerAddress: formatAddress(data?.address),
       customerTaxCode: data?.taxCode,
       paymentMethod: getPaymentCode(paymentMethod),
       products: mapToEaseInvoiceProducts(invoiceDetail.items),
@@ -154,20 +155,9 @@ export default function ExportInvoiceDetailScreen({ route }: Props) {
   const handleExportInvoice = async () => {
     setLoading(true);
     try {
+      await exportInvoiceOutputEaseInvoice(invoiceExportCCT); // CCT trước
       await exportInvoiceOutput(invoiceData);
 
-      // const hasInvalidVat = invoiceDetail.items.some(
-      //   (i) => !VALID_VAT_RATES.includes(Number(i.vatRate) as any)
-      // );
-
-      // if (hasInvalidVat) {
-      //   Alert.alert(
-      //     "Lỗi thuế suất",
-      //     "Có sản phẩm có thuế suất không hợp lệ (chỉ chấp nhận -5, -3, -2, -1, 0, 5, 8, 10)"
-      //   );
-      //   return;
-      // }
-      await exportInvoiceOutputEaseInvoice(invoiceExportCCT);
       setLoading(false);
       Alert.alert("Xuất thành công", "", [
         {
@@ -175,10 +165,14 @@ export default function ExportInvoiceDetailScreen({ route }: Props) {
           onPress: () => navigation.pop(2),
         },
       ]);
-    } catch (e) {
+    } catch (e: any) {
+      console.log("EXPORT ERROR:", e?.message);
+      Alert.alert(
+        "Xuất không thành công",
+        e?.message ?? "Xuất hóa đơn thất bại"
+      );
+    } finally {
       setLoading(false);
-      console.log(e);
-      Alert.alert("Xuất không thành công", JSON.stringify(e));
     }
   };
 

@@ -35,6 +35,7 @@ type ModalOpen = {
   onGetCaptcha: () => Promise<void>;
   selectDateCpn: boolean;
   setSelecDateCpn: React.Dispatch<React.SetStateAction<boolean>>;
+  onSyncInvoiceIn?: (data: syncDataInvoiceIn) => Promise<void>;
 };
 function ModalSynchronized({
   visible,
