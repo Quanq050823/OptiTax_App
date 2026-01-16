@@ -157,7 +157,10 @@ export const assignCategoryForProducts = async (
 
 		await Promise.all(requests);
 
-		Alert.alert("✅ Thành công", `Đã cập nhật ${products.length} sản phẩm!`);
+		Alert.alert(
+			"Phân loại Thành công",
+			`Đã cập nhật ${products.length} sản phẩm!`
+		);
 	} catch (error: any) {
 		console.error(
 			"❌ Lỗi cập nhật category:",

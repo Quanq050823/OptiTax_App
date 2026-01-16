@@ -42,18 +42,17 @@ import {
 import { CommonActions, RouteProp, useRoute } from "@react-navigation/native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Alert,
-  Animated,
-  Dimensions,
-  FlatList,
-  Image,
-  ListRenderItem,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-
+	Alert,
+	Animated,
+	Dimensions,
+	FlatList,
+	Image,
+	ListRenderItem,
+	StyleSheet,
+	Text,
+	TextInput,
+	TouchableOpacity,
+	View,
 } from "react-native";
 import { RefreshControl, Swipeable } from "react-native-gesture-handler";
 import { ActivityIndicator, Searchbar } from "react-native-paper";
@@ -68,6 +67,9 @@ type NewProduct = {
 	stock: number;
 	attributes: { key: string; value: string }[];
 };
+
+const DEFAULT_THUMBNAIL =
+	"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSErqSt2kBmwnB-jYBsysGhqN6cg_kuGAD7bA&s";
 
 const productData = [
 	{
@@ -84,44 +86,44 @@ const productData = [
 ];
 
 export default function InventoryManagerScreen() {
-  const slideAnim = useRef(new Animated.Value(0)).current;
+	const slideAnim = useRef(new Animated.Value(0)).current;
 
-  const route = useRoute<RouteProp<RootStackParamList, "ProductManager">>();
-  const productScan = route.params?.scannedProduct;
+	const route = useRoute<RouteProp<RootStackParamList, "ProductManager">>();
+	const productScan = route.params?.scannedProduct;
 
-  const navigate = useAppNavigation();
-  const [productsInventory, setProductsInventory] = useState<
-    ProductInventory[]
-  >([]);
-  const [productInventoryNew, setProductsInventoryNew] = useState<
-    ProductInventory[]
-  >([]);
-  const [idEditProduct, setIdEditProduct] = useState<string>("");
-  const [showAction, setShowAction] = useState<string | null>(null);
-  const [showEditProduct, setShowEditProduct] = useState<string | null>(null);
-  const [visible, setVisible] = useState(false);
-  const [visibleEdit, setVisibleEdit] = useState(false);
-  const [newProductInvenEdit, setNewProductInvenEdit] =
-    useState<ProductInventory>();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
-  const [openId, setOpenId] = useState<string | null>(null);
-  const screenWidth = Dimensions.get("window").width;
-  const ITEM_MARGIN = 8;
-  const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [isActive, setIsActive] = useState(false);
-  const [toolsList, setToolsList] = useState<ProductInventory[]>([]);
-  const [newProduct, setNewProduct] = useState<NewProductInventory>({
-    name: "",
-    units: "",
-    price: 0,
-    imageURL: "",
-    stock: 0,
-  });
-  console.log(productInventoryNew);
+	const navigate = useAppNavigation();
+	const [productsInventory, setProductsInventory] = useState<
+		ProductInventory[]
+	>([]);
+	const [productInventoryNew, setProductsInventoryNew] = useState<
+		ProductInventory[]
+	>([]);
+	const [idEditProduct, setIdEditProduct] = useState<string>("");
+	const [showAction, setShowAction] = useState<string | null>(null);
+	const [showEditProduct, setShowEditProduct] = useState<string | null>(null);
+	const [visible, setVisible] = useState(false);
+	const [visibleEdit, setVisibleEdit] = useState(false);
+	const [newProductInvenEdit, setNewProductInvenEdit] =
+		useState<ProductInventory>();
+	const [searchQuery, setSearchQuery] = useState("");
+	const [loading, setLoading] = useState(true);
+	const [refreshing, setRefreshing] = useState(false);
+	const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
+	const [openId, setOpenId] = useState<string | null>(null);
+	const screenWidth = Dimensions.get("window").width;
+	const ITEM_MARGIN = 8;
+	const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
+	const [loadingMore, setLoadingMore] = useState(false);
+	const [isActive, setIsActive] = useState(false);
+	const [toolsList, setToolsList] = useState<ProductInventory[]>([]);
+	const [newProduct, setNewProduct] = useState<NewProductInventory>({
+		name: "",
+		units: "",
+		price: 0,
+		imageURL: "",
+		stock: 0,
+	});
+	console.log(productInventoryNew);
 
 	const fetchDataProductInventory = async (append = false) => {
 		try {
@@ -260,158 +262,161 @@ export default function InventoryManagerScreen() {
 			stock: Number(updatedFields.stock),
 		};
 
-    try {
-      const res = await updateProductInventory(id, productData); // đổi sang hàm update có id
-      console.log("Cập nhật thành công:", res);
-      Alert.alert("Thành công", "Sản phẩm đã được cập nhật");
-      setShowEditProduct(null);
-      fetchDataProductInventory();
-    } catch (error) {
-      console.error("Lỗi cập nhật sản phẩm:", error);
-      Alert.alert("Lỗi", "Không thể cập nhật sản phẩm");
-    }
-  };
+		try {
+			const res = await updateProductInventory(id, productData); // đổi sang hàm update có id
+			console.log("Cập nhật thành công:", res);
+			Alert.alert("Thành công", "Sản phẩm đã được cập nhật");
+			setShowEditProduct(null);
+			fetchDataProductInventory();
+		} catch (error) {
+			console.error("Lỗi cập nhật sản phẩm:", error);
+			Alert.alert("Lỗi", "Không thể cập nhật sản phẩm");
+		}
+	};
 
-  const renderRightActions = (item: ProductInventory) => (
-    <View style={styles.rightActionContainer}>
-      <TouchableOpacity
-        style={[styles.actionBtn, { backgroundColor: "#0f7aacff" }]}
-        onPress={() => handleOpenModalEditProduct(item._id)}
-      >
-        <Text style={styles.actionText}>Sửa</Text>
-      </TouchableOpacity>
+	const renderRightActions = (item: ProductInventory) => (
+		<View style={styles.rightActionContainer}>
+			<TouchableOpacity
+				style={[styles.actionBtn, { backgroundColor: "#0f7aacff" }]}
+				onPress={() => handleOpenModalEditProduct(item._id)}
+			>
+				<Text style={styles.actionText}>Sửa</Text>
+			</TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.actionBtn, { backgroundColor: "#c21212ff" }]}
-        onPress={() => handleDeleteProductInventory(item._id)}
-      >
-        <Text style={styles.actionText}>Xóa</Text>
-      </TouchableOpacity>
-    </View>
-  );
+			<TouchableOpacity
+				style={[styles.actionBtn, { backgroundColor: "#c21212ff" }]}
+				onPress={() => handleDeleteProductInventory(item._id)}
+			>
+				<Text style={styles.actionText}>Xóa</Text>
+			</TouchableOpacity>
+		</View>
+	);
 
-  const renderItem: ListRenderItem<ProductInventory> = (item) => (
-    <Swipeable
-      renderRightActions={() => renderRightActions(item.item)}
-      overshootRight={false}
-      ref={(ref) => {
-        if (ref) swipeableRefs.current.set(item.item._id, ref);
-      }}
-      onSwipeableOpen={() => setOpenId(item.item._id)}
-      onSwipeableClose={() => setOpenId(null)}
-    >
-      <View>
-        <View
-          style={[
-            styles.card,
-            {
-              position: "relative",
-            },
-          ]}
-        >
-          <View
-            style={{
-              flex: 1,
-              alignItems: "center",
-              width: "100%",
-              flexDirection: "row",
-              justifyContent: "space-between",
-            }}
-          >
-            <Image source={{ uri: item.item.imageURL }} style={styles.image} />
-            <View
-              style={{
-                flex: 1,
-                paddingHorizontal: 10,
-              }}
-            >
-              <Text style={styles.name}>{item.item.name}</Text>
-              <Text style={styles.detail}>
-                Giá: {item.item.price.toLocaleString()}đ
-              </Text>
-            </View>
-            <TouchableOpacity
-              style={{
-                flex: 0.2,
-                flexDirection: "row",
-                justifyContent: "center",
-              }}
-              onPress={() => {
-                const current = swipeableRefs.current.get(item.item._id);
+	const renderItem: ListRenderItem<ProductInventory> = (item) => (
+		<Swipeable
+			renderRightActions={() => renderRightActions(item.item)}
+			overshootRight={false}
+			ref={(ref) => {
+				if (ref) swipeableRefs.current.set(item.item._id, ref);
+			}}
+			onSwipeableOpen={() => setOpenId(item.item._id)}
+			onSwipeableClose={() => setOpenId(null)}
+		>
+			<View>
+				<View
+					style={[
+						styles.card,
+						{
+							position: "relative",
+						},
+					]}
+				>
+					<View
+						style={{
+							flex: 1,
+							alignItems: "center",
+							width: "100%",
+							flexDirection: "row",
+							justifyContent: "space-between",
+						}}
+					>
+						<Image
+							source={{ uri: item.item.imageURL || DEFAULT_THUMBNAIL }}
+							style={styles.image}
+						/>
+						<View
+							style={{
+								flex: 1,
+								paddingHorizontal: 10,
+							}}
+						>
+							<Text style={styles.name}>{item.item.name}</Text>
+							<Text style={styles.detail}>
+								Giá: {item.item.price.toLocaleString()}đ
+							</Text>
+						</View>
+						<TouchableOpacity
+							style={{
+								flex: 0.2,
+								flexDirection: "row",
+								justifyContent: "center",
+							}}
+							onPress={() => {
+								const current = swipeableRefs.current.get(item.item._id);
 
-                // 🔁 Toggle open / close
-                if (openId === item.item._id) {
-                  current?.close();
-                } else {
-                  // ❌ đóng cái khác
-                  if (openId) {
-                    swipeableRefs.current.get(openId)?.close();
-                  }
-                  current?.openRight();
-                }
-              }}
-            >
-              {showAction === item.item._id ? (
-                <MaterialIcons
-                  name="keyboard-double-arrow-right"
-                  size={24}
-                  color="black"
-                />
-              ) : (
-                <AntDesign name="edit" size={20} color="#6e6e6eff" />
-              )}
-            </TouchableOpacity>
-            {showAction === item.item._id && (
-              <Animated.View
-                style={{
-                  flexDirection: "row",
-                  flex: 2,
-                  height: "100%",
-                  transform: [
-                    {
-                      translateX: slideAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [100, 0], // 👈 trượt từ phải vào
-                      }),
-                    },
-                  ],
-                  opacity: slideAnim,
-                }}
-              >
-                <TouchableOpacity
-                  style={{
-                    flex: 1,
+								// 🔁 Toggle open / close
+								if (openId === item.item._id) {
+									current?.close();
+								} else {
+									// ❌ đóng cái khác
+									if (openId) {
+										swipeableRefs.current.get(openId)?.close();
+									}
+									current?.openRight();
+								}
+							}}
+						>
+							{showAction === item.item._id ? (
+								<MaterialIcons
+									name="keyboard-double-arrow-right"
+									size={24}
+									color="black"
+								/>
+							) : (
+								<AntDesign name="edit" size={20} color="#6e6e6eff" />
+							)}
+						</TouchableOpacity>
+						{showAction === item.item._id && (
+							<Animated.View
+								style={{
+									flexDirection: "row",
+									flex: 2,
+									height: "100%",
+									transform: [
+										{
+											translateX: slideAnim.interpolate({
+												inputRange: [0, 1],
+												outputRange: [100, 0], // 👈 trượt từ phải vào
+											}),
+										},
+									],
+									opacity: slideAnim,
+								}}
+							>
+								<TouchableOpacity
+									style={{
+										flex: 1,
 
-                    height: "100%",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                  onPress={() => handleOpenModalEditProduct(item.item._id)}
-                >
-                  <Text style={{ textAlign: "center", color: "#0f7aacff" }}>
-                    Sửa
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    flex: 1,
+										height: "100%",
+										flexDirection: "row",
+										alignItems: "center",
+										justifyContent: "center",
+									}}
+									onPress={() => handleOpenModalEditProduct(item.item._id)}
+								>
+									<Text style={{ textAlign: "center", color: "#0f7aacff" }}>
+										Sửa
+									</Text>
+								</TouchableOpacity>
+								<TouchableOpacity
+									style={{
+										flex: 1,
 
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                  onPress={() => handleDeleteProductInventory(item.item._id)}
-                >
-                  <Text style={{ textAlign: "center", color: "#c21212ff" }}>
-                    Xóa
-                  </Text>
-                </TouchableOpacity>
-              </Animated.View>
-            )}
-            {/* <Text style={styles.detail}>Số lượng: {item.stock}</Text> */}
-          </View>
-          {/* {showAction === item.code && (
+										flexDirection: "row",
+										alignItems: "center",
+										justifyContent: "center",
+									}}
+									onPress={() => handleDeleteProductInventory(item.item._id)}
+								>
+									<Text style={{ textAlign: "center", color: "#c21212ff" }}>
+										Xóa
+									</Text>
+								</TouchableOpacity>
+							</Animated.View>
+						)}
+						{/* <Text style={styles.detail}>Số lượng: {item.stock}</Text> */}
+					</View>
+					{/* {showAction === item.code && (
           <>
             <View
               style={{
@@ -446,10 +451,10 @@ export default function InventoryManagerScreen() {
             ></View>
           </>
         )} */}
-        </View>
-      </View>
-    </Swipeable>
-  );
+				</View>
+			</View>
+		</Swipeable>
+	);
 
 	const handleSyncProductFromInvoiceIn = async () => {
 		try {
@@ -604,226 +609,226 @@ export default function InventoryManagerScreen() {
           placeholderTextColor="#999"
         />
       </View> */}
-          <>
-            {loading ? (
-              <LoadingScreen visible={loading} />
-            ) : !isActive ? (
-              productsInventory.length === 0 ? (
-                <View
-                  style={{
-                    marginTop: 40,
-                    alignItems: "center",
-                    flex: 1,
-                  }}
-                >
-                  <Text style={{ fontSize: 16, color: "#777", marginTop: 100 }}>
-                    Không có nguyên liệu nào trong kho
-                  </Text>
-                </View>
-              ) : (
-                <FlatList
-                  data={productsInventory}
-                  keyExtractor={(item) => item._id}
-                  renderItem={renderItem}
-                  showsVerticalScrollIndicator={false}
-                  showsHorizontalScrollIndicator={false}
-                  refreshControl={
-                    <RefreshControl
-                      refreshing={refreshing}
-                      onRefresh={onRefresh}
-                      colors={["#FF6B00"]}
-                      tintColor="#FF6B00"
-                      title="Đang tải dữ liệu..."
-                    />
-                  }
-                  ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-                  contentContainerStyle={{
-                    paddingBottom: 80,
-                    paddingHorizontal: 5,
-                  }}
-                />
-              )
-            ) : toolsList.length === 0 ? (
-              <View style={{ marginTop: 40, alignItems: "center" }}>
-                <Text style={{ fontSize: 16, color: "#777", marginTop: 100 }}>
-                  Không có dụng cụ nào trong kho
-                </Text>
-              </View>
-            ) : (
-              <FlatList
-                data={toolsList}
-                keyExtractor={(item) => item._id}
-                renderItem={renderItem}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                    colors={["#FF6B00"]}
-                    tintColor="#FF6B00"
-                    title="Đang tải dữ liệu..."
-                  />
-                }
-                ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-                contentContainerStyle={{
-                  paddingBottom: 80,
-                  paddingHorizontal: 5,
-                }}
-              />
-            )}
-          </>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setVisible(true)}
-          >
-            <Ionicons name="add" size={28} color="#fff" />
-          </TouchableOpacity>
-          <ModalAddProductInventory
-            visible={visible}
-            setVisible={setVisible}
-            onAddOrEditProductInventory={() =>
-              handleCreateProductInventory(newProduct)
-            }
-            newProduct={newProduct}
-            setNewProduct={setNewProduct}
-            fetchData={fetchDataProductInventory}
-            setNewProductInvenEdit={() => {}}
-          />
-          {showEditProduct && (
-            <ModalAddProductInventory
-              visible={visibleEdit}
-              setVisible={setVisibleEdit}
-              onAddOrEditProductInventory={() =>
-                handleUpdateProductInventory(idEditProduct, newProductInvenEdit)
-              }
-              newProduct={newProduct}
-              setNewProduct={setNewProduct}
-              newProductInvenEdit={newProductInvenEdit}
-              setNewProductInvenEdit={setNewProductInvenEdit}
-              fetchData={fetchDataProductInventory}
-              idProduct={idEditProduct}
-            />
-          )}
-        </>
-      ) : (
-        <View>
-          <Text>haha</Text>
-        </View>
-      )}
-    </View>
-  );
+					<>
+						{loading ? (
+							<LoadingScreen visible={loading} />
+						) : !isActive ? (
+							productsInventory.length === 0 ? (
+								<View
+									style={{
+										marginTop: 40,
+										alignItems: "center",
+										flex: 1,
+									}}
+								>
+									<Text style={{ fontSize: 16, color: "#777", marginTop: 100 }}>
+										Không có nguyên liệu nào trong kho
+									</Text>
+								</View>
+							) : (
+								<FlatList
+									data={productsInventory}
+									keyExtractor={(item) => item._id}
+									renderItem={renderItem}
+									showsVerticalScrollIndicator={false}
+									showsHorizontalScrollIndicator={false}
+									refreshControl={
+										<RefreshControl
+											refreshing={refreshing}
+											onRefresh={onRefresh}
+											colors={["#FF6B00"]}
+											tintColor="#FF6B00"
+											title="Đang tải dữ liệu..."
+										/>
+									}
+									ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+									contentContainerStyle={{
+										paddingBottom: 80,
+										paddingHorizontal: 5,
+									}}
+								/>
+							)
+						) : toolsList.length === 0 ? (
+							<View style={{ marginTop: 40, alignItems: "center" }}>
+								<Text style={{ fontSize: 16, color: "#777", marginTop: 100 }}>
+									Không có dụng cụ nào trong kho
+								</Text>
+							</View>
+						) : (
+							<FlatList
+								data={toolsList}
+								keyExtractor={(item) => item._id}
+								renderItem={renderItem}
+								refreshControl={
+									<RefreshControl
+										refreshing={refreshing}
+										onRefresh={onRefresh}
+										colors={["#FF6B00"]}
+										tintColor="#FF6B00"
+										title="Đang tải dữ liệu..."
+									/>
+								}
+								ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+								contentContainerStyle={{
+									paddingBottom: 80,
+									paddingHorizontal: 5,
+								}}
+							/>
+						)}
+					</>
+					<TouchableOpacity
+						style={styles.addButton}
+						onPress={() => setVisible(true)}
+					>
+						<Ionicons name="add" size={28} color="#fff" />
+					</TouchableOpacity>
+					<ModalAddProductInventory
+						visible={visible}
+						setVisible={setVisible}
+						onAddOrEditProductInventory={() =>
+							handleCreateProductInventory(newProduct)
+						}
+						newProduct={newProduct}
+						setNewProduct={setNewProduct}
+						fetchData={fetchDataProductInventory}
+						setNewProductInvenEdit={() => {}}
+					/>
+					{showEditProduct && (
+						<ModalAddProductInventory
+							visible={visibleEdit}
+							setVisible={setVisibleEdit}
+							onAddOrEditProductInventory={() =>
+								handleUpdateProductInventory(idEditProduct, newProductInvenEdit)
+							}
+							newProduct={newProduct}
+							setNewProduct={setNewProduct}
+							newProductInvenEdit={newProductInvenEdit}
+							setNewProductInvenEdit={setNewProductInvenEdit}
+							fetchData={fetchDataProductInventory}
+							idProduct={idEditProduct}
+						/>
+					)}
+				</>
+			) : (
+				<View>
+					<Text>haha</Text>
+				</View>
+			)}
+		</View>
+	);
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f6f6f6",
-  },
-  header: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 12,
-  },
-  searchInput: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 16,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: "#ccc",
-  },
-  card: {
-    backgroundColor: "#fff",
-    paddingVertical: 10,
-    borderRadius: 8,
-    minHeight: 100,
-    paddingHorizontal: 10,
-    elevation: 2,
-  },
-  image: {
-    width: 80,
-    height: 80,
-    borderRadius: 6,
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 10,
-  },
-  detail: {
-    fontSize: 14,
-    color: "#555",
-    marginTop: 4,
-  },
-  addButton: {
-    position: "absolute",
-    bottom: 50,
-    width: 70,
-    height: 70,
-    backgroundColor: ColorMain,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 14,
-    borderRadius: 50,
-    right: 20,
-    shadowColor: "#747474ff",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 5,
-  },
-  addText: {
-    color: "#fff",
-    fontSize: 16,
-    marginLeft: 8,
-    fontWeight: "600",
-  },
-  shadow: {
-    shadowColor: ColorMain,
-    shadowOpacity: 0.22,
-    shadowOffset: { width: 0, height: 1 },
-  },
-  btnSyn: {
-    backgroundColor: ColorMain,
-    padding: 10,
-    borderRadius: 10,
-    minWidth: 50,
-    marginTop: 20,
-    flexDirection: "row",
-    position: "relative",
-  },
-  cateWrapper: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    height: 50,
-    backgroundColor: "#fff",
-    shadowColor: ColorMain,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-  },
-  cateItem: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 8,
-  },
-  textCate: { fontSize: 16, color: "#6d6d6dff" },
-  rightActionContainer: {
-    width: 160,
-    flexDirection: "row",
-  },
+	container: {
+		flex: 1,
+		backgroundColor: "#f6f6f6",
+	},
+	header: {
+		fontSize: 22,
+		fontWeight: "bold",
+		marginBottom: 12,
+	},
+	searchInput: {
+		backgroundColor: "#fff",
+		borderRadius: 8,
+		paddingHorizontal: 12,
+		paddingVertical: 10,
+		marginBottom: 16,
+		fontSize: 16,
+		borderWidth: 1,
+		borderColor: "#ccc",
+	},
+	card: {
+		backgroundColor: "#fff",
+		paddingVertical: 10,
+		borderRadius: 8,
+		minHeight: 100,
+		paddingHorizontal: 10,
+		elevation: 2,
+	},
+	image: {
+		width: 80,
+		height: 80,
+		borderRadius: 6,
+	},
+	name: {
+		fontSize: 16,
+		fontWeight: "bold",
+		marginTop: 10,
+	},
+	detail: {
+		fontSize: 14,
+		color: "#555",
+		marginTop: 4,
+	},
+	addButton: {
+		position: "absolute",
+		bottom: 50,
+		width: 70,
+		height: 70,
+		backgroundColor: ColorMain,
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		paddingVertical: 14,
+		borderRadius: 50,
+		right: 20,
+		shadowColor: "#747474ff",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.3,
+		shadowRadius: 3,
+		elevation: 5,
+	},
+	addText: {
+		color: "#fff",
+		fontSize: 16,
+		marginLeft: 8,
+		fontWeight: "600",
+	},
+	shadow: {
+		shadowColor: ColorMain,
+		shadowOpacity: 0.22,
+		shadowOffset: { width: 0, height: 1 },
+	},
+	btnSyn: {
+		backgroundColor: ColorMain,
+		padding: 10,
+		borderRadius: 10,
+		minWidth: 50,
+		marginTop: 20,
+		flexDirection: "row",
+		position: "relative",
+	},
+	cateWrapper: {
+		flexDirection: "row",
+		justifyContent: "space-around",
+		height: 50,
+		backgroundColor: "#fff",
+		shadowColor: ColorMain,
+		shadowOffset: { width: 0, height: 3 },
+		shadowOpacity: 0.25,
+	},
+	cateItem: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: "#fff",
+		borderRadius: 8,
+	},
+	textCate: { fontSize: 16, color: "#6d6d6dff" },
+	rightActionContainer: {
+		width: 160,
+		flexDirection: "row",
+	},
 
-  actionBtn: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+	actionBtn: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+	},
 
-  actionText: {
-    color: "#fff",
-    fontWeight: "600",
-  },
+	actionText: {
+		color: "#fff",
+		fontWeight: "600",
+	},
 });
