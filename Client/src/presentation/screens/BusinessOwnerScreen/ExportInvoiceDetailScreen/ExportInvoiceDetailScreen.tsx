@@ -99,9 +99,9 @@ export default function ExportInvoiceDetailScreen({ route }: Props) {
 	};
 	const invoiceExportCCT: CreateInvoiceRequest = {
 		invoiceData: {
-			customerName: data?.businessName,
-			customerAddress: formatAddress(data?.address),
-			customerTaxCode: data?.taxCode,
+			customerName: "Khách vãng lai",
+			customerAddress: "",
+			customerTaxCode: "",
 			paymentMethod: getPaymentCode(paymentMethod),
 			products: mapToEaseInvoiceProducts(invoiceDetail.items),
 		},
@@ -155,7 +155,7 @@ export default function ExportInvoiceDetailScreen({ route }: Props) {
 	const handleExportInvoice = async () => {
 		setLoading(true);
 		try {
-			// await exportInvoiceOutputEaseInvoice(invoiceExportCCT);
+			await exportInvoiceOutputEaseInvoice(invoiceExportCCT);
 			await exportInvoiceOutput(invoiceData);
 
 			setLoading(false);

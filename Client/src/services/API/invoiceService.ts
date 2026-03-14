@@ -76,7 +76,8 @@ export const exportInvoiceOutputEaseInvoice = async (
 ) => {
 	try {
 		const res = await axiosInstance.post<EaseInvoiceResponse>(
-			`easyinvoice/import-and-issue-invoice`,
+			`easyinvoice/importInvoice`, //XUẤT HÓA ĐƠN CHƯA PHÁT HÀNH
+			// 	`easyinvoice/import-and-issue-invoice`,   //XUẤT HÓA ĐƠN VÀ PHÁT HÀNH NGAY
 			invoiceData,
 		);
 
