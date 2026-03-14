@@ -92,14 +92,8 @@ export const importInvoice = async (req, res, next) => {
 		}
 
 		const easyInvoiceAccount = owner.easyInvoiceInfo.account;
-		console.log("🚀 ~ importInvoice ~ easyInvoiceAccount:", easyInvoiceAccount);
 		const easyInvoicePassword = owner.easyInvoiceInfo.password;
-		console.log(
-			"🚀 ~ importInvoice ~ easyInvoicePassword:",
-			easyInvoicePassword,
-		);
 		const easyInvoiceSerial = owner.easyInvoiceInfo.serial;
-		console.log("🚀 ~ importInvoice ~ easyInvoiceSerial:", easyInvoiceSerial);
 
 		if (!easyInvoiceAccount || !easyInvoicePassword || !easyInvoiceSerial) {
 			return res.status(StatusCodes.BAD_REQUEST).json({
@@ -118,7 +112,6 @@ export const importInvoice = async (req, res, next) => {
 			easyInvoicePassword,
 			easyInvoiceSerial,
 		);
-		console.log("🚀 ~ importInvoice ~ XmlData:", XmlData);
 		res
 			.status(StatusCodes.OK)
 			.json({ success: true, data: result, invoiceData });
@@ -186,7 +179,6 @@ export const importAndIssueInvoice = async (req, res, next) => {
 			.status(StatusCodes.OK)
 			.json({ success: true, data: result, invoiceData });
 	} catch (error) {
-		console.log("🚀 ~ importAndIssueInvoice ~ error:", error);
 		next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
 	}
 };
