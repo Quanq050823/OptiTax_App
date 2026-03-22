@@ -13,8 +13,7 @@ import { useNavigation } from "expo-router";
 import { StackNavigationProp } from "@react-navigation/stack";
 
 import {
-	exportInvoiceOutput,
-	exportInvoiceOutputEaseInvoice,
+	exportInvoiceOutputAndSaveDb,
 } from "@/src/services/API/invoiceService";
 import { ColorMain } from "@/src/presentation/components/colors";
 import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
@@ -155,8 +154,7 @@ export default function ExportInvoiceDetailScreen({ route }: Props) {
 	const handleExportInvoice = async () => {
 		setLoading(true);
 		try {
-			await exportInvoiceOutputEaseInvoice(invoiceExportCCT);
-			await exportInvoiceOutput(invoiceData);
+			await exportInvoiceOutputAndSaveDb(invoiceExportCCT, invoiceData);
 
 			setLoading(false);
 			Alert.alert("Xuất thành công", "", [
