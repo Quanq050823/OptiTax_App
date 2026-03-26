@@ -1,16 +1,11 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import { AntDesign } from "@expo/vector-icons";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useCallback, useEffect, useState } from "react";
+import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-
 import {
 	Alert,
-	KeyboardAvoidingView,
-	Modal,
 	Platform,
-	Pressable,
-	ScrollView,
 	StyleSheet,
 	Text,
 	TextInput,
@@ -18,7 +13,6 @@ import {
 	View,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
-import { InvoiceProduct } from "@/src/types/route";
 import { createProduct } from "@/src/services/API/productService";
 import { materials, Product } from "@/src/types/product";
 import { ProductInventory, UnitsNameProduct } from "@/src/types/storage";
@@ -34,57 +28,7 @@ type Ingredient = {
 	unit: string | null;
 };
 
-const donVi = [
-	{
-		label: "ml",
-		value: "ml",
-	},
-	{
-		label: "gram",
-		value: "gram",
-	},
-	{
-		label: "Kg",
-		value: "Kg",
-	},
-	{
-		label: "Phần",
-		value: "phan",
-	},
-	{
-		label: "lít",
-		value: "lit",
-	},
-];
-
-const nguyenLieu = [
-	{
-		label: "Cà Phê Bột",
-		value: "caphebot",
-	},
-	{
-		label: "Trà sữa bột",
-		value: "trasuabot",
-	},
-	{
-		label: "Sữa đặc",
-		value: "suadac",
-	},
-	{
-		label: "Đường",
-		value: "duong",
-	},
-];
-
-const BUSINESS_TYPES = [
-	{ label: "Phân phối / Cung cấp hàng hóa", value: "distribution" },
-	{ label: "Dịch vụ (không bao gồm vật liệu)", value: "service_no_material" },
-	{
-		label: "Sản xuất / Xây dựng (có vật liệu)",
-		value: "production_with_material",
-	},
-	{ label: "Hoạt động kinh doanh khác", value: "other_business" },
-];
+type CategoryItem = { label: string; value: string };
 
 const INITIAL_INGREDIENT: Ingredient = {
 	material: null,
@@ -93,86 +37,59 @@ const INITIAL_INGREDIENT: Ingredient = {
 };
 
 function CreateProductScreen() {
+	const navigation = useAppNavigation();
 	const [ingredients, setIngredients] = useState<Ingredient[]>([
 		INITIAL_INGREDIENT,
 	]);
-
 	const [newProduct, setNewProduct] = useState<Product>({
 		name: "",
-		code: "",
+		code: null,
 		category: "",
-		unit: "",
+		unit: null,
 		price: 0,
 		description: "",
-		imageUrl: "",
+		imageUrl: null,
 		stock: 0,
 		materials: [],
 	});
 	const [productStorage, setProductStorage] = useState<ProductInventory[]>([]);
 	const [unitsData, setUnitsData] = useState<UnitsNameProduct>();
-	const [searchKeyword, setSearchKeyword] = useState("");
 	const [filteredProductsList, setFilteredProductsList] = useState<
 		ProductInventory[][]
-	>(ingredients.map(() => productStorage));
+	>([]);
+
 	const [openModalConvers, setOpenModalConvers] = useState(false);
 	const [idProductStorage, setIdProductStorage] = useState("");
-	const [showUnitInput, setShowUnitInput] = useState(false);
-	const [newUnit, setNewUnit] = useState("");
 
-	const [value, setValue] = useState<string | null>(null);
-	const [showInput, setShowInput] = useState(false);
+	const [showUnitInput, setShowUnitInput] = useState(false);
+	const [newCustomUnit, setNewCustomUnit] = useState("");
+	const [unitValue, setUnitValue] = useState<string | null>(null);
+
+	const [isSaving, setIsSaving] = useState(false);
+
+	const [categories, setCategories] = useState<CategoryItem[]>([
+		{ label: "Ăn uống", value: "an uong" },
+		{ label: "Dịch vụ", value: "dich vu" },
+		{ label: "Sản xuất / Công nghiệp", value: "sxcn" },
+		{ label: "Nông nghiệp / Thủy sản", value: "nnts" },
+		{ label: "Khác", value: "other" },
+	]);
+	const [showCategoryInput, setShowCategoryInput] = useState(false);
 	const [newCategory, setNewCategory] = useState("");
-	//--------------------Search product storage dropdown--------------------
+	const [categoryValue, setCategoryValue] = useState<string | null>(null);
+
 	useEffect(() => {
 		if (productStorage.length > 0) {
 			setFilteredProductsList(ingredients.map(() => [...productStorage]));
 		}
 	}, [productStorage, ingredients.length]);
 
-	const filterProducts = (index: number, keyword: string) => {
-		const filtered = productStorage.filter((p) =>
-			p.name.toLowerCase().includes(keyword.toLowerCase())
-		);
-
-		setFilteredProductsList((prev) => {
-			const copy = [...prev];
-			copy[index] = [...filtered]; // clone
-			return copy;
-		});
-	};
-	//--------------------------------------------------------------
-	const addIngredient = () => {
-		setIngredients((prev) => [
-			...prev,
-			{ material: null, quantity: "", unit: null }, // copy mới
-		]);
-
-		setFilteredProductsList((prev) => [...prev, productStorage]);
-	};
-	const getUnitName = async () => {
-		try {
-			const res = await getUnitNameProduct();
-			setUnitsData(res);
-		} catch {
-			console.log("Không tìm thấy dữ liệu unit name");
-		}
-	};
-
-	const getProductStorage = async () => {
-		try {
-			const res = await getProductsInventory();
-			setProductStorage(res.data);
-		} catch {
-			console.log("không lấy được data");
-		}
-	};
-
 	const fetchUnits = useCallback(async () => {
 		try {
 			const res = await getUnitNameProduct();
 			setUnitsData(res);
 		} catch {
-			console.log("Không tìm thấy dữ liệu unit name");
+			/* silent */
 		}
 	}, []);
 
@@ -181,7 +98,7 @@ function CreateProductScreen() {
 			const res = await getProductsInventory();
 			setProductStorage(res.data);
 		} catch {
-			console.log("Không lấy được data");
+			/* silent */
 		}
 	}, []);
 
@@ -190,646 +107,712 @@ function CreateProductScreen() {
 		fetchProductStorage();
 	}, [fetchUnits, fetchProductStorage]);
 
-	const uniqueUnits = Array.from(
-		new Map(unitsData?.units.map((u) => [u.toLowerCase(), u])).values()
-	);
-
 	const unitOptions =
-		unitsData?.units.map((u) => ({ label: u, value: u })) || [];
+		unitsData?.units.map((u) => ({ label: u, value: u })) ?? [];
 
 	const updateIngredient = useCallback(
-		<K extends keyof Ingredient>(
-			index: number,
-			key: K,
-			value: Ingredient[K]
-		) => {
+		<K extends keyof Ingredient>(index: number, key: K, val: Ingredient[K]) => {
 			setIngredients((prev) => {
-				const newList = [...prev];
-				newList[index][key] = value;
-				return newList;
+				const next = [...prev];
+				next[index] = { ...next[index], [key]: val };
+				return next;
 			});
 		},
-		[]
+		[],
 	);
 
-	const [categories, setCategories] = useState([
-		{ label: "Ăn uống", value: "an uong" },
-		{ label: "Dịch vụ", value: "dich vu" },
-		{ label: "Sản xuất / Công nghiệp", value: "sxcn" },
-		{ label: "Nông nghiệp / Thủy sản", value: "nnts" },
-		{ label: "Khác", value: "other" },
-	]);
+	const addIngredient = useCallback(() => {
+		setIngredients((prev) => [
+			...prev,
+			{ material: null, quantity: "", unit: null },
+		]);
+		setFilteredProductsList((prev) => [...prev, [...productStorage]]);
+	}, [productStorage]);
+
+	const removeIngredient = useCallback((index: number) => {
+		setIngredients((prev) => prev.filter((_, i) => i !== index));
+		setFilteredProductsList((prev) => prev.filter((_, i) => i !== index));
+	}, []);
 
 	const handleAddCategory = useCallback(() => {
 		if (!newCategory.trim()) return;
-		const newItem = { label: newCategory.trim(), value: newCategory.trim() };
+		const newItem: CategoryItem = {
+			label: newCategory.trim(),
+			value: newCategory.trim(),
+		};
 		setCategories((prev) => [...prev, newItem]);
-		setValue(newItem.value);
-		setNewCategory("");
-		setShowInput(false);
+		setCategoryValue(newItem.value);
 		setNewProduct((prev) => ({ ...prev, category: newItem.value }));
+		setNewCategory("");
+		setShowCategoryInput(false);
 	}, [newCategory]);
 
-	const isIngredientsValid = ingredients.every(
-		(i) =>
-			(i.material?.trim() ?? "") !== "" &&
-			(i.quantity?.trim() ?? "") !== "" &&
-			(i.unit?.trim() ?? "") !== ""
+	const handleAddUnit = useCallback(() => {
+		if (!newCustomUnit.trim()) return;
+		setUnitsData((prev) => ({
+			names: [...(prev?.names ?? []), newCustomUnit.trim()],
+			units: [...(prev?.units ?? []), newCustomUnit.trim()],
+		}));
+		setUnitValue(newCustomUnit.trim());
+		setNewProduct((prev) => ({ ...prev, unit: newCustomUnit.trim() }));
+		setNewCustomUnit("");
+		setShowUnitInput(false);
+	}, [newCustomUnit]);
+
+	const getAvailableUnits = useCallback(
+		(materialId: string | null) => {
+			if (!materialId) return [];
+			const product = productStorage.find((p) => p._id === materialId);
+			if (!product) return [];
+			const units = new Set<string>();
+			if (product.unit) units.add(product.unit);
+			if (product.conversionUnit?.to) {
+				product.conversionUnit.to.forEach((conversion: any) => {
+					if (conversion.itemName) units.add(conversion.itemName);
+				});
+			}
+			return Array.from(units).map((unit) => ({ label: unit, value: unit }));
+		},
+		[productStorage],
 	);
+
 	const handleAddProduct = useCallback(async () => {
+		const isIngredientsValid = ingredients.every(
+			(i) =>
+				(i.material?.trim() ?? "") !== "" &&
+				(i.quantity?.trim() ?? "") !== "" &&
+				(i.unit?.trim() ?? "") !== "",
+		);
 		if (
 			!newProduct.name ||
 			!newProduct.price ||
 			!newProduct.unit ||
 			!isIngredientsValid
 		) {
-			Alert.alert("Thiếu thông tin", "Vui lòng nhập đầy đủ các trường");
+			Alert.alert(
+				"Thiếu thông tin",
+				"Vui lòng nhập đầy đủ các trường bắt buộc.",
+			);
 			return;
 		}
-
-		const materialsList: materials[] = ingredients.map((ing) => ({
-			component: ing.material || "",
-			quantity: ing.quantity,
-			unit: ing.unit || "",
-		}));
-
-		const productToCreate = { ...newProduct, materials: materialsList };
-
+		setIsSaving(true);
 		try {
+			const materialsList: materials[] = ingredients.map((ing) => ({
+				component: ing.material || "",
+				quantity: ing.quantity,
+				unit: ing.unit || "",
+			}));
+			const productToCreate: Product = {
+				...newProduct,
+				code: newProduct.code ?? null,
+				unit: newProduct.unit ?? null,
+				imageUrl: newProduct.imageUrl ?? null,
+				materials: materialsList,
+			};
 			const created = await createProduct(productToCreate);
-
 			if (created && typeof created === "object" && "name" in created) {
-				Alert.alert("Thành công", `Đã thêm sản phẩm: ${created.name}`);
+				Alert.alert("Thành công", `Đã thêm sản phẩm: ${created.name}`, [
+					{ text: "OK", onPress: () => navigation.goBack() },
+				]);
 			} else {
 				Alert.alert("Lỗi", "Không thể lấy thông tin sản phẩm vừa tạo.");
 			}
 		} catch (error: any) {
-			const errorMessage = error?.message || "Có lỗi xảy ra khi tạo sản phẩm";
-			Alert.alert("Lỗi", errorMessage);
+			Alert.alert("Lỗi", error?.message || "Có lỗi xảy ra khi tạo sản phẩm.");
+		} finally {
+			setIsSaving(false);
 		}
 	}, [ingredients, newProduct]);
 
-	const handleAddUnit = useCallback(() => {
-		if (!newUnit.trim()) return;
-		setUnitsData((prev) => ({
-			names: [...(prev?.names ?? []), newUnit],
-			units: [...(prev?.units ?? []), newUnit],
-		}));
-		setNewUnit("");
-	}, [newUnit]);
-
 	const isValid =
-		(newProduct.name?.trim() ?? "") !== "" &&
+		newProduct.name.trim() !== "" &&
 		newProduct.price > 0 &&
-		// (newProduct.category?.trim() ?? "") !== "" &&
 		(newProduct.unit?.trim() ?? "") !== "" &&
 		ingredients.every(
 			(i) =>
 				(i.material?.trim() ?? "") !== "" &&
 				(i.quantity?.trim() ?? "") !== "" &&
-				(i.unit?.trim() ?? "") !== ""
+				(i.unit?.trim() ?? "") !== "",
 		);
-	const handleOpenConversUnit = useCallback((id: string) => {
-		setOpenModalConvers(true);
-		setIdProductStorage(id);
-	}, []);
-	const handleRemoveIngredient = (removeIndex: number) => {
-		setIngredients((prev) => prev.filter((_, index) => index !== removeIndex));
-	};
-
-	const getAvailableUnits = useCallback(
-		(materialId: string | null) => {
-			if (!materialId) return [];
-
-			const product = productStorage.find((p) => p._id === materialId);
-			if (!product) return [];
-
-			const units = new Set<string>();
-
-			if (product.unit) {
-				units.add(product.unit);
-			}
-
-			if (product.conversionUnit?.to) {
-				product.conversionUnit.to.forEach((conversion: any) => {
-					if (conversion.itemName) {
-						units.add(conversion.itemName);
-					}
-				});
-			}
-
-			return Array.from(units).map((unit) => ({ label: unit, value: unit }));
-		},
-		[productStorage]
-	);
 
 	return (
-		<View style={styleModal.modalContent}>
-			<ScrollView>
-				<KeyboardAwareScrollView
-					enableOnAndroid={true}
-					extraScrollHeight={100} // khoảng cách thêm khi bàn phím hiện
-					keyboardOpeningTime={0}
-					contentContainerStyle={{ paddingBottom: 40 }}
-					keyboardShouldPersistTaps="handled"
-				>
-					<View style={styleModal.wrAddField}>
-						<View style={{ marginTop: 20 }}>
-							<Text style={styleModal.labelInput}>Mã sản phẩm </Text>
-							<TextInput
-								placeholder={"Tạo tự động, VD: SP001"}
-								style={styleModal.input}
-								placeholderTextColor={"#9d9d9d"}
-								onChangeText={(text) =>
-									setNewProduct({ ...newProduct, code: text })
-								}
-							/>
-						</View>
-						<View style={{ marginTop: 20 }}>
-							<Text style={styleModal.labelInput}>
-								Tên <Text style={{ color: "red" }}>*</Text>
-							</Text>
-							<TextInput
-								placeholder={"Nhập tên sản phẩm"}
-								style={styleModal.input}
-								placeholderTextColor={"#9d9d9d"}
-								onChangeText={(text) =>
-									setNewProduct({ ...newProduct, name: text })
-								}
-							/>
-						</View>
-						<View style={{ marginTop: 20, flex: 1 }}>
-							<Text style={styleModal.labelInput}>
-								Giá tiền (VND) <Text style={{ color: "red" }}>*</Text>
-							</Text>
-							<TextInput
-								placeholder={"Nhập giá sản phẩm"}
-								style={styleModal.input}
-								placeholderTextColor={"#9d9d9d"}
-								keyboardType="number-pad"
-								onChangeText={(text) =>
-									setNewProduct({ ...newProduct, price: Number(text) })
-								}
-							/>
-						</View>
-						<View style={{ flexDirection: "row", gap: 30 }}>
-							{/* <View style={{ marginTop: 20, flex: 1.5 }}>
-                <Text style={styleModal.labelInput}>Danh mục </Text>
-                <Dropdown
-                  style={styleModal.dropdown}
-                  data={[
-                    ...categories,
-                    { label: "+ Thêm danh mục", value: "__add__" }, // item đặc biệt
-                  ]}
-                  labelField="label"
-                  valueField="value"
-                  placeholder="-- Chọn danh mục --"
-                  value={value}
-                  onChange={(item) => {
-                    if (item.value === "__add__") {
-                      // Xử lý logic mở input hoặc modal thêm danh mục
-                      console.log("Người dùng muốn thêm danh mục mới");
-                    } else {
-                      setValue(item.value);
-                      setNewProduct({ ...newProduct, category: item.value });
-                    }
-                  }}
-                  renderItem={(item) => {
-                    if (item.value === "__add__") {
-                      return (
-                        <View style={{ padding: 12 }}>
-                          {showInput ? (
-                            <>
-                              <TextInput
-                                placeholder="Tên danh mục mới"
-                                value={newCategory}
-                                onChangeText={setNewCategory}
-                                style={{
-                                  borderWidth: 1,
-                                  borderColor: "#ccc",
-                                  borderRadius: 6,
-                                  padding: 8,
-                                  marginBottom: 8,
-                                }}
-                              />
-                              <TouchableOpacity
-                                onPress={handleAddCategory}
-                                style={{
-                                  backgroundColor: "#007bff",
-                                  padding: 10,
-                                  borderRadius: 6,
-                                  alignItems: "center",
-                                }}
-                              >
-                                <Text style={{ color: "#fff" }}>Lưu</Text>
-                              </TouchableOpacity>
-                            </>
-                          ) : (
-                            <TouchableOpacity
-                              onPress={() => setShowInput(true)}
-                            >
-                              <Text style={{ color: "#007bff" }}>
-                                + Thêm danh mục
-                              </Text>
-                            </TouchableOpacity>
-                          )}
-                        </View>
-                      );
-                    }
-                    return <Text style={{ padding: 12 }}>{item.label}</Text>;
-                  }}
-                />
-              </View> */}
-							<View style={{ marginTop: 20, flex: 1 }}>
-								<Text style={styleModal.labelInput}>
-									Đơn vị tính <Text style={{ color: "red" }}>*</Text>
-								</Text>
-								<Dropdown
-									style={styleModal.dropdown}
-									onFocus={() => {
-										getUnitName();
-										console.log("hihih", unitsData);
-									}}
-									data={[
-										...unitOptions,
+		<View style={styles.container}>
+			<KeyboardAwareScrollView
+				enableOnAndroid
+				extraScrollHeight={120}
+				keyboardOpeningTime={0}
+				contentContainerStyle={styles.scrollContent}
+				keyboardShouldPersistTaps="handled"
+				showsVerticalScrollIndicator={false}
+			>
+				{/* ── Thông tin cơ bản ── */}
+				<View style={styles.card}>
+					<Text style={styles.sectionTitle}>Thông tin cơ bản</Text>
 
-										{ label: "+ Thêm danh mục", value: "__add__" }, // item đặc biệt
-									]}
-									labelField="label"
-									valueField="value"
-									placeholder="--Phần, kg --"
-									value={newUnit}
-									onChange={(item) => {
-										if (item.value === "__add__") {
-											// Xử lý logic mở input hoặc modal thêm danh mục
-											console.log("Người dùng muốn thêm danh mục mới");
-										} else {
-											setNewUnit(item.value);
-											setNewProduct({ ...newProduct, unit: item.value });
-										}
-									}}
-									renderItem={(item) => {
-										if (item.value === "__add__") {
-											return (
-												<View style={{ padding: 12 }}>
-													{showInput ? (
-														<>
-															<TextInput
-																placeholder="Tên danh mục mới"
-																value={newUnit}
-																onChangeText={(value) => setNewUnit(value)}
-																style={{
-																	borderWidth: 1,
-																	borderColor: "#ccc",
-																	borderRadius: 6,
-																	padding: 8,
-																	marginBottom: 8,
-																}}
-															/>
-															<TouchableOpacity
-																onPress={handleAddUnit}
-																style={{
-																	backgroundColor: "#007bff",
-																	padding: 10,
-																	borderRadius: 6,
-																	alignItems: "center",
-																}}
-															>
-																<Text style={{ color: "#fff" }}>Lưu</Text>
-															</TouchableOpacity>
-														</>
-													) : (
+					<View style={styles.fieldGroup}>
+						<Text style={styles.label}>Mã sản phẩm</Text>
+						<TextInput
+							style={styles.input}
+							placeholder="Tạo tự động, VD: SP001"
+							placeholderTextColor="#BBBBBB"
+							value={newProduct.code ?? ""}
+							onChangeText={(text) =>
+								setNewProduct((p) => ({ ...p, code: text }))
+							}
+						/>
+					</View>
+
+					<View style={styles.fieldGroup}>
+						<Text style={styles.label}>
+							Tên sản phẩm <Text style={styles.required}>*</Text>
+						</Text>
+						<TextInput
+							style={styles.input}
+							placeholder="Nhập tên sản phẩm"
+							placeholderTextColor="#BBBBBB"
+							value={newProduct.name}
+							onChangeText={(text) =>
+								setNewProduct((p) => ({ ...p, name: text }))
+							}
+						/>
+					</View>
+
+					<View style={styles.fieldGroup}>
+						<Text style={styles.label}>
+							Giá tiền (VND) <Text style={styles.required}>*</Text>
+						</Text>
+						<TextInput
+							style={styles.input}
+							placeholder="Nhập giá sản phẩm"
+							placeholderTextColor="#BBBBBB"
+							keyboardType="number-pad"
+							value={newProduct.price > 0 ? newProduct.price.toString() : ""}
+							onChangeText={(text) =>
+								setNewProduct((p) => ({ ...p, price: Number(text) || 0 }))
+							}
+						/>
+					</View>
+
+					<View style={styles.row}>
+						{/* Danh mục */}
+						<View style={{ flex: 1.4 }}>
+							<Text style={styles.label}>Danh mục</Text>
+							<Dropdown
+								style={styles.dropdown}
+								data={[
+									...categories,
+									{ label: "+ Thêm danh mục", value: "__add__" },
+								]}
+								labelField="label"
+								valueField="value"
+								placeholder="Chọn danh mục"
+								placeholderStyle={styles.dropdownPlaceholder}
+								selectedTextStyle={styles.dropdownSelected}
+								value={categoryValue}
+								onChange={(item) => {
+									if (item.value === "__add__") return;
+									setCategoryValue(item.value);
+									setNewProduct((p) => ({ ...p, category: item.value }));
+								}}
+								renderItem={(item) => {
+									if (item.value === "__add__") {
+										return (
+											<View style={styles.addItemBox}>
+												{showCategoryInput ? (
+													<View style={styles.addRow}>
+														<TextInput
+															style={styles.addInput}
+															placeholder="Tên danh mục"
+															value={newCategory}
+															onChangeText={setNewCategory}
+															autoFocus
+														/>
 														<TouchableOpacity
-															onPress={() => setShowInput(true)}
+															style={styles.addConfirmBtn}
+															onPress={handleAddCategory}
 														>
-															<Text style={{ color: "#007bff" }}>
-																+ Thêm danh mục
-															</Text>
+															<AntDesign name="check" size={15} color="#fff" />
 														</TouchableOpacity>
-													)}
-												</View>
-											);
-										}
-										return <Text style={{ padding: 12 }}>{item.label}</Text>;
-									}}
-								/>
-							</View>
-						</View>
-					</View>
-					<View style={[styleModal.wrAddField, { paddingTop: 20 }]}>
-						<View style={{ flexDirection: "row", flex: 1, gap: 15 }}>
-							<View style={{ flex: 1.2 }}>
-								<Text style={styleModal.labelInput}>
-									Thành phần <Text style={{ color: "red" }}>*</Text>
-								</Text>
-							</View>
-							<View style={{ flex: 0.8 }}>
-								<Text style={styleModal.labelInput}>
-									Số lượng <Text style={{ color: "red" }}>*</Text>
-								</Text>
-							</View>
-							<View style={{ flex: 0.5 }}>
-								<Text style={styleModal.labelInput}>
-									ĐL <Text style={{ color: "red" }}>*</Text>
-								</Text>
-							</View>
-						</View>
-						{ingredients.map((item, index) => {
-							const disableConvert = !item.material;
-
-							return (
-								<>
-									<TouchableOpacity
-										style={{ flexDirection: "row", justifyContent: "flex-end" }}
-										onPress={() => handleRemoveIngredient(index)}
-									>
-										<Text style={{ color: "red", fontWeight: "500" }}>Xóa</Text>
-									</TouchableOpacity>
-									<View
-										key={index}
-										style={{
-											flexDirection: "row",
-											flex: 1,
-											gap: 15,
-											marginBottom: 20,
-											marginTop: 10,
-										}}
-									>
-										{/* Dropdown nguyên liệu */}
-										<View style={{ flex: 1.2 }}>
-											<Dropdown
-												style={styleModal.dropdown}
-												data={
-													filteredProductsList[index]?.map((u) => ({
-														label: u.name,
-														value: u._id, // 🔥 ID duy nhất
-													})) ?? []
-												}
-												labelField="label"
-												valueField="value"
-												placeholder="Nguyên liệu"
-												value={item.material} // material = id
-												search
-												onChange={(selected) => {
-													updateIngredient(index, "material", selected.value);
-													setIdProductStorage(selected.value); //id
-												}}
-											/>
-										</View>
-
-										{/* Số lượng */}
-										<View style={{ flex: 0.8 }}>
-											<TextInput
-												placeholder="Số lượng"
-												style={[styleModal.input]}
-												placeholderTextColor="#9d9d9d"
-												value={item.quantity}
-												onChangeText={(text) =>
-													updateIngredient(index, "quantity", text)
-												}
-											/>
-										</View>
-
-										{/* Đơn vị */}
-										<View style={{ flex: 0.7 }}>
-											<Dropdown
-												style={styleModal.dropdown}
-												data={[
-													{
-														label: "+ Quy đổi định lượng",
-														value: "__add__",
-														disable: disableConvert,
-													}, // item cố định ở đầu
-													...getAvailableUnits(item.material),
-												]}
-												renderItem={(item) => {
-													const isAdd = item.value === "__add__";
-													return (
-														<Text
-															style={{
-																padding: 12,
-																color: isAdd
-																	? disableConvert
-																		? "#c0c0c0" // 👈 mờ khi chưa có material
-																		: "#007bff" // 👈 xanh khi cho phép
-																	: "#000",
-																fontWeight:
-																	item.value === "__add__" ? "600" : "400",
-															}}
-														>
-															{item.label}
+													</View>
+												) : (
+													<TouchableOpacity
+														onPress={() => setShowCategoryInput(true)}
+													>
+														<Text style={styles.addOptionText}>
+															+ Thêm danh mục mới
 														</Text>
-													);
-												}}
-												labelField="label"
-												valueField="value"
-												placeholder="Chọn đơn vị"
-												value={item.unit}
-												containerStyle={{ width: "50%", marginLeft: -100 }}
-												placeholderStyle={{ color: "#9d9d9d" }}
-												onChange={(u) => {
-													if (u.value === "__add__") {
-														if (disableConvert) return;
+													</TouchableOpacity>
+												)}
+											</View>
+										);
+									}
+									return (
+										<Text
+											style={[
+												styles.dropdownItem,
+												categoryValue === item.value &&
+													styles.dropdownItemActive,
+											]}
+										>
+											{item.label}
+										</Text>
+									);
+								}}
+							/>
+						</View>
 
-														setOpenModalConvers(true);
-														return; // ❌ KHÔNG set value
-													}
-
-													updateIngredient(index, "unit", u.value);
-												}}
-											/>
-										</View>
-									</View>
-								</>
-							);
-						})}
-						<TouchableOpacity
-							style={{
-								marginTop: 0,
-								flexDirection: "row",
-								alignContent: "center",
-							}}
-							onPress={addIngredient}
-						>
-							<AntDesign name="plus-circle" size={17} color={ColorMain} />
-
-							<Text style={[styleModal.labelInput, { color: ColorMain }]}>
-								&nbsp;Thêm nguyên liệu
+						{/* Đơn vị */}
+						<View style={{ flex: 1, marginLeft: 12 }}>
+							<Text style={styles.label}>
+								Đơn vị tính <Text style={styles.required}>*</Text>
 							</Text>
-						</TouchableOpacity>
-						{/* <View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "flex-end",
-                  gap: 10,
-                }}
-              >
-                <TouchableOpacity
-                  style={[styleModal.btnAction, { backgroundColor: "#ffffff" }]}
-                >
-                  <Text>Huỷ</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styleModal.btnAction, { backgroundColor: ColorMain }]}
-                >
-                  <Text style={{ color: "#ffffff" }}>Lưu</Text>
-                </TouchableOpacity>
-              </View>
-            </View> */}
-					</View>
-					{/* <View style={[styleModal.wrAddField, { paddingTop: 20 }]}>
-            <Text style={styleModal.labelInput}>Định nghĩa sản phẩm </Text>
-
-            <Dropdown
-              style={styleModal.dropdown}
-              data={BUSINESS_TYPES}
-              labelField="label"
-              valueField="value"
-              placeholder={"Nguyên liệu"}
-              search
-              containerStyle={{ width: "90%" }}
-              searchPlaceholder="Tìm nguyên liệu..."
-              inputSearchStyle={{
-                // style cho ô tìm kiếm
-                height: 40,
-                fontSize: 14,
-                color: "#333",
-              }}
-              placeholderStyle={{ color: "#9d9d9d" }}
-              onChange={(item) => {}}
-            />
-          </View> */}
-					<View style={[styleModal.wrAddField, { paddingTop: 20 }]}>
-						<View>
-							<Text style={styleModal.labelInput}>Mô tả </Text>
-							<TextInput
-								placeholder={"Nhập mô tả sản phẩm"}
-								style={[styleModal.input, { minHeight: 60 }]}
-								placeholderTextColor={"#9d9d9d"}
-								onChangeText={(text) =>
-									setNewProduct({ ...newProduct, description: text })
-								}
-								multiline
+							<Dropdown
+								style={styles.dropdown}
+								onFocus={fetchUnits}
+								data={[
+									...unitOptions,
+									{ label: "+ Thêm đơn vị", value: "__add__" },
+								]}
+								labelField="label"
+								valueField="value"
+								placeholder="Chọn đơn vị"
+								placeholderStyle={styles.dropdownPlaceholder}
+								selectedTextStyle={styles.dropdownSelected}
+								value={unitValue}
+								onChange={(item) => {
+									if (item.value === "__add__") return;
+									setUnitValue(item.value);
+									setNewProduct((p) => ({ ...p, unit: item.value }));
+								}}
+								renderItem={(item) => {
+									if (item.value === "__add__") {
+										return (
+											<View style={styles.addItemBox}>
+												{showUnitInput ? (
+													<View style={styles.addRow}>
+														<TextInput
+															style={styles.addInput}
+															placeholder="Tên đơn vị"
+															value={newCustomUnit}
+															onChangeText={setNewCustomUnit}
+															autoFocus
+														/>
+														<TouchableOpacity
+															style={styles.addConfirmBtn}
+															onPress={handleAddUnit}
+														>
+															<AntDesign name="check" size={15} color="#fff" />
+														</TouchableOpacity>
+													</View>
+												) : (
+													<TouchableOpacity
+														onPress={() => setShowUnitInput(true)}
+													>
+														<Text style={styles.addOptionText}>
+															+ Thêm đơn vị mới
+														</Text>
+													</TouchableOpacity>
+												)}
+											</View>
+										);
+									}
+									return (
+										<Text
+											style={[
+												styles.dropdownItem,
+												unitValue === item.value && styles.dropdownItemActive,
+											]}
+										>
+											{item.label}
+										</Text>
+									);
+								}}
 							/>
 						</View>
 					</View>
-					<View
-						style={{ width: "100%", alignItems: "flex-end", marginTop: 20 }}
-					>
-						<TouchableOpacity
-							disabled={!isValid}
-							onPress={handleAddProduct}
-							style={[
-								styleModal.AddButton,
-								{ opacity: isValid ? 1 : 0.4 }, // mờ khi disable
-							]}
+				</View>
+
+				{/* ── Thành phần / Nguyên liệu ── */}
+				<View style={styles.card}>
+					<Text style={styles.sectionTitle}>
+						Thành phần / Nguyên liệu <Text style={styles.required}>*</Text>
+					</Text>
+
+					{/* Column headers */}
+					<View style={[styles.row, { marginBottom: 6 }]}>
+						<Text style={[styles.colHeader, { flex: 1.3 }]}>Nguyên liệu</Text>
+						<Text
+							style={[styles.colHeader, { flex: 0.8, marginHorizontal: 8 }]}
 						>
-							<Text style={styleModal.AddText}>Thêm</Text>
-						</TouchableOpacity>
+							Số lượng
+						</Text>
+						<Text style={[styles.colHeader, { flex: 0.7 }]}>Đơn vị</Text>
+						<View style={{ width: 32 }} />
 					</View>
-					<ModalConversUnit
-						visible={openModalConvers}
-						id={idProductStorage}
-						setVisible={setOpenModalConvers}
-						onSuccess={fetchProductStorage}
+
+					{ingredients.map((item, index) => {
+						const disableConvert = !item.material;
+						return (
+							<View key={index} style={[styles.row, { marginBottom: 10 }]}>
+								{/* Nguyên liệu */}
+								<View style={{ flex: 1.3 }}>
+									<Dropdown
+										style={styles.dropdown}
+										data={
+											filteredProductsList[index]?.map((u) => ({
+												label: u.name,
+												value: u._id,
+											})) ?? []
+										}
+										labelField="label"
+										valueField="value"
+										placeholder="Chọn"
+										placeholderStyle={styles.dropdownPlaceholder}
+										selectedTextStyle={styles.dropdownSelected}
+										value={item.material}
+										search
+										searchPlaceholder="Tìm..."
+										onChange={(selected) => {
+											updateIngredient(index, "material", selected.value);
+											setIdProductStorage(selected.value);
+										}}
+									/>
+								</View>
+
+								{/* Số lượng */}
+								<View style={{ flex: 0.8, marginHorizontal: 8 }}>
+									<TextInput
+										style={styles.input}
+										placeholder="0"
+										placeholderTextColor="#BBBBBB"
+										keyboardType="decimal-pad"
+										value={item.quantity}
+										onChangeText={(text) =>
+											updateIngredient(index, "quantity", text)
+										}
+									/>
+								</View>
+
+								{/* Đơn vị */}
+								<View style={{ flex: 0.7 }}>
+									<Dropdown
+										style={styles.dropdown}
+										data={[
+											{
+												label: "+ Quy đổi",
+												value: "__add__",
+												disable: disableConvert,
+											},
+											...getAvailableUnits(item.material),
+										]}
+										labelField="label"
+										valueField="value"
+										placeholder="ĐV"
+										placeholderStyle={styles.dropdownPlaceholder}
+										selectedTextStyle={styles.dropdownSelected}
+										value={item.unit}
+										renderItem={(u) => {
+											const isAdd = u.value === "__add__";
+											return (
+												<Text
+													style={[
+														styles.dropdownItem,
+														isAdd && {
+															color: disableConvert ? "#CCC" : ColorMain,
+															fontWeight: "600",
+														},
+													]}
+												>
+													{u.label}
+												</Text>
+											);
+										}}
+										onChange={(u) => {
+											if (u.value === "__add__") {
+												if (disableConvert) return;
+												setOpenModalConvers(true);
+												return;
+											}
+											updateIngredient(index, "unit", u.value);
+										}}
+									/>
+								</View>
+
+								<TouchableOpacity
+									style={styles.removeBtn}
+									onPress={() => removeIngredient(index)}
+									disabled={ingredients.length === 1}
+								>
+									<AntDesign
+										name="minus-circle"
+										size={18}
+										color={ingredients.length === 1 ? "#DDD" : "#FF4D4F"}
+									/>
+								</TouchableOpacity>
+							</View>
+						);
+					})}
+
+					<TouchableOpacity
+						style={styles.addIngredientBtn}
+						onPress={addIngredient}
+					>
+						<AntDesign name="plus-circle" size={16} color={ColorMain} />
+						<Text style={[styles.addIngredientText, { color: ColorMain }]}>
+							Thêm nguyên liệu
+						</Text>
+					</TouchableOpacity>
+				</View>
+
+				{/* ── Mô tả ── */}
+				<View style={styles.card}>
+					<Text style={styles.sectionTitle}>Mô tả</Text>
+					<TextInput
+						style={[styles.input, styles.textarea]}
+						placeholder="Nhập mô tả sản phẩm..."
+						placeholderTextColor="#BBBBBB"
+						value={newProduct.description}
+						onChangeText={(text) =>
+							setNewProduct((p) => ({ ...p, description: text }))
+						}
+						multiline
+						numberOfLines={4}
+						textAlignVertical="top"
 					/>
-				</KeyboardAwareScrollView>
-			</ScrollView>
+				</View>
+
+				{/* ── Nút thêm ── */}
+				<TouchableOpacity
+					style={[
+						styles.saveBtn,
+						(!isValid || isSaving) && styles.saveBtnDisabled,
+					]}
+					disabled={!isValid || isSaving}
+					onPress={handleAddProduct}
+				>
+					<Text style={styles.saveBtnText}>
+						{isSaving ? "Đang lưu…" : "Thêm sản phẩm"}
+					</Text>
+				</TouchableOpacity>
+			</KeyboardAwareScrollView>
+
+			<ModalConversUnit
+				visible={openModalConvers}
+				id={idProductStorage}
+				setVisible={setOpenModalConvers}
+				onSuccess={fetchProductStorage}
+			/>
 		</View>
 	);
 }
-const styleModal = StyleSheet.create({
+
+const cardShadow = Platform.select({
+	ios: {
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 1 },
+		shadowOpacity: 0.07,
+		shadowRadius: 4,
+	},
+	android: { elevation: 2 },
+});
+
+const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		backgroundColor: "#F2F4F7",
+	},
+	// Header
+	header: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+		paddingHorizontal: 16,
+		paddingTop: Platform.select({ ios: 54, android: 16 }),
+		paddingBottom: 12,
+		backgroundColor: "#fff",
+		borderBottomWidth: StyleSheet.hairlineWidth,
+		borderBottomColor: "#E0E0E0",
+	},
+	headerTitle: {
+		fontSize: 17,
+		fontWeight: "700",
+		color: "#1A1A1A",
+	},
+	saveHeaderBtn: {
+		paddingHorizontal: 14,
+		paddingVertical: 7,
+		backgroundColor: ColorMain,
+		borderRadius: 8,
+	},
+	saveHeaderText: {
+		color: "#fff",
+		fontSize: 14,
+		fontWeight: "600",
+	},
+	// Scroll & layout
+	scrollContent: {
+		padding: 16,
+		paddingBottom: 48,
+	},
+	card: {
+		backgroundColor: "#fff",
+		borderRadius: 14,
+		padding: 16,
+		marginBottom: 14,
+		...cardShadow,
+	},
+	sectionTitle: {
+		fontSize: 14,
+		fontWeight: "700",
+		color: "#444",
+		marginBottom: 14,
+		paddingBottom: 10,
+		borderBottomWidth: StyleSheet.hairlineWidth,
+		borderBottomColor: "#EBEBEB",
+		textTransform: "uppercase",
+		letterSpacing: 0.4,
+	},
+	fieldGroup: {
+		marginBottom: 14,
+	},
+	label: {
+		fontSize: 13,
+		fontWeight: "500",
+		color: "#555",
+		marginBottom: 6,
+	},
+	required: {
+		color: "#FF4D4F",
+	},
+	row: {
+		flexDirection: "row",
+		alignItems: "center",
+	},
+	// Inputs
+	input: {
+		height: 44,
+		backgroundColor: "#FAFAFA",
+		borderWidth: 1,
+		borderColor: "#E8E8E8",
+		borderRadius: 9,
+		paddingHorizontal: 12,
+		fontSize: 14,
+		color: "#1A1A1A",
+	},
+	textarea: {
+		height: 96,
+		paddingTop: 10,
+		paddingBottom: 10,
+	},
+	// Dropdowns
+	dropdown: {
+		height: 44,
+		backgroundColor: "#FAFAFA",
+		borderWidth: 1,
+		borderColor: "#E8E8E8",
+		borderRadius: 9,
+		paddingHorizontal: 12,
+	},
+	dropdownPlaceholder: {
+		fontSize: 14,
+		color: "#BBBBBB",
+	},
+	dropdownSelected: {
+		fontSize: 14,
+		color: "#1A1A1A",
+	},
+	dropdownItem: {
+		paddingHorizontal: 14,
+		paddingVertical: 12,
+		fontSize: 14,
+		color: "#333",
+	},
+	dropdownItemActive: {
+		color: ColorMain,
+		fontWeight: "600",
+	},
+	// Add item inside dropdown
+	addItemBox: {
+		paddingHorizontal: 14,
+		paddingVertical: 10,
+		borderTopWidth: StyleSheet.hairlineWidth,
+		borderTopColor: "#EBEBEB",
+	},
+	addRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 8,
+	},
+	addInput: {
+		flex: 1,
+		height: 36,
+		borderWidth: 1,
+		borderColor: "#E8E8E8",
+		borderRadius: 7,
+		paddingHorizontal: 10,
+		fontSize: 13,
+		backgroundColor: "#FAFAFA",
+		color: "#1A1A1A",
+	},
+	addConfirmBtn: {
+		width: 36,
+		height: 36,
+		backgroundColor: ColorMain,
+		borderRadius: 7,
 		justifyContent: "center",
 		alignItems: "center",
 	},
-	button: {
-		backgroundColor: "#2f80ed",
-		paddingHorizontal: 20,
-		paddingVertical: 12,
-		borderRadius: 8,
+	addOptionText: {
+		color: ColorMain,
+		fontSize: 14,
+		fontWeight: "500",
 	},
-	buttonText: {
+	// Ingredients table
+	colHeader: {
+		fontSize: 11,
+		fontWeight: "700",
+		color: "#AAA",
+		textTransform: "uppercase",
+		letterSpacing: 0.3,
+	},
+	removeBtn: {
+		width: 32,
+		justifyContent: "center",
+		alignItems: "center",
+		marginLeft: 4,
+	},
+	addIngredientBtn: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 6,
+		marginTop: 6,
+		paddingVertical: 10,
+		borderWidth: 1.5,
+		borderColor: ColorMain,
+		borderRadius: 9,
+		borderStyle: "dashed",
+	},
+	addIngredientText: {
+		fontSize: 14,
+		fontWeight: "500",
+	},
+	// Save button
+	saveBtn: {
+		backgroundColor: ColorMain,
+		paddingVertical: 15,
+		borderRadius: 12,
+		alignItems: "center",
+		marginTop: 4,
+	},
+	saveBtnDisabled: {
+		opacity: 0.4,
+	},
+	saveBtnText: {
 		color: "#fff",
 		fontSize: 16,
-	},
-	overlay: {
-		flex: 1,
-		backgroundColor: "rgba(0,0,0,0.4)",
-		justifyContent: "flex-end",
-		alignItems: "center",
-	},
-	modalContent: {
-		width: "100%",
-		backgroundColor: "#f9f9f9ff",
-		borderRadius: 12,
-		height: "95%",
-	},
-	modalText: {
-		fontSize: 18,
-		marginBottom: 16,
-		color: ColorMain,
 		fontWeight: "700",
-	},
-	wrAddField: {
-		backgroundColor: "#ffffff",
-		padding: 15,
-		borderRadius: 5,
-		paddingVertical: 10,
-		marginBottom: 20,
-		shadowColor: "#9d9d9d",
-		shadowOffset: { width: 0, height: 0 },
-		shadowOpacity: 0.4,
-		paddingBottom: 20,
-	},
-	AddButton: {
-		marginTop: 10,
-		backgroundColor: ColorMain,
-		paddingHorizontal: 20,
-		paddingVertical: 10,
-		borderRadius: 5,
-		width: 100,
-		textAlign: "center",
-	},
-	AddText: {
-		color: "#fff",
-		textAlign: "center",
-		fontWeight: "500",
-	},
-
-	input: {
-		height: 40,
-		width: "100%",
-		backgroundColor: "#fff",
-		borderWidth: 0.5,
-		borderColor: "#a4a4a4cc",
-		borderRadius: 5,
-		padding: 5,
-	},
-	labelInput: {
-		textAlign: "left",
-		marginBottom: 7,
-		color: "#000",
-		fontWeight: "500",
-	},
-	dropdown: {
-		height: 40,
-		borderRadius: 5,
-		paddingHorizontal: 12,
-		backgroundColor: "#fff",
-		elevation: 2,
-		borderWidth: 0.5,
-		borderColor: "#a4a4a4cc",
-		fontSize: 10,
-	},
-	btnAction: {
-		padding: 10,
-		shadowColor: "#9d9d9d",
-		shadowOpacity: 0.5,
-		shadowOffset: { width: 0, height: 0 },
-		borderRadius: 5,
+		letterSpacing: 0.3,
 	},
 });
 

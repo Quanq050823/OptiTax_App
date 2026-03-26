@@ -12,6 +12,7 @@ type RootStackParamList = {
 	BusinessRegistrationStepTwo: undefined;
 	ProfileBusiness: undefined;
 	LanguagesScreen: undefined;
+	ProductManager: undefined;
 	InvoiceScreen: undefined;
 	InvoiceDetailScreen: { item: Invoice; total: number; label: string };
 	InvoiceDetailScreenInp: { item: RawInvoice; total: number; label: string };
@@ -36,6 +37,7 @@ type RootStackParamList = {
 	InputProductsScreen: undefined;
 	CreateVoucherInputProductScreen: undefined;
 	ScanBarcodeProductScreen: undefined;
+
 	EditProfileScreen: undefined;
 	EditProfileBussinessStore: undefined;
 	CreateVoucherPayment: undefined;
