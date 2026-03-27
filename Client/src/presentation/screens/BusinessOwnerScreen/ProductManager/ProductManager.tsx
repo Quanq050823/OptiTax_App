@@ -19,18 +19,15 @@ import {
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
 	Alert,
-	Animated,
-	Dimensions,
-	Easing,
 	FlatList,
 	Image,
 	StyleSheet,
 	Text,
+	TextInput,
 	TouchableOpacity,
 	View,
 } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
-import { Searchbar } from "react-native-paper";
 type NewProduct = {
 	name: string;
 	code: string;
@@ -50,23 +47,14 @@ export default function ProductManagerScreen() {
 	const [products, setProducts] = useState<Product[]>([]);
 
 	const [idEditProduct, setIdEditProduct] = useState<string | null>(null);
-	const [showAction, setShowAction] = useState<string | null>(null);
 	const [showEditProduct, setShowEditProduct] = useState<string | null>(null);
 	const [visible, setVisible] = useState(false);
-	const [code, setCode] = useState("");
 	const [name, setName] = useState("");
-	const [price, setPrice] = useState(0);
-	const [stock, setStock] = useState(0);
-	const [image, setImage] = useState("");
 	const [description, setDescription] = useState("");
 	const [category, setCategory] = useState("");
 	const [searchQuery, setSearchQuery] = useState("");
 	const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
 	const [openId, setOpenId] = useState<string | null>(null);
-	const screenWidth = Dimensions.get("window").width;
-	const ITEM_MARGIN = 8;
-	const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
-	const slideAnim = useRef(new Animated.Value(0)).current;
 
 	const [newProduct, setNewProduct] = useState<NewProduct>({
 		name: "",
@@ -82,9 +70,7 @@ export default function ProductManagerScreen() {
 	useEffect(() => {
 		if (productScan) {
 			setVisible(true);
-			// Có thể set luôn các field mặc định từ productScan
 			setName(productScan.name || "");
-			setCode(productScan._id?.toString() || "");
 			setCategory(
 				typeof productScan.category === "object"
 					? Object.values(productScan.category).join(", ")
@@ -113,27 +99,6 @@ export default function ProductManagerScreen() {
 			fetchData();
 		}, []),
 	);
-
-	const handleShowAction = (code: string) => {
-		setShowAction((prev) => (prev === code ? null : code)); // toggle
-		if (showAction === code) {
-			// Đóng
-			Animated.timing(slideAnim, {
-				toValue: 0,
-				duration: 350, // 👈 chậm hơn
-				easing: Easing.out(Easing.ease), // 👈 mượt
-				useNativeDriver: true,
-			}).start(() => setShowAction(null));
-		} else {
-			setShowAction(code);
-			Animated.timing(slideAnim, {
-				toValue: 1,
-				duration: 350, // 👈 chậm hơn
-				easing: Easing.out(Easing.ease),
-				useNativeDriver: true,
-			}).start();
-		}
-	};
 
 	const handleDeleteProduct = async (id: string) => {
 		Alert.alert(
@@ -171,22 +136,31 @@ export default function ProductManagerScreen() {
 	const renderRightActions = (item: Product) => (
 		<View style={styles.rightActionContainer}>
 			<TouchableOpacity
-				style={[styles.actionBtn, { backgroundColor: "#0f7aacff" }]}
+				style={[styles.actionBtn, styles.actionEdit]}
 				onPress={() => handleOpenModalEditProduct(item._id)}
+				activeOpacity={0.8}
 			>
+				<AntDesign name="edit" size={20} color="#fff" />
 				<Text style={styles.actionText}>Sửa</Text>
 			</TouchableOpacity>
-
 			<TouchableOpacity
-				style={[styles.actionBtn, { backgroundColor: "#c21212ff" }]}
+				style={[styles.actionBtn, styles.actionDelete]}
 				onPress={() => handleDeleteProduct(item._id)}
+				activeOpacity={0.8}
 			>
+				<MaterialIcons name="delete-outline" size={20} color="#fff" />
 				<Text style={styles.actionText}>Xóa</Text>
 			</TouchableOpacity>
 		</View>
 	);
 
-	const renderItem = ({ item }: any) => (
+	const filteredProducts = searchQuery.trim()
+		? products.filter((p) =>
+				p.name?.toLowerCase().includes(searchQuery.toLowerCase()),
+		  )
+		: products;
+
+	const renderItem = ({ item }: { item: Product }) => (
 		<Swipeable
 			renderRightActions={() => renderRightActions(item)}
 			overshootRight={false}
@@ -196,252 +170,111 @@ export default function ProductManagerScreen() {
 			onSwipeableOpen={() => setOpenId(item._id)}
 			onSwipeableClose={() => setOpenId(null)}
 		>
-			<View>
-				<View
-					style={[
-						styles.card,
-						{
-							position: "relative",
-						},
-					]}
-				>
-					<View
-						style={{
-							flex: 1,
-							alignItems: "center",
-							width: "100%",
-							flexDirection: "row",
-							justifyContent: "space-between",
-						}}
-					>
-						<Image source={{ uri: item.imageUrl }} style={styles.image} />
-						<View
-							style={{
-								alignContent: "flex-start",
-								flex: showAction === item.code ? 2 : 4,
-								paddingHorizontal: 10,
-							}}
-						>
-							<Text style={styles.name}>{item.name}</Text>
-							<Text style={styles.detail}>
-								Giá: {item.price.toLocaleString()}đ
-							</Text>
-						</View>
-						<TouchableOpacity
-							style={{
-								flex: 0.5,
-								flexDirection: "row",
-								justifyContent: "center",
-							}}
-							onPress={() => {
-								const current = swipeableRefs.current.get(item._id);
-
-								// 🔁 Toggle open / close
-								if (openId === item._id) {
-									current?.close();
-								} else {
-									// ❌ đóng cái khác
-									if (openId) {
-										swipeableRefs.current.get(openId)?.close();
-									}
-									current?.openRight();
-								}
-							}}
-						>
-							{showAction === item.code ? (
-								<MaterialIcons
-									name="keyboard-double-arrow-right"
-									size={24}
-									color="black"
-								/>
-							) : (
-								<AntDesign name="edit" size={20} color="#6e6e6eff" />
-							)}
-						</TouchableOpacity>
-						{showAction === item.code && (
-							<Animated.View
-								style={{
-									flexDirection: "row",
-									flex: 2,
-									height: "100%",
-									transform: [
-										{
-											translateX: slideAnim.interpolate({
-												inputRange: [0, 1],
-												outputRange: [100, 0], // 👈 trượt từ phải vào
-											}),
-										},
-									],
-									opacity: slideAnim,
-								}}
-							>
-								<TouchableOpacity
-									style={{
-										flex: 1,
-
-										height: "100%",
-										flexDirection: "row",
-										alignItems: "center",
-										justifyContent: "center",
-									}}
-									onPress={() => handleOpenModalEditProduct(item._id)}
-								>
-									<Text style={{ textAlign: "center", color: "#0f7aacff" }}>
-										Sửa
-									</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
-									style={{
-										flex: 1,
-
-										flexDirection: "row",
-										alignItems: "center",
-										justifyContent: "center",
-									}}
-									onPress={() => handleDeleteProduct(item._id)}
-								>
-									<Text style={{ textAlign: "center", color: "#c21212ff" }}>
-										Xóa
-									</Text>
-								</TouchableOpacity>
-							</Animated.View>
-						)}
-						{/* <Text style={styles.detail}>Số lượng: {item.stock}</Text> */}
-					</View>
-					{/* {showAction === item.code && (
-          <>
-            <View
-              style={{
-                flexDirection: "row",
-                width: "100%",
-                justifyContent: "space-around",
-                marginTop: 20,
-              }}
-            >
-              <MaterialIcons
-                name="delete-outline"
-                size={24}
-                color="red"
-                onPress={() => handleDeleteProduct(item._id)}
-              />
-              <AntDesign
-                name="edit"
-                size={24}
-                color={ColorMain}
-                onPress={() => handleOpenModalEditProduct(item._id)}
-              />
-            </View>
-            <View
-              style={{
-                position: "absolute",
-                flex: 1,
-                backgroundColor: "#24408f1a",
-                zIndex: -10,
-                inset: 0,
-                borderRadius: 8,
-              }}
-            ></View>
-          </>
-        )} */}
+          			<View style={styles.card}>
+				<Image
+					source={
+						item.imageUrl
+							? { uri: item.imageUrl }
+							: require("@/assets/images/no-image-news.png")
+					}
+					style={styles.image}
+				/>
+				<View style={styles.cardInfo}>
+					<Text style={styles.name} numberOfLines={2}>
+						{item.name}
+					</Text>
+					{item.unit ? (
+						<Text style={styles.unitText}>{item.unit}</Text>
+					) : null}
+					<Text style={styles.priceText}>
+						{item.price.toLocaleString()}đ
+					</Text>
 				</View>
+				<TouchableOpacity
+					style={styles.actionTrigger}
+					activeOpacity={0.6}
+					onPress={() => {
+						const current = swipeableRefs.current.get(item._id);
+						if (openId === item._id) {
+							current?.close();
+						} else {
+							if (openId) swipeableRefs.current.get(openId)?.close();
+							current?.openRight();
+						}
+					}}
+				>
+					<MaterialIcons
+						name={openId === item._id ? "keyboard-double-arrow-right" : "more-vert"}
+						size={22}
+						color="#bbb"
+					/>
+				</TouchableOpacity>
 			</View>
 		</Swipeable>
 	);
 
 	return (
 		<View style={styles.container}>
-			{products ? (
-				<>
-					{/* <Text style={styles.header}>Quản lý sản phẩm</Text> */}
-					<View
-						style={{
-							paddingHorizontal: 10,
-							paddingVertical: 10,
-						}}
-					>
-						<View
-							style={{
-								flexDirection: "row",
-								justifyContent: "space-between",
-								alignItems: "center",
-								backgroundColor: "#fff",
-								shadowColor: ColorMain,
-								shadowOpacity: 0.22,
-								shadowOffset: { width: 0, height: 1 },
-								borderRadius: 50,
-								width: "100%",
-							}}
-						>
-							<Searchbar
-								placeholder="Tìm kiếm sản phẩm"
-								onChangeText={setSearchQuery}
-								value={searchQuery}
-								icon="magnify"
-								style={{
-									backgroundColor: "transparent",
-									width: "70%",
-								}}
-								iconColor={ColorMain}
-								placeholderTextColor={ColorMain}
-							/>
-							<TouchableOpacity
-								style={{
-									width: 60,
-									height: 40,
-									alignItems: "center",
-									justifyContent: "center",
-									borderRadius: 8,
-								}}
-								onPress={() => navigate.navigate("ScanBarcodeProductScreen")}
-							>
-								<MaterialCommunityIcons
-									name="barcode-scan"
-									size={24}
-									color="black"
-								/>
-							</TouchableOpacity>
-						</View>
-					</View>
-					{/* <View style={{ padding: 10 }}>
-        <TextInput
-          placeholder="Tìm sản phẩm..."
-          style={styles.searchInput}
-          placeholderTextColor="#999"
-        />
-      </View> */}
-					<FlatList
-						data={products}
-						keyExtractor={(item) => item._id}
-						renderItem={renderItem}
-						ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-						contentContainerStyle={{ paddingBottom: 80, paddingHorizontal: 5 }}
-					/>
-
-					<TouchableOpacity
-						style={styles.addButton}
-						onPress={() => navigate.navigate("CreateProductScreen")}
-					>
-						<Ionicons name="add" size={28} color="#fff" />
-						{/* <Text style={styles.addText}>Thêm sản phẩm</Text> */}
-					</TouchableOpacity>
-					<ModalAddProduct
-						visible={visible}
-						setVisible={setVisible}
-						newProduct={newProduct}
-						setNewProduct={setNewProduct}
-					/>
-					{showEditProduct && (
-						<ModalEditProduct
-							setShowEditProduct={setShowEditProduct}
-							fetchData={fetchData}
-							idEditProduct={idEditProduct}
+			{/* Header */}
+			<View style={styles.header}>
+				<View style={styles.searchRow}>
+					<View style={styles.searchInput}>
+						<AntDesign name="search" size={16} color="#999" />
+						<TextInput
+							placeholder="Tìm kiếm sản phẩm..."
+							value={searchQuery}
+							onChangeText={setSearchQuery}
+							placeholderTextColor="#bbb"
+							style={styles.searchText}
 						/>
-					)}
-				</>
-			) : (
-				<View>
-					<Text>haha</Text>
+					</View>
+					<TouchableOpacity
+						style={styles.scanBtn}
+						onPress={() => navigate.navigate("ScanBarcodeProductScreen")}
+						activeOpacity={0.7}
+					>
+						<MaterialCommunityIcons name="barcode-scan" size={22} color={ColorMain} />
+					</TouchableOpacity>
 				</View>
+			</View>
+
+			{/* List */}
+			<FlatList
+				data={filteredProducts}
+				keyExtractor={(item) => item._id}
+				renderItem={renderItem}
+				ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+				contentContainerStyle={styles.listContent}
+				showsVerticalScrollIndicator={false}
+				ListEmptyComponent={
+					<View style={styles.emptyState}>
+						<MaterialIcons name="inventory" size={48} color="#ddd" />
+						<Text style={styles.emptyText}>Chưa có sản phẩm nào</Text>
+					</View>
+				}
+			/>
+
+			{/* FAB */}
+			<TouchableOpacity
+				style={styles.addButton}
+				onPress={() => navigate.navigate("CreateProductScreen")}
+				activeOpacity={0.85}
+			>
+				<Ionicons name="add" size={30} color="#fff" />
+			</TouchableOpacity>
+
+			<ModalAddProduct
+				visible={visible}
+				setVisible={setVisible}
+				newProduct={newProduct}
+				setNewProduct={setNewProduct}
+			/>
+			{showEditProduct && (
+				<ModalEditProduct
+					setShowEditProduct={setShowEditProduct}
+					fetchData={fetchData}
+					idEditProduct={idEditProduct}
+				/>
 			)}
 		</View>
 	);
@@ -450,88 +283,152 @@ export default function ProductManagerScreen() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: "#f6f6f6",
+		backgroundColor: "#f5f6fa",
 	},
 	header: {
-		fontSize: 22,
-		fontWeight: "bold",
-		marginBottom: 12,
+		backgroundColor: "#fff",
+		paddingHorizontal: 16,
+		paddingTop: 14,
+		paddingBottom: 14,
+		// iOS
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.07,
+		shadowRadius: 4,
+		// Android
+		elevation: 3,
+	},
+	searchRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 10,
 	},
 	searchInput: {
-		backgroundColor: "#fff",
-		borderRadius: 8,
+		flex: 1,
+		flexDirection: "row",
+		alignItems: "center",
+		backgroundColor: "#f0f1f5",
+		borderRadius: 10,
+		height: 42,
 		paddingHorizontal: 12,
-		paddingVertical: 10,
-		marginBottom: 16,
-		fontSize: 16,
-		borderWidth: 1,
-		borderColor: "#ccc",
+		gap: 8,
+	},
+	searchText: {
+		flex: 1,
+		fontSize: 14,
+		color: "#333",
+		paddingVertical: 0,
+	},
+	scanBtn: {
+		width: 42,
+		height: 42,
+		backgroundColor: "#f0f1f5",
+		borderRadius: 10,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	listContent: {
+		paddingTop: 12,
+		paddingHorizontal: 12,
+		paddingBottom: 100,
 	},
 	card: {
+		flexDirection: "row",
+		alignItems: "center",
 		backgroundColor: "#fff",
-		paddingVertical: 10,
-		borderRadius: 8,
-		minHeight: 100,
-		paddingHorizontal: 10,
+		borderRadius: 12,
+		paddingVertical: 12,
+		paddingHorizontal: 14,
+		gap: 14,
+		// iOS
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 1 },
+		shadowOpacity: 0.07,
+		shadowRadius: 4,
+		// Android
 		elevation: 2,
 	},
 	image: {
-		width: 80,
-		height: 80,
-		borderRadius: 6,
-		flex: 1,
-	},
-	name: {
-		fontSize: 16,
-		fontWeight: "bold",
-	},
-	detail: {
-		fontSize: 14,
-		color: "#555",
-		marginTop: 4,
-	},
-	addButton: {
-		position: "absolute",
-		bottom: 50,
 		width: 70,
 		height: 70,
-		backgroundColor: ColorMain,
-		flexDirection: "row",
+		borderRadius: 10,
+		backgroundColor: "#f0f0f0",
+	},
+	cardInfo: {
+		flex: 1,
+		gap: 4,
+	},
+	name: {
+		fontSize: 15,
+		fontWeight: "600",
+		color: "#1a1a1a",
+		lineHeight: 20,
+	},
+	unitText: {
+		fontSize: 12,
+		color: "#999",
+	},
+	priceText: {
+		fontSize: 14,
+		fontWeight: "700",
+		color: ColorMain,
+	},
+	actionTrigger: {
+		width: 32,
+		height: 32,
 		alignItems: "center",
 		justifyContent: "center",
-		paddingVertical: 14,
-		borderRadius: 50,
-		right: 20,
-		shadowColor: "#747474ff",
-		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.3,
-		shadowRadius: 3,
-		elevation: 5,
 	},
-	addText: {
-		color: "#fff",
-		fontSize: 16,
-		marginLeft: 8,
-		fontWeight: "600",
+	emptyState: {
+		alignItems: "center",
+		justifyContent: "center",
+		paddingTop: 80,
+		gap: 12,
 	},
-	shadow: {
-		shadowColor: ColorMain,
-		shadowOpacity: 0.22,
-		shadowOffset: { width: 0, height: 1 },
+	emptyText: {
+		fontSize: 14,
+		color: "#ccc",
 	},
 	rightActionContainer: {
-		width: 160,
+		width: 150,
 		flexDirection: "row",
+		borderTopRightRadius: 12,
+		borderBottomRightRadius: 12,
+		overflow: "hidden",
 	},
-
 	actionBtn: {
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
+		gap: 4,
 	},
-
+	actionEdit: {
+		backgroundColor: "#3b82f6",
+	},
+	actionDelete: {
+		backgroundColor: "#ef4444",
+	},
 	actionText: {
 		color: "#fff",
+		fontSize: 12,
 		fontWeight: "600",
+	},
+	addButton: {
+		position: "absolute",
+		bottom: 32,
+		right: 20,
+		width: 58,
+		height: 58,
+		backgroundColor: ColorMain,
+		borderRadius: 29,
+		alignItems: "center",
+		justifyContent: "center",
+		// iOS
+		shadowColor: ColorMain,
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.4,
+		shadowRadius: 6,
+		// Android
+		elevation: 6,
 	},
 });

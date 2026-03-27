@@ -164,84 +164,61 @@ function ExportInvoicePayment() {
     ({ item }: { item: Product }) => {
       const qty = quantity[item._id] || 0;
       return (
-        <TouchableOpacity onPress={() => setSelectedProduct(item)}>
-          <View style={[styles.card, { width: "100%" }]}>
-            <View
-              style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
-            >
-              <Image
-                source={require("@/assets/images/no-image-news.png")}
-                style={styles.image}
-              />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.name}>{item.name}</Text>
-                <Text style={styles.detail}>
-                  Giá: {item.price.toLocaleString()}đ
-                </Text>
-                {/* <Text style={styles.detail}>
-                  Còn:
-                  <Text
-                    style={{
-                      color: item.stock < 1 ? "#ff3e3eff" : ColorMain,
-                      fontWeight: "600",
-                    }}
-                  >
-                    {item.stock}
-                  </Text>
-                </Text> */}
-              </View>
-              <View style={{ position: "absolute", right: 10 }}>
-                {qty > 0 ? (
-                  <View style={styles.quantityContainer}>
-                    <TouchableOpacity
-                      style={styles.quantityButton}
-                      onPress={() => decreaseQuantity(item._id)}
-                    >
-                      <Text style={styles.quantityButtonText}>-</Text>
-                    </TouchableOpacity>
-                    <TextInput
-                      style={styles.input}
-                      keyboardType="numeric"
-                      value={qty.toString()}
-                      onChangeText={(val) =>
-                        setQuantity((prev) => ({
-                          ...prev,
-                          [item._id]: Math.max(Number(val) || 0, 0),
-                        }))
-                      }
-                    />
-                    <TouchableOpacity
-                      style={[
-                        styles.quantityButton,
-                        { backgroundColor: ColorMain },
-                      ]}
-                      onPress={() => increaseQuantity(item._id)}
-                    >
-                      <Text
-                        style={[styles.quantityButtonText, { color: "#fff" }]}
-                      >
-                        +
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                ) : (
+        <View style={styles.card}>
+          <View style={styles.cardRow}>
+            <Image
+              source={require("@/assets/images/no-image-news.png")}
+              style={styles.image}
+            />
+            <View style={styles.cardInfo}>
+              <Text style={styles.productName} numberOfLines={2}>
+                {item.name}
+              </Text>
+              <Text style={styles.priceText}>
+                {item.price.toLocaleString()}đ
+              </Text>
+            </View>
+            <View style={styles.quantityWrapper}>
+              {qty > 0 ? (
+                <View style={styles.stepper}>
                   <TouchableOpacity
-                    style={{
-                      backgroundColor: ColorMain,
-                      borderRadius: 5,
-                      padding: 5,
-                    }}
-                    // disabled={item.stock < 0}
-                    onPress={() => increaseQuantity(item._id)}
+                    style={styles.stepBtn}
+                    onPress={() => decreaseQuantity(item._id)}
+                    activeOpacity={0.7}
                   >
-                    <Entypo name="plus" size={17} color="#fff" />
+                    <Text style={styles.stepBtnText}>−</Text>
                   </TouchableOpacity>
-                )}
-              </View>
+                  <TextInput
+                    style={styles.stepInput}
+                    keyboardType="numeric"
+                    value={qty.toString()}
+                    onChangeText={(val) =>
+                      setQuantity((prev) => ({                                        
+                        ...prev,
+                        [item._id]: Math.max(Number(val) || 0, 0),
+                      }))
+                    }
+                  />
+                  <TouchableOpacity
+                    style={[styles.stepBtn, styles.stepBtnActive]}
+                    onPress={() => increaseQuantity(item._id)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[styles.stepBtnText, { color: "#fff" }]}>+</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={styles.addBtn}
+                  onPress={() => increaseQuantity(item._id)}
+                  activeOpacity={0.7}
+                >
+                  <Entypo name="plus" size={18} color="#fff" />
+                </TouchableOpacity>
+              )}
             </View>
           </View>
-          <View style={styles.bottomLine} />
-        </TouchableOpacity>
+        </View>
       );
     },
     [quantity]
@@ -250,123 +227,151 @@ function ExportInvoicePayment() {
   const renderItemStorage = useCallback(
     ({ item }: { item: ProductInventory }) => {
       const qty = quantity[item._id] || 0;
+      const isOutOfStock = item.stock < 1;
+      const conversionText =
+        item.conversionUnit?.isActive &&
+        item.conversionUnit.from?.itemQuantity &&
+        item.conversionUnit.to?.[0]?.itemName &&
+        item.conversionUnit.to?.[0]?.itemQuantity
+          ? `(${Math.round(
+              (item.stock * item.conversionUnit.to[0].itemQuantity) /
+                item.conversionUnit.from.itemQuantity
+            )} ${item.conversionUnit.to[0].itemName})`
+          : null;
+
       return (
-        <TouchableOpacity onPress={() => increaseQuantity(item._id)}>
-          <View style={[styles.card, { width: "100%" }]}>
-            <View
-              style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
-            >
-              <Image source={{ uri: item.imageURL }} style={styles.image} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.name}>{item.name}</Text>
-                <Text style={styles.detail}>Số lượng: {item.stock}</Text>
-                <Text style={styles.detail}>Giá: {item.price}</Text>
+        <View style={[styles.card, isOutOfStock && styles.cardDisabled]}>
+          <View style={styles.cardRow}>
+            <View style={styles.imageWrapper}>
+              <Image
+                source={
+                  item.imageURL
+                    ? { uri: item.imageURL }
+                    : require("@/assets/images/no-image-news.png")
+                }
+                style={styles.image}
+              />
+              {isOutOfStock && (
+                <View style={styles.outOfStockBadge}>
+                  <Text style={styles.outOfStockText}>Hết hàng</Text>
+                </View>
+              )}
+            </View>
+            <View style={styles.cardInfo}>
+              <Text style={styles.productName} numberOfLines={2}>
+                {item.name}
+              </Text>
+              <View style={styles.stockRow}>
+                <Text style={styles.stockLabel}>Tồn kho: </Text>
+                <Text style={styles.stockValue}>
+                  {`${item.stock.toFixed(2)}${item.unit ? ` ${item.unit}` : ""}`}
+                </Text>
               </View>
-              <View style={{ position: "absolute", right: 10 }}>
-                {qty > 0 ? (
-                  <View style={styles.quantityContainer}>
-                    <TouchableOpacity
-                      style={styles.quantityButton}
-                      onPress={() => decreaseQuantity(item._id)}
-                    >
-                      <Text style={styles.quantityButtonText}>-</Text>
-                    </TouchableOpacity>
-                    <TextInput
-                      style={styles.input}
-                      keyboardType="numeric"
-                      value={qty.toString()}
-                      onChangeText={(val) =>
-                        setQuantity((prev) => ({
-                          ...prev,
-                          [item._id]: Math.max(Number(val) || 0, 0),
-                        }))
-                      }
-                    />
-                    <TouchableOpacity
-                      style={[
-                        styles.quantityButton,
-                        { backgroundColor: ColorMain },
-                      ]}
-                      onPress={() => increaseQuantity(item._id)}
-                    >
-                      <Text
-                        style={[styles.quantityButtonText, { color: "#fff" }]}
-                      >
-                        +
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                ) : (
+              {conversionText && (
+                <Text style={styles.conversionText}>{conversionText}</Text>
+              )}
+              <Text style={styles.priceText}>
+                {item.price.toLocaleString()}đ
+              </Text>
+            </View>
+            <View style={styles.quantityWrapper}>
+              {qty > 0 ? (
+                <View style={styles.stepper}>
                   <TouchableOpacity
-                    style={{
-                      backgroundColor: item.stock < 1 ? "#ccc" : ColorMain,
-                      borderRadius: 5,
-                      padding: 5,
-                    }}
-                    disabled={item.stock < 1}
-                    onPress={() => increaseQuantity(item._id)}
+                    style={styles.stepBtn}
+                    onPress={() => decreaseQuantity(item._id)}
+                    activeOpacity={0.7}
                   >
-                    <Entypo name="plus" size={17} color="#fff" />
+                    <Text style={styles.stepBtnText}>−</Text>
                   </TouchableOpacity>
-                )}
-              </View>
+                  <TextInput
+                    style={styles.stepInput}
+                    keyboardType="numeric"
+                    value={qty.toString()}
+                    onChangeText={(val) =>
+                      setQuantity((prev) => ({
+                        ...prev,
+                        [item._id]: Math.max(Number(val) || 0, 0),
+                      }))
+                    }
+                  />
+                  <TouchableOpacity
+                    style={[styles.stepBtn, styles.stepBtnActive]}
+                    onPress={() => increaseQuantity(item._id)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[styles.stepBtnText, { color: "#fff" }]}>+</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={[styles.addBtn, isOutOfStock && styles.addBtnDisabled]}
+                  disabled={isOutOfStock}
+                  onPress={() => increaseQuantity(item._id)}
+                  activeOpacity={0.7}
+                >
+                  <Entypo name="plus" size={18} color="#fff" />
+                </TouchableOpacity>
+              )}
             </View>
           </View>
-          <View style={styles.bottomLine} />
-        </TouchableOpacity>
+        </View>
       );
     },
     [quantity]
   );
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.screen}>
       <LoadingScreen visible={loading} />
 
-      {/* Search + Controls */}
-      <View
-        style={{
-          marginTop: 20,
-          paddingHorizontal: 15,
-          flexDirection: "row",
-          gap: 20,
-          alignItems: "center",
-        }}
-      >
-        <View style={[styles.containerSearch, { width: "100%" }]}>
-          <Entypo name="magnifying-glass" size={18} color="#666" />
+      {/* Header: Search + Tabs */}
+      <View style={styles.header}>
+        <View style={styles.containerSearch}>
+          <Entypo name="magnifying-glass" size={18} color="#999" />
           <TextInput
             placeholder="Tìm kiếm sản phẩm"
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholderTextColor="#999"
+            placeholderTextColor="#bbb"
             style={styles.inputSearch}
           />
         </View>
-      </View>
 
-      {/* Tabs */}
-      <View
-        style={{ flexDirection: "row", marginTop: 20, backgroundColor: "#fff" }}
-      >
-        <TouchableOpacity
-          style={[
-            { flex: 1, alignItems: "center", paddingVertical: 15 },
-            !isActive && { borderBottomWidth: 3, borderColor: ColorMain },
-          ]}
-          onPress={() => setIsActive(false)}
-        >
-          <Text>Sản phẩm đã tạo</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            { flex: 1, alignItems: "center", paddingVertical: 15 },
-            isActive && { borderBottomWidth: 3, borderColor: ColorMain },
-          ]}
-          onPress={() => setIsActive(true)}
-        >
-          <Text>Sản phẩm từ kho</Text>
-        </TouchableOpacity>
+        <View style={styles.tabTrack}>
+          <TouchableOpacity
+            style={[styles.tabItem, !isActive && styles.tabItemActive]}
+            onPress={() => setIsActive(false)}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.tabText, !isActive && styles.tabTextActive]}>
+              Sản phẩm đã tạo
+            </Text>
+            {filteredProducts.length > 0 && (
+              <View style={[styles.tabBadge, !isActive && styles.tabBadgeActive]}>
+                <Text style={[styles.tabBadgeText, !isActive && styles.tabBadgeTextActive]}>
+                  {filteredProducts.length}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tabItem, isActive && styles.tabItemActive]}
+            onPress={() => setIsActive(true)}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.tabText, isActive && styles.tabTextActive]}>
+              Sản phẩm từ kho
+            </Text>
+            {filteredProductStorage.length > 0 && (
+              <View style={[styles.tabBadge, isActive && styles.tabBadgeActive]}>
+                <Text style={[styles.tabBadgeText, isActive && styles.tabBadgeTextActive]}>
+                  {filteredProductStorage.length}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* FlatList */}
@@ -375,16 +380,18 @@ function ExportInvoicePayment() {
           data={filteredProducts}
           keyExtractor={(item) => item._id}
           renderItem={renderItem}
-          contentContainerStyle={{ paddingBottom: 80, marginTop: 10 }}
+          contentContainerStyle={styles.listContent}
           numColumns={1}
+          showsVerticalScrollIndicator={false}
         />
       ) : (
         <FlatList
           data={filteredProductStorage}
           keyExtractor={(item) => item._id}
           renderItem={renderItemStorage}
-          contentContainerStyle={{ paddingBottom: 80, marginTop: 10 }}
+          contentContainerStyle={styles.listContent}
           numColumns={1}
+          showsVerticalScrollIndicator={false}
         />
       )}
 
@@ -431,37 +438,158 @@ function ExportInvoicePayment() {
   );
 }
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#f5f6fa",
+  },
+  header: {
+    backgroundColor: "#fff",
+    paddingTop: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    // iOS
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 4,
+    // Android
+    elevation: 3,
+  },
+  listContent: {
+    paddingTop: 12,
+    paddingBottom: 100,
+    paddingHorizontal: 12,
+  },
   card: {
     backgroundColor: "#fff",
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    // shadowColor: "#000",
-    // shadowOffset: { width: 0, height: 1 },
-    // shadowOpacity: 0.25,
-    // shadowRadius: 2,
-    // elevation: 2,
-    // borderBottomWidth: 0.5,
-    // borderBottomColor: "#d3d3d3ff",
+    borderRadius: 12,
+    marginBottom: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    // Android shadow
+    elevation: 2,
   },
-  bottomLine: {
-    alignSelf: "center",
-    width: "90%", // chiếm 95% chiều ngang
-    height: 0.7,
-    backgroundColor: "#d3d3d3ff",
+  cardDisabled: {
+    opacity: 0.55,
+  },
+  cardRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  imageWrapper: {
+    position: "relative",
   },
   image: {
-    width: 80,
-    height: 80,
-    borderRadius: 6,
+    width: 72,
+    height: 72,
+    borderRadius: 10,
+    backgroundColor: "#f0f0f0",
   },
-  name: {
-    fontSize: 16,
-    fontWeight: "bold",
+  outOfStockBadge: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    paddingVertical: 3,
+    alignItems: "center",
   },
-  detail: {
+  outOfStockText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "600",
+  },
+  cardInfo: {
+    flex: 1,
+    gap: 4,
+  },
+  productName: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#1a1a1a",
+    lineHeight: 20,
+  },
+  priceText: {
     fontSize: 14,
-    color: "#555",
-    marginTop: 4,
+    fontWeight: "700",
+    color: ColorMain,
+    marginTop: 2,
+  },
+  stockRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  stockLabel: {
+    fontSize: 13,
+    color: "#888",
+  },
+  stockValue: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#333",
+  },
+  conversionText: {
+    fontSize: 12,
+    color: "#aaa",
+    fontStyle: "italic",
+  },
+  quantityWrapper: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stepper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  stepBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    backgroundColor: "#f0f0f0",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stepBtnActive: {
+    backgroundColor: ColorMain,
+  },
+  stepBtnText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#444",
+    lineHeight: 22,
+  },
+  stepInput: {
+    minWidth: 36,
+    textAlign: "center",
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1a1a1a",
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    borderRadius: 6,
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    backgroundColor: "#fafafa",
+  },
+  addBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: ColorMain,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  addBtnDisabled: {
+    backgroundColor: "#ccc",
   },
   modalBackground: {
     flex: 1,
@@ -481,15 +609,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 6,
-    minWidth: 30,
-    textAlign: "center",
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-  },
   modalButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -503,22 +622,59 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 5,
   },
-
-  quantityContainer: {
+  tabTrack: {
+    flexDirection: "row",
+    backgroundColor: "#f0f1f5",
+    borderRadius: 10,
+    padding: 4,
+    marginTop: 12,
+  },
+  tabItem: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 5,
+    paddingVertical: 9,
+    borderRadius: 8,
+    gap: 6,
   },
-  quantityButton: {
-    backgroundColor: "#eee",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+  tabItemActive: {
+    backgroundColor: "#fff",
+    // iOS shadow for active pill
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  quantityButtonText: {
-    fontSize: 20,
-    fontWeight: "bold",
+  tabText: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#999",
+  },
+  tabTextActive: {
+    color: ColorMain,
+    fontWeight: "700",
+  },
+  tabBadge: {
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "#ddd",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 5,
+  },
+  tabBadgeActive: {
+    backgroundColor: ColorMain + "20",
+  },
+  tabBadgeText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#999",
+  },
+  tabBadgeTextActive: {
+    color: ColorMain,
   },
   wrBottom: {
     height: 90,
@@ -535,15 +691,10 @@ const styles = StyleSheet.create({
   containerSearch: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#f0f1f5",
     borderRadius: 10,
-    height: 40,
-    paddingHorizontal: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    height: 42,
+    paddingHorizontal: 12,
   },
   inputSearch: {
     flex: 1,
