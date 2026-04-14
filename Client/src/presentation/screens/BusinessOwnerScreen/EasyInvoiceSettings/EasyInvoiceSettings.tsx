@@ -205,6 +205,19 @@ function EasyInvoiceSettings() {
 						</>
 					)}
 				</TouchableOpacity>
+
+				<TouchableOpacity
+					style={styles.listButton}
+					onPress={() => navigate.navigate("EasyInvoiceListScreen")}
+				>
+					<MaterialCommunityIcons
+						name="invoice-list-outline"
+						size={20}
+						color={ColorMain}
+					/>
+					<Text style={styles.listButtonText}>Xem danh sách hóa đơn</Text>
+					<AntDesign name="right" size={14} color={ColorMain} />
+				</TouchableOpacity>
 			</View>
 		</ScrollView>
 	);
@@ -320,6 +333,24 @@ const styles = StyleSheet.create({
 		color: "#666",
 		marginTop: 4,
 		fontStyle: "italic",
+	},
+	listButton: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 8,
+		marginTop: 12,
+		padding: 14,
+		borderRadius: 8,
+		borderWidth: 1,
+		borderColor: ColorMain,
+		backgroundColor: "#fff",
+	},
+	listButtonText: {
+		flex: 1,
+		fontSize: 15,
+		fontWeight: "600",
+		color: ColorMain,
 	},
 });
 

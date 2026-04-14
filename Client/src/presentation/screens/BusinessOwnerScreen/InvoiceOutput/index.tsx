@@ -29,6 +29,7 @@ import {
 	Alert,
 	Animated,
 	Easing,
+	Platform,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -213,106 +214,42 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
 					setEndDateFil(endDate);
 				}}
 			/>
-			<View style={styles.searchWrapper}>
-				<SearchByName label="Tìm kiếm mã hoá đơn" />
-				{/* <View style={{ flex: 1, alignItems: "center", paddingRight: 20 }}>
-          <TouchableOpacity>
-            <FontAwesome5 name="calendar-alt" size={24} color={ColorMain} />
-          </TouchableOpacity>
-        </View> */}
-			</View>
-			<View style={styles.synchronizedWrapper}>
-				{/* <TouchableOpacity
-          style={styles.btnSyn}
-          onPress={() => setOpenListProductSynchronized(true)}
-        >
-          <Text style={{ color: "#fff", fontSize: 14 }}>
-            Xuất hóa đơn &nbsp;
-            <AntDesign name="plus" size={15} color="#fff" />
-          </Text>
-        </TouchableOpacity> */}
-				{/* <LinearGradient
-          colors={[ColorMain, "#6A7DB3"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 3 }}
-          style={{ borderRadius: 5 }}
-        >
-          <TouchableOpacity
-            style={styles.btnSyn}
-            onPress={() => navigate.navigate("ExportInvoicePayment")}
-          >
-            <Text style={{ color: "#fff", fontSize: 14 }}>
-              Xuất HĐ &nbsp;
-              <AntDesign name="plus" size={15} color="#fff" />
-            </Text>
-          </TouchableOpacity>
-        </LinearGradient> */}
-
-				{/* <LinearGradient
-          colors={[ColorMain, "#6A7DB3"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 3 }}
-          style={{ borderRadius: 5 }}
-        >
-          <TouchableOpacity
-            style={styles.btnSyn}
-            onPress={() => setVisible(true)}
-          >
-            <Text style={{ color: "#fff", fontSize: 14 }}>
-              {loading ? (
-                <>
-                  Đang đồng bộ &nbsp;
-                  <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                    <Entypo name="arrow-bold-down" size={13} color="#fff" />
-                  </Animated.View>
-                </>
-              ) : (
-                <>
-                  Đồng bộ &nbsp;
-                  <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                    <Entypo name="arrow-bold-down" size={13} color="#fff" />
-                  </Animated.View>
-                </>
-              )}
-            </Text>
-          </TouchableOpacity>
-        </LinearGradient> */}
+			{/* Toolbar: search + date filter */}
+			<View style={styles.toolbar}>
+				<View style={styles.searchWrap}>
+					<SearchByName label="Tìm kiếm mã hoá đơn" />
+				</View>
 				<TouchableOpacity
 					style={[
-						styles.btnSyn,
-						{
-							flexDirection: "row",
-							alignItems: "center",
-							gap: 5,
-							borderWidth: 0.5,
-							borderColor: textColorMain,
-							borderRadius: 5,
-						},
+						styles.calBtn,
+						startDateFil && endDateFil && styles.calBtnActive,
 					]}
 					onPress={() => {
-						if (!startDateFil || !endDateFil) {
+						if (startDateFil && endDateFil) {
+							clearDateFilter();
+						} else {
 							setOpenSelectedDate(true);
 						}
 					}}
 				>
-					<Text style={{ color: textColorMain, fontWeight: "500" }}>
-						{startDateFil && endDateFil
-							? `${startDateFil.toLocaleDateString()} - ${endDateFil.toLocaleDateString()}`
-							: "Tất cả"}
-					</Text>
-
-					{startDateFil && endDateFil ? (
-						<Ionicons
-							name="close"
-							size={16}
-							color={textColorMain}
-							onPress={clearDateFilter} // 🔥 xoá filter
-						/>
-					) : (
-						<Ionicons name="options" size={15} color={textColorMain} />
-					)}
+					<Ionicons
+						name={startDateFil && endDateFil ? "close" : "calendar-outline"}
+						size={20}
+						color={startDateFil && endDateFil ? "#fff" : textColorMain}
+					/>
 				</TouchableOpacity>
 			</View>
+			{startDateFil && endDateFil && (
+				<View style={styles.chipWrap}>
+					<View style={styles.chip}>
+						<Ionicons name="calendar" size={12} color={textColorMain} />
+						<Text style={styles.chipText}>
+							{startDateFil.toLocaleDateString("vi-VN")} –{" "}
+							{endDateFil.toLocaleDateString("vi-VN")}
+						</Text>
+					</View>
+				</View>
+			)}
 			<ModalCreateProductsByInvoiceOuput
 				setOpenListProductSynchronized={setOpenListProductSynchronized}
 				openListProductSynchronized={openListProductSynchronized}
@@ -345,25 +282,66 @@ function InvoiceOutput({ loading, setLoading }: InvoiceOutputProps) {
 	);
 }
 const styles = StyleSheet.create({
-	searchWrapper: {
+	toolbar: {
 		flexDirection: "row",
-		justifyContent: "space-between",
 		alignItems: "center",
+		gap: 8,
+		marginTop: 12,
+	},
+	searchWrap: {
+		flex: 1,
 		backgroundColor: "#fff",
-		borderRadius: 50,
-		borderWidth: 1,
-		borderColor: "#d8d7d7ff",
-		marginTop: 20,
+		borderRadius: 12,
+		overflow: "hidden",
+		...Platform.select({
+			ios: {
+				shadowColor: "#000",
+				shadowOffset: { width: 0, height: 1 },
+				shadowOpacity: 0.06,
+				shadowRadius: 4,
+			},
+			android: { elevation: 2 },
+		}),
 	},
-	synchronizedWrapper: {
+	calBtn: {
+		width: 44,
+		height: 44,
+		borderRadius: 12,
+		backgroundColor: "#fff",
+		justifyContent: "center",
+		alignItems: "center",
+		...Platform.select({
+			ios: {
+				shadowColor: "#000",
+				shadowOffset: { width: 0, height: 1 },
+				shadowOpacity: 0.06,
+				shadowRadius: 4,
+			},
+			android: { elevation: 2 },
+		}),
+	},
+	calBtnActive: {
+		backgroundColor: textColorMain,
+	},
+	chipWrap: {
+		marginTop: 8,
+	},
+	chip: {
 		flexDirection: "row",
-		justifyContent: "space-evenly",
-		marginTop: 15,
+		alignItems: "center",
+		gap: 6,
+		alignSelf: "flex-start",
+		backgroundColor: "#f0fdf8",
+		borderWidth: 1,
+		borderColor: textColorMain,
+		borderRadius: 20,
+		paddingHorizontal: 12,
+		paddingVertical: 5,
 	},
-	btnSyn: {
-		backgroundColor: "transparent",
-		padding: 10,
-		borderRadius: 10,
+	chipText: {
+		fontSize: 12,
+		color: textColorMain,
+		fontWeight: "500",
 	},
 });
 

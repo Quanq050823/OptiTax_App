@@ -169,7 +169,20 @@ function HomeScreen(): React.JSX.Element {
 			notify: 1,
 			navigate: () => navigate.navigate("InvoiceScreen"),
 		},
-
+		{
+			key: "easyinvoice",
+			label: "Hóa đơn EasyInvoice",
+			icon: (
+				<MaterialCommunityIcons
+					name="invoice-text-outline"
+					size={32}
+					color={ColorMain}
+				/>
+			),
+			navigate: () => {
+				navigate.navigate("EasyInvoiceListScreen");
+			},
+		},
 		{
 			key: "ReceiptVoucher",
 			label: "Phiếu thu",

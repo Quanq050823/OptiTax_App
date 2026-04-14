@@ -108,8 +108,8 @@ export const exportInvoiceOutputEaseInvoice = async (
 		const res = await axiosInstance.post<
 			EaseInvoiceResponse | EaseInvoiceApiResponse
 		>(
-			`easyinvoice/importInvoice`, //XUẤT HÓA ĐƠN CHƯA PHÁT HÀNH
-			// 	`easyinvoice/import-and-issue-invoice`,   //XUẤT HÓA ĐƠN VÀ PHÁT HÀNH NGAY
+			// `easyinvoice/importInvoice`, //XUẤT HÓA ĐƠN CHƯA PHÁT HÀNH
+			`easyinvoice/import-and-issue-invoice`, //XUẤT HÓA ĐƠN VÀ PHÁT HÀNH NGAY
 			invoiceData,
 		);
 
@@ -153,4 +153,118 @@ export const exportInvoiceOutputAndSaveDb = async (
 		easyInvoice,
 		savedInvoice,
 	};
+};
+
+// ─── EasyInvoice Management ───────────────────────────────────────────────────
+
+export type EasyInvoiceItem = {
+	Ikey: string;
+	No: string;
+	Pattern: string;
+	Serial: string;
+	ArisingDate: string;
+	IssueDate: string;
+	CustomerName: string;
+	CustomerAddress: string;
+	CustomerCode: string;
+	CustomerTaxCode: string;
+	Total: number;
+	TaxAmount: number;
+	Amount: number;
+	/** 0: Chưa phát hành, 1: Đã phát hành, 2: Đã hủy */
+	InvoiceStatus: number;
+	HasSigned: boolean;
+	LookupCode: string | null;
+	LinkView: string | null;
+	TCTCheckStatus: string | null;
+	TaxAuthorityCode: string | null;
+	ModifiedDate: string;
+	PublishedBy: string | null;
+	Html: string | null;
+	DocumentStatus: string | null;
+	Type: number;
+	Extra: unknown | null;
+	Buyer: unknown | null;
+	IsSentTCTSummary: boolean;
+	TCTErrorMessage: string | null;
+	CusIdentification: string | null;
+	BudgetaryRelationshipCode: string | null;
+	PassportNo: string | null;
+};
+
+export type EasyInvoiceListData = {
+	Page: number;
+	PageSize: number;
+	TotalRecords: number;
+	TotalPages: number;
+	Pattern: string | null;
+	Invoices: EasyInvoiceItem[];
+};
+
+export type EasyInvoiceListResponse = {
+	success: boolean;
+	data: {
+		Status: number;
+		Message: string;
+		Data: EasyInvoiceListData;
+	};
+	dateRange?: { FromDate: string; ToDate: string };
+};
+
+export const getEasyInvoicesAuto =
+	async (): Promise<EasyInvoiceListResponse> => {
+		try {
+			const res = await axiosInstance.get<EasyInvoiceListResponse>(
+				`easyinvoice/getInvoiceAuto`,
+			);
+			return res.data;
+		} catch (error: any) {
+			if (error.response) throw error.response.data;
+			throw error;
+		}
+	};
+
+export const getEasyInvoicesByDateRange = async (params: {
+	FromDate: string;
+	ToDate: string;
+	Page?: number;
+	PageSize?: number;
+}): Promise<EasyInvoiceListResponse> => {
+	try {
+		const res = await axiosInstance.post<EasyInvoiceListResponse>(
+			`easyinvoice/getInvoiceByArisingDateRange`,
+			params,
+		);
+		return res.data;
+	} catch (error: any) {
+		if (error.response) throw error.response.data;
+		throw error;
+	}
+};
+
+export const viewEasyInvoice = async (params: {
+	Ikey: string;
+	Pattern: string;
+	Option?: number;
+	Serial?: string;
+}) => {
+	try {
+		const res = await axiosInstance.post(`easyinvoice/viewInvoice`, params);
+		return res.data;
+	} catch (error: any) {
+		if (error.response) throw error.response.data;
+		throw error;
+	}
+};
+
+export const cancelEasyInvoice = async (Ikey: string) => {
+	try {
+		const res = await axiosInstance.post(`easyinvoice/cancel-invoice`, {
+			Ikey,
+		});
+		return res.data;
+	} catch (error: any) {
+		if (error.response) throw error.response.data;
+		throw error;
+	}
 };

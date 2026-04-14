@@ -69,6 +69,8 @@ import InvoiceDetailScreenInp from "../presentation/screens/BusinessOwnerScreen/
 import FilterDateTotalTaxScreen from "../presentation/screens/BusinessOwnerScreen/FilterDateTotalTaxScreen/FilterDateTotalTaxScreen";
 import StoreScreen from "@/src/presentation/screens/BusinessOwnerScreen/StoreScreen/StoreScreen";
 import EasyInvoiceSettings from "@/src/presentation/screens/BusinessOwnerScreen/EasyInvoiceSettings/EasyInvoiceSettings";
+import EasyInvoiceListScreen from "@/src/presentation/screens/BusinessOwnerScreen/EasyInvoiceListScreen";
+import EasyInvoiceDetailScreen from "@/src/presentation/screens/BusinessOwnerScreen/EasyInvoiceDetailScreen";
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
 	const { data, setData } = useData(); // lấy data từ context
@@ -458,6 +460,20 @@ const HomeLayout = () => {
 					title: "Cửa hàng",
 				}}
 				component={StoreScreen}
+			/>
+			<Stack.Screen
+				name="EasyInvoiceListScreen"
+				options={{
+					title: "Quản lý hóa đơn EasyInvoice",
+				}}
+				component={EasyInvoiceListScreen}
+			/>
+			<Stack.Screen
+				name="EasyInvoiceDetailScreen"
+				options={{
+					title: "Chi tiết hóa đơn",
+				}}
+				component={EasyInvoiceDetailScreen}
 			/>
 		</Stack.Navigator>
 	);
