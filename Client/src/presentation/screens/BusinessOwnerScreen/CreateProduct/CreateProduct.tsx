@@ -5,11 +5,15 @@ import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import {
 	Alert,
+	FlatList,
+	Modal,
 	Platform,
+	Pressable,
 	StyleSheet,
 	Text,
 	TextInput,
 	TouchableOpacity,
+	useWindowDimensions,
 	View,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
@@ -38,6 +42,8 @@ const INITIAL_INGREDIENT: Ingredient = {
 
 function CreateProductScreen() {
 	const navigation = useAppNavigation();
+	const { height: windowHeight } = useWindowDimensions();
+	const ingredientModalHeight = windowHeight * 0.8;
 	const [ingredients, setIngredients] = useState<Ingredient[]>([
 		INITIAL_INGREDIENT,
 	]);
@@ -54,9 +60,11 @@ function CreateProductScreen() {
 	});
 	const [productStorage, setProductStorage] = useState<ProductInventory[]>([]);
 	const [unitsData, setUnitsData] = useState<UnitsNameProduct>();
-	const [filteredProductsList, setFilteredProductsList] = useState<
-		ProductInventory[][]
-	>([]);
+	const [ingredientPickerVisible, setIngredientPickerVisible] = useState(false);
+	const [ingredientPickerIndex, setIngredientPickerIndex] = useState<number | null>(
+		null,
+	);
+	const [ingredientSearch, setIngredientSearch] = useState("");
 
 	const [openModalConvers, setOpenModalConvers] = useState(false);
 	const [idProductStorage, setIdProductStorage] = useState("");
@@ -77,12 +85,6 @@ function CreateProductScreen() {
 	const [showCategoryInput, setShowCategoryInput] = useState(false);
 	const [newCategory, setNewCategory] = useState("");
 	const [categoryValue, setCategoryValue] = useState<string | null>(null);
-
-	useEffect(() => {
-		if (productStorage.length > 0) {
-			setFilteredProductsList(ingredients.map(() => [...productStorage]));
-		}
-	}, [productStorage, ingredients.length]);
 
 	const fetchUnits = useCallback(async () => {
 		try {
@@ -126,13 +128,35 @@ function CreateProductScreen() {
 			...prev,
 			{ material: null, quantity: "", unit: null },
 		]);
-		setFilteredProductsList((prev) => [...prev, [...productStorage]]);
-	}, [productStorage]);
+	}, []);
 
 	const removeIngredient = useCallback((index: number) => {
 		setIngredients((prev) => prev.filter((_, i) => i !== index));
-		setFilteredProductsList((prev) => prev.filter((_, i) => i !== index));
 	}, []);
+
+	const openIngredientPicker = useCallback((index: number) => {
+		setIngredientPickerIndex(index);
+		setIngredientSearch("");
+		setIngredientPickerVisible(true);
+	}, []);
+
+	const closeIngredientPicker = useCallback(() => {
+		setIngredientPickerVisible(false);
+		setIngredientPickerIndex(null);
+		setIngredientSearch("");
+	}, []);
+
+	const filteredIngredients = productStorage.filter((item) =>
+		item.name.toLowerCase().includes(ingredientSearch.trim().toLowerCase()),
+	);
+
+	const getMaterialNameById = useCallback(
+		(materialId: string | null) => {
+			if (!materialId) return "Chọn";
+			return productStorage.find((p) => p._id === materialId)?.name ?? "Chọn";
+		},
+		[productStorage],
+	);
 
 	const handleAddCategory = useCallback(() => {
 		if (!newCategory.trim()) return;
@@ -456,27 +480,20 @@ function CreateProductScreen() {
 							<View key={index} style={[styles.row, { marginBottom: 10 }]}>
 								{/* Nguyên liệu */}
 								<View style={{ flex: 1.3 }}>
-									<Dropdown
-										style={styles.dropdown}
-										data={
-											filteredProductsList[index]?.map((u) => ({
-												label: u.name,
-												value: u._id,
-											})) ?? []
-										}
-										labelField="label"
-										valueField="value"
-										placeholder="Chọn"
-										placeholderStyle={styles.dropdownPlaceholder}
-										selectedTextStyle={styles.dropdownSelected}
-										value={item.material}
-										search
-										searchPlaceholder="Tìm..."
-										onChange={(selected) => {
-											updateIngredient(index, "material", selected.value);
-											setIdProductStorage(selected.value);
-										}}
-									/>
+									<TouchableOpacity
+										style={styles.materialPicker}
+										onPress={() => openIngredientPicker(index)}
+									>
+										<Text
+											style={[
+												styles.materialPickerText,
+												!item.material && styles.materialPickerPlaceholder,
+											]}
+										>
+											{getMaterialNameById(item.material)}
+										</Text>
+										<AntDesign name="down" size={12} color="#8E8E8E" />
+									</TouchableOpacity>
 								</View>
 
 								{/* Số lượng */}
@@ -602,6 +619,70 @@ function CreateProductScreen() {
 				setVisible={setOpenModalConvers}
 				onSuccess={fetchProductStorage}
 			/>
+
+			<Modal
+				visible={ingredientPickerVisible}
+				transparent
+				animationType="slide"
+				onRequestClose={closeIngredientPicker}
+			>
+				<Pressable style={styles.ingredientModalBackdrop} onPress={closeIngredientPicker}>
+					<Pressable
+						style={[styles.ingredientModalSheet, { height: ingredientModalHeight }]}
+						onPress={() => undefined}
+					>
+						<View style={styles.ingredientModalHeader}>
+							<Text style={styles.ingredientModalTitle}>Chọn nguyên liệu</Text>
+							<TouchableOpacity onPress={closeIngredientPicker}>
+								<AntDesign name="close" size={18} color="#666" />
+							</TouchableOpacity>
+						</View>
+
+						<TextInput
+							style={styles.ingredientSearchInput}
+							placeholder="Tìm theo tên nguyên liệu"
+							placeholderTextColor="#AAAAAA"
+							value={ingredientSearch}
+							onChangeText={setIngredientSearch}
+						/>
+
+						<FlatList
+							data={filteredIngredients}
+							keyExtractor={(item) => item._id}
+							renderItem={({ item }) => {
+								const selectedId =
+									ingredientPickerIndex !== null
+										? ingredients[ingredientPickerIndex]?.material
+										: null;
+								const isSelected = selectedId === item._id;
+
+								return (
+									<TouchableOpacity
+										style={styles.ingredientOption}
+										onPress={() => {
+											if (ingredientPickerIndex === null) return;
+											updateIngredient(ingredientPickerIndex, "material", item._id);
+											updateIngredient(ingredientPickerIndex, "unit", null);
+											setIdProductStorage(item._id);
+											closeIngredientPicker();
+										}}
+									>
+										<Text style={styles.ingredientOptionText}>{item.name}</Text>
+										{isSelected ? (
+											<AntDesign name="check-circle" size={18} color={ColorMain} />
+										) : null}
+									</TouchableOpacity>
+								);
+							}}
+							ListEmptyComponent={
+								<Text style={styles.ingredientEmptyText}>Không tìm thấy nguyên liệu</Text>
+							}
+							keyboardShouldPersistTaps="handled"
+							showsVerticalScrollIndicator={false}
+						/>
+					</Pressable>
+				</Pressable>
+			</Modal>
 		</View>
 	);
 }
@@ -698,6 +779,26 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 12,
 		fontSize: 14,
 		color: "#1A1A1A",
+	},
+	materialPicker: {
+		height: 44,
+		backgroundColor: "#FAFAFA",
+		borderWidth: 1,
+		borderColor: "#E8E8E8",
+		borderRadius: 9,
+		paddingHorizontal: 12,
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+	},
+	materialPickerText: {
+		fontSize: 14,
+		color: "#1A1A1A",
+		flex: 1,
+		marginRight: 8,
+	},
+	materialPickerPlaceholder: {
+		color: "#BBBBBB",
 	},
 	textarea: {
 		height: 96,
@@ -796,6 +897,61 @@ const styles = StyleSheet.create({
 	addIngredientText: {
 		fontSize: 14,
 		fontWeight: "500",
+	},
+	ingredientModalBackdrop: {
+		flex: 1,
+		backgroundColor: "rgba(0, 0, 0, 0.35)",
+		justifyContent: "flex-end",
+	},
+	ingredientModalSheet: {
+		backgroundColor: "#fff",
+		borderTopLeftRadius: 20,
+		borderTopRightRadius: 20,
+		paddingHorizontal: 16,
+		paddingTop: 16,
+		paddingBottom: Platform.select({ ios: 28, android: 20 }),
+	},
+	ingredientModalHeader: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+		marginBottom: 12,
+	},
+	ingredientModalTitle: {
+		fontSize: 16,
+		fontWeight: "700",
+		color: "#1A1A1A",
+	},
+	ingredientSearchInput: {
+		height: 42,
+		borderWidth: 1,
+		borderColor: "#E8E8E8",
+		borderRadius: 10,
+		backgroundColor: "#FAFAFA",
+		paddingHorizontal: 12,
+		fontSize: 14,
+		color: "#1A1A1A",
+		marginBottom: 10,
+	},
+	ingredientOption: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+		paddingVertical: 12,
+		borderBottomWidth: StyleSheet.hairlineWidth,
+		borderBottomColor: "#ECECEC",
+	},
+	ingredientOptionText: {
+		fontSize: 14,
+		color: "#1A1A1A",
+		paddingRight: 12,
+		flex: 1,
+	},
+	ingredientEmptyText: {
+		textAlign: "center",
+		paddingVertical: 24,
+		fontSize: 14,
+		color: "#8E8E8E",
 	},
 	// Save button
 	saveBtn: {
