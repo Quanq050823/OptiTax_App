@@ -11,6 +11,8 @@ type ExportInvoiceOutputResult = {
 	savedInvoice?: unknown;
 };
 
+type AdjustInvoiceData = CreateInvoiceRequest["invoiceData"];
+
 export const getInvoiceInputList = async () => {
 	try {
 		const res = await axiosInstance.get<InvoiceListResponse>("input-invoice");
@@ -267,4 +269,89 @@ export const cancelEasyInvoice = async (Ikey: string) => {
 		if (error.response) throw error.response.data;
 		throw error;
 	}
+};
+
+export const removeUnsignedEasyInvoice = async (params: {
+	Ikey: string;
+	Pattern?: string;
+	Serial?: string;
+}) => {
+	try {
+		const res = await axiosInstance.post(
+			`easyinvoice/remove-unsigned-invoice`,
+			params,
+		);
+		return res.data;
+	} catch (error: any) {
+		if (error.response) throw error.response.data;
+		throw error;
+	}
+};
+
+export type EasyInvoiceRelatedInvoice = {
+	No?: string;
+	Pattern?: string;
+	Serial?: string;
+	ArisingDate?: string;
+	IssueDate?: string;
+	CustomerName?: string;
+	CustomerTaxCode?: string;
+	Total?: number;
+	TaxAmount?: number;
+	Amount?: number;
+	TaxAuthorityCode?: string;
+	LookupCode?: string;
+};
+
+export type AdjustEasyInvoicePayload = {
+	XmlData?: string;
+	invoiceData?: AdjustInvoiceData;
+	Ikey?: string;
+	Pattern?: string;
+	Serial?: string;
+	RelatedInvoice?: EasyInvoiceRelatedInvoice;
+};
+
+export type AdjustEasyInvoiceInput = {
+	xmlData?: string;
+	invoiceData?: AdjustInvoiceData;
+	invoice?: Pick<EasyInvoiceItem, "Ikey" | "Pattern" | "Serial">;
+	ikey?: string;
+	pattern?: string;
+	serial?: string;
+	relatedInvoice?: EasyInvoiceRelatedInvoice;
+};
+
+export const mapAdjustEasyInvoicePayload = (
+	input: AdjustEasyInvoiceInput,
+): AdjustEasyInvoicePayload => {
+	const ikey = input.ikey ?? input.invoice?.Ikey;
+	const pattern = input.pattern ?? input.invoice?.Pattern;
+	const serial = input.serial ?? input.invoice?.Serial;
+
+	return {
+		XmlData: input.xmlData,
+		invoiceData: input.invoiceData,
+		Ikey: ikey,
+		Pattern: pattern,
+		Serial: serial,
+		RelatedInvoice: input.relatedInvoice,
+	};
+};
+
+export const adjustEasyInvoice = async (params: AdjustEasyInvoicePayload) => {
+	try {
+		const res = await axiosInstance.post(`easyinvoice/adjustInvoice`, params);
+		return res.data;
+	} catch (error: any) {
+		if (error.response) throw error.response.data;
+		throw error;
+	}
+};
+
+export const adjustEasyInvoiceFromSource = async (
+	input: AdjustEasyInvoiceInput,
+) => {
+	const payload = mapAdjustEasyInvoicePayload(input);
+	return adjustEasyInvoice(payload);
 };

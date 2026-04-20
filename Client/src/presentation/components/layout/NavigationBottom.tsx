@@ -23,6 +23,7 @@ import {
   Platform,
 } from "react-native";
 import { he } from "react-native-paper-dates";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -42,6 +43,7 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
   setActiveTab,
 }) => {
   const { width } = Dimensions.get("window");
+  const insets = useSafeAreaInsets();
   const TAB_COUNT = 5;
   const TAB_WIDTH = width / TAB_COUNT;
   const [hdrSize, setHdrSize] = useState({ w: 0, h: 0 });
@@ -165,7 +167,17 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
   }));
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.textDark }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.textDark,
+          height: 80 + Math.max(insets.bottom, 8),
+          paddingBottom: Math.max(insets.bottom, 8),
+          bottom: Math.max(insets.bottom, 8),
+        },
+      ]}
+    >
       <View style={styles.ItemWrapper}>
         {/* Nền di chuyển dưới icon */}
         {/* <Animated.View
@@ -224,7 +236,6 @@ const NavigationBottom: React.FC<NavigationBottomProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    height: 90,
     backgroundColor: "#fff",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
@@ -232,8 +243,8 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderRadius: 30,
     position: "absolute",
-    bottom: Platform.OS === "ios" ? 0 : -10,
     alignSelf: "center",
+    paddingTop: 6,
   },
   ItemWrapper: {
     flex: 1,
@@ -246,7 +257,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 0,
     zIndex: 2,
-    paddingTop: 15,
+    paddingTop: 12,
+    justifyContent: "center",
   },
   label: {
     fontSize: 11,

@@ -1,10 +1,10 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import {
-	cancelEasyInvoice,
 	EasyInvoiceItem,
 	getEasyInvoicesByDateRange,
 	getEasyInvoicesAuto,
+	removeUnsignedEasyInvoice,
 } from "@/src/services/API/invoiceService";
 import { RootStackParamList } from "@/src/types/route";
 import { AntDesign, Feather, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -175,27 +175,34 @@ export default function EasyInvoiceListScreen() {
 		}
 	};
 
-	const handleCancel = (item: EasyInvoiceItem) => {
+	const handleRemoveUnsigned = (item: EasyInvoiceItem) => {
 		if (item.InvoiceStatus !== 0) {
-			Alert.alert("Thông báo", "Chỉ có thể hủy hóa đơn chưa phát hành.");
+			Alert.alert("Thông báo", "Chỉ có thể xóa hóa đơn chưa phát hành.");
 			return;
 		}
 		Alert.alert(
-			"Xác nhận hủy",
-			`Bạn có chắc muốn hủy hóa đơn số ${item.No || item.Ikey}?`,
+			"Xác nhận xóa",
+			`Bạn có chắc muốn xóa hóa đơn chưa phát hành ${item.No || item.Ikey}?`,
 			[
 				{ text: "Không", style: "cancel" },
 				{
-					text: "Hủy hóa đơn",
+					text: "Xóa hóa đơn",
 					style: "destructive",
 					onPress: async () => {
 						setCancelling(item.Ikey);
 						try {
-							await cancelEasyInvoice(item.Ikey);
-							Alert.alert("Thành công", "Hóa đơn đã được hủy.");
+							await removeUnsignedEasyInvoice({
+								Ikey: item.Ikey,
+								Pattern: item.Pattern,
+								Serial: item.Serial || undefined,
+							});
+							Alert.alert("Thành công", "Hóa đơn chưa phát hành đã được xóa.");
 							fetchInvoices(1);
 						} catch (err: any) {
-							Alert.alert("Lỗi", err?.message ?? "Hủy hóa đơn thất bại.");
+							Alert.alert(
+								"Lỗi",
+								err?.message ?? "Xóa hóa đơn chưa phát hành thất bại.",
+							);
 						} finally {
 							setCancelling(null);
 						}
@@ -279,7 +286,7 @@ export default function EasyInvoiceListScreen() {
 				{item.InvoiceStatus === 0 && (
 					<TouchableOpacity
 						style={styles.cancelBtn}
-						onPress={() => handleCancel(item)}
+						onPress={() => handleRemoveUnsigned(item)}
 						disabled={isCancelling}
 					>
 						{isCancelling ? (
@@ -287,7 +294,7 @@ export default function EasyInvoiceListScreen() {
 						) : (
 							<>
 								<Feather name="trash-2" size={14} color="#EF4444" />
-								<Text style={styles.cancelText}>Hủy hóa đơn</Text>
+								<Text style={styles.cancelText}>Xóa hóa đơn</Text>
 							</>
 						)}
 					</TouchableOpacity>

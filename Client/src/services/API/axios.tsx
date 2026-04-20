@@ -2,7 +2,7 @@ import axios from "axios";
 import { TokenStorage } from "../../utils/tokenStorage";
 
 // const BASE_URL = "http://eonapp.duckdns.org/api/";
-const BASE_URL = "http://192.168.1.243:3001/api/";
+const BASE_URL = "http://192.168.1.195:3001/api/";
 
 const axiosInstance = axios.create({
 	baseURL: BASE_URL,

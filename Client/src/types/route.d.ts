@@ -55,6 +55,9 @@ type RootStackParamList = {
 	EasyInvoiceDetailScreen: {
 		invoice: import("../services/API/invoiceService").EasyInvoiceItem;
 	};
+	EasyInvoiceAdjustScreen: {
+		invoice: import("../services/API/invoiceService").EasyInvoiceItem;
+	};
 	ExportInvoiceDetailScreen: { invoiceDetail: ExportInvoiceDetailParams };
 	FilterDateTotalTaxScreen: undefined;
 	StoreScreen: undefined;

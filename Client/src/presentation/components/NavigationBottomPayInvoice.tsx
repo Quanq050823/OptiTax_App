@@ -4,6 +4,7 @@ import { ExportInvoiceDetailParams } from "@/src/types/invoiceExport";
 import { Product, RootStackParamList } from "@/src/types/route";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Alert,
   FlatList,
@@ -47,6 +48,7 @@ function NavigationBottomPayInvoice({
   invoiceDetail,
 }: NaviBottomPayProps) {
   const [open, setOpen] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const navigate = useAppNavigation();
 
@@ -72,9 +74,14 @@ function NavigationBottomPayInvoice({
   };
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, { bottom: Math.max(insets.bottom, 0) }]}>
       {/* Thanh bottom */}
-      <View style={styles.actionBottom}>
+      <View
+        style={[
+          styles.actionBottom,
+          { paddingBottom: 15 + Math.max(insets.bottom, 8) },
+        ]}
+      >
         {/* Hàng tổng tiền + mũi tên */}
         <TouchableOpacity
           style={styles.summaryRow}
@@ -265,7 +272,7 @@ function NavigationBottomPayInvoice({
 
 const DROPUP_BG = "#fff";
 const styles = StyleSheet.create({
-  wrapper: { position: "absolute", width: "100%", bottom: 0 },
+  wrapper: { position: "absolute", width: "100%" },
   wrOtherPay: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -275,7 +282,7 @@ const styles = StyleSheet.create({
   actionBottom: {
     backgroundColor: "#fff",
     padding: 15,
-    minHeight: 140,
+    minHeight: 120,
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
     shadowColor: "#7e7e7e",

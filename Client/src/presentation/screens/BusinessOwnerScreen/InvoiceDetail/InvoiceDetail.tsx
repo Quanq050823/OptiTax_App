@@ -1,27 +1,41 @@
 import { getLocalDate } from "@/src/presentation/Controller/FomatDate";
 import { InvoiceProduct } from "@/src/types/route";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { FlatList } from "react-native-gesture-handler";
+import { Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const InvoiceDetailScreen = ({ route }: any) => {
 	const { item, total, label } = route.params;
-	console.log(item, "Item detail");
+
+	const products: InvoiceProduct[] = item?.hdhhdvu ?? [];
+	const totalGTGT = Number(item?.totalGTGT ?? 0);
+	const totalTNCN = Number(item?.totalTNCN ?? 0);
+	const totalTax = totalGTGT + totalTNCN;
+	const totalPayment = Number(total ?? 0);
+
+	const formatMoney = (value: number) =>
+		Math.floor(Number(value || 0)).toLocaleString("vi-VN");
+
+	const renderInfoRow = (labelText: string, value?: string | number | null) => (
+		<View style={styles.infoRow} key={labelText}>
+			<Text style={styles.label}>{labelText}</Text>
+			<Text style={styles.value}>{value ? String(value) : "-"}</Text>
+		</View>
+	);
 
 	const renderHeader = () => (
-		<View style={[styles.row, styles.headerRow]}>
-			<Text style={[styles.cell, { flex: 0.7, fontWeight: "600" }]}>STT</Text>
-			<Text style={[styles.cell, { flex: 1.5, fontWeight: "600" }]}>Tên</Text>
-			<Text style={[styles.cell, { flex: 1.2, fontWeight: "600" }]}>ĐVT</Text>
-			<Text style={[styles.cell, { flex: 0.7, fontWeight: "600" }]}>SL</Text>
-			<Text style={[styles.cell, { flex: 1.2, fontWeight: "600" }]}>
+		<View style={[styles.tableRow, styles.tableHeaderRow]}>
+			<Text style={[styles.tableCell, styles.colIndex, styles.headerCell]}>STT</Text>
+			<Text style={[styles.tableCell, styles.colName, styles.headerCell]}>Tên</Text>
+			<Text style={[styles.tableCell, styles.colUnit, styles.headerCell]}>ĐVT</Text>
+			<Text style={[styles.tableCell, styles.colQty, styles.headerCell]}>SL</Text>
+			<Text style={[styles.tableCell, styles.colMoney, styles.headerCell]}>
 				Đơn giá
 			</Text>
-			<Text style={[styles.cell, { flex: 1.5, fontWeight: "600" }]}>
+			<Text style={[styles.tableCell, styles.colMoney, styles.headerCell]}>
 				Thành tiền
 			</Text>
-			<Text style={[styles.cell, { flex: 1, fontWeight: "600" }]}>GTGT</Text>
-			<Text style={[styles.cell, { flex: 1, fontWeight: "600" }]}>TNCN</Text>
+			<Text style={[styles.tableCell, styles.colTax, styles.headerCell]}>GTGT</Text>
+			<Text style={[styles.tableCell, styles.colTax, styles.headerCell]}>TNCN</Text>
 		</View>
 	);
 
@@ -33,235 +47,230 @@ const InvoiceDetailScreen = ({ route }: any) => {
 		index: number;
 	}) => {
 		return (
-			<View
-				key={item._id || index}
-				style={[styles.row, { paddingHorizontal: 10, backgroundColor: "#fff" }]}
-			>
-				<Text style={[styles.cell, { flex: 0.7 }]}>{index + 1}</Text>
-				<Text style={[styles.cell, { flex: 1.5, fontWeight: "600" }]}>
+			<View key={item._id || index} style={styles.tableRow}>
+				<Text style={[styles.tableCell, styles.colIndex]}>{index + 1}</Text>
+				<Text style={[styles.tableCell, styles.colName, styles.strongCell]}>
 					{item.ten}
 				</Text>
-				<Text style={[styles.cell, { flex: 1.2 }]}>{item.dvtinh}</Text>
-				<Text style={[styles.cell, { flex: 0.7 }]}>
+				<Text style={[styles.tableCell, styles.colUnit]}>{item.dvtinh}</Text>
+				<Text style={[styles.tableCell, styles.colQty]}>
 					{Number(item.sluong) % 1 === 0
 						? Number(item.sluong)
 						: Number(item.sluong).toString()}
 				</Text>
-				<Text style={[styles.cell, { flex: 1.2 }]}>
-					{Math.floor(Number(item.dgia ?? 0)).toLocaleString("vi-VN")}
+				<Text style={[styles.tableCell, styles.colMoney]}>
+					{formatMoney(Number(item.dgia ?? 0))}
 				</Text>
-				<Text style={[styles.cell, { flex: 1.5 }]}>
-					{Math.floor(Number(item.thtien ?? 0)).toLocaleString("vi-VN")}
+				<Text style={[styles.tableCell, styles.colMoney]}>
+					{formatMoney(Number(item.thtien ?? 0))}
 				</Text>
-				<Text style={[styles.cell, { flex: 1 }]}>
-					{Number(item.gtgt ?? 0).toLocaleString("vi-VN")}
+				<Text style={[styles.tableCell, styles.colTax]}>
+					{formatMoney(Number(item.gtgt ?? 0))}
 				</Text>
-				<Text style={[styles.cell, { flex: 1 }]}>
-					{Number(item.tncn ?? 0).toLocaleString("vi-VN")}
+				<Text style={[styles.tableCell, styles.colTax]}>
+					{formatMoney(Number(item.tncn ?? 0))}
 				</Text>
 			</View>
 		);
 	};
 
 	return (
-		<>
-			<FlatList
-				data={item?.hdhhdvu ?? []}
-				renderItem={renderItem}
-				keyExtractor={(item, index) => index.toString()}
-				ListFooterComponent={
-					<View style={styles.container}>
-						<View style={[styles.card, { padding: 10 }]}>
-							<View style={styles.flexLabel}>
-								<Text style={styles.label}>Tổng tiền thuế:</Text>
-								<Text style={styles.value}>
-									{(item?.totalGTGT + item?.totalTNCN).toLocaleString("vi-VN")}{" "}
-									đ
-								</Text>
-							</View>
-							<View style={styles.flexLabel}>
-								<Text style={styles.label}>Tổng thuế GTGT:</Text>
-								<Text style={styles.value}>
-									{item?.totalGTGT.toLocaleString("vi-VN")} đ
-								</Text>
-							</View>
-							<View style={styles.flexLabel}>
-								<Text style={styles.label}>Tổng thuế TNCN:</Text>
-								<Text style={styles.value}>
-									{item?.totalTNCN.toLocaleString("vi-VN")} đ
-								</Text>
-							</View>
-							<View style={[styles.flexLabel]}>
-								<Text style={styles.label}>Tổng tiền thanh toán:</Text>
-								<Text style={[styles.value, styles.money]}>
-									{total.toLocaleString("vi-VN")} đ
-								</Text>
-							</View>
-						</View>
-					</View>
-				}
-				ListHeaderComponent={
-					<View style={styles.container}>
-						<View style={[styles.card, { padding: 10 }]}>
-							<Text
-								style={{
-									textAlign: "center",
-									fontWeight: "700",
-									fontSize: 17,
-									marginBottom: 20,
-								}}
-							>
-								{label}
-							</Text>
-							<View style={styles.flexLabel}>
-								<Text style={styles.label}>Mã HĐ:</Text>
-								<Text style={styles.value}>{item.mhdon}</Text>
-							</View>
-							<View style={styles.flexLabel}>
-								<Text style={styles.label}>Ký hiệu HĐ:</Text>
-								<Text style={styles.value}>{item.khhdon}</Text>
-							</View>
-							<View style={styles.flexLabel}>
-								<Text style={styles.label}>Số HĐ:</Text>
-								<Text style={styles.value}>{item.shdon}</Text>
-							</View>
-							<View style={styles.flexLabel}>
-								<Text style={styles.label}>Mẫu HĐ:</Text>
-								<Text style={styles.value}>{item.khmshdon}</Text>
-							</View>
-							<View style={styles.flexLabel}>
-								<Text style={styles.label}>Ngày lập:</Text>
-								<Text style={styles.value}>
-									{item.ncnhat ? getLocalDate(item.ncnhat) : ""}
-								</Text>
-							</View>
-							<View style={styles.flexLabel}>
-								<Text style={styles.label}>Tên người bán:</Text>
-								<Text style={styles.value}>{item.nbten}</Text>
-							</View>
-							<View style={styles.flexLabel}>
-								<Text style={styles.label}>Mã số thuế:</Text>
-								<Text style={styles.value}>{item.nbmst}</Text>
-							</View>
-							<View style={styles.flexLabel}>
-								<Text style={styles.label}>Địa chỉ:</Text>
-								<Text style={styles.value}>{item.nbdchi}</Text>
-							</View>
+		<ScrollView style={styles.container} contentContainerStyle={styles.contentWrap}>
+			<View style={styles.titleWrap}>
+				<Text style={styles.title}>{label}</Text>
+			</View>
 
-							<View style={styles.line}></View>
-							<View style={[styles.flexLabel, { marginTop: 20 }]}>
-								<Text style={styles.label}>Tên người mua:</Text>
-								<Text style={styles.value}>{item.nmten}</Text>
-							</View>
+			<View style={styles.card}>
+				<Text style={styles.cardTitle}>Thông tin hóa đơn</Text>
+				{renderInfoRow("Mã HĐ", item.mhdon)}
+				{renderInfoRow("Ký hiệu HĐ", item.khhdon)}
+				{renderInfoRow("Số HĐ", item.shdon)}
+				{renderInfoRow("Mẫu HĐ", item.khmshdon)}
+				{renderInfoRow("Ngày lập", item.ncnhat ? getLocalDate(item.ncnhat) : "")}
+			</View>
 
-							<View style={[styles.flexLabel]}>
-								<Text style={styles.label}>Mã số thuế:</Text>
-								<Text style={styles.value}>{item.nmmst}</Text>
+			<View style={styles.card}>
+				<Text style={styles.cardTitle}>Người bán</Text>
+				{renderInfoRow("Tên người bán", item.nbten)}
+				{renderInfoRow("Mã số thuế", item.nbmst)}
+				{renderInfoRow("Địa chỉ", item.nbdchi)}
+			</View>
+
+			<View style={styles.card}>
+				<Text style={styles.cardTitle}>Người mua</Text>
+				{renderInfoRow("Tên người mua", item.nmten)}
+				{renderInfoRow("Mã số thuế", item.nmmst)}
+				{renderInfoRow("Địa chỉ", item.nmdchi)}
+				{renderInfoRow("HTTT", item.thtttoan)}
+			</View>
+
+			<View style={styles.card}>
+				<Text style={styles.sectionTitle}>Chi tiết sản phẩm</Text>
+				<ScrollView horizontal showsHorizontalScrollIndicator>
+					<View style={styles.tableWrap}>
+						{renderHeader()}
+						{products.length > 0 ? (
+							products.map((product, index) =>
+								renderItem({ item: product, index }),
+							)
+						) : (
+							<View style={styles.emptyRow}>
+								<Text style={styles.emptyText}>Không có dữ liệu sản phẩm</Text>
 							</View>
-							<View style={[styles.flexLabel]}>
-								<Text style={styles.label}>Địa chỉ:</Text>
-								<Text style={styles.value}>{item.nmdchi}</Text>
-							</View>
-							<View
-								style={[styles.flexLabel, { justifyContent: "space-between" }]}
-							>
-								<View
-									style={{
-										flexDirection: "row",
-										flex: 1,
-									}}
-								>
-									<Text style={[styles.label, { marginRight: 0, flex: 1 }]}>
-										HTTT:
-									</Text>
-									<Text style={styles.value}>{item.thtttoan}</Text>
-								</View>
-							</View>
-						</View>
-						<View style={[styles.card, { marginTop: 20 }]}>
-							<Text style={styles.sectionTitle}>Chi tiết sản phẩm</Text>
-							{renderHeader()}
-						</View>
+						)}
 					</View>
-				}
-			/>
-		</>
+				</ScrollView>
+			</View>
+
+			<View style={styles.card}>
+				<Text style={styles.cardTitle}>Tổng hợp thanh toán</Text>
+				{renderInfoRow("Tổng tiền thuế", `${formatMoney(totalTax)} đ`)}
+				{renderInfoRow("Tổng thuế GTGT", `${formatMoney(totalGTGT)} đ`)}
+				{renderInfoRow("Tổng thuế TNCN", `${formatMoney(totalTNCN)} đ`)}
+				<View style={styles.totalBox}>
+					<Text style={styles.totalLabel}>Tổng tiền thanh toán</Text>
+					<Text style={styles.totalValue}>{formatMoney(totalPayment)} đ</Text>
+				</View>
+			</View>
+		</ScrollView>
 	);
 };
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: "#f4f6f9",
-		paddingTop: 15,
+		backgroundColor: "#F4F7FB",
+	},
+	contentWrap: {
+		padding: 14,
+		paddingBottom: 24,
+		gap: 12,
+	},
+	titleWrap: {
+		paddingVertical: 4,
 	},
 	title: {
-		fontSize: 22,
-		fontWeight: "bold",
-		marginBottom: 16,
+		fontSize: 20,
+		fontWeight: "700",
 		textAlign: "center",
-		color: "#333",
+		color: "#0F172A",
 	},
 	card: {
 		backgroundColor: "#fff",
-		borderRadius: 5,
+		borderRadius: 14,
 		shadowColor: "#000",
-		shadowOpacity: 0.1,
-		shadowRadius: 6,
-		elevation: 3,
-		paddingBottom: 0,
-		alignItems: "center",
+		shadowOpacity: Platform.OS === "ios" ? 0.07 : 0,
+		shadowRadius: 8,
+		shadowOffset: { width: 0, height: 3 },
+		elevation: Platform.OS === "android" ? 2 : 0,
+		padding: 12,
 	},
-	flexLabel: {
+	cardTitle: {
+		fontSize: 15,
+		fontWeight: "700",
+		color: "#0F172A",
+		marginBottom: 10,
+	},
+	infoRow: {
 		flexDirection: "row",
 		justifyContent: "space-between",
-		marginBottom: 20,
+		alignItems: "flex-start",
+		paddingVertical: 8,
+		borderBottomWidth: 1,
+		borderBottomColor: "#EEF2F7",
 	},
 	label: {
-		fontSize: 14,
+		fontSize: 13,
 		fontWeight: "600",
-		color: "#555",
-		marginRight: 6,
+		color: "#64748B",
+		marginRight: 10,
 		flex: 1,
 	},
 	value: {
-		fontSize: 16,
-		color: "#111",
+		fontSize: 14,
+		color: "#0F172A",
 		fontWeight: "600",
 		flex: 2,
 		flexShrink: 1,
 		textAlign: "right",
 	},
-	money: {
-		color: "#e67e22",
-		fontWeight: "bold",
-	},
 	sectionTitle: {
-		fontSize: 18,
-		fontWeight: "bold",
-		marginBottom: 8,
-		color: "#222",
-		marginTop: 10,
+		fontSize: 15,
+		fontWeight: "700",
+		marginBottom: 10,
+		color: "#0F172A",
 	},
-
-	row: {
+	tableWrap: {
+		minWidth: 760,
+	},
+	tableRow: {
 		flexDirection: "row",
 		borderBottomWidth: 1,
-		borderColor: "#eee",
-		paddingVertical: 6,
+		borderColor: "#E8EDF3",
+		paddingVertical: 8,
+		paddingHorizontal: 6,
 	},
-	headerRow: {
-		backgroundColor: "#f2f2f2",
-		marginTop: 15,
-		paddingHorizontal: 5,
+	tableHeaderRow: {
+		backgroundColor: "#F8FAFC",
+		borderTopWidth: 1,
+		borderTopColor: "#E8EDF3",
 	},
-	cell: {
+	tableCell: {
 		fontSize: 12,
+		color: "#0F172A",
+		paddingHorizontal: 4,
 	},
-	line: {
-		borderBottomWidth: 1,
-		borderColor: "#d8d8d8ff",
-		width: "100%",
+	headerCell: {
+		fontWeight: "700",
+		color: "#334155",
+	},
+	strongCell: {
+		fontWeight: "600",
+	},
+	colIndex: {
+		width: 40,
+	},
+	colName: {
+		width: 170,
+	},
+	colUnit: {
+		width: 90,
+	},
+	colQty: {
+		width: 60,
+	},
+	colMoney: {
+		width: 120,
+	},
+	colTax: {
+		width: 90,
+	},
+	emptyRow: {
+		paddingVertical: 14,
+		alignItems: "center",
+	},
+	emptyText: {
+		fontSize: 13,
+		color: "#64748B",
+	},
+	totalBox: {
+		marginTop: 12,
+		padding: 12,
+		borderRadius: 12,
+		backgroundColor: "#FFF7ED",
+		borderWidth: 1,
+		borderColor: "#FED7AA",
+	},
+	totalLabel: {
+		fontSize: 13,
+		color: "#9A3412",
+		fontWeight: "600",
+		marginBottom: 4,
+	},
+	totalValue: {
+		fontSize: 18,
+		color: "#C2410C",
+		fontWeight: "800",
 	},
 });
 
