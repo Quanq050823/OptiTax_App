@@ -1,8 +1,8 @@
 import axios from "axios";
 import { TokenStorage } from "../../utils/tokenStorage";
 
-const BASE_URL = "http://eonapp.duckdns.org/api/";
-// const BASE_URL = "http://192.168.137.152:3001/api/";
+const BASE_URL = "https://eonapp.duckdns.org/api/";
+// const BASE_URL = "http://172.16.0.108:3001/api/";
 
 const axiosInstance = axios.create({
 	baseURL: BASE_URL,
@@ -46,5 +46,5 @@ axiosPrivate.interceptors.request.use(
 	},
 	(error) => {
 		return Promise.reject(error);
-	}
+	},
 );

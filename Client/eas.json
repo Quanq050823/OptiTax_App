@@ -1,0 +1,49 @@
+{
+	"cli": {
+		"version": ">= 5.0.0",
+		"appVersionSource": "local"
+	},
+	"build": {
+		"development": {
+			"developmentClient": true,
+			"distribution": "internal",
+			"android": {
+				"buildType": "apk"
+			},
+			"node": "22.11.0"
+		},
+		"preview": {
+			"distribution": "internal",
+			"android": {
+				"buildType": "apk"
+			},
+			"env": {
+				"APP_ENV": "preview",
+				"EXPO_PUBLIC_API_URL": "https://eonapp.duckdns.org/api/",
+				"NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+			},
+			"node": "22.11.0",
+			"cache": {
+				"disabled": true
+			}
+		},
+		"production": {
+			"android": {
+				"buildType": "app-bundle"
+			},
+			"env": {
+				"APP_ENV": "production",
+				"NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+			},
+			"node": "22.11.0"
+		}
+	},
+	"submit": {
+		"production": {
+			"android": {
+				"serviceAccountKeyPath": "./google-play-service-account.json",
+				"track": "internal"
+			}
+		}
+	}
+}
