@@ -23,6 +23,7 @@ import {
 import { CapchaInfo, InvoiceSummary, RawInvoice } from "@/src/types/invoiceIn";
 import { Invoice, Profile, UserProfile } from "@/src/types/route";
 import { syncDataInvoiceIn } from "@/src/types/syncData";
+import { GdtTokenStorage } from "@/src/utils/tokenStorage";
 import {
 	AntDesign,
 	Entypo,
@@ -112,51 +113,72 @@ function InvoiceInput() {
 
 	const handleGetCapcha = async () => {
 		setLoading(true);
-
 		try {
-			if (!data?.taxCode || !data?.password) {
-				Alert.alert("Không có thông tin đăng nhập");
-				throw new Error("Thiếu mã số thuế hoặc mật khẩu");
+			// Kiểm tra GDT token còn hạn (24h) → bỏ qua bước captcha
+			const cachedToken = await GdtTokenStorage.get();
+			if (cachedToken) {
+				const syncRes = await syncInvoiceIn(cachedToken);
+				const { sync = 0, skip = 0, fail = 0 } = (syncRes as any) ?? {};
+				Alert.alert(
+					"Đồng bộ hoàn tất",
+					`Mới: ${sync}  |  Đã có: ${skip}  |  Lỗi: ${fail}`,
+				);
+				const updated = await getInvoiceIn();
+				setListInvoiceDataSync(updated);
+				return;
 			}
 
-			const res = await getCapcha(data.taxCode, data.password);
-
+			const res = await getCapcha();
 			setDataVerifyCapcha(res);
 			setVisible(true);
-			setLoading(false);
 		} catch (err) {
-			Alert.alert("Lỗi lấy dữ liệu!");
+			Alert.alert("Lỗi lấy captcha!");
 		} finally {
-			setLoading(false); // 👈 luôn chạy
+			setLoading(false);
 		}
 	};
 
 	const handleVerifyCapchaSync = async () => {
 		setLoading(true);
 		try {
-			if (!dataVerifyCapcha?.sessionId || !capchaCode) {
-				Alert.alert("Sai captcha hoặc sessionId");
+			if (!dataVerifyCapcha?.ckey || !capchaCode) {
+				Alert.alert("Vui lòng nhập mã captcha");
+				return;
+			}
+			if (!data?.taxCode || !data?.password) {
+				Alert.alert("Không có thông tin đăng nhập");
 				return;
 			}
 
-			const res = await verifyCapchaInput(
-				dataVerifyCapcha.sessionId,
+			const authRes = await verifyCapchaInput(
+				data.taxCode,
+				data.password,
 				capchaCode,
-				"input",
+				dataVerifyCapcha.ckey,
 			);
 
-			console.log("VERIFY CAPTCHA RES:", res);
+			const gdtToken = authRes.token;
+			await GdtTokenStorage.save(gdtToken);
+			const syncRes = await syncInvoiceIn(gdtToken);
 
-			const total = res?.invoices?.datas?.length ?? 0;
-			Alert.alert(`Số hóa đơn: ${total}`);
 			setCapchacode("");
+			setVisible(false);
+			setSelecDateCpn(false);
+
+			const { sync = 0, skip = 0, fail = 0 } = (syncRes as any) ?? {};
+			Alert.alert(
+				"Đồng bộ hoàn tất",
+				`Mới: ${sync}  |  Đã có: ${skip}  |  Lỗi: ${fail}`,
+			);
+
+			// Tải lại danh sách
+			const updated = await getInvoiceIn();
+			setListInvoiceDataSync(updated);
 		} catch (err: any) {
 			console.log("HANDLE VERIFY ERROR:", err);
-			console.log("MESSAGE:", err?.response?.data?.message);
-
 			Alert.alert(
 				"Lỗi",
-				err?.response?.data?.message ?? "Xác thực captcha thất bại",
+				err?.message ?? "Xác thực captcha hoặc đồng bộ thất bại",
 			);
 		} finally {
 			setLoading(false);
@@ -272,8 +294,7 @@ function InvoiceInput() {
 				visible={visible}
 				setCapchacode={setCapchacode}
 				capchaCode={capchaCode}
-				setVisible={setVisible}
-				onSyncInvoiceIn={handleVerifyCapchaSync}
+				setVisible={setVisible}			onSyncInvoiceOut={handleVerifyCapchaSync}				onSyncInvoiceIn={handleVerifyCapchaSync}
 				loading={loading}
 				setLoading={setLoading}
 				onGetCaptcha={handleGetCapcha}

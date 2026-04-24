@@ -75,11 +75,11 @@ const mapInvoiceToSummary = (item: any): InvoiceSummary => ({
 	trangThaiHoaDon: item.tthaibchu,
 });
 
-export const syncInvoiceIn = async (): Promise<InvoiceListResponse> => {
+export const syncInvoiceIn = async (gdtToken: string): Promise<InvoiceListResponse> => {
 	try {
 		const url = "invoices-in/sync-list-invoice-detail";
 
-		const res = await axiosInstance.post<InvoiceListResponse>(url);
+		const res = await axiosInstance.post<InvoiceListResponse>(url, { gdtToken });
 
 
 		return res.data;
@@ -131,13 +131,12 @@ export const getInvoiceInById = async (
 };
 
 
-export const getCapcha = async (username: string, password: string): Promise<CapchaInfo> => {
-	try{
-		
-		const res = await axiosInstance.post<CapchaInfo>(`invoice-sync/captcha`, {username, password})
+export const getCapcha = async (): Promise<CapchaInfo> => {
+	try {
+		const res = await axiosInstance.post<CapchaInfo>(`invoice-sync/captcha`)
 
 		return res.data
-	}catch (error: any) {
+	} catch (error: any) {
 		if (error.response) {
 			throw error.response.data;
 		}
@@ -146,20 +145,15 @@ export const getCapcha = async (username: string, password: string): Promise<Cap
 }	
 
 export const verifyCapchaInput = async (
-  sessionId: string,
-  captcha: string,
-  invoiceType: string,
-  startDate: Date
+  username: string,
+  password: string,
+  cvalue: string,
+  ckey: string
 ): Promise<InvoiceSyncResponse> => {
   try {
     const res = await axiosInstance.post<InvoiceSyncResponse>(
       "invoice-sync/login",
-      {
-        sessionId,
-        captcha,
-        invoiceType,
-		startDate,
-      }
+      { username, password, cvalue, ckey }
     );
 
     console.log("VERIFY SUCCESS:", res.data);
@@ -169,7 +163,6 @@ export const verifyCapchaInput = async (
     console.log("VERIFY ERROR RESPONSE:", error?.response?.data);
     console.log("VERIFY ERROR STATUS:", error?.response?.status);
 
-    // ✅ LUÔN throw error gốc
     throw error;
   }
 };

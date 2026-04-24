@@ -206,21 +206,15 @@ export type FormGetCapcha = {
 }
 
 export type CapchaInfo = {
-  success: boolean,
-  sessionId: string,
-  captchaImage: string
-}
-
+  success: boolean;
+  ckey: string;
+  captchaImage: string;
+};
 
 export interface InvoiceSyncResponse {
   success: boolean;
   message: string;
-  invoices: {
-    datas: Invoice[];
-    total: number;
-    state: any;
-    time: number;
-  };
+  token: string;
 }
 
 export interface Invoice {

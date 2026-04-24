@@ -4,8 +4,13 @@ import {
 } from "@/src/presentation/components/colors";
 import ModalSyncDashBoard from "@/src/presentation/components/Modal/ModalSyncDashBoard";
 import ModalFilterPeriod from "@/src/presentation/components/Modal/ModalFilterPeriod";
-import { syncInvoiceIn } from "@/src/services/API/syncInvoiceIn";
-import { InvoiceListResponse, InvoiceSummary } from "@/src/types/invoiceIn";
+import {
+  getCapcha,
+  getInvoiceIn,
+  syncInvoiceIn,
+  verifyCapchaInput,
+} from "@/src/services/API/syncInvoiceIn";
+import { CapchaInfo, InvoiceListResponse, InvoiceSummary } from "@/src/types/invoiceIn";
 import { ProductInventoryList } from "@/src/types/storage";
 import {
   AntDesign,
@@ -28,6 +33,7 @@ import {
 } from "react-native";
 import ModalSynchronized from "./Modal/ModalSynchronized";
 import { syncDataInvoiceIn } from "@/src/types/syncData";
+import { GdtTokenStorage } from "@/src/utils/tokenStorage";
 import { syncProduct } from "@/src/services/API/storageService";
 import LoadingScreen from "./Loading/LoadingScreen";
 import { LinearGradient } from "expo-linear-gradient";
@@ -41,6 +47,12 @@ export default function Analytics() {
   const navigate = useAppNavigation();
   const [visiSync, setVisiSync] = useState(false);
   const [hdrSize, setHdrSize] = useState({ w: 0, h: 0 });
+  const [modalSyncDate, setModalSyncDate] = useState(false);
+  const [selectDateCpn, setSelecDateCpn] = useState(false);
+  const [capchaCode, setCapchacode] = useState("");
+  const [dataVerifyCapcha, setDataVerifyCapcha] = useState<
+    CapchaInfo | undefined
+  >(undefined);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(50)).current;
@@ -53,11 +65,9 @@ export default function Analytics() {
   const [syncDataInvoiceIn, setSyncDataInvoiceIn] = useState<syncDataInvoiceIn>(
     { dateto: "", datefrom: "" }
   );
-  const [modalSyncDate, setModalSyncDate] = useState(false);
   const [dataSyncInvoice, setDataSyncInvoice] = useState<
     InvoiceListResponse | undefined
   >();
-  const [capchaCode, setCapchacode] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [totalGTGT, setTotalGTGT] = useState(0);
@@ -172,39 +182,81 @@ export default function Analytics() {
     setIsUpdating(true);
     Animated.timing(spinValue, {
       toValue: 1,
-      duration: 3000, // quay 3 giây
+      duration: 3000,
       easing: Easing.linear,
       useNativeDriver: true,
     }).start(() => {
       spinValue.setValue(0);
-      // setIsUpdating(false);
     });
     try {
-      const resultSyncInvoiceIn = await syncInvoiceIn();
-      setDataSyncInvoice(resultSyncInvoiceIn);
-      setVisiSync(true);
-      await fetchTaxSummary();
-      setLoading(false);
+      // Kiểm tra GDT token còn hạn (24h) → bỏ qua bước captcha
+      const cachedToken = await GdtTokenStorage.get();
+      if (cachedToken) {
+        const syncRes = await syncInvoiceIn(cachedToken);
+        setDataSyncInvoice(syncRes as any);
+        setModalSyncDate(false);
+        setVisiSync(true);
+        await fetchTaxSummary();
+        return;
+      }
+
+      const res = await getCapcha();
+      setDataVerifyCapcha(res);
+      setSelecDateCpn(true);
+      setModalSyncDate(true);
     } catch (e) {
-      Alert.alert("Không thể đồng bộ hóa đơn!!");
+      console.error("Error starting sync:", e);
+      Alert.alert("Không thể lấy captcha, vui lòng thử lại!");
+    } finally {
       setLoading(false);
-      console.log(e);
     }
-    setLoading(false);
   };
 
-  const syncDataInvoiceInWithProductStorage = async () => {
+  const handleGetCapchaAnalytics = async () => {
     setLoading(true);
     try {
-      setVisiSync(true);
-      setModalSyncDate(false);
-      const resultSyncInvoiceIn = await syncInvoiceIn();
-      setDataSyncInvoice(resultSyncInvoiceIn);
-      console.log(resultSyncInvoiceIn, "láldalsdadaw");
-
-      setLoading(false);
+      const res = await getCapcha();
+      setDataVerifyCapcha(res);
+      setSelecDateCpn(true);
     } catch (e) {
-      console.log(e);
+      Alert.alert("Không thể lấy captcha!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSyncWithCaptcha = async () => {
+    setLoading(true);
+    try {
+      if (!dataVerifyCapcha?.ckey || !capchaCode) {
+        Alert.alert("Vui lòng nhập mã captcha");
+        return;
+      }
+      const { BusinessInforAuth } = await import("@/src/services/API/profileService");
+      const profile = await BusinessInforAuth();
+
+      const authRes = await verifyCapchaInput(
+        profile.taxCode,
+        profile.password,
+        capchaCode,
+        dataVerifyCapcha.ckey,
+      );
+
+      const gdtToken = authRes.token;
+      await GdtTokenStorage.save(gdtToken);
+      const syncRes = await syncInvoiceIn(gdtToken);
+
+      setCapchacode("");
+      setModalSyncDate(false);
+      setSelecDateCpn(false);
+      setDataSyncInvoice(syncRes as any);
+      setVisiSync(true);
+      await fetchTaxSummary();
+    } catch (e: any) {
+      Alert.alert("Lỗi", e?.message ?? "Đồng bộ thất bại");
+    } finally {
+      setLoading(false);
+      setIsUpdating(false);
     }
   };
   useEffect(() => {
@@ -234,16 +286,19 @@ export default function Analytics() {
         filterPeriod={filterPeriod}
         setFilterPeriod={setFilterPeriod}
       />
-      {/* <ModalSynchronized
-        setCapchacode={setCapchacode}
-        capchaCode={capchaCode}
-        loading={loading}
-        setLoading={setLoading}
-        onSyncInvoiceIn={syncDataInvoiceInWithProductStorage}
-        setSyncDataInvoiceIn={setSyncDataInvoiceIn}
+      <ModalSynchronized
+        sourceImg={dataVerifyCapcha?.captchaImage}
         visible={modalSyncDate}
         setVisible={setModalSyncDate}
-      /> */}
+        setCapchacode={setCapchacode}
+        capchaCode={capchaCode}
+        onSyncInvoiceOut={handleSyncWithCaptcha}
+        loading={loading}
+        setLoading={setLoading}
+        onGetCaptcha={handleGetCapchaAnalytics}
+        selectDateCpn={selectDateCpn}
+        setSelecDateCpn={setSelecDateCpn}
+      />
       <View style={{ width: "100%", position: "relative", flex: 1 }}>
         {/* Nút đồng bộ */}
         <LinearGradient

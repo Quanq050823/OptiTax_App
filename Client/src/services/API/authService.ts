@@ -1,5 +1,5 @@
 import axios from "./axios";
-import { TokenStorage } from "../../utils/tokenStorage";
+import { GdtTokenStorage, TokenStorage } from "../../utils/tokenStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "./axios";
 
@@ -57,6 +57,7 @@ export const logout = async (): Promise<LogoutResponse> => {
     if (!accessToken) {
       // Token không có, coi như đã logout
       await TokenStorage.removeTokens();
+      await GdtTokenStorage.clear();
       return { message: "Logout successful (no token found)" };
     }
 
@@ -68,6 +69,7 @@ export const logout = async (): Promise<LogoutResponse> => {
 
     // Xóa token ở client
     await TokenStorage.removeTokens();
+    await GdtTokenStorage.clear();
 
     console.log("Logout response from backend:", res.data);
 
@@ -76,6 +78,7 @@ export const logout = async (): Promise<LogoutResponse> => {
     console.error("Logout failed:", error);
     // Dù API thất bại, cũng xóa token để tránh bị login nhầm
     await TokenStorage.removeTokens();
+    await GdtTokenStorage.clear();
     return { message: "Logout failed, but tokens removed" };
   }
 };
