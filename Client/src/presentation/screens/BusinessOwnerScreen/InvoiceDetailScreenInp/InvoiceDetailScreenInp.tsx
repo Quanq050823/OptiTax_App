@@ -32,8 +32,6 @@ const InvoiceDetailScreenInp = ({ route }: any) => {
 			<Text style={[styles.tableCell, styles.colMoney, styles.headerCell]}>
 				Thành tiền
 			</Text>
-			<Text style={[styles.tableCell, styles.colTax, styles.headerCell]}>GTGT</Text>
-			<Text style={[styles.tableCell, styles.colTax, styles.headerCell]}>TNCN</Text>
 		</View>
 	);
 
@@ -62,12 +60,7 @@ const InvoiceDetailScreenInp = ({ route }: any) => {
 				<Text style={[styles.tableCell, styles.colMoney]}>
 					{formatMoney(Number(item.thtien ?? 0))}
 				</Text>
-				<Text style={[styles.tableCell, styles.colTax]}>
-					{formatMoney(Number(item.gtgt ?? 0))}
-				</Text>
-				<Text style={[styles.tableCell, styles.colTax]}>
-					{formatMoney(Number(item.tncn ?? 0))}
-				</Text>
+
 			</View>
 		);
 	};
@@ -202,7 +195,7 @@ const styles = StyleSheet.create({
 		color: "#0F172A",
 	},
 	tableWrap: {
-		minWidth: 760,
+		minWidth: 510,
 	},
 	tableRow: {
 		flexDirection: "row",
@@ -229,19 +222,19 @@ const styles = StyleSheet.create({
 		fontWeight: "600",
 	},
 	colIndex: {
-		width: 40,
+		width: 36,
 	},
 	colName: {
-		width: 170,
+		width: 255,
 	},
 	colUnit: {
-		width: 90,
-	},
-	colQty: {
 		width: 60,
 	},
+	colQty: {
+		width: 44,
+	},
 	colMoney: {
-		width: 120,
+		width: 108,
 	},
 	colTax: {
 		width: 90,
