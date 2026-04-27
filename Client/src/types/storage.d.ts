@@ -60,3 +60,65 @@ export type SyncProductInventory = {
 	successCount: number;
 	failCount: number;
 };
+
+export type SyncHistoryItem = {
+	name: string;
+	unit: string;
+	stock: number;
+	price: number;
+	action: 'created' | 'updated';
+	invoiceNumber: string;
+	invoiceDate?: string;
+	sellerName?: string;
+};
+
+export type SyncHistoryRecord = {
+	_id: string;
+	businessOwnerId: string;
+	triggeredBy?: string;
+	successCount: number;
+	failCount: number;
+	invoicesProcessed: string[];
+	items: SyncHistoryItem[];
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type SyncHistoryResponse = {
+	data: SyncHistoryRecord[];
+	total: number;
+	page: number;
+	totalPages: number;
+};
+
+export type StockLogChange = {
+	field: string;        // "name" | "unit" | "stock" | "price"
+	oldValue: any;
+	newValue: any;
+};
+
+export type StockLog = {
+	_id: string;
+	businessOwnerId: string;
+	storageItemId?: string;
+	itemName: string;
+	unit?: string;
+	quantityChanged?: number;
+	stockAfter?: number;
+	pricePerUnit?: number;
+	source: 'manual_add' | 'manual_update';
+	label: string;
+	changes?: StockLogChange[];
+	note?: string;
+	triggeredBy?: string;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type StockLogResponse = {
+	data: StockLog[];
+	total: number;
+	page: number;
+	totalPages: number;
+};
+

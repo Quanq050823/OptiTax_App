@@ -4,6 +4,8 @@ import {
 	NewProductInventory,
 	ProductInventory,
 	ProductInventoryList,
+	StockLogResponse,
+	SyncHistoryResponse,
 	SyncProductInventory,
 	UnitsNameProduct,
 } from "@/src/types/storage";
@@ -47,7 +49,9 @@ export const searchProductsInventory = async (
 
 export const createProductInventory = async (products: NewProductInventory) => {
 	try {
-		const res = await axiosInstance.post("storage-item", products);
+		const { units, ...rest } = products;
+		const payload = { ...rest, unit: units };
+		const res = await axiosInstance.post("storage-item", payload);
 
 		return res.data;
 	} catch (error: any) {
@@ -73,6 +77,34 @@ export const syncProduct = async (): Promise<SyncProductInventory> => {
 		);
 
 		return data;
+	} catch (error: any) {
+		if (error.response) {
+			throw error.response.data;
+		}
+		throw error;
+	}
+};
+
+export const getSyncHistory = async (page = 1, limit = 20): Promise<SyncHistoryResponse> => {
+	try {
+		const res = await axiosInstance.get<SyncHistoryResponse>(
+			`storage-item/sync-history?page=${page}&limit=${limit}`
+		);
+		return res.data;
+	} catch (error: any) {
+		if (error.response) {
+			throw error.response.data;
+		}
+		throw error;
+	}
+};
+
+export const getStockLogs = async (page = 1, limit = 50): Promise<StockLogResponse> => {
+	try {
+		const res = await axiosInstance.get<StockLogResponse>(
+			`storage-item/stock-logs?page=${page}&limit=${limit}`
+		);
+		return res.data;
 	} catch (error: any) {
 		if (error.response) {
 			throw error.response.data;

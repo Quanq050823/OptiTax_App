@@ -1,11 +1,12 @@
 import { ColorMain, textColorMain } from "@/src/presentation/components/colors";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useEffect, useMemo, useState } from "react";
+import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
 import {
 	Alert,
-	Button,
 	Image,
+	KeyboardAvoidingView,
 	Modal,
+	Platform,
 	Pressable,
 	ScrollView,
 	StyleSheet,
@@ -33,13 +34,9 @@ interface ModalAddProductProps {
 	onAddOrEditProductInventory: () => Promise<void>;
 	newProduct: NewProductInventory;
 	setNewProduct: React.Dispatch<React.SetStateAction<NewProductInventory>>;
-	//   setProductSynchronized?: React.Dispatch<
-	//     React.SetStateAction<InvoiceProduct[]>
-	//   >;
 	fetchData: () => void;
 	idProduct?: string | null;
 	newProductInvenEdit?: ProductInventory;
-
 	setNewProductInvenEdit: React.Dispatch<
 		React.SetStateAction<ProductInventory | undefined>
 	>;
@@ -56,293 +53,277 @@ function ModalAddProductInventory({
 	setNewProductInvenEdit,
 	newProductInvenEdit,
 }: ModalAddProductProps) {
-	const [categories, setCategories] = useState([
-		{ label: "Danh mục A", value: "a" },
-		{ label: "Danh mục B", value: "b" },
-	]);
+	const isEdit = !!idProduct;
 
-	const [unitData, setUnitData] = useState([
-		{ label: "Kg", value: "kg" },
-		{ label: "Gram", value: "g" },
-		{ label: "Ml", value: "ml" },
-		{ label: "Lít", value: "l" },
-		{ label: "Cái", value: "cai" },
-		{ label: "Thùng", value: "thung" },
-		{ label: "Lon", value: "lon" },
-	]);
-	const [value, setValue] = useState<string | null>(null);
-	const [showInput, setShowInput] = useState(false);
-	const [newCategory, setNewCategory] = useState("");
-	const [image, setImage] = useState<string | null>(null);
-	const [NameList, setNameList] = useState<UnitsNameProduct[]>([]);
-	const [unitList, setUnitList] = useState<UnitsNameProduct[]>([]);
-	const [loading, setLoading] = useState(true);
 	const [dataUnitGet, setDataUnitGet] = useState<
 		{ label: string; value: string }[]
 	>([]);
-	useEffect(() => {
-		if (!idProduct) return; // ❌ không có id thì bỏ qua
+	const [loadingUnits, setLoadingUnits] = useState(true);
 
-		const fetchProductById = async () => {
+	const setField = (key: keyof NewProductInventory, val: any) => {
+		setNewProduct((prev) => ({ ...prev, [key]: val }));
+		setNewProductInvenEdit((prev) =>
+			prev ? { ...prev, [key]: val } : prev
+		);
+	};
+
+	const pickImage = async () => {
+		const { status } =
+			await ImagePicker.requestMediaLibraryPermissionsAsync();
+		if (status !== "granted") {
+			Alert.alert("Cần quyền truy cập ảnh");
+			return;
+		}
+		const result = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: ImagePicker.MediaTypeOptions.Images,
+			allowsEditing: true,
+			aspect: [1, 1],
+			quality: 0.8,
+		});
+		if (!result.canceled) {
+			setField("imageURL", result.assets[0].uri);
+		}
+	};
+
+	useEffect(() => {
+		if (!idProduct) return;
+		const fetch = async () => {
 			try {
 				const res = await getProductsInventoryById(idProduct);
 				setNewProductInvenEdit(res);
-			} catch (error) {
-				return;
-			}
+			} catch {}
 		};
-
-		fetchProductById();
+		fetch();
 	}, [idProduct]);
-	const handleAddCategory = () => {
-		if (newCategory.trim() === "") return;
-		const newItem = { label: newCategory.trim(), value: newCategory.trim() };
-		setCategories([...categories, newItem]);
-		setNewCategory("");
-		setShowInput(false);
-		setValue(newItem.value); // chọn luôn danh mục vừa thêm
-	};
-
-	const handleCreateProductInventory = async () => {
-		try {
-			await createProductInventory(newProduct);
-			Alert.alert("Thành công", "Đã tạo nguyên liệu mới");
-			setVisible(false);
-			fetchData();
-		} catch (error: any) {
-			const errorMessage =
-				error?.message || "Vui lòng kiểm tra các trường nguyên liệu";
-			Alert.alert("Lỗi", errorMessage);
-		}
-	};
-	const pickImage = async () => {
-		// xin quyền truy cập ảnh
-		const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-		if (status !== "granted") {
-			alert("Bạn cần cấp quyền để chọn ảnh!");
-			return;
-		}
-
-		// mở thư viện ảnh
-		const result = await ImagePicker.launchImageLibraryAsync({
-			mediaTypes: ImagePicker.MediaTypeOptions.Images,
-			allowsEditing: true, // cho phép crop
-			aspect: [4, 3], // tỉ lệ crop
-			quality: 1,
-		});
-
-		if (!result.canceled) {
-			setNewProduct({
-				...newProduct,
-				imageURL: result.assets[0].uri, // cập nhật ảnh mới
-			}); // lưu uri ảnh
-			setImage(result.assets[0].uri); // lưu uri ảnh
-			setNewProductInvenEdit((prev) =>
-				prev ? { ...prev, imageURL: result.assets[0].uri } : prev
-			);
-		}
-	};
 
 	useEffect(() => {
-		const fetchUnitProduct = async () => {
-			try {
-				const res: UnitsNameProduct = await getUnitNameProduct();
-				setNameList(res.names);
-				setUnitList(res.units);
-			} catch {
-				Alert.alert("Không tìm thấy dữ liệu đơn vị tính");
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchUnitProduct();
-	}, []);
-
-	useEffect(() => {
+		if (!visible) return;
 		const fetchUnits = async () => {
+			setLoadingUnits(true);
 			try {
 				const res = await getUnitNameProduct();
-				console.log(res, "ressss");
-
-				const formattedUnits = res.units.map((u) => ({
-					label: u,
-					value: u,
-				}));
-				setDataUnitGet(formattedUnits);
-			} catch (error) {
-				console.error("Lỗi lấy đơn vị:", error);
-			}
+				setDataUnitGet(res.units.map((u) => ({ label: u, value: u })));
+			} catch {}
+			finally { setLoadingUnits(false); }
 		};
-
-		if (visible) {
-			// chỉ fetch khi modal mở
-			fetchUnits();
-		}
+		fetchUnits();
 	}, [visible]);
+
+	const currentImage =
+		newProductInvenEdit?.imageURL || newProduct.imageURL || null;
+	const categoryValue =
+		newProductInvenEdit?.category?.toString() ??
+		newProduct.category?.toString() ??
+		"1";
+	const unitValue =
+		newProductInvenEdit?.unit || newProduct.units || null;
 
 	return (
 		<Modal
 			visible={visible}
 			animationType="slide"
-			transparent={true}
+			transparent
 			onRequestClose={() => setVisible(false)}
-			style={{ zIndex: 100 }}
 		>
-			<Pressable style={styles.overlay}>
-				<View style={styles.modalContent}>
-					<ScrollView>
-						<View
-							style={{
-								flexDirection: "row",
-								justifyContent: "center",
-								position: "relative",
-								width: "100%",
-							}}
+			<KeyboardAvoidingView
+				style={{ flex: 1 }}
+				behavior={Platform.OS === "ios" ? "padding" : "height"}
+			>
+				<Pressable style={styles.overlay} onPress={() => setVisible(false)}>
+					<Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+						{/* Header */}
+						<View style={styles.header}>
+							<View style={styles.headerDrag} />
+							<View style={styles.headerRow}>
+								<Text style={styles.headerTitle}>
+									{isEdit ? "Chỉnh sửa nguyên liệu" : "Thêm nguyên liệu"}
+								</Text>
+								<TouchableOpacity
+									onPress={() => setVisible(false)}
+									hitSlop={12}
+								>
+									<MaterialIcons name="close" size={24} color="#64748B" />
+								</TouchableOpacity>
+							</View>
+						</View>
+
+						<ScrollView
+							showsVerticalScrollIndicator={false}
+							contentContainerStyle={styles.scrollContent}
+							keyboardShouldPersistTaps="handled"
 						>
-							<Text style={styles.modalText}>Tạo nguyên liệu</Text>
+							{/* Image picker */}
 							<TouchableOpacity
-								onPress={() => setVisible(false)}
-								style={{ position: "absolute", right: 10 }}
+								onPress={pickImage}
+								style={styles.imagePicker}
+								activeOpacity={0.8}
 							>
-								<MaterialIcons name="cancel" size={24} color={ColorMain} />
-							</TouchableOpacity>
-						</View>
-
-						<View style={{ marginTop: 20 }}>
-							<Text style={styles.labelInput}>Tên </Text>
-							<TextInput
-								placeholder={"Tên nguyên liệu"}
-								style={styles.input}
-								placeholderTextColor={"#9d9d9d"}
-								onChangeText={(text) => {
-									setNewProduct({ ...newProduct, name: text });
-
-									setNewProductInvenEdit((prev) =>
-										prev ? { ...prev, name: text } : prev
-									);
-								}}
-								defaultValue={newProductInvenEdit?.name}
-							/>
-						</View>
-						<View style={{ flex: 1, marginTop: 20 }}>
-							<Text style={styles.labelInput}>Đơn giá (VND) </Text>
-
-							<TextInput
-								placeholder={"VD: 10000"}
-								style={styles.input}
-								placeholderTextColor={"#9d9d9d"}
-								onChangeText={(text) => {
-									setNewProduct({ ...newProduct, price: Number(text) });
-									setNewProductInvenEdit((prev) =>
-										prev ? { ...prev, price: Number(text) } : prev
-									);
-								}}
-								value={newProduct.price?.toString()}
-							/>
-						</View>
-
-						<View style={{ marginTop: 20, flexDirection: "row", gap: 20 }}>
-							<View style={{ flex: 1 }}>
-								<Text style={styles.labelInput}>Số lượng </Text>
-								<TextInput
-									placeholder={"VD: 10000"}
-									style={styles.input}
-									placeholderTextColor={"#9d9d9d"}
-									onChangeText={(text) => {
-										setNewProduct({ ...newProduct, stock: Number(text) });
-
-										setNewProductInvenEdit((prev) =>
-											prev ? { ...prev, stock: Number(text) } : prev
-										);
-									}}
-									value={newProduct.stock?.toString()}
-								/>
-							</View>
-							<View style={{ flex: 1.5 }}>
-								<Text style={styles.labelInput}>Đơn vị tính </Text>
-								{!loading && (
-									<Dropdown
-										style={styles.dropdown}
-										data={[
-											...dataUnitGet,
-											{ label: "+ Thêm danh mục", value: "__add__" }, // item đặc biệt
-										]}
-										labelField="label"
-										valueField="value"
-										placeholder="---"
-										value={
-											newProductInvenEdit?.unit
-												? dataUnitGet.find(
-														(item) =>
-															item.label.toLowerCase().trim() ===
-															newProductInvenEdit?.unit.toLowerCase().trim()
-												  )?.value
-												: value
-										}
-										onChange={(item) => {
-											setValue(item.label);
-
-											if (item.value === "__add__") {
-												// Xử lý logic mở input hoặc modal thêm danh mục
-												console.log(dataUnitGet, "dataaaa");
-											} else {
-												setNewProduct({ ...newProduct, units: item.label });
-												//   setNewProductInvenEdit((prev) =>
-												//   prev ? { ...prev, unit: item.label } : prev
-												// );
-											}
-										}}
+								{currentImage ? (
+									<Image
+										source={{ uri: currentImage }}
+										style={styles.imagePreview}
 									/>
+								) : (
+									<View style={styles.imagePlaceholder}>
+										<Ionicons name="camera-outline" size={32} color="#94A3B8" />
+										<Text style={styles.imagePlaceholderText}>
+											Chọn ảnh nguyên liệu
+										</Text>
+									</View>
 								)}
-							</View>
-						</View>
-						{/* <View style={{ flex: 1, marginTop: 20 }}>
-              <Text style={styles.labelInput}>Số lượng</Text>
-
-              <TextInput
-                placeholder={"VD: 10000"}
-                style={styles.input}
-                placeholderTextColor={"#9d9d9d"}
-                onChangeText={(text) => {
-                  setNewProduct({ ...newProduct, stock: Number(text) });
-
-                  setNewProductInvenEdit((prev) =>
-                    prev ? { ...prev, stock: Number(text) } : prev
-                  );
-                }}
-                value={newProduct.stock.toString()}
-              />
-            </View> */}
-						<View style={{ marginTop: 20 }}>
-							{image && (
-								<Image
-									source={{ uri: image }}
-									style={{
-										width: 200,
-										height: 200,
-										marginTop: 10,
-										alignSelf: "center",
-										marginBottom: 20,
-									}}
-								/>
-							)}
-							<TouchableOpacity onPress={pickImage} style={styles.addImage}>
-								<Ionicons name="images-outline" size={24} color="black" />
-								<Text style={{ marginLeft: 10 }}>Chọn ảnh</Text>
+								<View style={styles.imageEditBadge}>
+									<AntDesign name="camera" size={14} color="#fff" />
+								</View>
 							</TouchableOpacity>
-						</View>
-						<TouchableOpacity
-							style={styles.btnSaveProduct}
-							onPress={onAddOrEditProductInventory}
-						>
-							<Text style={{ color: "#fff", fontWeight: "600" }}>
-								Lưu nguyên liệu {}
-							</Text>
-						</TouchableOpacity>
-					</ScrollView>
-				</View>
-			</Pressable>
+
+							{/* Phân loại */}
+							<View style={styles.section}>
+								<Text style={styles.sectionLabel}>Phân loại</Text>
+								<View style={styles.categoryRow}>
+									{[
+										{ label: "🥬 Nguyên liệu", value: "1" },
+										{ label: "🔧 Dụng cụ", value: "2" },
+									].map((cat) => (
+										<TouchableOpacity
+											key={cat.value}
+											style={[
+												styles.categoryBtn,
+												categoryValue === cat.value &&
+													styles.categoryBtnActive,
+											]}
+											onPress={() => setField("category", cat.value)}
+											activeOpacity={0.8}
+										>
+											<Text
+												style={[
+													styles.categoryBtnText,
+													categoryValue === cat.value &&
+														styles.categoryBtnTextActive,
+												]}
+											>
+												{cat.label}
+											</Text>
+										</TouchableOpacity>
+									))}
+								</View>
+							</View>
+
+							{/* Thông tin cơ bản */}
+							<View style={styles.section}>
+								<Text style={styles.sectionLabel}>Thông tin cơ bản</Text>
+								<View style={styles.card}>
+									<View style={styles.fieldWrap}>
+										<Text style={styles.fieldLabel}>Tên nguyên liệu *</Text>
+										<TextInput
+											style={styles.input}
+											placeholder="VD: Bột mì, Đường..."
+											placeholderTextColor="#CBD5E1"
+											value={
+												newProductInvenEdit?.name ?? newProduct.name
+											}
+											onChangeText={(t) => setField("name", t)}
+										/>
+									</View>
+									<View style={styles.divider} />
+									<View style={styles.fieldWrap}>
+										<Text style={styles.fieldLabel}>Mã vạch / Mã sản phẩm</Text>
+										<TextInput
+											style={styles.input}
+											placeholder="VD: 8858223008455"
+											placeholderTextColor="#CBD5E1"
+											value={newProduct.code ?? ""}
+											onChangeText={(t) => setField("code", t)}
+											keyboardType="default"
+										/>
+									</View>
+								</View>
+							</View>
+
+							{/* Giá & Số lượng */}
+							<View style={styles.section}>
+								<Text style={styles.sectionLabel}>Giá & Số lượng</Text>
+								<View style={styles.card}>
+									<View style={styles.fieldWrap}>
+										<Text style={styles.fieldLabel}>Đơn giá (VND)</Text>
+										<TextInput
+											style={styles.input}
+											placeholder="VD: 10000"
+											placeholderTextColor="#CBD5E1"
+											value={(() => {
+												const v = newProductInvenEdit?.price ?? newProduct.price;
+												return v ? v.toString() : "";
+											})()}
+											onChangeText={(t) => setField("price", Number(t) || 0)}
+											keyboardType="numeric"
+										/>
+									</View>
+									<View style={styles.divider} />
+									<View style={styles.rowFields}>
+										<View style={{ flex: 1 }}>
+											<Text style={styles.fieldLabel}>Số lượng</Text>
+											<TextInput
+												style={[styles.input, { marginRight: 6 }]}
+												placeholder="VD: 10"
+												placeholderTextColor="#CBD5E1"
+												value={(() => {
+												const v = newProductInvenEdit?.stock ?? newProduct.stock;
+												return v ? v.toString() : "";
+											})()}
+											onChangeText={(t) => setField("stock", Number(t) || 0)}
+												keyboardType="numeric"
+											/>
+										</View>
+										<View style={{ flex: 1.2 }}>
+											<Text style={styles.fieldLabel}>Đơn vị tính</Text>
+											<TextInput
+												style={styles.input}
+												placeholder="VD: kg, lít, cái..."
+												placeholderTextColor="#CBD5E1"
+												value={unitValue ?? ""}
+												onChangeText={(t) => {
+													setField("units", t);
+													setNewProductInvenEdit((prev) =>
+														prev ? { ...prev, unit: t } : prev
+													);
+												}}
+											/>
+										</View>
+									</View>
+								</View>
+							</View>
+
+							{/* Mô tả */}
+							<View style={styles.section}>
+								<Text style={styles.sectionLabel}>Mô tả</Text>
+								<View style={styles.card}>
+									<TextInput
+										style={[styles.input, styles.textArea]}
+										placeholder="Nhập mô tả nguyên liệu (tuỳ chọn)"
+										placeholderTextColor="#CBD5E1"
+										value={newProduct.description ?? ""}
+										onChangeText={(t) => setField("description", t)}
+										multiline
+										numberOfLines={3}
+										textAlignVertical="top"
+									/>
+								</View>
+							</View>
+
+							{/* Save */}
+							<TouchableOpacity
+								style={styles.saveBtn}
+								onPress={onAddOrEditProductInventory}
+								activeOpacity={0.85}
+							>
+								<Ionicons name="checkmark-circle" size={20} color="#fff" />
+								<Text style={styles.saveBtnText}>
+									{isEdit ? "Cập nhật" : "Lưu nguyên liệu"}
+								</Text>
+							</TouchableOpacity>
+						</ScrollView>
+					</Pressable>
+				</Pressable>
+			</KeyboardAvoidingView>
 		</Modal>
 	);
 }
@@ -350,70 +331,189 @@ function ModalAddProductInventory({
 const styles = StyleSheet.create({
 	overlay: {
 		flex: 1,
-		backgroundColor: "rgba(0,0,0,0.4)",
+		backgroundColor: "rgba(0,0,0,0.45)",
 		justifyContent: "flex-end",
+	},
+	sheet: {
+		backgroundColor: "#F8FAFC",
+		borderTopLeftRadius: 24,
+		borderTopRightRadius: 24,
+		maxHeight: "95%",
+	},
+	header: {
+		backgroundColor: "#fff",
+		borderTopLeftRadius: 24,
+		borderTopRightRadius: 24,
+		paddingHorizontal: 16,
+		paddingBottom: 12,
+		borderBottomWidth: 1,
+		borderBottomColor: "#F1F5F9",
+	},
+	headerDrag: {
+		width: 40,
+		height: 4,
+		borderRadius: 2,
+		backgroundColor: "#CBD5E1",
+		alignSelf: "center",
+		marginTop: 10,
+		marginBottom: 12,
+	},
+	headerRow: {
+		flexDirection: "row",
+		justifyContent: "space-between",
 		alignItems: "center",
 	},
-	modalContent: {
-		width: "100%",
-		backgroundColor: "#ffffffff",
-		borderRadius: 12,
-		height: "95%",
-		padding: 10,
-		paddingTop: 20,
-	},
-	modalText: {
-		fontSize: 18,
-		marginBottom: 16,
-		color: ColorMain,
+	headerTitle: {
+		fontSize: 17,
 		fontWeight: "700",
+		color: "#0F172A",
+	},
+	scrollContent: {
+		padding: 16,
+		paddingBottom: 40,
+		gap: 16,
+	},
+	imagePicker: {
+		alignSelf: "center",
+		position: "relative",
+	},
+	imagePreview: {
+		width: 110,
+		height: 110,
+		borderRadius: 16,
+		backgroundColor: "#E2E8F0",
+	},
+	imagePlaceholder: {
+		width: 110,
+		height: 110,
+		borderRadius: 16,
+		backgroundColor: "#F1F5F9",
+		borderWidth: 2,
+		borderColor: "#E2E8F0",
+		borderStyle: "dashed",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 6,
+	},
+	imagePlaceholderText: {
+		fontSize: 11,
+		color: "#94A3B8",
+		textAlign: "center",
+	},
+	imageEditBadge: {
+		position: "absolute",
+		bottom: 4,
+		right: 4,
+		backgroundColor: ColorMain,
+		borderRadius: 20,
+		width: 26,
+		height: 26,
+		alignItems: "center",
+		justifyContent: "center",
+		borderWidth: 2,
+		borderColor: "#fff",
+	},
+	section: {
+		gap: 8,
+	},
+	sectionLabel: {
+		fontSize: 13,
+		fontWeight: "600",
+		color: "#64748B",
+		textTransform: "uppercase",
+		letterSpacing: 0.5,
+		marginLeft: 4,
+	},
+	card: {
+		backgroundColor: "#fff",
+		borderRadius: 14,
+		paddingHorizontal: 14,
+		shadowColor: "#000",
+		shadowOpacity: 0.04,
+		shadowRadius: 6,
+		shadowOffset: { width: 0, height: 2 },
+		elevation: 1,
+	},
+	fieldWrap: {
+		paddingVertical: 12,
+	},
+	fieldLabel: {
+		fontSize: 12,
+		fontWeight: "600",
+		color: "#64748B",
+		marginBottom: 6,
 	},
 	input: {
-		height: 50,
-		width: "98%",
-		backgroundColor: "#fff",
-		borderRadius: 5,
-		padding: 10,
-		shadowColor: "#313131ff",
-		shadowOffset: { width: 0, height: 0.5 },
-		shadowOpacity: 0.2,
-		marginHorizontal: 5,
-		shadowRadius: 2,
-		elevation: 5,
+		fontSize: 14,
+		color: "#0F172A",
+		padding: 0,
+		minHeight: 24,
 	},
-	labelInput: {
-		textAlign: "left",
-		marginBottom: 7,
-		color: textColorMain,
-		fontWeight: "600",
+	textArea: {
+		paddingVertical: 12,
+		minHeight: 72,
+	},
+	divider: {
+		height: 1,
+		backgroundColor: "#F1F5F9",
+	},
+	rowFields: {
+		flexDirection: "row",
+		paddingVertical: 12,
+		gap: 12,
 	},
 	dropdown: {
-		height: 50,
-		borderRadius: 5,
-		paddingHorizontal: 12,
-		backgroundColor: "#fff",
-
-		shadowColor: "#555555ff",
-		shadowOffset: { width: 0, height: 0.5 },
-		shadowOpacity: 0.2,
-		marginHorizontal: 5,
-		shadowRadius: 2,
-		elevation: 5,
+		height: 32,
+		backgroundColor: "#F8FAFC",
+		borderRadius: 8,
+		paddingHorizontal: 10,
+		borderWidth: 1,
+		borderColor: "#E2E8F0",
 	},
-	btnSaveProduct: {
+	categoryRow: {
+		flexDirection: "row",
+		gap: 10,
+	},
+	categoryBtn: {
+		flex: 1,
+		paddingVertical: 10,
+		borderRadius: 12,
+		backgroundColor: "#F1F5F9",
 		alignItems: "center",
-		backgroundColor: ColorMain,
-		padding: 15,
-		marginTop: 20,
-		borderRadius: 10,
+		borderWidth: 1.5,
+		borderColor: "transparent",
 	},
-	addImage: {
+	categoryBtnActive: {
+		backgroundColor: "#FFF7ED",
+		borderColor: ColorMain,
+	},
+	categoryBtnText: {
+		fontSize: 13,
+		fontWeight: "600",
+		color: "#64748B",
+	},
+	categoryBtnTextActive: {
+		color: ColorMain,
+	},
+	saveBtn: {
 		flexDirection: "row",
 		alignItems: "center",
-		borderWidth: 1,
-		padding: 10,
 		justifyContent: "center",
-		borderRadius: 10,
+		gap: 8,
+		backgroundColor: ColorMain,
+		paddingVertical: 15,
+		borderRadius: 14,
+		marginTop: 4,
+		shadowColor: ColorMain,
+		shadowOpacity: 0.35,
+		shadowRadius: 8,
+		shadowOffset: { width: 0, height: 4 },
+		elevation: 4,
+	},
+	saveBtnText: {
+		color: "#fff",
+		fontWeight: "700",
+		fontSize: 15,
 	},
 });
 export default ModalAddProductInventory;

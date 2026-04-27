@@ -12,7 +12,6 @@ type RootStackParamList = {
 	BusinessRegistrationStepTwo: undefined;
 	ProfileBusiness: undefined;
 	LanguagesScreen: undefined;
-	ProductManager: undefined;
 	InvoiceScreen: undefined;
 	InvoiceDetailScreen: { item: Invoice; total: number; label: string };
 	InvoiceDetailScreenInp: { item: RawInvoice; total: number; label: string };
@@ -21,7 +20,7 @@ type RootStackParamList = {
 	ReceiptVoucherScreen: undefined;
 	PaymentVoucherScreen: undefined;
 	SettingScreen: undefined;
-	ProductManager: { scannedProduct?: any };
+	ProductManager: undefined;
 	CreateProductScreen: undefined;
 	EditProductScreen: { id: string };
 	Layout: undefined;
@@ -36,7 +35,7 @@ type RootStackParamList = {
 	ReportScreen: undefined;
 	InputProductsScreen: undefined;
 	CreateVoucherInputProductScreen: undefined;
-	ScanBarcodeProductScreen: undefined;
+	ScanBarcodeProductScreen: { source?: 'ProductManager' | 'InventoryManagement' } | undefined;
 
 	EditProfileScreen: undefined;
 	EditProfileBussinessStore: undefined;
@@ -49,7 +48,7 @@ type RootStackParamList = {
 	NewIngredientList: undefined;
 	ChooseReportItemScreen: undefined;
 	ChartExportScreen: undefined;
-	InventoryManagementScreen: undefined;
+	InventoryManagementScreen: { scannedProduct?: any } | undefined;
 	EasyInvoiceSettings: undefined;
 	EasyInvoiceListScreen: undefined;
 	EasyInvoiceDetailScreen: {
@@ -85,6 +84,8 @@ type RootStackParamList = {
 		};
 		invoice: { id: number; label: string; price: number; description: string };
 	};
+	SyncHistoryScreen: undefined;
+	StockLogScreen: undefined;
 };
 type Props = NativeStackScreenProps<RootStackParamList>;
 type TabType = "Trang chủ" | "Tiện ích" | "Tuỳ chọn" | "Thông báo" | "Xuất HĐ";

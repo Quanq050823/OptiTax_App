@@ -3,18 +3,15 @@ import ModalAddProduct from "@/src/presentation/components/Modal/ModalAddProduct
 import ModalEditProduct from "@/src/presentation/components/Modal/ModalEditProduct/ModalEditProduct";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { deleteProduct, getProducts } from "@/src/services/API/productService";
-import { Product, RootStackParamList } from "@/src/types/route";
+import { Product } from "@/src/types/product";
 import {
 	AntDesign,
 	Ionicons,
-	MaterialCommunityIcons,
 	MaterialIcons,
 } from "@expo/vector-icons";
 import {
 	CommonActions,
-	RouteProp,
 	useFocusEffect,
-	useRoute,
 } from "@react-navigation/native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -40,9 +37,6 @@ type NewProduct = {
 	attributes: { key: string; value: string }[];
 };
 export default function ProductManagerScreen() {
-	const route = useRoute<RouteProp<RootStackParamList, "ProductManager">>();
-	const productScan = route.params?.scannedProduct;
-
 	const navigate = useAppNavigation();
 	const [products, setProducts] = useState<Product[]>([]);
 
@@ -67,18 +61,7 @@ export default function ProductManagerScreen() {
 		stock: 0,
 		attributes: [],
 	});
-	useEffect(() => {
-		if (productScan) {
-			setVisible(true);
-			setName(productScan.name || "");
-			setCategory(
-				typeof productScan.category === "object"
-					? Object.values(productScan.category).join(", ")
-					: productScan.category || "",
-			);
-			setDescription(productScan.description);
-		}
-	}, [productScan]);
+
 	const fetchData = async () => {
 		try {
 			const data = await getProducts();
@@ -228,13 +211,6 @@ export default function ProductManagerScreen() {
 							style={styles.searchText}
 						/>
 					</View>
-					<TouchableOpacity
-						style={styles.scanBtn}
-						onPress={() => navigate.navigate("ScanBarcodeProductScreen")}
-						activeOpacity={0.7}
-					>
-						<MaterialCommunityIcons name="barcode-scan" size={22} color={ColorMain} />
-					</TouchableOpacity>
 				</View>
 			</View>
 
@@ -319,14 +295,7 @@ const styles = StyleSheet.create({
 		color: "#333",
 		paddingVertical: 0,
 	},
-	scanBtn: {
-		width: 42,
-		height: 42,
-		backgroundColor: "#f0f1f5",
-		borderRadius: 10,
-		alignItems: "center",
-		justifyContent: "center",
-	},
+
 	listContent: {
 		paddingTop: 12,
 		paddingHorizontal: 12,

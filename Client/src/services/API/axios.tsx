@@ -2,7 +2,7 @@ import axios from "axios";
 import { TokenStorage } from "../../utils/tokenStorage";
 
 // const BASE_URL = "http://eonapp.duckdns.org/api/";
-const BASE_URL = "http://172.20.10.8:3001/api/";
+const BASE_URL = "http://192.168.1.31:3001/api/";
 
 const axiosInstance = axios.create({
 	baseURL: BASE_URL,
@@ -16,7 +16,7 @@ axiosInstance.interceptors.request.use(
 			if (!config.headers) {
 				config.headers = {};
 			}
-			config.headers.Authorization = `Bearer ${accessToken}`;
+			config.headers.Authorization = `Bearer ${accessToken}`; 
 		}
 		return config;
 	},
@@ -26,8 +26,8 @@ axiosInstance.interceptors.request.use(
 );
 
 export default axiosInstance;
-
-export const axiosPrivate = axios.create({
+1000
+export const axiosPrivate = axios.create({ 
 	baseURL: BASE_URL,
 	headers: { "Content-Type": "application/json" },
 	withCredentials: true,

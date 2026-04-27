@@ -72,6 +72,8 @@ import EasyInvoiceSettings from "@/src/presentation/screens/BusinessOwnerScreen/
 import EasyInvoiceListScreen from "@/src/presentation/screens/BusinessOwnerScreen/EasyInvoiceListScreen";
 import EasyInvoiceDetailScreen from "@/src/presentation/screens/BusinessOwnerScreen/EasyInvoiceDetailScreen/index";
 import EasyInvoiceAdjustScreen from "@/src/presentation/screens/BusinessOwnerScreen/EasyInvoiceAdjustScreen/index";
+import SyncHistoryScreen from "@/src/presentation/screens/BusinessOwnerScreen/SyncHistoryScreen/SyncHistoryScreen";
+import StockLogScreen from "@/src/presentation/screens/BusinessOwnerScreen/StockLogScreen/StockLogScreen";
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const HomeLayout = () => {
 	const { data, setData } = useData(); // lấy data từ context
@@ -482,6 +484,20 @@ const HomeLayout = () => {
 					title: "Điều chỉnh hóa đơn",
 				}}
 				component={EasyInvoiceAdjustScreen}
+			/>
+			<Stack.Screen
+				name="SyncHistoryScreen"
+				options={{
+					headerShown: false,
+				}}
+				component={SyncHistoryScreen}
+			/>
+			<Stack.Screen
+				name="StockLogScreen"
+				options={{
+					headerShown: false,
+				}}
+				component={StockLogScreen}
 			/>
 		</Stack.Navigator>
 	);

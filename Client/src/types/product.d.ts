@@ -1,4 +1,5 @@
 export interface Product {
+	_id: string;
 	name: string;
 	code: string | null;
 	price: number;
@@ -7,8 +8,8 @@ export interface Product {
 	description: string;
 	category: string;
 	unit: string | null;
-	materials: materials[];
-	
+	materials?: materials[];
+	attributes?: any[];
 };
 
 type materials = {

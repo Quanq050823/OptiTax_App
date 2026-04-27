@@ -1,7 +1,7 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import { AntDesign } from "@expo/vector-icons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useState } from "react";
+import React, { useState } from "react";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 import {
@@ -309,7 +309,7 @@ function ModalAddProduct({
                 </View>
 
                 {ingredients.map((item, index) => (
-                  <>
+                  <React.Fragment key={index}>
                     <View
                       style={{
                         flexDirection: "row",
@@ -362,7 +362,7 @@ function ModalAddProduct({
                         />
                       </View>
                     </View>
-                  </>
+                  </React.Fragment>
                 ))}
                 <TouchableOpacity
                   style={{
