@@ -5,6 +5,7 @@ import {
 	ProductInventory,
 	ProductInventoryList,
 	StockLogResponse,
+	StockSummaryResponse,
 	SyncHistoryResponse,
 	SyncProductInventory,
 	UnitsNameProduct,
@@ -50,7 +51,12 @@ export const searchProductsInventory = async (
 export const createProductInventory = async (products: NewProductInventory) => {
 	try {
 		const { units, ...rest } = products;
-		const payload = { ...rest, unit: units };
+		const payload = {
+			...rest,
+			unit: units,
+			syncStatus: true,
+			category: rest.category ? Number(rest.category) : 1,
+		};
 		const res = await axiosInstance.post("storage-item", payload);
 
 		return res.data;
@@ -103,6 +109,23 @@ export const getStockLogs = async (page = 1, limit = 50): Promise<StockLogRespon
 	try {
 		const res = await axiosInstance.get<StockLogResponse>(
 			`storage-item/stock-logs?page=${page}&limit=${limit}`
+		);
+		return res.data;
+	} catch (error: any) {
+		if (error.response) {
+			throw error.response.data;
+		}
+		throw error;
+	}
+};
+
+export const getStockSummary = async (startDate?: string, endDate?: string): Promise<StockSummaryResponse> => {
+	try {
+		const params = new URLSearchParams();
+		if (startDate) params.append('startDate', startDate);
+		if (endDate) params.append('endDate', endDate);
+		const res = await axiosInstance.get<StockSummaryResponse>(
+			`storage-item/stock-summary?${params.toString()}`
 		);
 		return res.data;
 	} catch (error: any) {

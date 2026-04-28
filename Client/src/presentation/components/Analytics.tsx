@@ -486,10 +486,10 @@ export default function Analytics() {
                         <Text
                           style={{ fontSize: 13, color: "#999", marginTop: 5 }}
                         >
-                          Hạn nộp:
+                          Hạn nộp :
                           {deadlineInfo.deadline
-                            ? deadlineInfo.deadline.replace(/\./g, " . ")
-                            : "-- . -- . ----"}
+                            ? " " + deadlineInfo.deadline.replace(/\./g, ".")
+                            : " --.--.----"}
                         </Text>
                       </View>
                     ) : (
@@ -497,8 +497,8 @@ export default function Analytics() {
                         <View style={styles.deadlineLeft}>
                           <Text style={styles.deadlineDate}>
                             {deadlineInfo.deadline
-                              ? deadlineInfo.deadline.replace(/\./g, " . ")
-                              : "-- . -- . ----"}
+                              ? deadlineInfo.deadline.replace(/\./g, ".")
+                              : "--.--.----"}
                           </Text>
                         </View>
                         <View style={styles.deadlineStatusBox}>

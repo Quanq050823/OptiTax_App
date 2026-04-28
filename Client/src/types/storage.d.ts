@@ -106,7 +106,7 @@ export type StockLog = {
 	quantityChanged?: number;
 	stockAfter?: number;
 	pricePerUnit?: number;
-	source: 'manual_add' | 'manual_update';
+	source: 'manual_add' | 'manual_update' | 'manual_delete';
 	label: string;
 	changes?: StockLogChange[];
 	note?: string;
@@ -120,5 +120,22 @@ export type StockLogResponse = {
 	total: number;
 	page: number;
 	totalPages: number;
+};
+
+export type StockSummaryItem = {
+	storageItemId: string;
+	itemName: string;
+	unit: string;
+	totalAdded: number;
+	totalDeleted: number;
+	netChange: number;
+	countAdd: number;
+	countUpdate: number;
+	countDelete: number;
+	lastActivity: string;
+};
+
+export type StockSummaryResponse = {
+	data: StockSummaryItem[];
 };
 

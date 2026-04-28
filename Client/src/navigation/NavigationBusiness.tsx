@@ -89,8 +89,11 @@ const HomeLayout = () => {
 				businessName: dataBussiness?.businessName,
 				address: dataBussiness?.address,
 				phoneNumber: dataBussiness?.phoneNumber,
+				taxCode: dataBussiness?.taxCode ?? "",
+				password: dataBussiness?.password ?? "",
+				businessType: dataBussiness?.businessType ?? "",
 			});
-			setData({ ...data, ...dataBussiness });
+			setData({ ...data, ...dataBussiness, businessType: dataBussiness?.businessType ?? "" });
 		} catch (error) {
 			// Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại!");
 			Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại", [
@@ -117,11 +120,11 @@ const HomeLayout = () => {
 	}, []);
 	return (
 		<Stack.Navigator
-			screenOptions={({ route }) => ({
+			screenOptions={({ route }: { route: any; navigation: any }) => ({
 				header:
 					route.name === "ReportScreen"
 						? undefined // 👉 dùng header mặc định
-						: (props) => <HeaderNavigation {...props} />,
+						: (props: any) => <HeaderNavigation {...props} />,
 			})}
 		>
 			<Stack.Screen

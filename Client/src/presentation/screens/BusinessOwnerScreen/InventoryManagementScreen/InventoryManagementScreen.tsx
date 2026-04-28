@@ -39,7 +39,7 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
-import { CommonActions, RouteProp, useRoute } from "@react-navigation/native";
+import { CommonActions, RouteProp, useFocusEffect, useRoute } from "@react-navigation/native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -97,7 +97,7 @@ export default function InventoryManagerScreen() {
   const [productsInventory, setProductsInventory] = useState<
     ProductInventory[]
   >([]);
-  const [productInventoryNew, setProductsInventoryNew] = useState<
+  const [productInventoryNew, setProductsInventoryNew] = useState<  
     ProductInventory[]
   >([]);
   const [idEditProduct, setIdEditProduct] = useState<string>("");
@@ -154,9 +154,11 @@ export default function InventoryManagerScreen() {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    fetchDataProductInventory();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchDataProductInventory();
+    }, [])
+  );
 
   console.log(productInventoryNew.length);
 
