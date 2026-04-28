@@ -139,3 +139,17 @@ export type StockSummaryResponse = {
 	data: StockSummaryItem[];
 };
 
+export type SerpApiProduct = {
+	name: string;
+	price: number;
+	imageUrl: string | null;
+	source: 'serpapi';
+	link: string | null;
+	rating: number | null;
+	brand: string | null;
+};
+
+export type SerpApiProductResponse = {
+	data: SerpApiProduct[];
+};
+

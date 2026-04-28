@@ -4,6 +4,7 @@ import {
 	NewProductInventory,
 	ProductInventory,
 	ProductInventoryList,
+	SerpApiProductResponse,
 	StockLogResponse,
 	StockSummaryResponse,
 	SyncHistoryResponse,
@@ -146,6 +147,11 @@ export const deleteProductInventory = async (id: string) => {
 		}
 		throw error;
 	}
+};
+
+export const searchBarcodeViaSerpApi = async (barcode: string): Promise<SerpApiProductResponse> => {
+	const res = await axiosInstance.get<SerpApiProductResponse>(`barcode/search/${encodeURIComponent(barcode)}`);
+	return res.data;
 };
 
 export const updateProductInventory = async (
