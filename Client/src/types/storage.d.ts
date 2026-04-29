@@ -143,7 +143,7 @@ export type SerpApiProduct = {
 	name: string;
 	price: number;
 	imageUrl: string | null;
-	source: 'serpapi';
+	source: 'serpapi' | 'icheck' | 'google_shopping';
 	link: string | null;
 	rating: number | null;
 	brand: string | null;

@@ -183,8 +183,21 @@ function ScanBarcodeProduct() {
                   </View>
                 )}
                 <View style={styles.resultInfo}>
-                  <Text style={styles.resultName} numberOfLines={2}>{item.name}</Text>
-                  {item.brand && (
+                  <View style={styles.resultNameRow}>
+                    <Text style={styles.resultName} numberOfLines={2}>{item.name}</Text>
+                    <View style={[
+                      styles.sourceBadge,
+                      item.source === "icheck" ? styles.sourceBadgeIcheck : styles.sourceBadgeShopping,
+                    ]}>
+                      <Text style={[
+                        styles.sourceBadgeText,
+                        item.source === "icheck" ? styles.sourceBadgeTextIcheck : styles.sourceBadgeTextShopping,
+                      ]}>
+                        {item.source === "icheck" ? "iCheck" : "Shopping"}
+                      </Text>
+                    </View>
+                  </View>
+                  {item.brand && item.source !== "icheck" && (
                     <Text style={styles.resultBrand} numberOfLines={1}>{item.brand}</Text>
                   )}
                   {item.price > 0 && (
@@ -215,11 +228,11 @@ function ScanBarcodeProduct() {
               <ActivityIndicator size="large" color="#FF6B00" />
               <Text style={styles.loadingText}>
                 {loadingStep === 'serpapi'
-                  ? 'Đang tìm kiếm thêm thông tin...'
+                  ? 'Đang tìm trên iCheck & Google Shopping...'
                   : 'Đang tra cứu sản phẩm...'}
               </Text>
               {loadingStep === 'serpapi' && (
-                <Text style={styles.loadingSubText}>Tra cứu mở rộng qua Google Shopping</Text>
+                <Text style={styles.loadingSubText}>Ưu tiên iCheck → Google Shopping</Text>
               )}
             </View>
           ) : error ? (
@@ -368,11 +381,41 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 2,
   },
+  resultNameRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 6,
+    flexWrap: "wrap",
+  },
   resultName: {
     fontSize: 14,
     fontWeight: "600",
     color: "#0F172A",
     lineHeight: 20,
+    flexShrink: 1,
+  },
+  sourceBadge: {
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    marginTop: 2,
+    alignSelf: "flex-start",
+  },
+  sourceBadgeIcheck: {
+    backgroundColor: "#DCFCE7",
+  },
+  sourceBadgeShopping: {
+    backgroundColor: "#F1F5F9",
+  },
+  sourceBadgeText: {
+    fontSize: 10,
+    fontWeight: "700",
+  },
+  sourceBadgeTextIcheck: {
+    color: "#16A34A",
+  },
+  sourceBadgeTextShopping: {
+    color: "#64748B",
   },
   resultBrand: {
     fontSize: 12,
