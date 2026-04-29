@@ -9,6 +9,11 @@ export interface ProductInventory {
 		}>;
 		isActive?: boolean;
 	};
+	syncAliases?: Array<{
+		name: string;
+		unit: string;
+		conversionFactor: number;
+	}>;
 	_id: string;
 	name: string;
 	stock: number;

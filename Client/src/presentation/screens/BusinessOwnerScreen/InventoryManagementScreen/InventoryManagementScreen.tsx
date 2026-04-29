@@ -3,6 +3,7 @@ import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import ModalAddProduct from "@/src/presentation/components/Modal/ModalAddProduct/ModalAddProduct";
 import ModalAddProductInventory from "@/src/presentation/components/Modal/ModalAddProductInventory";
 import ModalEditProduct from "@/src/presentation/components/Modal/ModalEditProduct/ModalEditProduct";
+import ModalMergeItem from "@/src/presentation/components/Modal/ModalMergeItem/ModalMergeItem";
 import NewIngredientButton from "@/src/presentation/components/NewIngredientButton";
 import ScreenContainer from "@/src/presentation/components/ScreenContainer/ScreenContainer";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
@@ -18,6 +19,7 @@ import {
   getListItemStorageSynced,
   getProductsInventory,
   // getProductsInventoryByKey,
+  mergeStorageItems,
   searchProductsInventory,
   syncProduct,
   updateProductInventory,
@@ -118,6 +120,8 @@ export default function InventoryManagerScreen() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [isActive, setIsActive] = useState(false);
   const [toolsList, setToolsList] = useState<ProductInventory[]>([]);
+  const [mergeTargetItem, setMergeTargetItem] = useState<ProductInventory | null>(null);
+  const [mergingLoading, setMergingLoading] = useState(false);
   const [newProduct, setNewProduct] = useState<NewProductInventory>({
     name: "",
     units: "",
@@ -279,8 +283,34 @@ export default function InventoryManagerScreen() {
     }
   };
 
+  const handleMergeConfirm = async (duplicateId: string, conversionFactor: number) => {
+    if (!mergeTargetItem) return;
+    setMergingLoading(true);
+    try {
+      await mergeStorageItems(mergeTargetItem._id, duplicateId, conversionFactor);
+      setMergeTargetItem(null);
+      Alert.alert("Thành công", "Đã gộp nguyên liệu");
+      fetchDataProductInventory();
+    } catch (error: any) {
+      Alert.alert("Lỗi", error?.message || "Không thể gộp nguyên liệu");
+    } finally {
+      setMergingLoading(false);
+    }
+  };
+
   const renderRightActions = (item: ProductInventory) => (
     <View style={styles.rightActionContainer}>
+      <TouchableOpacity
+        style={[styles.actionBtn, styles.actionMerge]}
+        onPress={() => {
+          swipeableRefs.current.get(item._id)?.close();
+          setMergeTargetItem(item);
+        }}
+        activeOpacity={0.8}
+      >
+        <MaterialIcons name="merge-type" size={20} color="#fff" />
+        <Text style={styles.actionText}>Gộp</Text>
+      </TouchableOpacity>
       <TouchableOpacity
         style={[styles.actionBtn, styles.actionEdit]}
         onPress={() => handleOpenModalEditProduct(item._id)}
@@ -323,6 +353,11 @@ export default function InventoryManagerScreen() {
           <Text style={styles.name} numberOfLines={2}>
             {item.name}
           </Text>
+          {item.syncAliases && item.syncAliases.length > 0 && (
+            <Text style={styles.aliasText} numberOfLines={1}>
+              Tên HĐ: {item.syncAliases.map((a) => a.name).join(", ")}
+            </Text>
+          )}
           <View style={styles.tagRow}>
             <Text style={styles.stockText}>Tồn: {item.stock}</Text>
             {item.unit ? (
@@ -584,6 +619,13 @@ export default function InventoryManagerScreen() {
               idProduct={idEditProduct}
             />
           )}
+          <ModalMergeItem
+            visible={mergeTargetItem !== null}
+            masterItem={mergeTargetItem}
+            allItems={[...productsInventory, ...toolsList]}
+            onConfirm={handleMergeConfirm}
+            onClose={() => setMergeTargetItem(null)}
+          />
         </>
       ) : (
         <View>
@@ -786,7 +828,7 @@ const styles = StyleSheet.create({
   },
   textCate: { fontSize: 16, color: "#6d6d6dff" },
   rightActionContainer: {
-    width: 150,
+    width: 210,
     flexDirection: "row",
     borderTopRightRadius: 12,
     borderBottomRightRadius: 12,
@@ -801,6 +843,9 @@ const styles = StyleSheet.create({
   actionEdit: {
     backgroundColor: "#3b82f6",
   },
+  actionMerge: {
+    backgroundColor: "#0ea5e9",
+  },
   actionDelete: {
     backgroundColor: "#ef4444",
   },
@@ -808,5 +853,11 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 12,
     fontWeight: "600",
+  },
+  aliasText: {
+    fontSize: 11,
+    color: "#888",
+    marginTop: 1,
+    marginBottom: 2,
   },
 });

@@ -260,6 +260,25 @@ export const getListItemStorageNew = async () => {
 	}
 };
 
+export const mergeStorageItems = async (
+	masterId: string,
+	duplicateId: string,
+	conversionFactor: number
+): Promise<ProductInventory> => {
+	try {
+		const res = await axiosInstance.post<ProductInventory>(
+			`storage-item/${masterId}/merge`,
+			{ duplicateId, conversionFactor }
+		);
+		return res.data;
+	} catch (error: any) {
+		if (error.response) {
+			throw error.response.data;
+		}
+		throw error;
+	}
+};
+
 export const updateUnitConversion = async (
 	id: string,
 	conversionData: {
