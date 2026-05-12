@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
   FlatList,
   RefreshControl,
   SafeAreaView,
@@ -10,23 +11,19 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { PieChart } from 'react-native-chart-kit';
 import { ColorMain } from '@/src/presentation/components/colors';
 import { getListItemStorageSynced, getStockSummary } from '@/src/services/API/storageService';
-import { ProductInventory } from '@/src/types/storage';
-import { StockSummaryItem } from '@/src/types/storage';
+import { ProductInventory, StockSummaryItem } from '@/src/types/storage';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const formatPrice = (value: number) => value.toLocaleString('vi-VN') + ' ₫';
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const CHART_WIDTH = SCREEN_WIDTH - 32; // 16px padding each side
 
-const formatDate = (dateStr: string) => {
-  const d = new Date(dateStr);
-  return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1)
-    .toString()
-    .padStart(2, '0')}/${d.getFullYear()}`;
-};
+const formatPrice = (value: number) => value.toLocaleString('vi-VN') + ' ₫';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -206,6 +203,24 @@ export default function InventoryStatsScreen() {
     </View>
   );
 
+  // ─── Chart config ─────────────────────────────────────────────────────────────
+
+  const chartConfig = {
+    backgroundGradientFrom: '#fff',
+    backgroundGradientTo: '#fff',
+    decimalPlaces: 0,
+    color: (opacity = 1) => `rgba(77, 191, 153, ${opacity})`,
+    labelColor: () => '#5a5b5a',
+    barPercentage: 1,
+    propsForLabels: { fontSize: 11 },
+    formatYLabel: (v: string) => {
+      const n = parseInt(v);
+      if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'tr';
+      if (n >= 1_000) return (n / 1_000).toFixed(0) + 'k';
+      return v;
+    },
+  };
+
   // ─── Overview tab content ─────────────────────────────────────────────────────
 
   const OverviewContent = () => (
@@ -319,6 +334,87 @@ export default function InventoryStatsScreen() {
           )}
         </View>
       </View>
+
+      {/* Pie Chart — Category value split */}
+      {totalValue > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Tỷ trọng giá trị theo danh mục</Text>
+          <View style={styles.chartCard}>
+            <PieChart
+              data={[
+                {
+                  name: 'Nguyên liệu',
+                  value: Math.round(ingredientValue),
+                  color: ColorMain,
+                  legendFontColor: '#555',
+                  legendFontSize: 12,
+                },
+                {
+                  name: 'Dụng cụ',
+                  value: Math.round(toolValue) || 0.001,
+                  color: '#6366f1',
+                  legendFontColor: '#555',
+                  legendFontSize: 12,
+                },
+              ]}
+              width={CHART_WIDTH - 16}
+              height={180}
+              chartConfig={chartConfig}
+              accessor="value"
+              backgroundColor="transparent"
+              paddingLeft="10"
+              absolute={false}
+            />
+          </View>
+        </View>
+      )}
+
+      {/* Top items by value — custom horizontal bar list */}
+      {items.length > 0 && (() => {
+        const topItems = [...items]
+          .sort((a, b) => b.stock * b.price - a.stock * a.price)
+          .slice(0, 8);
+        const maxValue = topItems[0]?.stock * topItems[0]?.price || 1;
+        const RANK_COLORS = ['#f59e0b', '#94a3b8', '#cd7c3e'];
+        return (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Top mặt hàng theo giá trị</Text>
+            <View style={styles.chartCard}>
+              {topItems.map((item, idx) => {
+                const value = item.stock * item.price;
+                const ratio = value / maxValue;
+                const barColor = idx === 0 ? '#f59e0b' : idx === 1 ? '#94a3b8' : idx === 2 ? '#cd7c3e' : ColorMain;
+                return (
+                  <View key={item._id} style={styles.topItemRow}>
+                    {/* Rank badge */}
+                    <View style={[styles.rankBadge, { backgroundColor: idx < 3 ? RANK_COLORS[idx] + '20' : '#f0f0f0' }]}>
+                      <Text style={[styles.rankText, { color: idx < 3 ? RANK_COLORS[idx] : '#aaa' }]}>
+                        {idx + 1}
+                      </Text>
+                    </View>
+                    {/* Name + bar */}
+                    <View style={styles.topItemContent}>
+                      <View style={styles.topItemHeader}>
+                        <Text style={styles.topItemName} numberOfLines={1}>{item.name}</Text>
+                        <Text style={[styles.topItemValue, { color: barColor }]}>
+                          {formatPrice(value)}
+                        </Text>
+                      </View>
+                      <View style={styles.topBarTrack}>
+                        <View style={[styles.topBarFill, { flex: ratio, backgroundColor: barColor }]} />
+                        <View style={{ flex: 1 - ratio }} />
+                      </View>
+                      <Text style={styles.topItemSub}>
+                        {item.stock} {item.unit} · {item.price.toLocaleString('vi-VN')}đ/{item.unit}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        );
+      })()}
 
       {/* Low Stock Warning */}
       {lowStockItems.length > 0 && (
@@ -911,5 +1007,74 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     color: '#bbb',
+  },
+  chartCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+    overflow: 'hidden',
+  },
+  topItemRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f4f4f4',
+  },
+  rankBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+    flexShrink: 0,
+  },
+  rankText: {
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  topItemContent: {
+    flex: 1,
+    gap: 4,
+  },
+  topItemHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  topItemName: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    flex: 1,
+  },
+  topItemValue: {
+    fontSize: 13,
+    fontWeight: '700',
+    flexShrink: 0,
+  },
+  topBarTrack: {
+    flexDirection: 'row',
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#f0f0f0',
+    overflow: 'hidden',
+  },
+  topBarFill: {
+    borderRadius: 3,
+  },
+  topItemSub: {
+    fontSize: 11,
+    color: '#aaa',
   },
 });
