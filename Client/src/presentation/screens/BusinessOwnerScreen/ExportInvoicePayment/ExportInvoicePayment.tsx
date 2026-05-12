@@ -42,6 +42,8 @@ function ExportInvoicePayment() {
 	const [products, setProducts] = useState<Product[]>([]);
 	const [productStorage, setProductStorage] = useState<ProductInventory[]>([]);
 	const [quantity, setQuantity] = useState<{ [key: string]: number }>({});
+	const [selectedUnitMode, setSelectedUnitMode] = useState<{ [key: string]: 'original' | 'converted' }>({});
+	const [customPrice, setCustomPrice] = useState<{ [key: string]: string }>({});
 	const [modalVisible, setModalVisible] = useState(false);
 	const [openModalNotQuantity, setOpenModalNotQuantity] = useState(false);
 	const [openProductStorage, setOpenProductStorage] = useState(false);
@@ -51,6 +53,27 @@ function ExportInvoicePayment() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+	// --- Conversion unit helper ---
+	const getConversionInfo = useCallback((item: ProductInventory) => {
+		const cu = item.conversionUnit;
+		if (
+			cu?.isActive &&
+			cu.from?.itemQuantity &&
+			cu.to?.[0]?.itemName &&
+			cu.to?.[0]?.itemQuantity
+		) {
+			const factor = cu.to[0].itemQuantity! / cu.from.itemQuantity!;
+			return {
+				hasConversion: true,
+				convertedUnitName: cu.to[0].itemName!,
+				stockInConverted: Math.round(item.stock * factor * 100) / 100,
+				pricePerConverted: item.price / factor,
+				factor,
+			};
+		}
+		return { hasConversion: false, convertedUnitName: '', stockInConverted: 0, pricePerConverted: 0, factor: 1 };
+	}, []);
 
 	// --- Fetch products ---
 	const fetchData = async () => {
@@ -132,14 +155,33 @@ function ExportInvoicePayment() {
 		[productStorage],
 	);
 
+	// --- Resolve effective price for an item (custom override wins) ---
+	const getEffectivePrice = useCallback(
+		(id: string, basePrice: number) => {
+			if (customPrice[id] !== undefined && customPrice[id] !== '') {
+				const parsed = parseFloat(customPrice[id].replace(/\./g, '').replace(/,/g, '.'));
+				if (!isNaN(parsed)) return parsed;
+			}
+			return basePrice;
+		},
+		[customPrice],
+	);
+
 	// --- Total amount ---
 	const totalAmount = useMemo(() => {
-		const allProducts = [...products, ...productStorage];
 		return Object.entries(quantity).reduce((sum, [id, qty]) => {
-			const p = allProducts.find((prod) => prod._id === id);
-			return sum + (p?.price || 0) * qty;
+			const storageItem = productStorage.find((s) => s._id === id);
+			let basePrice: number;
+			if (storageItem && selectedUnitMode[id] === 'converted') {
+				const { pricePerConverted } = getConversionInfo(storageItem);
+				basePrice = pricePerConverted;
+			} else {
+				const p = [...products, ...productStorage].find((prod) => prod._id === id);
+				basePrice = p?.price || 0;
+			}
+			return sum + getEffectivePrice(id, basePrice) * qty;
 		}, 0);
-	}, [quantity, products, productStorage]);
+	}, [quantity, products, productStorage, selectedUnitMode, getConversionInfo, getEffectivePrice]);
 
 	const vatRate = (tchat: number, price: number) => {
 		if (tchat === 1) return price * 0.5;
@@ -150,13 +192,31 @@ function ExportInvoicePayment() {
 		const allProducts = [...products, ...productStorage];
 		const selectedItems = allProducts
 			.filter((p) => quantity[p._id])
-			.map((p) => ({
-				...p,
-				quantity: quantity[p._id],
-				total: (p.price || 0) * quantity[p._id],
-				vatRate: vatRate(p.tchat, p.price),
-			}));
-		navigation.navigate("PaymentInvoiceScreen", { items: selectedItems });
+			.map((p) => {
+				const storageItem = productStorage.find((s) => s._id === p._id);
+				if (storageItem && selectedUnitMode[p._id] === 'converted') {
+					const { pricePerConverted, convertedUnitName } = getConversionInfo(storageItem);
+					const effectivePrice = getEffectivePrice(p._id, pricePerConverted);
+					const qty = quantity[p._id];
+					return {
+						...p,
+						unit: convertedUnitName,
+						price: effectivePrice,
+						quantity: qty,
+						total: effectivePrice * qty,
+						vatRate: vatRate(p.tchat, effectivePrice),
+					};
+				}
+				const effectivePrice = getEffectivePrice(p._id, p.price || 0);
+				return {
+					...p,
+					price: effectivePrice,
+					quantity: quantity[p._id],
+					total: effectivePrice * quantity[p._id],
+					vatRate: vatRate(p.tchat, effectivePrice),
+				};
+			});
+		navigation.navigate("PaymentInvoiceScreen", { items: selectedItems as any });
 	};
 
 	// --- Render items ---
@@ -174,9 +234,21 @@ function ExportInvoicePayment() {
 							<Text style={styles.productName} numberOfLines={2}>
 								{item.name}
 							</Text>
-							<Text style={styles.priceText}>
-								{item.price.toLocaleString()}đ
-							</Text>
+							<View style={styles.priceEditRow}>
+								<TextInput
+									style={styles.priceInput}
+									keyboardType="numeric"
+									value={
+										customPrice[item._id] !== undefined
+											? customPrice[item._id]
+											: Math.round(item.price).toString()
+									}
+									onChangeText={(val) =>
+										setCustomPrice((prev) => ({ ...prev, [item._id]: val }))
+									}
+								/>
+								<Text style={styles.priceUnit}>đ</Text>
+							</View>
 						</View>
 						<View style={styles.quantityWrapper}>
 							{qty > 0 ? (
@@ -223,23 +295,20 @@ function ExportInvoicePayment() {
 				</View>
 			);
 		},
-		[quantity],
+		[quantity, customPrice],
 	);
 
 	const renderItemStorage = useCallback(
 		({ item }: { item: ProductInventory }) => {
 			const qty = quantity[item._id] || 0;
-			const isOutOfStock = item.stock < 1;
-			const conversionText =
-				item.conversionUnit?.isActive &&
-				item.conversionUnit.from?.itemQuantity &&
-				item.conversionUnit.to?.[0]?.itemName &&
-				item.conversionUnit.to?.[0]?.itemQuantity
-					? `(${Math.round(
-							(item.stock * item.conversionUnit.to[0].itemQuantity) /
-								item.conversionUnit.from.itemQuantity,
-						)} ${item.conversionUnit.to[0].itemName})`
-					: null;
+			const { hasConversion, convertedUnitName, stockInConverted, pricePerConverted } =
+				getConversionInfo(item);
+			const mode = selectedUnitMode[item._id] ?? 'original';
+			const isConverted = mode === 'converted';
+			const displayStock = isConverted ? stockInConverted : item.stock;
+			const displayUnit = isConverted ? convertedUnitName : item.unit;
+			const displayPrice = isConverted ? pricePerConverted : item.price;
+			const isOutOfStock = displayStock < 1;
 
 			return (
 				<View style={[styles.card, isOutOfStock && styles.cardDisabled]}>
@@ -266,15 +335,66 @@ function ExportInvoicePayment() {
 							<View style={styles.stockRow}>
 								<Text style={styles.stockLabel}>Tồn kho: </Text>
 								<Text style={styles.stockValue}>
-									{`${item.stock.toFixed(2)}${item.unit ? ` ${item.unit}` : ""}`}
+									{`${displayStock.toFixed(2)}${displayUnit ? ` ${displayUnit}` : ""}`}
 								</Text>
 							</View>
-							{conversionText && (
-								<Text style={styles.conversionText}>{conversionText}</Text>
+							{hasConversion && (
+								<View style={styles.unitToggleRow}>
+									<TouchableOpacity
+										style={[
+											styles.unitToggleChip,
+											!isConverted && styles.unitToggleChipActive,
+										]}
+										onPress={() =>
+											setSelectedUnitMode((prev) => ({ ...prev, [item._id]: 'original' }))
+										}
+										activeOpacity={0.7}
+									>
+										<Text
+											style={[
+												styles.unitToggleText,
+												!isConverted && styles.unitToggleTextActive,
+											]}
+										>
+											{item.unit}
+										</Text>
+									</TouchableOpacity>
+									<TouchableOpacity
+										style={[
+											styles.unitToggleChip,
+											isConverted && styles.unitToggleChipActive,
+										]}
+										onPress={() =>
+											setSelectedUnitMode((prev) => ({ ...prev, [item._id]: 'converted' }))
+										}
+										activeOpacity={0.7}
+									>
+										<Text
+											style={[
+												styles.unitToggleText,
+												isConverted && styles.unitToggleTextActive,
+											]}
+										>
+											{convertedUnitName}
+										</Text>
+									</TouchableOpacity>
+								</View>
 							)}
-							<Text style={styles.priceText}>
-								{item.price.toLocaleString()}đ
-							</Text>
+							<View style={styles.priceEditRow}>
+								<TextInput
+									style={styles.priceInput}
+									keyboardType="numeric"
+									value={
+										customPrice[item._id] !== undefined
+											? customPrice[item._id]
+											: Math.round(displayPrice).toString()
+									}
+									onChangeText={(val) =>
+										setCustomPrice((prev) => ({ ...prev, [item._id]: val }))
+									}
+								/>
+								<Text style={styles.priceUnit}>đ/{displayUnit}</Text>
+							</View>
 						</View>
 						<View style={styles.quantityWrapper}>
 							{qty > 0 ? (
@@ -322,7 +442,7 @@ function ExportInvoicePayment() {
 				</View>
 			);
 		},
-		[quantity],
+		[quantity, selectedUnitMode, getConversionInfo, customPrice],
 	);
 
 	return (
@@ -554,10 +674,53 @@ const styles = StyleSheet.create({
 		fontWeight: "600",
 		color: "#333",
 	},
-	conversionText: {
-		fontSize: 12,
-		color: "#aaa",
-		fontStyle: "italic",
+	priceEditRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		marginTop: 2,
+		gap: 2,
+	},
+	priceInput: {
+		fontSize: 14,
+		fontWeight: '700',
+		color: ColorMain,
+		borderBottomWidth: 1,
+		borderBottomColor: ColorMain + '80',
+		paddingVertical: 1,
+		paddingHorizontal: 2,
+		minWidth: 60,
+		maxWidth: 100,
+	},
+	priceUnit: {
+		fontSize: 13,
+		color: ColorMain,
+		fontWeight: '600',
+	},
+	unitToggleRow: {
+		flexDirection: 'row',
+		gap: 5,
+		marginTop: 2,
+	},
+	unitToggleChip: {
+		paddingHorizontal: 8,
+		paddingVertical: 3,
+		borderRadius: 12,
+		borderWidth: 1,
+		borderColor: '#e0e0e0',
+		backgroundColor: '#f5f5f5',
+	},
+	unitToggleChipActive: {
+		backgroundColor: ColorMain + '20',
+		borderColor: ColorMain,
+	},
+	unitToggleText: {
+		fontSize: 11,
+		color: '#888',
+		fontWeight: '500',
+	},
+	unitToggleTextActive: {
+		color: ColorMain,
+		fontWeight: '700',
 	},
 	quantityWrapper: {
 		alignItems: "center",
