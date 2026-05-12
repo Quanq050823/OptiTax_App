@@ -330,7 +330,18 @@ export default function InventoryManagerScreen() {
     </View>
   );
 
-  const renderItem: ListRenderItem<ProductInventory> = ({ item }) => (
+  const renderItem: ListRenderItem<ProductInventory> = ({ item }) => {
+    const conversionText =
+      item.conversionUnit?.isActive &&
+      item.conversionUnit.from?.itemQuantity &&
+      item.conversionUnit.to?.[0]?.itemName &&
+      item.conversionUnit.to?.[0]?.itemQuantity
+        ? `(${Math.round(
+            (item.stock * item.conversionUnit.to[0].itemQuantity!) /
+              item.conversionUnit.from.itemQuantity!,
+          )} ${item.conversionUnit.to[0].itemName})`
+        : null;
+    return (
     <Swipeable
       renderRightActions={() => renderRightActions(item)}
       overshootRight={false}
@@ -366,6 +377,9 @@ export default function InventoryManagerScreen() {
               </View>
             ) : null}
           </View>
+          {conversionText ? (
+            <Text style={styles.conversionText}>{conversionText}</Text>
+          ) : null}
           <Text style={styles.priceText}>{item.price.toLocaleString()}đ</Text>
         </View>
         <TouchableOpacity
@@ -391,7 +405,8 @@ export default function InventoryManagerScreen() {
         </TouchableOpacity>
       </View>
     </Swipeable>
-  );
+    );
+  };
 
   const handleSyncProductFromInvoiceIn = async () => {
     try {
@@ -752,6 +767,11 @@ const styles = StyleSheet.create({
   stockText: {
     fontSize: 12,
     color: "#64748B",
+  },
+  conversionText: {
+    fontSize: 11,
+    color: "#aaa",
+    fontStyle: "italic",
   },
   priceText: {
     fontSize: 14,
