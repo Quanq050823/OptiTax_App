@@ -86,6 +86,7 @@ type RootStackParamList = {
 	};
 	SyncHistoryScreen: undefined;
 	StockLogScreen: undefined;
+	InventoryStatsScreen: undefined;
 };
 type Props = NativeStackScreenProps<RootStackParamList>;
 type TabType = "Trang chủ" | "Tiện ích" | "Tuỳ chọn" | "Thông báo" | "Xuất HĐ";

@@ -516,6 +516,13 @@ export default function InventoryManagerScreen() {
                   <Ionicons name="archive-outline" size={16} color={ColorMain} />
                   <Text style={[styles.btnHistoryText, { color: ColorMain }]}>Lịch sử tồn kho</Text>
                 </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.btnHistory, { borderColor: "#6366f1" }]}
+                  onPress={() => navigate.navigate("InventoryStatsScreen")}
+                >
+                  <Ionicons name="bar-chart-outline" size={16} color="#6366f1" />
+                  <Text style={[styles.btnHistoryText, { color: "#6366f1" }]}>Thống kê kho</Text>
+                </TouchableOpacity>
               </ScrollView>
             </View>
           </View>
