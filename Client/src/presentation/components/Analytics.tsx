@@ -577,7 +577,7 @@ export default function Analytics() {
             >
               <ButtonToKhai />
             </LinearGradient>
-            <LinearGradient
+            {/* <LinearGradient
               colors={["#FF9966", "#FF5E62"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 3 }}
@@ -608,7 +608,7 @@ export default function Analytics() {
                   color="#fff"
                 />
               </TouchableOpacity>
-            </LinearGradient>
+            </LinearGradient> */}
           </View>
         </ScrollView>
         {/* Line Chart */}

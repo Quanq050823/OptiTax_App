@@ -48,15 +48,15 @@ function HomeScreen(): React.JSX.Element {
 	const colors = useColors();
 	// const navigate = useAppNavigation(); // Removed duplicate declaration
 	const features = [
-		{
-			key: "connect",
-			label: "Kết nối KT",
-			icon: <FontAwesome name="user" size={32} color="#009688" />,
-			notify: 2,
-			navigate: () => {
-				navigate.navigate("SearchAccountantScreen");
-			},
-		},
+		// {
+		// 	key: "connect",
+		// 	label: "Kết nối KT",
+		// 	icon: <FontAwesome name="user" size={32} color="#009688" />,
+		// 	notify: 2,
+		// 	navigate: () => {
+		// 		navigate.navigate("SearchAccountantScreen");
+		// 	},
+		// },
 		// {
 		//   key: "report",
 		//   label: "Báo cáo",
@@ -337,7 +337,7 @@ function HomeScreen(): React.JSX.Element {
 				style={{
 					backgroundColor: isDark ? "#111111ff" : "#f7f7f7ff",
 					paddingHorizontal: 10,
-					paddingVertical: 10,
+					paddingVertical: 40,
 				}}
 			>
 				<View
