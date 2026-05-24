@@ -141,7 +141,7 @@ export const exportInvoiceOutputAndSaveDb = async (
 	dbInvoiceData?: InvoiceData,
 ): Promise<ExportInvoiceOutputResult> => {
 	const res = await axiosInstance.post<EaseInvoiceApiResponse>(
-		`easyinvoice/importInvoice`,
+		`easyinvoice/import-and-issue-invoice`,
 		easyInvoiceData,
 	);
 	const easyInvoice = normalizeEaseInvoiceResponse(res.data);
