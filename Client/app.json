@@ -2,7 +2,7 @@
   "expo": {
     "name": "TaxDemo",
     "slug": "taxDemo",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/Icon_app.png",
     "scheme": "taxdemo",
@@ -28,7 +28,7 @@
         "android.permission.INTERNET"
       ],
       "package": "com.company.taxdemo",
-      "versionCode": 2
+      "versionCode": 3
     },
     "extra": {
       "privacyPolicy": "https://sites.google.com/d/18x6MY5hb4XTRNLfK0hAUihaUjgVyWC-_/p/1vQ8I2qiQLaYNLVHAS6pkuIDZycvOrjS2/edit",
