@@ -72,7 +72,7 @@ export const createProductInventory = async (products: NewProductInventory) => {
 		throw error;
 	}
 };
-export const syncProduct = async (): Promise<SyncProductInventory> => {
+export const syncProduct = async (showAlert = true): Promise<SyncProductInventory> => {
 	try {
 		const res = await axiosInstance.post<SyncProductInventory>(
 			"storage-item/sync-from-invoices"
@@ -80,12 +80,14 @@ export const syncProduct = async (): Promise<SyncProductInventory> => {
 
 		const data = res.data;
 
-		Alert.alert(
-			"Đồng bộ sản phẩm thành công",
-			data.successCount > 0
-				? `Đã thêm ${data.successCount} sản phẩm mới từ hóa đơn`
-				: "Không có sản phẩm nào mới"
-		);
+		if (showAlert) {
+			Alert.alert(
+				"Đồng bộ sản phẩm thành công",
+				data.successCount > 0
+					? `Đã thêm ${data.successCount} sản phẩm mới từ hóa đơn`
+					: "Không có sản phẩm nào mới"
+			);
+		}
 
 		return data;
 	} catch (error: any) {

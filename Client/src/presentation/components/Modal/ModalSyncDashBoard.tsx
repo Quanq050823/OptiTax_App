@@ -11,6 +11,8 @@ import { syncDataInvoiceIn } from "@/src/types/syncData";
 import { AntDesign, FontAwesome6, MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   FlatList,
   Modal,
   Pressable,
@@ -51,30 +53,50 @@ function ModalSyncDashBoard({
   >([]);
   const navigate = useAppNavigation();
   const [loading, setLoading] = useState(false);
+  const [hasLoadedProducts, setHasLoadedProducts] = useState(false);
   // const [productStorage, setProductStorage] = useState<ProductInventory[]>([]);
   const from = new Date(syncDate.datefrom);
   const to = new Date(syncDate.dateto);
   useEffect(() => {
     if (!visible) return; // Chỉ sync khi modal được mở
+    let isMounted = true;
     const syncProductStorage = async () => {
       setLoading(true);
+      setHasLoadedProducts(false);
+      setDataSyncProductStorage([]);
       try {
-        const resul = await syncProduct();
+        const result = await syncProduct(false);
         const fetchStorage = await getProductsInventory();
         const unsyncedProducts = fetchStorage.data.filter(
           (item) => item.syncStatus === false
         );
+        if (!isMounted) return;
         setDataSyncProductStorage(unsyncedProducts);
+        setHasLoadedProducts(true);
         setLoading(false);
+        Alert.alert(
+          "Đồng bộ sản phẩm thành công",
+          result.successCount > 0
+            ? `Đã thêm ${result.successCount} sản phẩm mới từ hóa đơn`
+            : "Không có sản phẩm nào mới"
+        );
       } catch (e) {
         console.log(e);
+        if (isMounted) {
+          Alert.alert("Lỗi", "Không thể đồng bộ nguyên liệu từ hóa đơn");
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+          setHasLoadedProducts(true);
+        }
       }
     };
-    setLoading(false);
 
     syncProductStorage();
+    return () => {
+      isMounted = false;
+    };
   }, [visible]);
 
   // const filteredInvoices = dataSyncProductStorage?.filter((prd) => {
@@ -96,19 +118,25 @@ function ModalSyncDashBoard({
       visible={visible}
       animationType="slide"
       transparent={true}
-      onRequestClose={() => setVisible(false)}
+      onRequestClose={() => {
+        if (!loading) setVisible(false);
+      }}
       style={{ zIndex: 100 }}
     >
-      <TouchableWithoutFeedback onPress={() => setVisible(false)}>
+      <TouchableWithoutFeedback onPress={() => {
+        if (!loading) setVisible(false);
+      }}>
         <View style={styles.overlay} />
       </TouchableWithoutFeedback>
       {/* <LoadingScreen visible={loading} /> */}
       <View style={styles.modalContent}>
         <TouchableOpacity
           onPress={() => {
+            if (loading) return;
             setVisible(false);
             setLoading(false);
           }}
+          disabled={loading}
           style={{ position: "absolute", right: 15, top: 15 }}
         >
           <MaterialIcons name="cancel" size={24} color={ColorMain} />
@@ -239,63 +267,74 @@ function ModalSyncDashBoard({
               Nguyên liệu từ hoá đơn
             </Text>
           </View>
-          <FlatList
-            data={dataSyncProductStorage}
-            keyExtractor={(item) => item._id}
-            contentContainerStyle={{ padding: 10 }}
-            renderItem={({ item }) => (
-              <View
-                style={{
-                  backgroundColor: "#fff",
-                  marginBottom: 20,
-                  borderRadius: 8,
-                  padding: 10,
-                  shadowColor: "#000",
-                  shadowOpacity: 0.22,
-                  shadowRadius: 3,
-                  shadowOffset: { width: 0, height: 0 },
-                  position: "relative",
-                  minHeight: 50,
-                }}
-              >
+          {loading ? (
+            <View style={styles.productLoadingState}>
+              <ActivityIndicator size="small" color={ColorMain} />
+              <Text style={styles.productLoadingText}>
+                Đang đồng bộ và tải nguyên liệu từ hoá đơn...
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={dataSyncProductStorage}
+              keyExtractor={(item) => item._id}
+              contentContainerStyle={{ padding: 10 }}
+              renderItem={({ item }) => (
                 <View
                   style={{
-                    position: "absolute",
-                    top: -10,
-                    right: 5,
-                    flexDirection: "row",
-                    gap: 7,
+                    backgroundColor: "#fff",
+                    marginBottom: 20,
+                    borderRadius: 8,
+                    padding: 10,
+                    shadowColor: "#000",
+                    shadowOpacity: 0.22,
+                    shadowRadius: 3,
+                    shadowOffset: { width: 0, height: 0 },
+                    position: "relative",
+                    minHeight: 50,
                   }}
                 >
-                  <View style={styles.tagNew}>
-                    <Text
-                      style={{ color: "#fff", fontWeight: "500", fontSize: 12 }}
-                    >
-                      Mới
-                    </Text>
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: -10,
+                      right: 5,
+                      flexDirection: "row",
+                      gap: 7,
+                    }}
+                  >
+                    <View style={styles.tagNew}>
+                      <Text
+                        style={{ color: "#fff", fontWeight: "500", fontSize: 12 }}
+                      >
+                        Mới
+                      </Text>
+                    </View>
+                    <View style={styles.tagDate}>
+                      <Text
+                        style={{ color: "#fff", fontWeight: "500", fontSize: 12 }}
+                      >
+                        {item.createdAt.split("T")[0]}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.tagDate}>
-                    <Text
-                      style={{ color: "#fff", fontWeight: "500", fontSize: 12 }}
-                    >
-                      {item.createdAt.split("T")[0]}
-                    </Text>
-                  </View>
+                  <Text style={{ fontWeight: "600", fontSize: 16 }}>
+                    {item.name}
+                  </Text>
+                  <Text>Số lượng: {item.stock}</Text>
                 </View>
-                <Text style={{ fontWeight: "600", fontSize: 16 }}>
-                  {item.name}
-                </Text>
-                <Text>Số lượng: {item.stock}</Text>
-              </View>
-            )}
-            ListEmptyComponent={
-              <Text style={{ textAlign: "center", color: "#999" }}>
-                Không có hoá đơn nào trong khoảng ngày đã chọn
-              </Text>
-            }
-            style={{ flex: 1 }}
-            showsVerticalScrollIndicator={false}
-          />
+              )}
+              ListEmptyComponent={
+                hasLoadedProducts ? (
+                  <Text style={{ textAlign: "center", color: "#999" }}>
+                    Không có nguyên liệu mới từ hoá đơn
+                  </Text>
+                ) : null
+              }
+              style={{ flex: 1 }}
+              showsVerticalScrollIndicator={false}
+            />
+          )}
           {/* <View style={{ paddingVertical: 50, alignItems: "center" }}>
               <Text>Không có sản phẩm nào từ hoá đơn</Text>
             </View> */}
@@ -310,18 +349,21 @@ function ModalSyncDashBoard({
           }}
         >
           <TouchableOpacity
-            style={styles.btnExitModalSync}
+            style={[styles.btnExitModalSync, loading && styles.disabledButton]}
             onPress={() => {
+              if (loading) return;
               setVisible(false);
               setLoading(false);
             }}
+            disabled={loading}
           >
             <Text style={{ color: ColorMain, fontWeight: "600" }}>Xong</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.btnSaveVoucher}
+            style={[styles.btnSaveVoucher, loading && styles.disabledButton]}
             onPress={handleMoveStorage}
+            disabled={loading}
           >
             <Text style={{ color: "#fff", fontWeight: "600" }}>Đến kho</Text>
             <View style={styles.notifycation}>
@@ -390,6 +432,22 @@ const styles = StyleSheet.create({
   },
   textResultSync: {
     fontSize: 17,
+  },
+  productLoadingState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    paddingHorizontal: 24,
+  },
+  productLoadingText: {
+    color: "#666",
+    fontSize: 14,
+    fontWeight: "500",
+    textAlign: "center",
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
   btnExitModalSync: {
     alignItems: "center",
