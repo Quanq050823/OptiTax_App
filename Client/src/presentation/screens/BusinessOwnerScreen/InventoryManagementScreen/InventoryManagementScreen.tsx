@@ -128,6 +128,7 @@ export default function InventoryManagerScreen() {
     price: 0,
     imageURL: "",
     stock: 0,
+    stockLogType: "manual_add",
   });
   console.log(productInventoryNew);
 
@@ -177,6 +178,7 @@ export default function InventoryManagerScreen() {
         price: 0,
         stock: 0,
         category: "1",
+        stockLogType: "manual_add",
       });
       setVisible(true);
     }

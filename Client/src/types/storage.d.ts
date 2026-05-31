@@ -49,6 +49,7 @@ export interface NewProductInventory {
 	description?: string;
 	imageURL?: string;
 	stock: number;
+	stockLogType?: 'opening_balance' | 'manual_add';
 	attributes?: any[];
 }
 export type NamesUnitsResponse = {

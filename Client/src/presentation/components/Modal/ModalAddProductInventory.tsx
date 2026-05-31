@@ -117,6 +117,7 @@ function ModalAddProductInventory({
 		"1";
 	const unitValue =
 		newProductInvenEdit?.unit || newProduct.units || null;
+	const stockLogType = newProduct.stockLogType ?? "manual_add";
 
 	return (
 		<Modal
@@ -291,6 +292,58 @@ function ModalAddProductInventory({
 									</View>
 								</View>
 							</View>
+
+							{!isEdit && (
+								<View style={styles.section}>
+									<Text style={styles.sectionLabel}>Ghi nhận tồn kho</Text>
+									<View style={styles.logTypeRow}>
+										{[
+											{
+												label: "Nhập trong kỳ",
+												value: "manual_add",
+												icon: "call-received",
+											},
+											{
+												label: "Tồn đầu kỳ",
+												value: "opening_balance",
+												icon: "inventory",
+											},
+										].map((item) => {
+											const active = stockLogType === item.value;
+											return (
+												<TouchableOpacity
+													key={item.value}
+													style={[
+														styles.logTypeBtn,
+														active && styles.logTypeBtnActive,
+													]}
+													onPress={() =>
+														setField(
+															"stockLogType",
+															item.value as NewProductInventory["stockLogType"],
+														)
+													}
+													activeOpacity={0.8}
+												>
+													<MaterialIcons
+														name={item.icon as keyof typeof MaterialIcons.glyphMap}
+														size={18}
+														color={active ? ColorMain : "#64748B"}
+													/>
+													<Text
+														style={[
+															styles.logTypeBtnText,
+															active && styles.logTypeBtnTextActive,
+														]}
+													>
+														{item.label}
+													</Text>
+												</TouchableOpacity>
+											);
+										})}
+									</View>
+								</View>
+							)}
 
 							{/* Mô tả */}
 							<View style={styles.section}>
@@ -493,6 +546,37 @@ const styles = StyleSheet.create({
 		color: "#64748B",
 	},
 	categoryBtnTextActive: {
+		color: ColorMain,
+	},
+	logTypeRow: {
+		flexDirection: "row",
+		gap: 10,
+	},
+	logTypeBtn: {
+		flex: 1,
+		minHeight: 46,
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 6,
+		paddingHorizontal: 10,
+		borderRadius: 12,
+		backgroundColor: "#F1F5F9",
+		borderWidth: 1.5,
+		borderColor: "transparent",
+	},
+	logTypeBtnActive: {
+		backgroundColor: "#FFF7ED",
+		borderColor: ColorMain,
+	},
+	logTypeBtnText: {
+		flexShrink: 1,
+		fontSize: 13,
+		fontWeight: "600",
+		color: "#64748B",
+		textAlign: "center",
+	},
+	logTypeBtnTextActive: {
 		color: ColorMain,
 	},
 	saveBtn: {
