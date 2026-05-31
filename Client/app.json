@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "TaxDemo",
+    "name": "DATTAX",
     "slug": "taxDemo",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
-    "icon": "./assets/images/Icon_app.png",
-    "scheme": "taxdemo",
+    "icon": "./assets/images/DAT_Logo_White_BlueBg.png",
+    "scheme": "dattax",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -17,8 +17,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/DAT_Logo_White_BlueBg.png",
+        "backgroundColor": "#1F2456"
       },
       "edgeToEdgeEnabled": true,
       "permissions": [
@@ -28,7 +28,7 @@
         "android.permission.INTERNET"
       ],
       "package": "com.company.taxdemo",
-      "versionCode": 3
+      "versionCode": 4
     },
     "extra": {
       "privacyPolicy": "https://sites.google.com/d/18x6MY5hb4XTRNLfK0hAUihaUjgVyWC-_/p/1vQ8I2qiQLaYNLVHAS6pkuIDZycvOrjS2/edit",
@@ -47,10 +47,10 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/Icon_app.png",
-          "imageWidth": 200,
+          "image": "./assets/images/DAT_Logo_White_BlueBg.png",
+          "imageWidth": 260,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#1F2456"
         }
       ],
       [
