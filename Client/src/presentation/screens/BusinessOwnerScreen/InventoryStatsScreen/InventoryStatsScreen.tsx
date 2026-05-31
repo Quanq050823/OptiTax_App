@@ -1,22 +1,28 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   FlatList,
+  Modal,
   RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import { ColorMain } from '@/src/presentation/components/colors';
-import { getListItemStorageSynced, getStockSummary } from '@/src/services/API/storageService';
-import { ProductInventory, StockSummaryItem } from '@/src/types/storage';
+import { getInventoryReport, getListItemStorageSynced, getStockSummary, saveOpeningBalance } from '@/src/services/API/storageService';
+import { exportInventoryReportS08DNN } from '@/src/presentation/Controller/exportInventoryReportS08DNN';
+import { OpeningBalanceItemInput, ProductInventory, StockSummaryItem } from '@/src/types/storage';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { DatePickerModal } from 'react-native-paper-dates';
+import { CalendarDate } from 'react-native-paper-dates/lib/typescript/Date/Calendar';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -24,10 +30,18 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const CHART_WIDTH = SCREEN_WIDTH - 32; // 16px padding each side
 
 const formatPrice = (value: number) => value.toLocaleString('vi-VN') + ' ₫';
+const formatNumber = (value: number) => value.toLocaleString('vi-VN');
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type FilterPeriod = 'all' | 'month' | 'week';
+type ExportMode = 'month' | 'quarter' | 'range';
+type ExportRange = { startDate?: CalendarDate; endDate?: CalendarDate };
+type OpeningBalanceDraft = {
+  id: string;
+  storageItemId?: string;
+  openingQuantity: string;
+};
 
 const FILTERS: { key: FilterPeriod; label: string }[] = [
   { key: 'all', label: 'Tất cả' },
@@ -59,6 +73,53 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: 'price', label: 'Đơn giá' },
   { key: 'value', label: 'Giá trị' },
 ];
+
+const MONTH_OPTIONS = Array.from({ length: 12 }, (_, index) => index + 1);
+const QUARTER_OPTIONS = [1, 2, 3, 4];
+
+const createOpeningBalanceDraft = (): OpeningBalanceDraft => ({
+  id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
+  openingQuantity: '',
+});
+
+const getQuarter = (month: number) => {
+  if (month <= 3) return 1;
+  if (month <= 6) return 2;
+  if (month <= 9) return 3;
+  return 4;
+};
+
+const getExportDateRange = (
+  mode: ExportMode,
+  year: number,
+  month: number,
+  quarter: number,
+  range: ExportRange,
+) => {
+  if (mode === 'month') {
+    return {
+      startDate: new Date(year, month - 1, 1),
+      endDate: new Date(year, month, 0),
+    };
+  }
+
+  if (mode === 'quarter') {
+    const startMonth = (quarter - 1) * 3;
+    return {
+      startDate: new Date(year, startMonth, 1),
+      endDate: new Date(year, startMonth + 3, 0),
+    };
+  }
+
+  if (mode === 'range' && range.startDate && range.endDate) {
+    return {
+      startDate: new Date(range.startDate),
+      endDate: new Date(range.endDate),
+    };
+  }
+
+  return null;
+};
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -102,6 +163,23 @@ export default function InventoryStatsScreen() {
   const [sortKey, setSortKey] = useState<SortKey>('value');
   const [sortAsc, setSortAsc] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'items'>('overview');
+  const [exportModalVisible, setExportModalVisible] = useState(false);
+  const [exportPickerVisible, setExportPickerVisible] = useState(false);
+  const [exportMode, setExportMode] = useState<ExportMode>('month');
+  const [exportYear, setExportYear] = useState(new Date().getFullYear());
+  const [exportMonth, setExportMonth] = useState(new Date().getMonth() + 1);
+  const [exportQuarter, setExportQuarter] = useState(getQuarter(new Date().getMonth() + 1));
+  const [exportRange, setExportRange] = useState<ExportRange>({});
+  const [exportLoading, setExportLoading] = useState(false);
+  const [openingModalVisible, setOpeningModalVisible] = useState(false);
+  const [openingDatePickerVisible, setOpeningDatePickerVisible] = useState(false);
+  const [openingDate, setOpeningDate] = useState<CalendarDate>(new Date(new Date().getFullYear(), 0, 1));
+  const [openingRows, setOpeningRows] = useState<OpeningBalanceDraft[]>([
+    createOpeningBalanceDraft(),
+  ]);
+  const [openingLoading, setOpeningLoading] = useState(false);
+  const [openingPickingRowId, setOpeningPickingRowId] = useState<string | null>(null);
+  const [openingSearchQuery, setOpeningSearchQuery] = useState('');
 
   const fetchData = useCallback(async () => {
     try {
@@ -130,6 +208,135 @@ export default function InventoryStatsScreen() {
   const onRefresh = () => {
     setRefreshing(true);
     fetchData();
+  };
+
+  const handleExportReport = async () => {
+    const dateRange = getExportDateRange(exportMode, exportYear, exportMonth, exportQuarter, exportRange);
+    if (!dateRange) {
+      Alert.alert('Chọn thời gian', 'Vui lòng chọn kỳ xuất báo cáo hợp lệ.');
+      return;
+    }
+
+    try {
+      setExportLoading(true);
+      const report = await getInventoryReport(
+        dateRange.startDate.toISOString(),
+        dateRange.endDate.toISOString(),
+        'all',
+      );
+      await exportInventoryReportS08DNN(report);
+      setExportModalVisible(false);
+    } catch (error: any) {
+      Alert.alert('Không thể xuất Excel', error?.message || 'Vui lòng thử lại sau.');
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  const exportPeriodLabel = (() => {
+    const dateRange = getExportDateRange(exportMode, exportYear, exportMonth, exportQuarter, exportRange);
+    if (!dateRange) return 'Chọn thời gian';
+    if (exportMode === 'month') {
+      return `Tháng ${exportMonth}/${exportYear}`;
+    }
+    if (exportMode === 'quarter') {
+      return `Quý ${exportQuarter}/${exportYear}`;
+    }
+    return `${dateRange.startDate.toLocaleDateString('vi-VN')} - ${dateRange.endDate.toLocaleDateString('vi-VN')}`;
+  })();
+
+  const updateOpeningRow = (id: string, patch: Partial<OpeningBalanceDraft>) => {
+    setOpeningRows((rows) => rows.map((row) => (row.id === id ? { ...row, ...patch } : row)));
+  };
+
+  const removeOpeningRow = (id: string) => {
+    setOpeningRows((rows) => (rows.length > 1 ? rows.filter((row) => row.id !== id) : rows));
+  };
+
+  const addOpeningRow = () => {
+    setOpeningRows((rows) => [...rows, createOpeningBalanceDraft()]);
+  };
+
+  const openOpeningModal = () => {
+    setOpeningPickingRowId(null);
+    setOpeningSearchQuery('');
+    setOpeningDatePickerVisible(false);
+    setOpeningModalVisible(true);
+  };
+
+  const closeOpeningModal = () => {
+    setOpeningPickingRowId(null);
+    setOpeningSearchQuery('');
+    setOpeningDatePickerVisible(false);
+    setOpeningModalVisible(false);
+  };
+
+  const selectedOpeningItemIds = new Set(
+    openingRows.map((row) => row.storageItemId).filter(Boolean) as string[],
+  );
+
+  const getOpeningItem = (storageItemId?: string) =>
+    items.find((item) => item._id === storageItemId);
+
+  const openingPickerItems = items.filter((item) => {
+    const keyword = openingSearchQuery.trim().toLowerCase();
+    const matchesKeyword =
+      !keyword ||
+      item.name.toLowerCase().includes(keyword) ||
+      item.unit?.toLowerCase().includes(keyword) ||
+      item.code?.toLowerCase().includes(keyword);
+    const isAlreadySelected =
+      selectedOpeningItemIds.has(item._id) &&
+      !openingRows.find((row) => row.id === openingPickingRowId && row.storageItemId === item._id);
+    return matchesKeyword && !isAlreadySelected;
+  });
+
+  const handleSaveOpeningBalance = async () => {
+    if (!openingDate) {
+      Alert.alert('Chọn ngày', 'Vui lòng chọn ngày chốt tồn đầu kỳ.');
+      return;
+    }
+
+    const payload: OpeningBalanceItemInput[] = openingRows
+      .filter((row) => row.storageItemId || row.openingQuantity.trim())
+      .map((row) => {
+        const item = getOpeningItem(row.storageItemId);
+        return {
+          storageItemId: item?._id,
+          code: item?.code,
+          name: item?.name ?? '',
+          unit: item?.unit ?? '',
+          openingQuantity: Number(row.openingQuantity.replace(',', '.')),
+          unitPrice: item?.price ?? 0,
+          category: item?.category || 1,
+        };
+      });
+
+    if (payload.length === 0) {
+      Alert.alert('Chưa có dữ liệu', 'Vui lòng nhập ít nhất một mặt hàng.');
+      return;
+    }
+
+    const invalidRow = payload.find(
+      (row) => !row.name || !row.unit || !Number.isFinite(row.openingQuantity) || row.openingQuantity < 0,
+    );
+    if (invalidRow) {
+      Alert.alert('Dữ liệu chưa hợp lệ', 'Mỗi dòng cần chọn mặt hàng và nhập số lượng tồn đầu kỳ không âm.');
+      return;
+    }
+
+    try {
+      setOpeningLoading(true);
+      await saveOpeningBalance(new Date(openingDate).toISOString(), payload);
+      Alert.alert('Đã lưu', 'Tồn đầu kỳ đã được cập nhật.');
+      closeOpeningModal();
+      setOpeningRows([createOpeningBalanceDraft()]);
+      await fetchData();
+    } catch (error: any) {
+      Alert.alert('Không thể lưu tồn đầu kỳ', error?.message || 'Vui lòng thử lại sau.');
+    } finally {
+      setOpeningLoading(false);
+    }
   };
 
   // ─── Derived stats ───────────────────────────────────────────────────────────
@@ -546,8 +753,324 @@ export default function InventoryStatsScreen() {
           <Ionicons name="chevron-back" size={24} color="#333" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Thống kê kho hàng</Text>
-        <View style={{ width: 40 }} />
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            onPress={openOpeningModal}
+            style={[styles.headerActionBtn, styles.openingBtn]}
+            activeOpacity={0.7}
+            disabled={openingLoading}
+          >
+            {openingLoading ? (
+              <ActivityIndicator size="small" color={ColorMain} />
+            ) : (
+              <MaterialCommunityIcons name="package-variant-plus" size={19} color={ColorMain} />
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setExportModalVisible(true)}
+            style={[styles.headerActionBtn, styles.exportBtn]}
+            activeOpacity={0.7}
+            disabled={exportLoading}
+          >
+            {exportLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Ionicons name="download-outline" size={20} color="#fff" />
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
+
+      <Modal
+        visible={exportModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setExportModalVisible(false)}
+      >
+        <View style={styles.exportOverlay}>
+          <View style={styles.exportSheet}>
+            <View style={styles.exportSheetHeader}>
+              <Text style={styles.exportTitle}>Xuất Excel S08-DNN</Text>
+              <TouchableOpacity onPress={() => setExportModalVisible(false)} style={styles.exportCloseBtn}>
+                <Ionicons name="close" size={20} color="#555" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.exportModeRow}>
+              {(['month', 'quarter', 'range'] as ExportMode[]).map((mode) => (
+                <TouchableOpacity
+                  key={mode}
+                  style={[styles.exportModeChip, exportMode === mode && styles.exportModeChipActive]}
+                  onPress={() => setExportMode(mode)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.exportModeText, exportMode === mode && styles.exportModeTextActive]}>
+                    {mode === 'month' ? 'Tháng' : mode === 'quarter' ? 'Quý' : 'Khoảng ngày'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {(exportMode === 'month' || exportMode === 'quarter') && (
+              <View style={styles.exportYearRow}>
+                <TouchableOpacity
+                  style={styles.exportYearBtn}
+                  onPress={() => setExportYear((year) => year - 1)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="chevron-back" size={18} color={ColorMain} />
+                </TouchableOpacity>
+                <Text style={styles.exportYearText}>Năm {exportYear}</Text>
+                <TouchableOpacity
+                  style={styles.exportYearBtn}
+                  onPress={() => setExportYear((year) => year + 1)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="chevron-forward" size={18} color={ColorMain} />
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {exportMode === 'month' && (
+              <View style={styles.exportOptionGrid}>
+                {MONTH_OPTIONS.map((month) => (
+                  <TouchableOpacity
+                    key={month}
+                    style={[styles.exportOptionChip, exportMonth === month && styles.exportOptionChipActive]}
+                    onPress={() => setExportMonth(month)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[styles.exportOptionText, exportMonth === month && styles.exportOptionTextActive]}>
+                      T{month}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
+            {exportMode === 'quarter' && (
+              <View style={styles.exportQuarterRow}>
+                {QUARTER_OPTIONS.map((quarter) => (
+                  <TouchableOpacity
+                    key={quarter}
+                    style={[styles.exportQuarterChip, exportQuarter === quarter && styles.exportOptionChipActive]}
+                    onPress={() => setExportQuarter(quarter)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[styles.exportOptionText, exportQuarter === quarter && styles.exportOptionTextActive]}>
+                      Quý {quarter}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
+            {exportMode === 'range' && (
+              <TouchableOpacity
+                style={styles.exportDateBtn}
+                onPress={() => setExportPickerVisible(true)}
+                activeOpacity={0.7}
+              >
+                <View>
+                  <Text style={styles.exportDateLabel}>Khoảng thời gian</Text>
+                  <Text style={styles.exportDateValue}>{exportPeriodLabel}</Text>
+                </View>
+                <Ionicons name="calendar-outline" size={22} color={ColorMain} />
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              style={[styles.exportSubmitBtn, exportLoading && { opacity: 0.7 }]}
+              onPress={handleExportReport}
+              disabled={exportLoading}
+              activeOpacity={0.8}
+            >
+              {exportLoading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Ionicons name="document-attach-outline" size={18} color="#fff" />
+              )}
+              <Text style={styles.exportSubmitText}>Xuất Excel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {openingModalVisible && (
+        <Modal
+          visible={openingModalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={closeOpeningModal}
+          onDismiss={closeOpeningModal}
+        >
+          <View style={styles.openingOverlay}>
+            <View style={styles.openingSheet}>
+              <View style={styles.exportSheetHeader}>
+                <Text style={styles.exportTitle}>Nhập tồn đầu kỳ</Text>
+                <TouchableOpacity onPress={closeOpeningModal} style={styles.exportCloseBtn}>
+                  <Ionicons name="close" size={20} color="#555" />
+                </TouchableOpacity>
+              </View>
+
+            <TouchableOpacity
+              style={styles.exportDateBtn}
+              onPress={() => setOpeningDatePickerVisible(true)}
+              activeOpacity={0.7}
+            >
+              <View>
+                <Text style={styles.exportDateLabel}>Ngày chốt tồn đầu kỳ</Text>
+                <Text style={styles.exportDateValue}>
+                  {openingDate ? new Date(openingDate).toLocaleDateString('vi-VN') : 'Chọn ngày'}
+                </Text>
+              </View>
+              <Ionicons name="calendar-outline" size={22} color={ColorMain} />
+            </TouchableOpacity>
+
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.openingRowsContent}>
+              {openingRows.map((row, index) => {
+                const item = getOpeningItem(row.storageItemId);
+                return (
+                  <View key={row.id} style={styles.openingRowCard}>
+                    <View style={styles.openingRowHeader}>
+                      <Text style={styles.openingRowTitle}>Mặt hàng {index + 1}</Text>
+                      <TouchableOpacity
+                        onPress={() => removeOpeningRow(row.id)}
+                        style={styles.openingRemoveBtn}
+                      >
+                        <Ionicons name="trash-outline" size={17} color="#ef4444" />
+                      </TouchableOpacity>
+                    </View>
+
+                    <TouchableOpacity
+                      style={styles.openingSelectBtn}
+                      onPress={() => {
+                        setOpeningPickingRowId(row.id);
+                        setOpeningSearchQuery('');
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.openingSelectLabel}>Mặt hàng trong kho</Text>
+                        <Text style={[styles.openingSelectValue, !item && { color: '#aaa' }]} numberOfLines={1}>
+                          {item ? item.name : 'Chọn mặt hàng'}
+                        </Text>
+                        {item && (
+                          <Text style={styles.openingSelectMeta} numberOfLines={1}>
+                            {item.code ? `${item.code} · ` : ''}{item.unit} · Tồn hiện tại: {formatNumber(item.stock)} · {formatPrice(item.price)}
+                          </Text>
+                        )}
+                      </View>
+                      <Ionicons name="chevron-down" size={20} color={ColorMain} />
+                    </TouchableOpacity>
+
+                    <TextInput
+                      style={styles.openingInput}
+                      placeholder="Số lượng cộng thêm vào tồn đầu kỳ"
+                      value={row.openingQuantity}
+                      onChangeText={(value) => updateOpeningRow(row.id, { openingQuantity: value })}
+                      keyboardType="numeric"
+                      placeholderTextColor="#aaa"
+                    />
+                  </View>
+                );
+              })}
+            </ScrollView>
+
+            {openingPickingRowId && (
+              <View style={styles.openingPickerPanel}>
+                <View style={styles.openingPickerHeader}>
+                  <Text style={styles.openingPickerTitle}>Chọn mặt hàng</Text>
+                  <TouchableOpacity onPress={() => setOpeningPickingRowId(null)} style={styles.exportCloseBtn}>
+                    <Ionicons name="close" size={18} color="#555" />
+                  </TouchableOpacity>
+                </View>
+                <TextInput
+                  style={styles.openingSearchInput}
+                  placeholder="Tìm theo tên, mã, đơn vị..."
+                  value={openingSearchQuery}
+                  onChangeText={setOpeningSearchQuery}
+                  placeholderTextColor="#aaa"
+                />
+                <FlatList
+                  data={openingPickerItems}
+                  keyExtractor={(item) => item._id}
+                  keyboardShouldPersistTaps="handled"
+                  style={{ maxHeight: 220 }}
+                  ItemSeparatorComponent={() => <View style={styles.openingPickerDivider} />}
+                  ListEmptyComponent={<Text style={styles.openingPickerEmpty}>Không tìm thấy mặt hàng phù hợp</Text>}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.openingPickerItem}
+                      onPress={() => {
+                        updateOpeningRow(openingPickingRowId, { storageItemId: item._id });
+                        setOpeningPickingRowId(null);
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.openingPickerName} numberOfLines={1}>{item.name}</Text>
+                        <Text style={styles.openingPickerMeta} numberOfLines={1}>
+                          {item.code ? `${item.code} · ` : ''}{item.unit} · Tồn hiện tại {item.stock}
+                        </Text>
+                      </View>
+                      <Ionicons name="checkmark-circle-outline" size={20} color={ColorMain} />
+                    </TouchableOpacity>
+                  )}
+                />
+              </View>
+            )}
+
+            <View style={styles.openingActionRow}>
+              <TouchableOpacity style={styles.openingAddBtn} onPress={addOpeningRow} activeOpacity={0.7}>
+                <Ionicons name="add" size={18} color={ColorMain} />
+                <Text style={styles.openingAddText}>Thêm dòng</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.openingSaveBtn, openingLoading && { opacity: 0.7 }]}
+                onPress={handleSaveOpeningBalance}
+                disabled={openingLoading}
+                activeOpacity={0.8}
+              >
+                {openingLoading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Ionicons name="save-outline" size={18} color="#fff" />
+                )}
+                <Text style={styles.exportSubmitText}>Lưu</Text>
+              </TouchableOpacity>
+            </View>
+            </View>
+          </View>
+        </Modal>
+      )}
+
+      {exportMode === 'range' && (
+        <DatePickerModal
+          locale="vi"
+          mode="range"
+          visible={exportPickerVisible}
+          startDate={exportRange.startDate}
+          endDate={exportRange.endDate}
+          onDismiss={() => setExportPickerVisible(false)}
+          onConfirm={({ startDate, endDate }) => {
+            setExportRange({ startDate, endDate });
+            setExportPickerVisible(false);
+          }}
+        />
+      )}
+
+      <DatePickerModal
+        locale="vi"
+        mode="single"
+        visible={openingDatePickerVisible}
+        date={openingDate}
+        onDismiss={() => setOpeningDatePickerVisible(false)}
+        onConfirm={({ date }) => {
+          if (date) setOpeningDate(date);
+          setOpeningDatePickerVisible(false);
+        }}
+      />
 
       {/* Tab bar */}
       <View style={styles.tabBar}>
@@ -620,10 +1143,380 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#f6f6f6',
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerActionBtn: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+  },
+  openingBtn: {
+    backgroundColor: '#e8f8f2',
+    borderWidth: 1,
+    borderColor: '#d5f0e7',
+  },
+  exportBtn: {
+    backgroundColor: ColorMain,
+  },
   headerTitle: {
     fontSize: 17,
     fontWeight: '700',
     color: '#1a1a1a',
+  },
+  exportOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'flex-end',
+  },
+  openingOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 18,
+  },
+  exportSheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingHorizontal: 18,
+    paddingTop: 16,
+    paddingBottom: 26,
+    gap: 14,
+  },
+  openingSheet: {
+    width: '100%',
+    maxWidth: 520,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingTop: 16,
+    paddingBottom: 22,
+    maxHeight: '88%',
+    gap: 12,
+  },
+  exportSheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  exportTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#1a1a1a',
+  },
+  exportCloseBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f6f6f6',
+  },
+  exportModeRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  exportModeChip: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#fff',
+  },
+  exportModeChipActive: {
+    borderColor: ColorMain,
+    backgroundColor: '#e8f8f2',
+  },
+  exportModeText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#666',
+  },
+  exportModeTextActive: {
+    color: ColorMain,
+    fontWeight: '800',
+  },
+  exportYearRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 14,
+  },
+  exportYearBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#e8f8f2',
+  },
+  exportYearText: {
+    minWidth: 96,
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#222',
+  },
+  exportOptionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  exportOptionChip: {
+    width: '22.8%',
+    minHeight: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#fff',
+  },
+  exportOptionChipActive: {
+    borderColor: ColorMain,
+    backgroundColor: ColorMain,
+  },
+  exportOptionText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#555',
+  },
+  exportOptionTextActive: {
+    color: '#fff',
+  },
+  exportQuarterRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  exportQuarterChip: {
+    flex: 1,
+    minHeight: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#fff',
+  },
+  exportDateBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  exportDateLabel: {
+    fontSize: 12,
+    color: '#888',
+    marginBottom: 3,
+  },
+  exportDateValue: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#222',
+  },
+  exportSubmitBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: ColorMain,
+    borderRadius: 12,
+    paddingVertical: 13,
+  },
+  exportSubmitText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  openingRowsContent: {
+    gap: 10,
+    paddingBottom: 4,
+  },
+  openingRowCard: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    padding: 10,
+    gap: 9,
+    backgroundColor: '#fff',
+  },
+  openingRowHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  openingRowTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#222',
+  },
+  openingRemoveBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fef2f2',
+  },
+  openingInputGrid: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  openingSelectBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    minHeight: 58,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    backgroundColor: '#fafafa',
+  },
+  openingSelectLabel: {
+    fontSize: 11,
+    color: '#888',
+    marginBottom: 2,
+  },
+  openingSelectValue: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#222',
+  },
+  openingSelectMeta: {
+    fontSize: 11,
+    color: '#888',
+    marginTop: 2,
+  },
+  openingInput: {
+    minHeight: 40,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 9,
+    paddingHorizontal: 10,
+    color: '#222',
+    fontSize: 13,
+    backgroundColor: '#fafafa',
+  },
+  openingPickerPanel: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    padding: 10,
+    gap: 10,
+    backgroundColor: '#fff',
+  },
+  openingPickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  openingPickerTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#222',
+  },
+  openingSearchInput: {
+    minHeight: 40,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 9,
+    paddingHorizontal: 10,
+    color: '#222',
+    fontSize: 13,
+    backgroundColor: '#fafafa',
+  },
+  openingPickerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 10,
+  },
+  openingPickerName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#222',
+  },
+  openingPickerMeta: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 2,
+  },
+  openingPickerDivider: {
+    height: 1,
+    backgroundColor: '#f1f5f9',
+  },
+  openingPickerEmpty: {
+    textAlign: 'center',
+    color: '#999',
+    paddingVertical: 18,
+  },
+  openingCategoryRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  openingCategoryChip: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 9,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 9,
+  },
+  openingCategoryChipActive: {
+    borderColor: ColorMain,
+    backgroundColor: '#e8f8f2',
+  },
+  openingCategoryText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#666',
+  },
+  openingCategoryTextActive: {
+    color: ColorMain,
+  },
+  openingActionRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  openingAddBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    borderRadius: 12,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: ColorMain,
+  },
+  openingAddText: {
+    color: ColorMain,
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  openingSaveBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: ColorMain,
+    borderRadius: 12,
+    paddingVertical: 12,
   },
   tabBar: {
     flexDirection: 'row',

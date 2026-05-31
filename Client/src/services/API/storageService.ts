@@ -2,6 +2,10 @@ import axiosInstance from "@/src/services/API/axios";
 import {
 	NamesUnitsResponse,
 	NewProductInventory,
+	InventoryReportCategory,
+	InventoryReportResponse,
+	OpeningBalanceItemInput,
+	OpeningBalanceResponse,
 	ProductInventory,
 	ProductInventoryList,
 	SerpApiProductResponse,
@@ -127,6 +131,46 @@ export const getStockSummary = async (startDate?: string, endDate?: string): Pro
 		if (endDate) params.append('endDate', endDate);
 		const res = await axiosInstance.get<StockSummaryResponse>(
 			`storage-item/stock-summary?${params.toString()}`
+		);
+		return res.data;
+	} catch (error: any) {
+		if (error.response) {
+			throw error.response.data;
+		}
+		throw error;
+	}
+};
+
+export const getInventoryReport = async (
+	startDate: string,
+	endDate: string,
+	category: InventoryReportCategory = 'all'
+): Promise<InventoryReportResponse> => {
+	try {
+		const params = new URLSearchParams();
+		params.append('startDate', startDate);
+		params.append('endDate', endDate);
+		params.append('category', category);
+		const res = await axiosInstance.get<InventoryReportResponse>(
+			`storage-item/inventory-report?${params.toString()}`
+		);
+		return res.data;
+	} catch (error: any) {
+		if (error.response) {
+			throw error.response.data;
+		}
+		throw error;
+	}
+};
+
+export const saveOpeningBalance = async (
+	documentDate: string,
+	items: OpeningBalanceItemInput[]
+): Promise<OpeningBalanceResponse> => {
+	try {
+		const res = await axiosInstance.post<OpeningBalanceResponse>(
+			"storage-item/opening-balance",
+			{ documentDate, items }
 		);
 		return res.data;
 	} catch (error: any) {

@@ -116,14 +116,18 @@ const ChangesRow = ({ changes }: { changes: StockLogChange[] }) => (
   </View>
 );
 
-const SOURCE_CONFIG: Record<StockLog['source'], { label: string; bg: string; color: string }> = {
+const SOURCE_CONFIG: Partial<Record<StockLog['source'], { label: string; bg: string; color: string }>> = {
+  opening_balance: { label: 'Số dư đầu', bg: '#F1F5F9', color: '#64748B' },
   manual_add: { label: 'Thêm mới', bg: '#EDE9FE', color: '#7C3AED' },
   manual_update: { label: 'Cập nhật', bg: '#FEF3C7', color: '#D97706' },
   manual_delete: { label: 'Đã xoá', bg: '#FEE2E2', color: '#DC2626' },
+  invoice_in: { label: 'Hóa đơn mua', bg: '#ECFDF5', color: '#10B981' },
+  invoice_out: { label: 'Hóa đơn bán', bg: '#FEF2F2', color: '#EF4444' },
+  merge: { label: 'Gộp kho', bg: '#EEF2FF', color: '#6366F1' },
 };
 
 const SourceBadge = ({ source }: { source: StockLog['source'] }) => {
-  const cfg = SOURCE_CONFIG[source] ?? SOURCE_CONFIG.manual_add;
+  const cfg = SOURCE_CONFIG[source] ?? { label: 'Thêm mới', bg: '#EDE9FE', color: '#7C3AED' };
   return (
     <View style={[styles.badge, { backgroundColor: cfg.bg }]}>
       <Text style={[styles.badgeText, { color: cfg.color }]}>{cfg.label}</Text>
@@ -131,17 +135,27 @@ const SourceBadge = ({ source }: { source: StockLog['source'] }) => {
   );
 };
 
+const getLogQuantityChange = (item: StockLog) => {
+  if (typeof item.signedQuantity === 'number') return item.signedQuantity;
+  if (item.direction === 'out' || item.source === 'manual_delete' || item.source === 'invoice_out') {
+    return -Math.abs(item.quantityChanged ?? 0);
+  }
+  return Math.abs(item.quantityChanged ?? 0);
+};
+
 const LogRow = ({ item }: { item: StockLog }) => {
   const { time, date } = formatDateTime(item.createdAt);
+  const quantityChange = getLogQuantityChange(item);
+  const isOut = quantityChange < 0;
   const isDelete = item.source === 'manual_delete';
   return (
     <View style={[styles.logRow, isDelete && styles.logRowDeleted]}>
       <View style={styles.logRowHeader}>
         <View style={styles.logRowLeft}>
           <MaterialCommunityIcons
-            name={isDelete ? 'package-variant-closed-remove' : 'package-variant'}
+            name={isOut ? 'package-variant-closed-remove' : 'package-variant'}
             size={18}
-            color={isDelete ? '#DC2626' : '#7C3AED'}
+            color={isOut ? '#DC2626' : '#7C3AED'}
           />
           <Text
             style={[styles.logItemName, isDelete && { color: '#DC2626', textDecorationLine: 'line-through' }]}
@@ -157,7 +171,7 @@ const LogRow = ({ item }: { item: StockLog }) => {
         <View style={styles.metaChip}>
           <Ionicons name="layers-outline" size={12} color="#6B7280" />
           <Text style={styles.metaText}>
-            {isDelete ? '-' : '+'}{item.quantityChanged ?? 0} {item.unit ?? ''}
+            {quantityChange > 0 ? '+' : quantityChange < 0 ? '-' : ''}{Math.abs(quantityChange)} {item.unit ?? ''}
           </Text>
         </View>
         {item.pricePerUnit !== undefined && item.pricePerUnit > 0 && (
@@ -828,4 +842,3 @@ const styles = StyleSheet.create({
   },
   modalStatText: { fontSize: 12, fontWeight: '600' },
 });
-

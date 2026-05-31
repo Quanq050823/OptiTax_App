@@ -311,7 +311,10 @@ function ModalSyncDashBoard({
         >
           <TouchableOpacity
             style={styles.btnExitModalSync}
-            //   onPress={onAddOrEditProductInventory}
+            onPress={() => {
+              setVisible(false);
+              setLoading(false);
+            }}
           >
             <Text style={{ color: ColorMain, fontWeight: "600" }}>Xong</Text>
           </TouchableOpacity>

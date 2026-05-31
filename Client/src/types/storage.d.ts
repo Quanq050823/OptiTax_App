@@ -15,6 +15,7 @@ export interface ProductInventory {
 		conversionFactor: number;
 	}>;
 	_id: string;
+	code?: string;
 	name: string;
 	stock: number;
 	unit: string;
@@ -109,9 +110,18 @@ export type StockLog = {
 	itemName: string;
 	unit?: string;
 	quantityChanged?: number;
+	stockBefore?: number;
 	stockAfter?: number;
+	signedQuantity?: number;
+	direction?: 'in' | 'out' | 'neutral';
+	amount?: number;
 	pricePerUnit?: number;
-	source: 'manual_add' | 'manual_update' | 'manual_delete';
+	source: 'opening_balance' | 'manual_add' | 'manual_update' | 'manual_delete' | 'invoice_in' | 'invoice_out' | 'merge';
+	documentType?: string;
+	documentNumber?: string;
+	documentDate?: string;
+	counterpartyName?: string;
+	reportable?: boolean;
 	label: string;
 	changes?: StockLogChange[];
 	note?: string;
@@ -158,3 +168,70 @@ export type SerpApiProductResponse = {
 	data: SerpApiProduct[];
 };
 
+export type InventoryReportCategory = 'all' | '1' | '2';
+
+export type InventoryReportRow = {
+	itemId: string;
+	itemCode: string;
+	itemName: string;
+	unit: string;
+	unitPrice: number;
+	openingQuantity: number;
+	openingValue: number;
+	inQuantity: number;
+	inValue: number;
+	outQuantity: number;
+	outValue: number;
+	closingQuantity: number;
+	closingValue: number;
+};
+
+export type InventoryReportTotals = {
+	openingQuantity: number;
+	openingValue: number;
+	inQuantity: number;
+	inValue: number;
+	outQuantity: number;
+	outValue: number;
+	closingQuantity: number;
+	closingValue: number;
+};
+
+export type InventoryReportResponse = {
+	profile: {
+		businessName?: string;
+		taxCode?: string;
+		address?: any;
+		addressText?: string;
+	};
+	period: {
+		startDate: string;
+		endDate: string;
+	};
+	accountCodes: string;
+	rows: InventoryReportRow[];
+	totals: InventoryReportTotals;
+	generatedAt: string;
+};
+
+export type OpeningBalanceItemInput = {
+	storageItemId?: string;
+	code?: string;
+	name: string;
+	unit: string;
+	openingQuantity: number;
+	unitPrice: number;
+	category?: number;
+};
+
+export type OpeningBalanceResponse = {
+	message: string;
+	documentDate: string;
+	data: Array<{
+		storageItemId: string;
+		name: string;
+		unit: string;
+		openingQuantity: number;
+		currentStock: number;
+	}>;
+};
