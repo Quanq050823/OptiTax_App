@@ -18,7 +18,7 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ScrollView,
   Text,
@@ -43,6 +43,24 @@ import MovingText from "./MovingText";
 import { getTotalTaxes } from "@/src/services/API/taxService";
 import Svg, { Path, Text as SvgText } from "react-native-svg";
 import ButtonToKhai from "./ButtonToKhai";
+import { useFocusEffect } from "@react-navigation/native";
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const withRetry = async <T,>(
+  task: () => Promise<T>,
+  retries = 2,
+  delayMs = 450,
+): Promise<T> => {
+  try {
+    return await task();
+  } catch (error) {
+    if (retries <= 0) throw error;
+    await sleep(delayMs);
+    return withRetry(task, retries - 1, delayMs * 1.5);
+  }
+};
+
 export default function Analytics() {
   const navigate = useAppNavigation();
   const [visiSync, setVisiSync] = useState(false);
@@ -91,22 +109,14 @@ export default function Analytics() {
   );
   const [showFilterModal, setShowFilterModal] = useState(false);
 
-  const fetchTotalTaxes = async () => {
+  const fetchTaxDeadline = useCallback(async () => {
     try {
-      const result = await getTotalTaxes();
-      setTotalGTGT(result.totalGTGT);
-      setTotalTNCN(result.totalTNCN);
-    } catch (error) {
-      return;
-    }
-  };
-
-  const fetchTaxDeadline = async () => {
-    try {
-      const { getTaxDeadline } = await import(
-        "@/src/services/API/profileService"
-      );
-      const result = await getTaxDeadline();
+      const result = await withRetry(async () => {
+        const { getTaxDeadline } = await import(
+          "@/src/services/API/profileService"
+        );
+        return getTaxDeadline();
+      });
       setDeadlineInfo({
         period: result.period,
         deadline: result.deadline,
@@ -116,29 +126,34 @@ export default function Analytics() {
     } catch (error) {
       return;
     }
-  };
+  }, []);
 
-  const fetchTaxSummary = async () => {
+  const fetchTaxSummary = useCallback(async () => {
     try {
-      const result = await getTotalTaxes(
-        filterPeriodType,
-        filterYear,
-        filterPeriod
+      const result = await withRetry(() =>
+        getTotalTaxes(
+          filterPeriodType,
+          filterYear,
+          filterPeriod
+        )
       );
 
       setTotalGTGT(result.totalGTGT);
       setTotalTNCN(result.totalTNCN);
     } catch (error) {
       console.error("Error fetching tax summary:", error);
-      setTotalGTGT(0);
-      setTotalTNCN(0);
     }
-  };
+  }, [filterPeriod, filterPeriodType, filterYear]);
 
-  useEffect(() => {
-    fetchTaxDeadline();
-    fetchTaxSummary();
-  }, [filterPeriodType, filterYear, filterPeriod]);
+  const fetchDashboardData = useCallback(async () => {
+    await Promise.all([fetchTaxDeadline(), fetchTaxSummary()]);
+  }, [fetchTaxDeadline, fetchTaxSummary]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchDashboardData();
+    }, [fetchDashboardData])
+  );
 
   useEffect(() => {
     // Hiệu ứng khi vào trang
