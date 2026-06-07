@@ -35,13 +35,6 @@ function StoreScreen() {
             <Text style={styles.value}>{data?.taxCode}</Text>
           </View>
           <View style={[styles.wrFieldOther, { gap: 30 }]}>
-            <Text style={styles.mst}>Trạng thái hoạt động:</Text>
-            <View style={{ alignItems: "center", flexWrap: "wrap", flex: 1 }}>
-              <View style={styles.status}></View>
-              <Text style={styles.value}>Đang hoạt động</Text>
-            </View>
-          </View>
-          <View style={[styles.wrFieldOther, { gap: 30 }]}>
             <Text style={styles.mst}>SĐT:</Text>
             <Text style={styles.value}>{data?.phoneNumber}</Text>
           </View>

@@ -218,57 +218,6 @@ function Option() {
 						</TouchableOpacity>
 						<TouchableOpacity style={styles.item}>
 							<View style={{ flexDirection: "row", alignItems: "center" }}>
-								<FontAwesome6
-									name="file-invoice"
-									size={17}
-									color={colors.textLight}
-								/>
-								<Text style={[styles.titleItem, { color: colors.textLight }]}>
-									Quản lý hoá đơn
-								</Text>
-							</View>
-							<MaterialIcons
-								name="keyboard-arrow-right"
-								size={20}
-								color={colorText}
-							/>
-						</TouchableOpacity>
-						<TouchableOpacity
-							style={styles.item}
-							onPress={() => navigate.navigate("ProductManager")}
-						>
-							<View style={{ flexDirection: "row", alignItems: "center" }}>
-								<AntDesign name="product" size={17} color={colors.textLight} />
-								<Text style={[styles.titleItem, { color: colors.textLight }]}>
-									Quản lý sản phẩm
-								</Text>
-							</View>
-
-							<MaterialIcons
-								name="keyboard-arrow-right"
-								size={20}
-								color={colorText}
-							/>
-						</TouchableOpacity>
-						<TouchableOpacity
-							style={styles.item}
-							onPress={() => navigate.navigate("ProductManager")}
-						>
-							<View style={{ flexDirection: "row", alignItems: "center" }}>
-								<Feather name="users" size={17} color={colors.textLight} />
-								<Text style={[styles.titleItem, { color: colors.textLight }]}>
-									Quản lý khách hàng
-								</Text>
-							</View>
-
-							<MaterialIcons
-								name="keyboard-arrow-right"
-								size={20}
-								color={colorText}
-							/>
-						</TouchableOpacity>
-						<TouchableOpacity style={styles.item}>
-							<View style={{ flexDirection: "row", alignItems: "center" }}>
 								<Ionicons name="moon" size={17} color={colors.textLight} />
 								<Text style={[styles.titleItem, { color: colors.textLight }]}>
 									Chế độ tối
@@ -279,20 +228,6 @@ function Option() {
 								value={isDark}
 								onValueChange={setIsDark}
 								trackColor={{ false: "#d1d1d1", true: "#3c88acff" }}
-							/>
-						</TouchableOpacity>
-						<TouchableOpacity style={styles.item}>
-							<View style={{ flexDirection: "row", alignItems: "center" }}>
-								<Feather name="settings" size={17} color={colors.textLight} />
-								<Text style={[styles.titleItem, { color: colors.textLight }]}>
-									Cài đặt
-								</Text>
-							</View>
-
-							<MaterialIcons
-								name="keyboard-arrow-right"
-								size={20}
-								color={colorText}
 							/>
 						</TouchableOpacity>
 					</View>
