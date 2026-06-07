@@ -2,7 +2,7 @@
   "expo": {
     "name": "DATTAX",
     "slug": "taxDemo",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/DAT_Logo_White_BlueBg.png",
     "scheme": "dattax",
@@ -27,8 +27,11 @@
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.INTERNET"
       ],
+      "permissionDescriptions": {
+        "CAMERA": "Ứng dụng cần quyền truy cập camera để quét mã vạch."
+      },
       "package": "com.company.taxdemo",
-      "versionCode": 4
+      "versionCode": 5
     },
     "extra": {
       "privacyPolicy": "https://sites.google.com/d/18x6MY5hb4XTRNLfK0hAUihaUjgVyWC-_/p/1vQ8I2qiQLaYNLVHAS6pkuIDZycvOrjS2/edit",
@@ -53,9 +56,7 @@
           "backgroundColor": "#1F2456"
         }
       ],
-      [
-        "expo-file-system"
-      ]
+      ["expo-file-system"]
     ],
     "experiments": {
       "typedRoutes": true
