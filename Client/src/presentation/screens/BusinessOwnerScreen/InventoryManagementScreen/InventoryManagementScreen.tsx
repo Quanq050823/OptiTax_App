@@ -71,23 +71,6 @@ type NewProduct = {
   attributes: { key: string; value: string }[];
 };
 
-const DEFAULT_THUMBNAIL =
-  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSErqSt2kBmwnB-jYBsysGhqN6cg_kuGAD7bA&s";
-
-const productData = [
-  {
-    _id: 1,
-    name: "Đường bà Tú",
-    code: "ĐT",
-    category: "Ăn uống",
-    unit: "kg",
-    price: "12000",
-    imageUrl: "https://example.com/images/tshirt001.jpg",
-    stock: 10,
-    isActive: true,
-  },
-];
-
 export default function InventoryManagerScreen() {
   const slideAnim = useRef(new Animated.Value(0)).current;
 

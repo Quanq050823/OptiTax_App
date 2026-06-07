@@ -2,12 +2,10 @@ import { ColorMain } from "@/src/presentation/components/colors";
 import ModalUpdatePhoneBussiness from "@/src/presentation/components/Modal/ModalUpdatePhoneBussiness";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { getUserProfile } from "@/src/services/API/profileService";
-import { Profile, UserProfile } from "@/src/types/route";
+import { UserProfile } from "@/src/types/route";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
-  Image,
-  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,8 +15,18 @@ import {
 } from "react-native";
 import { Avatar } from "react-native-paper";
 
+const getInitials = (value?: string) => {
+  if (!value) return "EO";
+  return value
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word.charAt(0).toUpperCase())
+    .join("");
+};
+
 function EditProfileScreen() {
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const navigate = useAppNavigation();
   const [visibleModalEditProfile, setVisibleModalEditProfile] = useState(false);
 
@@ -45,10 +53,13 @@ function EditProfileScreen() {
             alignSelf: "center",
           }}
         >
-          <Avatar.Image
-            size={80}
-            source={{ uri: "https://randomuser.me/api/portraits/men/75.jpg" }}
-          />
+          {profile?.avatar ? (
+            <Avatar.Image size={80} source={{ uri: profile.avatar }} />
+          ) : (
+            <View style={styles.avatarFallback}>
+              <Text style={styles.avatarFallbackText}>{getInitials(profile?.name)}</Text>
+            </View>
+          )}
           <View
             style={{
               position: "absolute",
@@ -185,6 +196,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  avatarFallback: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#e8f3f1",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarFallbackText: {
+    color: "#1f7a70",
+    fontSize: 22,
+    fontWeight: "800",
   },
   btnSave: {
     width: "95%",

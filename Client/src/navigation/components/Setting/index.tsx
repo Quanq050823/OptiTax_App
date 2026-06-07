@@ -26,22 +26,6 @@ function Setting(props: any) {
               })
             }
           />
-          <CustomDrawerItem
-            label="Ngôn ngữ"
-            screenName="LanguagesScreen"
-            icon={(focused, color, size) => (
-              <Ionicons
-                name={focused ? "language" : "language"}
-                size={size}
-                color={color}
-              />
-            )}
-            onPress={() =>
-              props.navigation.navigate("HomeLayout", {
-                screen: "LanguagesScreen",
-              })
-            }
-          />
         </TouchableOpacity>
       </View>
     </View>

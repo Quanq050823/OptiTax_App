@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import CustomDrawerItem from "../CustomDrawer/CustomDrawerItem";
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
 
 function Employees(props: any) {
   return (
@@ -10,7 +10,7 @@ function Employees(props: any) {
       </View>
       <CustomDrawerItem
         label="Nhân viên"
-        screenName="ExployeesScreen"
+        screenName="EmployeesScreen"
         icon={(focused, color, size) => (
           <FontAwesome name="users" size={20} color={color} />
         )}

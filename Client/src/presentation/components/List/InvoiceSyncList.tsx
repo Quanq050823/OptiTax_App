@@ -1,7 +1,6 @@
 import { ColorMain } from "@/src/presentation/components/colors";
 import { useAppNavigation } from "@/src/presentation/Hooks/useAppNavigation";
 import { InvoiceSummary } from "@/src/types/invoiceIn";
-import { Invoice } from "@/src/types/route";
 import {
   FlatList,
   StyleSheet,
@@ -10,29 +9,6 @@ import {
   View,
 } from "react-native";
 
-const invoices: any = [
-  {
-    id: "HD001",
-    date: "2025-08-20",
-    supplier: "Công ty ABC",
-    total: 1500000,
-    status: 1,
-  },
-  {
-    id: "HD002",
-    date: "2025-08-21",
-    supplier: "Nhà cung cấp XYZ",
-    total: 2800000,
-    status: 0,
-  },
-  {
-    id: "HD003",
-    date: "2025-08-22",
-    supplier: "Siêu thị Metro",
-    total: 560000,
-    status: 2,
-  },
-];
 type invoice = {
   invoicesData: InvoiceSummary[];
 };
@@ -57,12 +33,12 @@ function InvoiceSyncList({ invoicesData }: invoice) {
 
     const label = "Hoá đơn mua vào";
 
-    return (
-      <TouchableOpacity
-        onPress={() =>
-          navigate.navigate("InvoiceDetailScreen", { item, total, label })
-        }
-      >
+	    return (
+	      <TouchableOpacity
+	        onPress={() =>
+	          navigate.navigate("InvoiceDetailScreen", { item: item as any, total, label })
+	        }
+	      >
         <View style={styles.card}>
           <View style={styles.headerItem}>
             <Text style={styles.supplier}>{item.loaiHoaDon}</Text>
@@ -95,11 +71,11 @@ function InvoiceSyncList({ invoicesData }: invoice) {
   };
 
   return (
-    <FlatList
-      data={invoicesData}
-      keyExtractor={(item) =>
-        item.soHoaDon ? item.soHoaDon : Math.random().toString()
-      }
+	    <FlatList
+	      data={invoicesData}
+	      keyExtractor={(item, index) =>
+	        item.soHoaDon ? String(item.soHoaDon) : `invoice-sync-${index}`
+	      }
       renderItem={renderItem}
       contentContainerStyle={styles.container}
     />

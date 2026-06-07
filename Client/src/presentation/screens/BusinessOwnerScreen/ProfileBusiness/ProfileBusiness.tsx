@@ -3,27 +3,26 @@ import { ColorMain } from "@/src/presentation/components/colors";
 import {
   BusinessInforAuth,
   getUserProfile,
+  updateUserAvatar,
   UpdateUserProfile,
 } from "@/src/services/API/profileService";
 import { Profile, RootStackParamList, UserProfile } from "@/src/types/route";
 import {
-  Entypo,
   Feather,
-  FontAwesome,
-  Fontisto,
   MaterialIcons,
 } from "@expo/vector-icons";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import {
-  NavigationProp,
   useIsFocused,
   useNavigation,
 } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { LinearGradient } from "expo-linear-gradient";
+import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -31,15 +30,27 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Avatar } from "react-native-paper";
+import { useData } from "@/src/presentation/Hooks/useDataStore";
 type NavProp = StackNavigationProp<RootStackParamList>;
 type UpdateProfilePayload = Pick<UserProfile, "_id" | "name" | "email">;
 
+const getInitials = (value?: string) => {
+  if (!value) return "EO";
+  return value
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word.charAt(0).toUpperCase())
+    .join("");
+};
+
 function ProfileBusiness() {
   const navigate = useNavigation<NavProp>();
+  const { setData } = useData();
   const [profile, setProfile] = useState<Profile | null>(null);
   const isFocused = useIsFocused();
   const [loading, setLoading] = useState<boolean>(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [newProfile, setNewProfile] = useState<UpdateProfilePayload>({
     _id: "",
     name: "",
@@ -51,17 +62,20 @@ function ProfileBusiness() {
       const dataBussiness = await BusinessInforAuth();
       setProfile({
         ...data,
-        businessName: dataBussiness?.businessName,
-        address: dataBussiness?.address,
-        phoneNumber: dataBussiness?.phoneNumber,
-      });
+          businessName: dataBussiness?.businessName,
+          address: dataBussiness?.address,
+          phoneNumber: dataBussiness?.phoneNumber,
+          taxCode: dataBussiness?.taxCode,
+          password: dataBussiness?.password,
+          businessType: dataBussiness?.businessType,
+        });
 
       setNewProfile({
         _id: data._id,
         name: data.name,
         email: data.email,
       });
-    } catch (error) {
+    } catch {
       Alert.alert("Phiên đăng nhập hết hạn", "Vui lòng đăng nhập lại", [
         {
           text: "Đăng nhập lại",
@@ -88,13 +102,51 @@ function ProfileBusiness() {
 
     setLoading(true);
     try {
-      await UpdateUserProfile(newProfile); // ✅ CHỈ 3 FIELD
+      const updated = await UpdateUserProfile({ name: newProfile.name.trim() });
+      setProfile((prev) => (prev ? { ...prev, ...updated } : (updated as Profile)));
+      setData((prev) => (prev ? { ...prev, ...updated } : (updated as Profile)));
       Alert.alert("Thành công", "Cập nhật hồ sơ thành công");
-      navigate.goBack();
-    } catch (error) {
+    } catch {
       Alert.alert("Lỗi", "Cập nhật hồ sơ thất bại, vui lòng thử lại");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePickAvatar = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permission.status !== "granted") {
+      Alert.alert("Thông báo", "Bạn cần cấp quyền thư viện ảnh để đổi avatar");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.75,
+    });
+
+    if (result.canceled || !result.assets?.[0]) return;
+
+    const image = result.assets[0];
+    setUploadingAvatar(true);
+    try {
+      const updated = await updateUserAvatar(
+        {
+          uri: image.uri,
+          name: image.fileName || "avatar.jpg",
+          type: image.mimeType || "image/jpeg",
+        },
+        newProfile.name,
+      );
+      setProfile((prev) => (prev ? { ...prev, ...updated } : (updated as Profile)));
+      setData((prev) => (prev ? { ...prev, ...updated } : (updated as Profile)));
+      Alert.alert("Thành công", "Đã cập nhật ảnh đại diện");
+    } catch {
+      Alert.alert("Lỗi", "Không thể cập nhật ảnh đại diện");
+    } finally {
+      setUploadingAvatar(false);
     }
   };
 
@@ -104,8 +156,20 @@ function ProfileBusiness() {
         {profile ? (
           <>
             <View style={styles.wrInfo}>
-              <TouchableOpacity style={{ position: "relative" }}>
-                <Avatar.Image size={70} source={{ uri: profile._id }} />
+              <TouchableOpacity
+                style={{ position: "relative" }}
+                onPress={handlePickAvatar}
+                disabled={uploadingAvatar}
+              >
+                {profile.avatar ? (
+                  <Image source={{ uri: profile.avatar }} style={styles.avatar} />
+                ) : (
+                  <View style={styles.avatarFallback}>
+                    <Text style={styles.avatarFallbackText}>
+                      {getInitials(profile.businessName || profile.name)}
+                    </Text>
+                  </View>
+                )}
                 <View
                   style={{
                     position: "absolute",
@@ -116,7 +180,11 @@ function ProfileBusiness() {
                     padding: 4,
                   }}
                 >
-                  <Feather name="edit" size={15} color="#fff" />
+                  {uploadingAvatar ? (
+                    <ActivityIndicator size={13} color="#fff" />
+                  ) : (
+                    <Feather name="camera" size={15} color="#fff" />
+                  )}
                 </View>
               </TouchableOpacity>
               <View style={styles.wrField}>
@@ -134,12 +202,10 @@ function ProfileBusiness() {
                 <View style={styles.wrInput}>
                   <Text style={styles.labelInput}>Email</Text>
                   <TextInput
-                    placeholder="Tên"
+                    placeholder="Email"
                     style={styles.input}
                     value={newProfile.email}
-                    onChangeText={(text) =>
-                      setNewProfile((prev) => ({ ...prev, email: text }))
-                    }
+                    editable={false}
                   />
                 </View>
 
@@ -178,9 +244,10 @@ function ProfileBusiness() {
                     },
                   ]}
                   onPress={handleSaveProfile}
+                  disabled={loading}
                 >
                   <Text style={{ color: "#fff", fontWeight: "500" }}>
-                    Lưu hồ sơ
+                    {loading ? "Đang lưu..." : "Lưu hồ sơ"}
                   </Text>
                 </TouchableOpacity>
               </LinearGradient>
@@ -223,6 +290,29 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "#afafafff",
     borderRadius: 10,
+  },
+  avatar: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    borderWidth: 2,
+    borderColor: "#ffffff",
+    backgroundColor: "#f1f5f9",
+  },
+  avatarFallback: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: "#e8f3f1",
+    borderWidth: 2,
+    borderColor: "#ffffff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarFallbackText: {
+    color: "#1f7a70",
+    fontSize: 22,
+    fontWeight: "800",
   },
 
   textPosition: {

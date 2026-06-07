@@ -13,8 +13,15 @@ export type Customer = {
   email?: string;
   phoneNumber: string;
   customerType: "individual" | "business"; // cá nhân hoặc doanh nghiệp
+  taxCode?: string;
+  companyName?: string;
+  contactPerson?: string;
+  dateOfBirth?: string;
+  gender?: "male" | "female" | "other";
   notes?: string;
-  status: "active" | "inactive"; // trạng thái
+  creditLimit?: number;
+  paymentTerms?: string;
+  status: "active" | "inactive" | "blacklisted"; // trạng thái
   tags: string[];
   totalOrders: number;
   totalSpent: number;

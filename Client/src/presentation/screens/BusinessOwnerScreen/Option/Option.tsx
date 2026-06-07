@@ -6,6 +6,7 @@ import { useTheme } from "@/src/presentation/Hooks/useTheme";
 import {
 	BusinessInforAuth,
 	getUserProfile,
+	updateUserAvatar,
 } from "@/src/services/API/profileService";
 import { Profile, UserProfile } from "@/src/types/route";
 import {
@@ -16,8 +17,11 @@ import {
 	MaterialIcons,
 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import * as ImagePicker from "expo-image-picker";
 import * as React from "react";
 import {
+	ActivityIndicator,
+	Alert,
 	Image,
 	ScrollView,
 	StyleSheet,
@@ -26,16 +30,24 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import { Avatar } from "react-native-paper";
+
+const getInitials = (value?: string) => {
+	if (!value) return "EO";
+	return value
+		.trim()
+		.split(/\s+/)
+		.slice(0, 2)
+		.map((word) => word.charAt(0).toUpperCase())
+		.join("");
+};
 
 function Option() {
 	const navigate = useAppNavigation();
-	// const { data } = useData();
-	const [data, setData] = React.useState({});
+	const { data, setData } = useData();
 	const [profile, setProfile] = React.useState<Profile | null>(null);
-	const [isEnabled, setIsEnabled] = React.useState(false);
 	const { isDark, setIsDark } = useTheme();
 	const colors = useColors();
+	const [uploadingAvatar, setUploadingAvatar] = React.useState(false);
 
 	const fetchProfile = async () => {
 		try {
@@ -46,14 +58,58 @@ function Option() {
 				businessName: dataBussiness?.businessName,
 				address: dataBussiness?.address,
 				phoneNumber: dataBussiness?.phoneNumber,
+				taxCode: dataBussiness?.taxCode,
+				password: dataBussiness?.password,
+				businessType: dataBussiness?.businessType,
 			});
 		} catch (error) {
 			console.error("Error fetching profile:", error);
 		}
 	};
+
+	const handlePickAvatar = async () => {
+		const permission =
+			await ImagePicker.requestMediaLibraryPermissionsAsync();
+		if (permission.status !== "granted") {
+			Alert.alert("Thông báo", "Bạn cần cấp quyền thư viện ảnh để đổi avatar");
+			return;
+		}
+
+		const result = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: ImagePicker.MediaTypeOptions.Images,
+			allowsEditing: true,
+			aspect: [1, 1],
+			quality: 0.75,
+		});
+
+		if (result.canceled || !result.assets?.[0]) return;
+
+		const image = result.assets[0];
+		setUploadingAvatar(true);
+		try {
+			const updated = await updateUserAvatar(
+				{
+					uri: image.uri,
+					name: image.fileName || "avatar.jpg",
+					type: image.mimeType || "image/jpeg",
+				},
+				profile?.name,
+			);
+			setProfile((prev) => (prev ? { ...prev, ...updated } : (updated as Profile)));
+			setData((prev) => (prev ? { ...prev, ...updated } : (updated as Profile)));
+			Alert.alert("Thành công", "Đã cập nhật ảnh đại diện");
+		} catch {
+			Alert.alert("Lỗi", "Không thể cập nhật ảnh đại diện");
+		} finally {
+			setUploadingAvatar(false);
+		}
+	};
+
 	React.useEffect(() => {
 		fetchProfile();
 	}, []);
+	const displayName = profile?.businessName || profile?.name || data?.businessName || data?.name;
+	const avatarUrl = profile?.avatar || data?.avatar;
 	return (
 		<View style={{ flex: 1, width: "100%" }}>
 			{/* <HeaderScreen /> */}
@@ -86,10 +142,29 @@ function Option() {
 								elevation: 5,
 							}}
 						>
-							<Avatar.Image
-								size={70}
-								source={{ uri: "https://i.pravatar.cc/100" }}
-							/>
+							<TouchableOpacity
+								style={styles.avatarAction}
+								activeOpacity={0.8}
+								onPress={handlePickAvatar}
+								disabled={uploadingAvatar}
+							>
+								{avatarUrl ? (
+									<Image source={{ uri: avatarUrl }} style={styles.avatar} />
+								) : (
+									<View style={styles.avatarFallback}>
+										<Text style={styles.avatarFallbackText}>
+											{getInitials(displayName)}
+										</Text>
+									</View>
+								)}
+								<View style={styles.avatarEditBadge}>
+									{uploadingAvatar ? (
+										<ActivityIndicator size={12} color="#fff" />
+									) : (
+										<Feather name="camera" size={13} color="#fff" />
+									)}
+								</View>
+							</TouchableOpacity>
 							<View
 								style={{
 									justifyContent: "space-between",
@@ -98,7 +173,9 @@ function Option() {
 									height: 60,
 								}}
 							>
-								<Text style={styles.name}>{profile?.businessName}</Text>
+								<Text style={styles.name} numberOfLines={1}>
+									{displayName || "Tài khoản EON"}
+								</Text>
 								<Text style={styles.role}>{profile?.email}</Text>
 								<Text style={styles.role}>
 									{profile?.userType === 1 ? "Hộ kinh doanh" : "Kế toán viên"}
@@ -130,7 +207,7 @@ function Option() {
 										marginRight: 5,
 									}}
 								>
-									Cửa hàng EON
+									{profile?.businessName || "Chưa cập nhật"}
 								</Text>
 								<MaterialIcons
 									name="keyboard-arrow-right"
@@ -248,6 +325,46 @@ const styles = StyleSheet.create({
 	actionProfile: {
 		padding: 5,
 		borderRadius: 5,
+	},
+	avatarAction: {
+		width: 74,
+		height: 74,
+		position: "relative",
+	},
+	avatar: {
+		width: 70,
+		height: 70,
+		borderRadius: 35,
+		borderWidth: 2,
+		borderColor: "#ffffff",
+	},
+	avatarFallback: {
+		width: 70,
+		height: 70,
+		borderRadius: 35,
+		backgroundColor: "#e8f3f1",
+		borderWidth: 2,
+		borderColor: "#ffffff",
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	avatarFallbackText: {
+		color: "#1f7a70",
+		fontSize: 20,
+		fontWeight: "800",
+	},
+	avatarEditBadge: {
+		position: "absolute",
+		right: 0,
+		bottom: 2,
+		width: 24,
+		height: 24,
+		borderRadius: 12,
+		backgroundColor: "#1f7a70",
+		alignItems: "center",
+		justifyContent: "center",
+		borderWidth: 2,
+		borderColor: "#ffffff",
 	},
 	item: {
 		flexDirection: "row",

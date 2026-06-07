@@ -1,5 +1,6 @@
 import { ExportInvoiceDetailParams } from "./invoiceExport";
 import { InvoiceSummary, RawInvoice } from "./invoiceIn";
+import { Employee } from "./employees";
 
 type RootStackParamList = {
 	VerifyAuth: undefined;
@@ -45,6 +46,7 @@ type RootStackParamList = {
 	ExportExcelScreen: undefined;
 	TaxScreen: undefined;
 	EmployeesScreen: undefined;
+	EmployeeDetailScreen: { employee: Employee };
 	NewIngredientList: undefined;
 	ChooseReportItemScreen: undefined;
 	ChartExportScreen: undefined;
@@ -125,6 +127,7 @@ export interface UserProfile {
 	_id: string;
 	name: string;
 	email: string;
+	avatar?: string;
 	phone?: string;
 	isDeleted: boolean;
 	role: string;

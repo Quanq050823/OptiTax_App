@@ -1,21 +1,45 @@
-export interface Employee {
-  _id: string;                  // ID duy nhất của nhân viên
-  businessOwnerId: string;      // ID của chủ doanh nghiệp hoặc công ty
-  code: string;                 // Mã nhân viên (Employee Code)
-  fullName: string;             // Họ tên nhân viên
-  position: string;             // Chức vụ (VD: Kế toán, Nhân viên bán hàng)
-  department?: string;          // Phòng ban (tùy chọn)
-  dateOfBirth?: string;         // Ngày sinh (ISO format)
-  phoneNumber?: string;         // Số điện thoại
-  email?: string;               // Email
-  address?: string;             // Địa chỉ
-  hireDate: string;             // Ngày bắt đầu làm việc
-  salary?: number;              // Mức lương (tùy chọn)
-  note?: string;                // Ghi chú khác
-  status?: "active" | "inactive" | "resigned"; // Trạng thái nhân viên
-  __v?: number;                 // Version (MongoDB)
+export interface EmployeeServerItem {
+  _id: string;
+  businessOwnerId: string;
+  code: string;
+  fullname?: string;
+  fullName?: string;
+  position?: string;
+  department?: string;
+  date_of_birth?: string;
+  dateOfBirth?: string;
+  phone?: string;
+  phoneNumber?: string;
+  email?: string;
+  address?: string;
+  hire_date?: string;
+  hireDate?: string;
+  base_salary?: number;
+  salary?: number;
+  note?: string;
+  status?: "active" | "inactive" | "resigned";
+  bank_account?: {
+    bank_name?: string;
+    account_number?: string;
+    account_holder?: string;
+  };
+  salary_info?: {
+    salary_type?: "monthly" | "bi-weekly";
+  };
+  __v?: number;
 }
 
+export interface Employee extends EmployeeServerItem {
+  fullName: string;
+  fullname: string;
+  phoneNumber: string;
+  phone: string;
+  hireDate: string;
+  hire_date: string;
+  dateOfBirth?: string;
+  salary?: number;
+  base_salary?: number;
+}
 
 export interface EmployeeResponse {
   data: Employee[];

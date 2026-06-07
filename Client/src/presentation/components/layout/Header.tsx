@@ -89,14 +89,6 @@ function HeaderScreen({ activeTab }: HeaderProps) {
           </Text>
         </View>
         <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
-          <TouchableOpacity style={{ position: "relative" }}>
-            <Ionicons
-              name="chatbubble-ellipses-outline"
-              size={22}
-              color={isHome ? ColorMain : "#fff"}
-            />
-            <NewIngredientButton quantity={1} width={15} />
-          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.openDrawer()} style={{}}>
             <Ionicons
               name="menu"

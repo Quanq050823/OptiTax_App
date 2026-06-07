@@ -17,18 +17,28 @@ import {
 	View,
 	Alert,
 } from "react-native";
-import { logout } from "@/src/services/API/authService";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { TokenStorage } from "@/src/utils/tokenStorage";
 import { RootStackParamList } from "@/src/types/route";
-import LoadingScreen from "@/src/presentation/components/Loading/LoadingScreen";
 import Employees from "../../Employees/Employees";
 import { useLogout } from "@/src/presentation/Hooks/useLogout";
+import { useData } from "@/src/presentation/Hooks/useDataStore";
 type LoginNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+const getInitials = (value?: string) => {
+	if (!value) return "EO";
+	return value
+		.trim()
+		.split(/\s+/)
+		.slice(0, 2)
+		.map((word) => word.charAt(0).toUpperCase())
+		.join("");
+};
 
 const CustomDrawerBusiness = (props: any) => {
 	const navigation = useNavigation<LoginNavigationProp>();
 	const [isLoggingOut, setIsLoggingOut] = useState(false);
+	const { data } = useData();
+	const displayName = data?.businessName || data?.name || "Tài khoản EON";
+	const userRole = data?.userType === 2 ? "Kế toán viên" : "Hộ kinh doanh";
 
 	const FocusedScreen = (name: string) => {
 		return props.state.routeNames[props.state.index] === name;
@@ -47,7 +57,6 @@ const CustomDrawerBusiness = (props: any) => {
 				</Text>
 				<Text style={{ color: "#9d9d9d" }}>MKH - 1234</Text>
 			</View>
-			{/* 🔶 HEADER: Avatar + Tên người dùng */}
 			<TouchableOpacity
 				style={styles.header}
 				onPress={() =>
@@ -56,13 +65,18 @@ const CustomDrawerBusiness = (props: any) => {
 					})
 				}
 			>
-				<Image
-					source={{ uri: "https://i.pravatar.cc/100" }} // Avatar giả
-					style={styles.avatar}
-				/>
+				{data?.avatar ? (
+					<Image source={{ uri: data.avatar }} style={styles.avatar} />
+				) : (
+					<View style={styles.avatarFallback}>
+						<Text style={styles.avatarText}>{getInitials(displayName)}</Text>
+					</View>
+				)}
 				<View style={{ marginLeft: 10 }}>
-					<Text style={styles.name}>Tạp hoá TÚ 230</Text>
-					<Text style={styles.position}>Hộ kinh doanh</Text>
+					<Text style={styles.name} numberOfLines={1}>
+						{displayName}
+					</Text>
+					<Text style={styles.position}>{userRole}</Text>
 				</View>
 			</TouchableOpacity>
 
@@ -100,8 +114,8 @@ const CustomDrawerBusiness = (props: any) => {
           onPress={() => props.navigation.navigate("AboutScreen")}
         /> */}
 			</View>
-			<InvoiceManageShow {...props} />
-			<VoteManager {...props} />
+			{/* <InvoiceManageShow {...props} /> */}
+			{/* <VoteManager {...props} /> */}
 			<Employees {...props} />
 			<Setting {...props} />
 			<CustomDrawerItem
@@ -211,10 +225,27 @@ const styles = StyleSheet.create({
 		borderWidth: 2,
 		borderColor: "#fff",
 	},
+	avatarFallback: {
+		width: 70,
+		height: 70,
+		borderRadius: 35,
+		marginBottom: 10,
+		borderWidth: 2,
+		borderColor: "#fff",
+		backgroundColor: "#e8f3f1",
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	avatarText: {
+		color: "#1f7a70",
+		fontSize: 20,
+		fontWeight: "800",
+	},
 	name: {
 		color: "#000000ff",
 		fontSize: 18,
 		fontWeight: "bold",
+		maxWidth: 170,
 	},
 	position: {
 		color: "#3b3b3bff",

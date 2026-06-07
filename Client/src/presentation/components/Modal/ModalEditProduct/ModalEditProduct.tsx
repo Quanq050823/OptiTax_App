@@ -99,8 +99,7 @@ ModalEditProductProps) {
       category: updatedFields.category,
       price: Number(updatedFields.price),
       description: updatedFields.description,
-      imageUrl:
-        "https://www.okoone.com/wp-content/uploads/2024/06/React-native-2-logo.png",
+      imageUrl: updatedFields.imageUrl,
       stock: Number(updatedFields.stock),
     };
 

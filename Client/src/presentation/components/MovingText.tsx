@@ -3,12 +3,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { Animated, Easing, StyleSheet, View, Text } from "react-native";
 
 const messages = [
-  "Chào buổi sáng, Khang 👋",
-  "Chúc bạn một ngày làm việc hiệu quả 💪",
-  "Báo cáo hôm nay đã sẵn sàng 📈",
-  "Đừng quên đồng bộ dữ liệu nhé ☁️",
-  "🚀 Cùng nâng cao năng suất nào!",
-  "💡 Mẹo hôm nay: kiểm tra mục tiêu tuần nhé!",
+  "Chúc bạn một ngày làm việc hiệu quả",
+  "Báo cáo hôm nay đã sẵn sàng",
+  "Đừng quên đồng bộ dữ liệu định kỳ",
+  "Kiểm tra chứng từ mới trước khi lập báo cáo",
+  "Theo dõi hạn kê khai để chủ động công việc",
 ];
 
 export default function MovingText() {

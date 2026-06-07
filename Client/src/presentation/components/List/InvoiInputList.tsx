@@ -11,29 +11,6 @@ import {
 	View,
 } from "react-native";
 
-const invoices: any = [
-	{
-		id: "HD001",
-		date: "2025-08-20",
-		supplier: "Công ty ABC",
-		total: 1500000,
-		status: 1,
-	},
-	{
-		id: "HD002",
-		date: "2025-08-21",
-		supplier: "Nhà cung cấp XYZ",
-		total: 2800000,
-		status: 0,
-	},
-	{
-		id: "HD003",
-		date: "2025-08-22",
-		supplier: "Siêu thị Metro",
-		total: 560000,
-		status: 2,
-	},
-];
 type invoice = {
 	invoicesData: RawInvoice[];
 };

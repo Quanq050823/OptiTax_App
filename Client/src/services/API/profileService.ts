@@ -5,9 +5,7 @@ import {
 	UserProfile,
 	TaxDeadlineInfo,
 } from "@/src/types/route";
-import { TokenStorage } from "@/src/utils/tokenStorage";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-export type UpdateProfilePayload = Pick<UserProfile, "_id" | "name" | "email">;
+export type UpdateProfilePayload = Partial<Pick<UserProfile, "name">>;
 export const getUserProfile = async (): Promise<UserProfile> => {
 	try {
 		const res = await axiosInstance.get("/user/me"); // endpoint tương đối
@@ -26,6 +24,39 @@ export const UpdateUserProfile = async (
 ): Promise<UserProfile> => {
 	try {
 		const res = await axiosInstance.put("/user/update-info", payload);
+		return res.data as UserProfile;
+	} catch (error: any) {
+		if (error.response) {
+			throw error.response.data;
+		}
+		throw error;
+	}
+};
+
+export type UpdateUserAvatarPayload = {
+	uri: string;
+	name?: string | null;
+	type?: string | null;
+};
+
+export const updateUserAvatar = async (
+	avatar: UpdateUserAvatarPayload,
+	name?: string,
+): Promise<UserProfile> => {
+	try {
+		const formData = new FormData();
+		if (name) {
+			formData.append("name", name);
+		}
+		formData.append("avatar", {
+			uri: avatar.uri,
+			name: avatar.name || "avatar.jpg",
+			type: avatar.type || "image/jpeg",
+		} as any);
+
+		const res = await axiosInstance.put("/user/update-info", formData, {
+			headers: { "Content-Type": "multipart/form-data" },
+		});
 		return res.data as UserProfile;
 	} catch (error: any) {
 		if (error.response) {
@@ -97,7 +128,7 @@ export const UpdateEasyInvoiceInfo = async (
 			"/business-owner/easy-invoice-info",
 			payload,
 		);
-		return res.data;
+		return res.data as { message: string };
 	} catch (error: any) {
 		if (error.response) {
 			throw error.response.data;

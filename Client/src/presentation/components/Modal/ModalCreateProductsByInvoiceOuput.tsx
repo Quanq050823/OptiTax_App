@@ -51,32 +51,6 @@ interface ModalAddProductProps {
 const screenWidth = Dimensions.get("window").width;
 const ITEM_MARGIN = 8;
 const ITEM_WIDTH = (screenWidth - ITEM_MARGIN * 3) / 2;
-const products = [
-  {
-    _id: 1,
-    name: "cà phê",
-    price: 20000,
-    stock: 20,
-    imageUrl:
-      "https://file.hstatic.net/200000438087/article/matcha_a65500b758c14866a36d3d73c_d7bc515652214595a8e3268cfaf03824.jpg",
-  },
-  {
-    _id: 2,
-    name: "cà phê",
-    price: 20000,
-    stock: 20,
-    imageUrl:
-      "https://file.hstatic.net/200000438087/article/matcha_a65500b758c14866a36d3d73c_d7bc515652214595a8e3268cfaf03824.jpg",
-  },
-  {
-    _id: 3,
-    name: "cà phê",
-    price: 20000,
-    stock: 20,
-    imageUrl:
-      "https://file.hstatic.net/200000438087/article/matcha_a65500b758c14866a36d3d73c_d7bc515652214595a8e3268cfaf03824.jpg",
-  },
-];
 function ModalCreateProductsByInvoiceOuput({
   openListProductSynchronized,
   setOpenListProductSynchronized,
@@ -113,15 +87,16 @@ function ModalCreateProductsByInvoiceOuput({
 
       const groupedProducts = Object.values(
         productData.reduce((acc, item) => {
-          if (!acc[item.ten]) {
-            acc[item.ten] = {
+          const productKey = item.ten || item.id || item.stt || "unknown-product";
+          if (!acc[productKey]) {
+            acc[productKey] = {
               ...item,
               sluong: Number(item.sluong),
               thtien: Number(item.thtien),
             };
           } else {
-            acc[item.ten].sluong += Number(item.sluong);
-            acc[item.ten].thtien += Number(item.thtien);
+            acc[productKey].sluong += Number(item.sluong);
+            acc[productKey].thtien += Number(item.thtien);
           }
           return acc;
         }, {} as Record<string, any>)

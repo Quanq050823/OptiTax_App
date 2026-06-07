@@ -24,8 +24,6 @@ import {
 } from "react-native";
 
 const screenWidth = Dimensions.get("window").width;
-const DEFAULT_THUMBNAIL =
-	"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSErqSt2kBmwnB-jYBsysGhqN6cg_kuGAD7bA&s";
 
 function NewIngredientList() {
 	const [newIngredientList, setNewIngredientList] = useState<
@@ -107,7 +105,11 @@ function NewIngredientList() {
 
 					{/* Hình ảnh */}
 					<Image
-						source={{ uri: item.imageURL || DEFAULT_THUMBNAIL }}
+						source={
+							item.imageURL
+								? { uri: item.imageURL }
+								: require("@/assets/images/no-image-news.png")
+						}
 						style={styles.image}
 					/>
 

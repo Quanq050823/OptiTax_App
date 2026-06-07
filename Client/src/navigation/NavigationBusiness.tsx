@@ -54,6 +54,7 @@ import InventoryManagementScreen from "@/src/presentation/screens/BusinessOwnerS
 import ExportExcel from "@/src/presentation/screens/ReportExport/ExportExcel";
 import TaxScreen from "../presentation/screens/BusinessOwnerScreen/TaxScreen/TaxScreen";
 import EmployeesScreen from "../presentation/screens/BusinessOwnerScreen/EmployeesScreen/Employees";
+import EmployeeDetailScreen from "../presentation/screens/BusinessOwnerScreen/EmployeesScreen/EmployeeDetail";
 import NewIngredientList from "../presentation/screens/BusinessOwnerScreen/NewIngredientList/NewIngredientList";
 import ExportInvoicePayment from "../presentation/screens/BusinessOwnerScreen/ExportInvoicePayment/ExportInvoicePayment";
 import PaymentInvoiceScreen from "@/src/presentation/screens/BusinessOwnerScreen/PaymentInvoice/PaymentInvoice";
@@ -397,6 +398,13 @@ const HomeLayout = () => {
 					title: "Nhân viên",
 				}}
 				component={EmployeesScreen}
+			/>
+			<Stack.Screen
+				name="EmployeeDetailScreen"
+				options={{
+					title: "Chi tiết nhân viên",
+				}}
+				component={EmployeeDetailScreen}
 			/>
 			<Stack.Screen
 				name="ExportInvoicePayment"

@@ -160,11 +160,11 @@ function ModalConversUnit({ visible, id, setVisible, onSuccess }: ConverItem) {
 								<Image
 									width={50}
 									height={50}
-									source={{
-										uri:
-											item?.imageURL ??
-											"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTixbrVNY9XIHQBZ1iehMIV0Z9AtHB9dp46lg&s",
-									}}
+									source={
+										item?.imageURL
+											? { uri: item.imageURL }
+											: require("@/assets/images/no-image-news.png")
+									}
 								/>
 							</View>
 							<View>
