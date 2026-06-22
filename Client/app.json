@@ -2,7 +2,7 @@
   "expo": {
     "name": "DATTAX",
     "slug": "taxDemo",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/DAT_Logo_White_BlueBg.png",
     "scheme": "dattax",
@@ -31,7 +31,7 @@
         "CAMERA": "Ứng dụng cần quyền truy cập camera để quét mã vạch."
       },
       "package": "com.company.taxdemo",
-      "versionCode": 5
+      "versionCode": 6
     },
     "extra": {
       "privacyPolicy": "https://sites.google.com/d/18x6MY5hb4XTRNLfK0hAUihaUjgVyWC-_/p/1vQ8I2qiQLaYNLVHAS6pkuIDZycvOrjS2/edit",

@@ -1,7 +1,8 @@
 import axios from "axios";
 import { TokenStorage } from "../../utils/tokenStorage";
 
-const BASE_URL = "https://eonapp.duckdns.org/api/";
+const BASE_URL = "https://dattax.duckdns.org/api/";
+
 // const BASE_URL = "http://172.16.0.108:3001/api/";
 
 const axiosInstance = axios.create({
